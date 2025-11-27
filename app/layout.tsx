@@ -1,39 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/app/shared/layout/Navbar";
-import Footer from "@/app/shared/layout/Footer";
+import Sidebar from "@/app/components/layout/Sidebar";
+import CommandMenu from "@/app/components/layout/CommandMenu";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://onetool.vercel.app'),
-  title: {
-    default: "One Tool Solutions | Privacy-First Workspace",
-    template: "%s | One Tool"
-  },
-  description: "Free, local-first tools for Finance, Documents, and Health. No servers, no tracking, just utility.",
-  keywords: ["budget tracker", "pdf merger", "image compressor", "bmi calculator", "privacy tools", "offline pwa"],
-  authors: [{ name: "One Tool Team" }],
-  openGraph: {
-    title: "One Tool Solutions",
-    description: "Your digital life, simplified. 15+ Tools running 100% offline.",
-    url: 'https://onetool.vercel.app',
-    siteName: 'One Tool Solutions',
-    locale: 'en_US',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: "One Tool Solutions",
-    description: "Privacy-first Finance & Document tools.",
-  },
+  title: "One Tool | The Privacy-First Digital Toolkit",
+  description: "A complete toolkit for Finance, Documents, Health, and Developers. 100% Offline. Zero Tracking.",
   manifest: "/manifest.json",
   icons: { icon: "/icon.svg" },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#ffffff",
+  themeColor: "#0f172a",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -47,12 +29,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} min-h-screen flex flex-col bg-slate-50/50 text-slate-900`}>
-        <Navbar />
-        <main className="flex-grow pt-16">
+      <body className={`${inter.variable} ${mono.variable} font-sans bg-slate-50 text-slate-900 antialiased`}>
+        <CommandMenu />
+        <Sidebar>
           {children}
-        </main>
-        <Footer />
+        </Sidebar>
       </body>
     </html>
   );

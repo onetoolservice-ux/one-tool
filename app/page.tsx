@@ -1,145 +1,206 @@
+"use client";
+
 import Link from "next/link";
-import Button from "@/app/shared/ui/Button";
-import { 
-  ArrowRight, Wallet, FileText, Heart, Shield, 
-  Zap, Layers, PieChart, Lock, Sparkles 
-} from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { Search, ArrowRight, Clock, Star, Sparkles, ShieldCheck, Zap, LayoutGrid, Menu } from "lucide-react";
+import { ALL_TOOLS } from "@/app/lib/tools-data";
 
-export default function Home() {
+const CATEGORIES = ["All", "Finance", "Documents", "Health", "Developer", "AI"];
+
+export default function PremiumHome() {
+  const [activeCat, setActiveCat] = useState("All");
+  const [query, setQuery] = useState("");
+  const [recentToolIds, setRecentToolIds] = useState<string[]>([]);
+  const [isClient, setIsClient] = useState(false);
+
+  // 1. Load History
+  useEffect(() => {
+    setIsClient(true);
+    const history = localStorage.getItem("ots_history");
+    if (history) setRecentToolIds(JSON.parse(history));
+  }, []);
+
+  // 2. Track Click
+  const trackUsage = (toolId: string) => {
+    const newHistory = [toolId, ...recentToolIds.filter(id => id !== toolId)].slice(0, 4);
+    setRecentToolIds(newHistory);
+    localStorage.setItem("ots_history", JSON.stringify(newHistory));
+  };
+
+  // 3. Hero Data (Recents)
+  const recentTools = useMemo(() => {
+    return ALL_TOOLS.filter(t => recentToolIds.includes(t.id));
+  }, [recentToolIds]);
+
+  // 4. Main Grid Filter
+  const filteredTools = useMemo(() => {
+    return ALL_TOOLS.filter(tool => {
+      const matchesSearch = tool.name.toLowerCase().includes(query.toLowerCase()) || 
+                            tool.desc.toLowerCase().includes(query.toLowerCase());
+      const matchesCat = activeCat === "All" || tool.category === activeCat;
+      return matchesSearch && matchesCat;
+    });
+  }, [query, activeCat]);
+
+  if (!isClient) return null;
+
   return (
-    <div className="flex flex-col gap-8 pb-10">
+    <div className="min-h-screen bg-[#F8FAFC]">
       
-      {/* 1. HERO SECTION */}
-      <section className="pt-20 pb-4 px-4 text-center relative overflow-hidden">
-        <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-teal-500/5 rounded-full blur-[100px] -z-10" />
-        
-        <div className="max-w-4xl mx-auto space-y-5">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 shadow-sm text-xs font-medium text-slate-600 animate-in fade-in slide-in-from-bottom-4">
-            <Sparkles size={12} className="text-amber-500" />
-            <span>The All-in-One Digital Workspace</span>
+      {/* 1. PREMIUM NAVBAR (With Central Search) */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+          
+          {/* Logo */}
+          <div className="flex items-center gap-2 font-bold text-lg text-slate-800 flex-shrink-0">
+            <div className="w-8 h-8 rounded bg-[rgb(117,163,163)] text-white flex items-center justify-center text-xs shadow-sm">OT</div>
+            <span className="hidden sm:inline">One Tool</span>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-slate-900 animate-in fade-in slide-in-from-bottom-5 duration-700 leading-tight">
-            Your digital life.<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(117,163,163)] to-teal-600">
-              Simplified.
-            </span>
-          </h1>
+          {/* CENTRAL SEARCH BAR (The "Static Something") */}
+          <div className="flex-1 max-w-xl mx-auto">
+            <div className="relative group">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[rgb(117,163,163)] transition-colors" size={18} />
+              <input 
+                type="text" 
+                className="w-full pl-10 pr-4 py-2 bg-slate-100 border-transparent border focus:bg-white focus:border-[rgb(117,163,163)] focus:ring-4 focus:ring-teal-500/10 rounded-xl outline-none transition-all text-sm font-medium text-slate-700"
+                placeholder="Search tools (e.g. Budget, PDF)..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
+          </div>
 
-          <p className="text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700">
-            Finance, Documents, Health, and AI tools running entirely in your browser.
-            <br className="hidden md:block"/> Zero tracking. Zero server uploads. 100% Privacy.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4 animate-in fade-in slide-in-from-bottom-7 duration-700">
-            <Link href="/tools">
-              <Button className="h-12 px-8 text-base shadow-xl shadow-teal-900/10 hover:shadow-teal-900/20 transition-all hover:-translate-y-0.5">
-                Launch Dashboard
-              </Button>
-            </Link>
-            <Link href="/about">
-              <Button variant="secondary" className="h-12 px-8 text-base bg-white/80 backdrop-blur">
-                Read Manifesto
-              </Button>
+          {/* Right Links */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <Link href="/about" className="text-sm font-medium text-slate-500 hover:text-slate-900 hidden sm:block">Mission</Link>
+            <Link href="/tools" className="px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors shadow-sm">
+              Dashboard
             </Link>
           </div>
         </div>
-      </section>
+      </nav>
 
-      {/* 2. BENTO GRID */}
-      <section className="max-w-6xl mx-auto px-4 w-full">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[240px]">
-          
-          <Link href="/tools/finance/budget-tracker" className="group md:col-span-2 row-span-1 relative overflow-hidden bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-lg transition-all p-6 flex flex-col justify-between">
-            <div className="absolute right-0 top-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity group-hover:scale-110 duration-500">
-              <PieChart size={160} />
+      {/* Spacer for Fixed Nav */}
+      <div className="h-16" />
+
+      <div className="max-w-7xl mx-auto px-4 py-10 space-y-12">
+
+        {/* 2. DYNAMIC HERO SECTION */}
+        {/* If user has history -> Show "Jump Back In". If not -> Show "Welcome Banner" */}
+        {recentTools.length > 0 ? (
+          <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex items-center gap-2 mb-4 px-2">
+              <Clock size={18} className="text-[rgb(117,163,163)]"/>
+              <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Jump Back In</h2>
             </div>
-            <div>
-              <div className="w-10 h-10 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center mb-3">
-                <Wallet size={20} />
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {recentTools.map((tool) => (
+                <Link 
+                  key={tool.id} 
+                  href={tool.href}
+                  onClick={() => trackUsage(tool.id)}
+                  className="group flex flex-col bg-white p-5 rounded-2xl border border-slate-200 hover:border-[rgb(117,163,163)]/50 hover:shadow-lg transition-all active:scale-[0.99]"
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div className={`w-10 h-10 rounded-xl ${tool.bg} ${tool.color} flex items-center justify-center`}>
+                      {tool.icon}
+                    </div>
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-400">
+                      <ArrowRight size={16} />
+                    </div>
+                  </div>
+                  <h3 className="font-bold text-slate-800 group-hover:text-[rgb(117,163,163)] transition-colors">{tool.name}</h3>
+                  <p className="text-xs text-slate-500 mt-1 line-clamp-1">{tool.desc}</p>
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : (
+          <section className="bg-gradient-to-br from-indigo-900 to-slate-900 rounded-3xl p-10 text-white relative overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-500">
+            <div className="relative z-10 max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/10 text-xs font-medium text-teal-300 mb-4">
+                <Sparkles size={14} /> The All-in-One Workspace
               </div>
-              <h3 className="text-xl font-bold text-slate-800">Finance Master</h3>
-              <p className="text-slate-500 mt-1 text-sm max-w-sm">Track expenses, incomes, and view analytics locally.</p>
-            </div>
-            <div className="flex items-center text-sm font-bold text-teal-600 mt-2">
-              Manage Budget <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
-            </div>
-          </Link>
-
-          <Link href="/tools/documents" className="group md:col-span-1 row-span-1 md:row-span-2 bg-slate-900 text-white rounded-3xl shadow-lg hover:shadow-xl transition-all p-6 flex flex-col relative overflow-hidden">
-            <div className="absolute -right-4 -bottom-4 text-slate-800 group-hover:text-slate-700 transition-colors">
-              <Layers size={120} />
-            </div>
-            <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center mb-3 backdrop-blur-sm">
-              <FileText size={20} />
-            </div>
-            <h3 className="text-xl font-bold">Docs Studio</h3>
-            <p className="text-slate-400 mt-2 text-sm leading-relaxed">
-              Merge PDFs, compress images securely in browser.
-            </p>
-            <div className="mt-auto pt-4 flex items-center text-sm font-bold">
-              Open Studio <ArrowRight size={16} className="ml-2" />
-            </div>
-          </Link>
-
-          <Link href="/tools/health" className="group bg-gradient-to-br from-rose-50 to-white rounded-3xl border border-rose-100 shadow-sm hover:shadow-md transition-all p-6 flex flex-col justify-between">
-            <div>
-              <div className="w-10 h-10 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center mb-3">
-                <Heart size={20} />
-              </div>
-              <h3 className="text-lg font-bold text-slate-800">Wellness</h3>
-              <p className="text-slate-500 text-sm mt-1">BMI & Breathing tools.</p>
-            </div>
-          </Link>
-
-          <div className="group bg-white rounded-3xl border border-slate-200 p-6 flex flex-col justify-center items-center text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mb-3">
-              <Zap size={20} />
-            </div>
-            <h3 className="text-lg font-bold text-slate-800">AI Suite</h3>
-            <span className="mt-1 px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold uppercase tracking-wider rounded-full">Coming Soon</span>
-          </div>
-
-          <div className="md:col-span-2 bg-slate-50 rounded-3xl border border-slate-200 p-6 flex items-center gap-6">
-            <div className="p-3 bg-white rounded-full shadow-sm">
-              <Shield size={24} className="text-[rgb(117,163,163)]" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-slate-800 flex items-center gap-2">
-                <Lock size={14} className="text-slate-400"/> Local-First Architecture
-              </h3>
-              <p className="text-slate-500 text-xs mt-1">
-                Your data never leaves your device. Total privacy.
+              <h1 className="text-4xl font-bold tracking-tight mb-4">Simplify your digital life.</h1>
+              <p className="text-indigo-100 text-lg leading-relaxed mb-8">
+                15+ powerful tools for Finance, Documents, and Health. 
+                Running entirely in your browser. No servers. No tracking.
               </p>
+              <div className="flex gap-4">
+                <button onClick={() => window.scrollTo({ top: 500, behavior: 'smooth' })} className="px-6 py-3 bg-white text-slate-900 rounded-xl font-bold hover:bg-teal-50 transition-colors">
+                  Explore Tools
+                </button>
+              </div>
+            </div>
+            {/* Decoration */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-teal-500/20 rounded-full blur-[100px] -mr-20 -mt-20 pointer-events-none" />
+          </section>
+        )}
+
+        {/* 3. MAIN TOOLS GRID */}
+        <section>
+          <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-6 px-2 gap-4">
+            
+            {/* Category Filter Pills */}
+            <div className="flex gap-2 overflow-x-auto w-full md:w-auto no-scrollbar pb-2">
+              {CATEGORIES.map(cat => (
+                <button 
+                  key={cat}
+                  onClick={() => setActiveCat(cat)}
+                  className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${
+                    activeCat === cat 
+                      ? "bg-slate-800 text-white shadow-md" 
+                      : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
             </div>
           </div>
 
-        </div>
-      </section>
+          {/* The Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filteredTools.length > 0 ? (
+              filteredTools.map(tool => (
+                <Link 
+                  key={tool.id} 
+                  href={tool.href}
+                  onClick={() => trackUsage(tool.id)}
+                  className="group relative bg-white p-6 rounded-2xl border border-slate-200 hover:border-[rgb(117,163,163)]/40 hover:shadow-xl transition-all duration-300 flex flex-col"
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <div className={`w-12 h-12 rounded-xl ${tool.bg} ${tool.color} flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300`}>
+                      {tool.icon}
+                    </div>
+                    {tool.status === "New" && <span className="px-2 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-bold uppercase tracking-wider rounded-md">New</span>}
+                  </div>
+                  
+                  <h3 className="text-lg font-bold text-slate-800 mb-1 group-hover:text-[rgb(117,163,163)] transition-colors">
+                    {tool.name}
+                  </h3>
+                  <p className="text-sm text-slate-500 leading-relaxed mb-6 flex-grow line-clamp-2">
+                    {tool.desc}
+                  </p>
 
-      {/* 3. BOTTOM STATS */}
-      <section className="border-t border-slate-100 bg-white mt-4">
-        <div className="max-w-6xl mx-auto px-4 py-8 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-          <div>
-            <div className="text-2xl font-bold text-slate-900">100%</div>
-            <div className="text-xs text-slate-500 font-medium">Client-Side</div>
+                  <div className="flex items-center text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-slate-800 transition-colors mt-auto pt-4 border-t border-slate-50">
+                    Open Tool <ArrowRight size={14} className="ml-1 group-hover:translate-x-1 transition-transform"/>
+                  </div>
+                </Link>
+              ))
+            ) : (
+              <div className="col-span-full py-20 text-center bg-white rounded-3xl border border-dashed border-slate-200">
+                <Search className="mx-auto mb-3 text-slate-300" size={32} />
+                <h3 className="text-lg font-bold text-slate-700">No tools found</h3>
+                <button onClick={() => {setQuery(""); setActiveCat("All")}} className="mt-2 text-[rgb(117,163,163)] font-semibold hover:underline">Reset Filters</button>
+              </div>
+            )}
           </div>
-          <div>
-            <div className="text-2xl font-bold text-slate-900">0</div>
-            <div className="text-xs text-slate-500 font-medium">Trackers</div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-slate-900">15+</div>
-            <div className="text-xs text-slate-500 font-medium">Tools</div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-slate-900">Free</div>
-            <div className="text-xs text-slate-500 font-medium">Forever</div>
-          </div>
-        </div>
-      </section>
+        </section>
 
+      </div>
     </div>
   );
 }
