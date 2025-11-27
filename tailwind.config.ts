@@ -12,21 +12,29 @@ const config: Config = {
       colors: {
         brand: {
           DEFAULT: "rgb(117, 163, 163)", 
-          hover: "#0060DF",              
-          light: "#E0F2F2",              
-        },
-        ui: {
-          bg: "#F9FBFF",                 
-          card: "#FFFFFF",               
-          border: "#E5E7EB",             
-          text: "#1E293B",               
-        },
+          dark: "rgb(90, 130, 130)",
+          light: "rgb(235, 245, 245)",
+        }
       },
-      boxShadow: {
-        'apple': '0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
+      animation: {
+        'fade-in': 'fadeIn 0.5s ease-out',
+        'slide-up': 'slideUp 0.5s ease-out',
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideUp: {
+          '0%': { transform: 'translateY(20px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        }
       }
     },
   },
-  plugins: [],
+  plugins: [
+    require("tailwindcss-animate") // Ensure compatibility if installed, otherwise ignored
+  ],
 };
 export default config;

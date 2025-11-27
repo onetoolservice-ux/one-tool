@@ -1,389 +1,414 @@
 #!/bin/bash
 
-echo "🚀 Injecting Pro Features (Loan Calc & Image Converter)..."
+echo "🚀 expanding OTS with Resizer, Password Gen, and Unit Converter..."
 
-# Create directories
-mkdir -p app/tools/finance/loan-emi
-mkdir -p app/tools/documents/image/converter
-
-# ---------------------------------------------------------
-# 1. LOAN / EMI CALCULATOR (app/tools/finance/loan-emi/page.tsx)
-# ---------------------------------------------------------
-cat > app/tools/finance/loan-emi/page.tsx << 'EOF'
-"use client";
-
-import React, { useState, useMemo } from "react";
-import { Calculator, DollarSign, Calendar, Percent, PieChart, ArrowRight } from "lucide-react";
-
-export default function LoanCalculator() {
-  const [amount, setAmount] = useState(50000);
-  const [rate, setRate] = useState(8.5);
-  const [years, setYears] = useState(5);
-
-  const results = useMemo(() => {
-    const principal = Number(amount);
-    const r = Number(rate) / 12 / 100;
-    const n = Number(years) * 12;
-    
-    if (principal <= 0 || r <= 0 || n <= 0) return { emi: 0, total: 0, interest: 0 };
-
-    const emi = (principal * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-    const totalPayment = emi * n;
-    const totalInterest = totalPayment - principal;
-
-    return {
-      emi: Math.round(emi),
-      total: Math.round(totalPayment),
-      interest: Math.round(totalInterest)
-    };
-  }, [amount, rate, years]);
-
-  // Chart sizing
-  const total = results.total || 1;
-  const pPercent = (amount / total) * 100;
-  const iPercent = 100 - pPercent;
-
-  return (
-    <div className="max-w-5xl mx-auto py-12 px-4">
-      <div className="text-center mb-12">
-        <div className="inline-flex p-3 bg-teal-50 text-teal-600 rounded-2xl mb-4">
-          <Calculator size={32} />
-        </div>
-        <h1 className="text-3xl font-bold text-slate-900">Loan Planner</h1>
-        <p className="text-slate-500 mt-2">Calculate EMIs for Home, Car, or Personal loans.</p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        {/* Input Section */}
-        <div className="lg:col-span-7 bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-8">
-          
-          <div>
-            <label className="flex justify-between text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">
-              <span>Loan Amount</span>
-              <span className="text-slate-900 bg-slate-100 px-2 py-1 rounded">{amount.toLocaleString()}</span>
-            </label>
-            <input 
-              type="range" min="1000" max="1000000" step="1000" 
-              value={amount} onChange={e => setAmount(Number(e.target.value))}
-              className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[rgb(117,163,163)]"
-            />
-            <div className="mt-4 relative">
-              <DollarSign size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"/>
-              <input type="number" value={amount} onChange={e => setAmount(Number(e.target.value))} className="w-full pl-9 pr-4 py-3 border border-slate-200 rounded-xl font-semibold text-slate-700 focus:border-teal-500 outline-none transition-colors" />
-            </div>
-          </div>
-
-          <div>
-            <label className="flex justify-between text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">
-              <span>Interest Rate (%)</span>
-              <span className="text-slate-900 bg-slate-100 px-2 py-1 rounded">{rate}%</span>
-            </label>
-            <input 
-              type="range" min="1" max="30" step="0.1" 
-              value={rate} onChange={e => setRate(Number(e.target.value))}
-              className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[rgb(117,163,163)]"
-            />
-            <div className="mt-4 relative">
-              <Percent size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"/>
-              <input type="number" value={rate} onChange={e => setRate(Number(e.target.value))} className="w-full pl-9 pr-4 py-3 border border-slate-200 rounded-xl font-semibold text-slate-700 focus:border-teal-500 outline-none transition-colors" />
-            </div>
-          </div>
-
-          <div>
-            <label className="flex justify-between text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">
-              <span>Tenure (Years)</span>
-              <span className="text-slate-900 bg-slate-100 px-2 py-1 rounded">{years} Yr</span>
-            </label>
-            <input 
-              type="range" min="1" max="30" step="1" 
-              value={years} onChange={e => setYears(Number(e.target.value))}
-              className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[rgb(117,163,163)]"
-            />
-            <div className="mt-4 flex gap-2">
-              {[1, 5, 10, 15, 20, 25, 30].map(y => (
-                <button key={y} onClick={() => setYears(y)} className={`flex-1 py-2 text-sm font-medium rounded-lg border transition-colors ${years === y ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}>
-                  {y}
-                </button>
-              ))}
-            </div>
-          </div>
-
-        </div>
-
-        {/* Result Section */}
-        <div className="lg:col-span-5 space-y-6">
-          
-          {/* Monthly EMI Card */}
-          <div className="bg-[rgb(117,163,163)] text-white p-8 rounded-3xl shadow-lg shadow-teal-900/10 text-center">
-            <div className="text-teal-100 text-sm font-bold uppercase tracking-widest mb-2">Monthly EMI</div>
-            <div className="text-5xl font-bold tracking-tight">${results.emi.toLocaleString()}</div>
-            <div className="mt-6 pt-6 border-t border-white/20 grid grid-cols-2 gap-4 text-left">
-              <div>
-                <div className="text-teal-100 text-xs">Total Interest</div>
-                <div className="text-xl font-semibold">${results.interest.toLocaleString()}</div>
-              </div>
-              <div>
-                <div className="text-teal-100 text-xs">Total Amount</div>
-                <div className="text-xl font-semibold">${results.total.toLocaleString()}</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Visualization */}
-          <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-            <h3 className="font-bold text-slate-800 mb-6 flex items-center gap-2"><PieChart size={18}/> Breakdown</h3>
-            
-            <div className="relative h-4 rounded-full w-full flex overflow-hidden mb-6">
-              <div style={{ width: `${pPercent}%` }} className="bg-emerald-400 h-full" />
-              <div style={{ width: `${iPercent}%` }} className="bg-rose-400 h-full" />
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2 text-sm text-slate-600">
-                  <div className="w-3 h-3 rounded-full bg-emerald-400" /> Principal
-                </div>
-                <span className="font-bold text-slate-800">{Math.round(pPercent)}%</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2 text-sm text-slate-600">
-                  <div className="w-3 h-3 rounded-full bg-rose-400" /> Interest
-                </div>
-                <span className="font-bold text-slate-800">{Math.round(iPercent)}%</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-  );
-}
-EOF
+# 1. CREATE DIRECTORIES
+mkdir -p app/tools/documents/image/resizer
+mkdir -p app/tools/developer/password
+mkdir -p app/tools/converters/unit
 
 # ---------------------------------------------------------
-# 2. IMAGE CONVERTER (app/tools/documents/image/converter/page.tsx)
+# 2. IMAGE RESIZER (app/tools/documents/image/resizer/page.tsx)
 # ---------------------------------------------------------
-cat > app/tools/documents/image/converter/page.tsx << 'EOF'
+cat > app/tools/documents/image/resizer/page.tsx << 'EOF'
 "use client";
 
 import React, { useState, useRef } from "react";
-import { Image as ImageIcon, RefreshCw, Download, Upload, X, CheckCircle } from "lucide-react";
+import { Image as ImageIcon, Download, Upload, RefreshCw, Lock, Unlock } from "lucide-react";
 
-export default function ImageConverter() {
+export default function ImageResizer() {
   const [file, setFile] = useState<File | null>(null);
-  const [format, setFormat] = useState("image/jpeg");
-  const [convertedUrl, setConvertedUrl] = useState<string | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [src, setSrc] = useState<string | null>(null);
+  const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(0);
+  const [aspectRatio, setAspectRatio] = useState(0);
+  const [lockAspect, setLockAspect] = useState(true);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
-      setFile(e.target.files[0]);
-      setConvertedUrl(null);
+      const f = e.target.files[0];
+      setFile(f);
+      const url = URL.createObjectURL(f);
+      setSrc(url);
+      
+      const img = new Image();
+      img.onload = () => {
+        setWidth(img.width);
+        setHeight(img.height);
+        setAspectRatio(img.width / img.height);
+      };
+      img.src = url;
     }
   };
 
-  const convertImage = () => {
-    if (!file) return;
-    setIsProcessing(true);
-
-    const img = new Image();
-    img.onload = () => {
-      const canvas = canvasRef.current;
-      if (canvas) {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          // If converting to JPG, fill background white (transparent PNGs turn black otherwise)
-          if (format === "image/jpeg") {
-            ctx.fillStyle = "#FFFFFF";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-          }
-          ctx.drawImage(img, 0, 0);
-          const dataUrl = canvas.toDataURL(format, 0.9);
-          setConvertedUrl(dataUrl);
-          setIsProcessing(false);
-        }
-      }
-    };
-    img.src = URL.createObjectURL(file);
+  const handleDimensionChange = (type: 'w' | 'h', val: number) => {
+    if (type === 'w') {
+      setWidth(val);
+      if (lockAspect) setHeight(Math.round(val / aspectRatio));
+    } else {
+      setHeight(val);
+      if (lockAspect) setWidth(Math.round(val * aspectRatio));
+    }
   };
 
-  const getExt = () => format.split("/")[1];
+  const handleDownload = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    const img = new Image();
+    if (ctx && src && canvas) {
+      img.onload = () => {
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+        const link = document.createElement('a');
+        link.download = `resized_${width}x${height}_${file?.name}`;
+        link.href = canvas.toDataURL(file?.type);
+        link.click();
+      };
+      img.src = src;
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto py-12 px-4">
       <div className="text-center mb-10">
-        <div className="inline-flex p-3 bg-indigo-50 text-indigo-600 rounded-xl mb-4">
-          <RefreshCw size={32} />
-        </div>
-        <h1 className="text-3xl font-bold text-slate-900">Image Converter</h1>
-        <p className="text-slate-500 mt-2">Convert WEBP to PNG, PNG to JPG, and more. Zero server upload.</p>
+        <h1 className="text-3xl font-bold text-slate-900 flex items-center justify-center gap-3">
+          <ImageIcon className="text-pink-500" size={32} /> Image Resizer
+        </h1>
+        <p className="text-slate-500 mt-2">Change image dimensions securely in your browser.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Input Card */}
-        <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col items-center justify-center min-h-[400px]">
-          {!file ? (
-            <label className="cursor-pointer flex flex-col items-center group">
-              <div className="w-20 h-20 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-indigo-50 group-hover:text-indigo-500 transition-all">
-                <Upload size={32} />
+      {!src ? (
+        <label className="border-2 border-dashed border-slate-300 rounded-2xl p-16 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 transition-colors">
+          <Upload size={32} className="text-slate-400 mb-4"/>
+          <span className="font-semibold text-slate-700">Upload Image</span>
+          <input type="file" accept="image/*" onChange={handleUpload} className="hidden" />
+        </label>
+      ) : (
+        <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="flex items-center justify-center bg-slate-50 rounded-xl overflow-hidden p-4 border border-slate-100">
+            <img src={src} alt="Preview" className="max-h-64 object-contain" />
+          </div>
+          
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase">Width (px)</label>
+                <input type="number" value={width} onChange={(e) => handleDimensionChange('w', Number(e.target.value))} className="w-full mt-1 p-2 border rounded-lg" />
               </div>
-              <span className="font-semibold text-slate-700">Upload Image</span>
-              <span className="text-xs text-slate-400 mt-1">JPG, PNG, WEBP supported</span>
-              <input type="file" accept="image/*" onChange={handleUpload} className="hidden" />
-            </label>
-          ) : (
-            <div className="w-full h-full flex flex-col">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-xs font-bold uppercase text-slate-400">Original</span>
-                <button onClick={() => { setFile(null); setConvertedUrl(null); }} className="p-1 hover:bg-slate-100 rounded-full"><X size={16}/></button>
-              </div>
-              <div className="flex-1 bg-slate-50 rounded-xl flex items-center justify-center overflow-hidden p-4 border border-slate-100 relative">
-                <img src={URL.createObjectURL(file)} alt="Original" className="max-h-60 object-contain" />
-              </div>
-              <div className="mt-6 space-y-4">
-                <div>
-                  <label className="text-xs font-bold text-slate-500 uppercase block mb-2">Convert To</label>
-                  <div className="flex gap-2">
-                    {["jpeg", "png", "webp"].map(f => (
-                      <button 
-                        key={f} 
-                        onClick={() => setFormat(`image/${f}`)}
-                        className={`flex-1 py-2 text-sm font-semibold rounded-lg border transition-all ${format === `image/${f}` ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
-                      >
-                        {f.toUpperCase()}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <button onClick={convertImage} disabled={isProcessing} className="w-full py-3 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 transition-all">
-                  {isProcessing ? "Converting..." : "Convert Now"}
-                </button>
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase">Height (px)</label>
+                <input type="number" value={height} onChange={(e) => handleDimensionChange('h', Number(e.target.value))} className="w-full mt-1 p-2 border rounded-lg" />
               </div>
             </div>
-          )}
-        </div>
 
-        {/* Output Card */}
-        <div className={`bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col items-center justify-center min-h-[400px] transition-all ${convertedUrl ? 'opacity-100' : 'opacity-50 grayscale'}`}>
-          {!convertedUrl ? (
-            <div className="text-center text-slate-300">
-              <ImageIcon size={48} className="mx-auto mb-4 opacity-50" />
-              <p>Converted image will appear here</p>
-            </div>
-          ) : (
-            <div className="w-full h-full flex flex-col animate-in fade-in slide-in-from-bottom-4">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-xs font-bold uppercase text-emerald-500 flex items-center gap-1"><CheckCircle size={14}/> Ready</span>
-              </div>
-              <div className="flex-1 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-slate-50 rounded-xl flex items-center justify-center overflow-hidden p-4 border border-slate-100">
-                <img src={convertedUrl} alt="Converted" className="max-h-60 object-contain" />
-              </div>
-              <div className="mt-6">
-                <a href={convertedUrl} download={`converted.${getExt()}`} className="flex items-center justify-center gap-2 w-full py-3 bg-emerald-500 text-white rounded-xl font-semibold hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-200">
-                  <Download size={18} /> Download {getExt().toUpperCase()}
-                </a>
-              </div>
-            </div>
-          )}
+            <button onClick={() => setLockAspect(!lockAspect)} className={`flex items-center gap-2 text-sm font-medium ${lockAspect ? 'text-teal-600' : 'text-slate-400'}`}>
+              {lockAspect ? <Lock size={16}/> : <Unlock size={16}/>} Maintain Aspect Ratio
+            </button>
+
+            <button onClick={handleDownload} className="w-full py-3 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
+              <Download size={18}/> Download Resized
+            </button>
+            
+            <button onClick={() => { setSrc(null); setFile(null); }} className="w-full py-2 text-slate-500 hover:text-slate-800 text-sm">Upload Different Image</button>
+          </div>
         </div>
-      </div>
-      
-      {/* Hidden Canvas for Processing */}
+      )}
       <canvas ref={canvasRef} className="hidden"></canvas>
     </div>
   );
 }
 EOF
 
-# 3. UPDATE DOCUMENT DASHBOARD (To Link Converter)
-cat > app/tools/documents/page.tsx << 'EOF'
-import Link from "next/link";
-import { FileText, Layers, Image, Braces, FileType, ArrowRight, RefreshCw } from "lucide-react";
+# ---------------------------------------------------------
+# 3. PASSWORD GENERATOR (app/tools/developer/password/page.tsx)
+# ---------------------------------------------------------
+cat > app/tools/developer/password/page.tsx << 'EOF'
+"use client";
 
-const CATEGORIES = [
-  {
-    title: "PDF Tools",
-    desc: "Merge, split, and modify PDF documents securely.",
-    icon: <Layers size={24} />,
-    color: "text-rose-600",
-    bg: "bg-rose-50",
-    tools: [
-      { name: "Merge PDFs", href: "/tools/documents/pdf/merge" },
-      { name: "Split PDF", href: "#", tag: "Soon" }
-    ]
-  },
-  {
-    title: "JSON Tools",
-    desc: "Format, validate, and minify JSON data.",
-    icon: <Braces size={24} />,
-    color: "text-amber-600",
-    bg: "bg-amber-50",
-    tools: [
-      { name: "JSON Formatter", href: "/tools/documents/json/formatter" },
-      { name: "JSON to CSV", href: "#", tag: "Soon" }
-    ]
-  },
-  {
-    title: "Image Tools",
-    desc: "Compress, resize and convert images locally.",
-    icon: <Image size={24} />,
-    color: "text-blue-600",
-    bg: "bg-blue-50",
-    tools: [
-      { name: "Compressor", href: "/tools/documents/image/compressor" },
-      { name: "Converter", href: "/tools/documents/image/converter" }
-    ]
-  }
-];
+import React, { useState, useEffect } from "react";
+import { Lock, RefreshCw, Copy, Check } from "lucide-react";
 
-export default function DocumentsHub() {
+export default function PasswordGenerator() {
+  const [length, setLength] = useState(16);
+  const [password, setPassword] = useState("");
+  const [options, setOptions] = useState({ uppercase: true, lowercase: true, numbers: true, symbols: true });
+  const [copied, setCopied] = useState(false);
+
+  const generate = () => {
+    const sets = {
+      uppercase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      lowercase: "abcdefghijklmnopqrstuvwxyz",
+      numbers: "0123456789",
+      symbols: "!@#$%^&*()_+~`|}{[]:;?><,./-="
+    };
+    let chars = "";
+    if (options.uppercase) chars += sets.uppercase;
+    if (options.lowercase) chars += sets.lowercase;
+    if (options.numbers) chars += sets.numbers;
+    if (options.symbols) chars += sets.symbols;
+
+    if (!chars) return setPassword("");
+
+    let pass = "";
+    for (let i = 0; i < length; i++) {
+      pass += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setPassword(pass);
+  };
+
+  useEffect(() => generate(), []);
+
+  const copy = () => {
+    navigator.clipboard.writeText(password);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
-    <div className="max-w-7xl mx-auto py-12 px-4">
-      <div className="text-center mb-16">
-        <div className="inline-flex items-center justify-center p-3 bg-[rgb(117,163,163)]/10 text-[rgb(117,163,163)] rounded-2xl mb-4">
-          <FileType size={32} />
+    <div className="max-w-xl mx-auto py-16 px-4">
+      <div className="text-center mb-10">
+        <div className="inline-flex p-3 bg-purple-50 text-purple-600 rounded-xl mb-4">
+          <Lock size={32} />
         </div>
-        <h1 className="text-4xl font-bold text-slate-900 tracking-tight">Document Studio</h1>
-        <p className="text-lg text-slate-500 mt-3 max-w-2xl mx-auto">
-          A suite of private, client-side tools. Your files never leave your browser.
-        </p>
+        <h1 className="text-3xl font-bold text-slate-900">Secure Password</h1>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {CATEGORIES.map((cat) => (
-          <div key={cat.title} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 group">
-            <div className="p-6 border-b border-slate-100">
-              <div className={`w-12 h-12 rounded-xl ${cat.bg} ${cat.color} flex items-center justify-center mb-4`}>
-                {cat.icon}
-              </div>
-              <h2 className="text-xl font-bold text-slate-800">{cat.title}</h2>
-              <p className="text-sm text-slate-500 mt-2">{cat.desc}</p>
-            </div>
-            <div className="p-4 bg-slate-50/50">
-              <div className="space-y-2">
-                {cat.tools.map((tool) => (
-                  <Link key={tool.name} href={tool.href} className={`flex items-center justify-between p-3 rounded-lg transition-colors ${tool.tag ? 'opacity-60 cursor-not-allowed' : 'bg-white hover:bg-[rgb(117,163,163)]/5 hover:border-[rgb(117,163,163)]/20 border border-transparent'}`}>
-                    <span className="text-sm font-medium text-slate-700">{tool.name}</span>
-                    {tool.tag ? (
-                      <span className="text-[10px] font-bold uppercase bg-slate-200 text-slate-500 px-2 py-0.5 rounded">{tool.tag}</span>
-                    ) : (
-                      <ArrowRight size={16} className="text-slate-400" />
-                    )}
-                  </Link>
-                ))}
-              </div>
-            </div>
+      <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+        <div className="relative mb-8">
+          <div className="w-full bg-slate-100 p-4 rounded-xl text-center font-mono text-2xl text-slate-800 break-all min-h-[64px] flex items-center justify-center">
+            {password}
           </div>
-        ))}
+          <button onClick={copy} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-white rounded-lg text-slate-500 transition-colors shadow-sm">
+            {copied ? <Check size={20} className="text-emerald-500"/> : <Copy size={20}/>}
+          </button>
+        </div>
+
+        <div className="space-y-6">
+          <div>
+            <div className="flex justify-between text-sm font-bold text-slate-500 uppercase mb-2">
+              <span>Length</span>
+              <span>{length}</span>
+            </div>
+            <input 
+              type="range" min="4" max="64" value={length} 
+              onChange={e => setLength(Number(e.target.value))} 
+              className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            {Object.keys(options).map(key => (
+              <label key={key} className="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                <input 
+                  type="checkbox" 
+                  checked={(options as any)[key]} 
+                  onChange={() => setOptions(prev => ({ ...prev, [key]: !(prev as any)[key] }))}
+                  className="w-5 h-5 accent-purple-600 rounded"
+                />
+                <span className="capitalize text-sm font-medium text-slate-700">{key}</span>
+              </label>
+            ))}
+          </div>
+
+          <button onClick={generate} className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95">
+            <RefreshCw size={20}/> Generate New
+          </button>
+        </div>
       </div>
     </div>
   );
 }
 EOF
 
-echo "✅ Pro Features Injected (Loan Calc & Image Converter)."
+# ---------------------------------------------------------
+# 4. UNIT CONVERTER (app/tools/converters/unit/page.tsx)
+# ---------------------------------------------------------
+cat > app/tools/converters/unit/page.tsx << 'EOF'
+"use client";
+
+import React, { useState } from "react";
+import { ArrowRightLeft, Scale } from "lucide-react";
+
+const UNITS: any = {
+  Length: { m: 1, km: 1000, cm: 0.01, mm: 0.001, ft: 0.3048, inch: 0.0254, mile: 1609.34 },
+  Weight: { kg: 1, g: 0.001, mg: 0.000001, lb: 0.453592, oz: 0.0283495 },
+  Time: { s: 1, min: 60, h: 3600, day: 86400 }
+};
+
+export default function UnitConverter() {
+  const [category, setCategory] = useState("Length");
+  const [inputVal, setInputVal] = useState(1);
+  const [fromUnit, setFromUnit] = useState("m");
+  const [toUnit, setToUnit] = useState("ft");
+
+  const convert = () => {
+    const base = inputVal * UNITS[category][fromUnit]; // Convert to base unit (e.g., meters)
+    return (base / UNITS[category][toUnit]); // Convert to target
+  };
+
+  const handleCategoryChange = (cat: string) => {
+    setCategory(cat);
+    const keys = Object.keys(UNITS[cat]);
+    setFromUnit(keys[0]);
+    setToUnit(keys[1]);
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto py-16 px-4">
+      <div className="text-center mb-10">
+        <div className="inline-flex p-3 bg-orange-50 text-orange-600 rounded-xl mb-4">
+          <Scale size={32} />
+        </div>
+        <h1 className="text-3xl font-bold text-slate-900">Unit Converter</h1>
+      </div>
+
+      <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+        {/* Category Tabs */}
+        <div className="flex gap-2 overflow-x-auto pb-4 mb-4 no-scrollbar">
+          {Object.keys(UNITS).map(cat => (
+            <button 
+              key={cat} onClick={() => handleCategoryChange(cat)}
+              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${category === cat ? 'bg-orange-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-[1fr,auto,1fr] gap-4 items-center">
+          
+          <div className="space-y-2">
+            <input type="number" value={inputVal} onChange={e => setInputVal(Number(e.target.value))} className="w-full text-3xl font-bold p-4 bg-slate-50 rounded-xl border-transparent focus:bg-white focus:border-orange-500 border-2 outline-none transition-all" />
+            <select value={fromUnit} onChange={e => setFromUnit(e.target.value)} className="w-full p-2 bg-white border border-slate-200 rounded-lg text-sm font-medium">
+              {Object.keys(UNITS[category]).map(u => <option key={u} value={u}>{u}</option>)}
+            </select>
+          </div>
+
+          <div className="text-slate-300"><ArrowRightLeft size={24} /></div>
+
+          <div className="space-y-2">
+            <div className="w-full text-3xl font-bold p-4 bg-orange-50 text-orange-900 rounded-xl border border-orange-100 flex items-center overflow-hidden">
+              {convert().toLocaleString(undefined, { maximumFractionDigits: 4 })}
+            </div>
+            <select value={toUnit} onChange={e => setToUnit(e.target.value)} className="w-full p-2 bg-white border border-slate-200 rounded-lg text-sm font-medium">
+              {Object.keys(UNITS[category]).map(u => <option key={u} value={u}>{u}</option>)}
+            </select>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+}
+EOF
+
+# ---------------------------------------------------------
+# 5. UPDATE DASHBOARD (Register New Tools)
+# ---------------------------------------------------------
+cat > app/tools/page.tsx << 'EOF'
+"use client";
+
+import Link from "next/link";
+import React, { useState, useMemo } from "react";
+import { 
+  Search, Wallet, FileText, Heart, Zap, 
+  Layers, Calculator, Image, Braces, 
+  ArrowRight, Sparkles, Lock, RefreshCw, Scale, Terminal
+} from "lucide-react";
+
+// MASTER TOOL LIST
+const ALL_TOOLS = [
+  // FINANCE
+  { id: "budget", name: "Budget Ultimate", desc: "Track expenses, manage recurring bills, and visualize net worth.", category: "Finance", href: "/tools/finance/budget-tracker", icon: <Wallet size={24} />, color: "text-emerald-600", bg: "bg-emerald-50", status: "Ready" },
+  { id: "loan", name: "Loan Planner", desc: "Calculate EMI, total interest, and amortization schedules.", category: "Finance", href: "/tools/finance/loan-emi", icon: <Calculator size={24} />, color: "text-blue-600", bg: "bg-blue-50", status: "Ready" },
+
+  // DOCUMENTS
+  { id: "pdf-merge", name: "PDF Merger", desc: "Combine multiple PDF files into one document securely.", category: "Documents", href: "/tools/documents/pdf/merge", icon: <Layers size={24} />, color: "text-rose-600", bg: "bg-rose-50", status: "Ready" },
+  { id: "img-compress", name: "Image Compressor", desc: "Reduce JPG/PNG file size locally without quality loss.", category: "Documents", href: "/tools/documents/image/compressor", icon: <Image size={24} />, color: "text-indigo-600", bg: "bg-indigo-50", status: "Ready" },
+  { id: "img-convert", name: "Image Converter", desc: "Convert WebP/PNG/JPG files instantly in your browser.", category: "Documents", href: "/tools/documents/image/converter", icon: <RefreshCw size={24} />, color: "text-amber-600", bg: "bg-amber-50", status: "New" },
+  { id: "img-resize", name: "Image Resizer", desc: "Resize dimensions while maintaining aspect ratio.", category: "Documents", href: "/tools/documents/image/resizer", icon: <Image size={24} />, color: "text-pink-600", bg: "bg-pink-50", status: "New" },
+  { id: "json", name: "JSON Formatter", desc: "Validate, format, and minify JSON data structures.", category: "Documents", href: "/tools/documents/json/formatter", icon: <Braces size={24} />, color: "text-slate-600", bg: "bg-slate-200", status: "Ready" },
+
+  // HEALTH
+  { id: "bmi", name: "BMI Calculator", desc: "Check your Body Mass Index and health category.", category: "Health", href: "/tools/health/bmi", icon: <Calculator size={24} />, color: "text-teal-600", bg: "bg-teal-50", status: "Ready" },
+  { id: "breathing", name: "Breathing App", desc: "Visual 4-7-8 guided breathing for anxiety relief.", category: "Health", href: "/tools/health/breathing", icon: <Heart size={24} />, color: "text-sky-600", bg: "bg-sky-50", status: "Ready" },
+  { id: "timer", name: "Workout Timer", desc: "Interval timer for HIIT, Tabata, and Yoga flows.", category: "Health", href: "/tools/health/timer", icon: <Zap size={24} />, color: "text-orange-600", bg: "bg-orange-50", status: "Ready" },
+
+  // DEVELOPER & CONVERTERS
+  { id: "password", name: "Password Gen", desc: "Generate cryptographically secure passwords locally.", category: "Developer", href: "/tools/developer/password", icon: <Lock size={24} />, color: "text-purple-600", bg: "bg-purple-50", status: "New" },
+  { id: "unit", name: "Unit Converter", desc: "Convert Length, Weight, and Time measurements.", category: "Converters", href: "/tools/converters/unit", icon: <Scale size={24} />, color: "text-orange-600", bg: "bg-orange-50", status: "New" },
+
+  // AI
+  { id: "ai-text", name: "Text Intelligence", desc: "Analyze sentiment, reading time, and complexity locally.", category: "AI", href: "/ai", icon: <Sparkles size={24} />, color: "text-violet-600", bg: "bg-violet-50", status: "Ready" }
+];
+
+const CATEGORIES = ["All", "Finance", "Documents", "Health", "Developer", "Converters", "AI"];
+
+export default function ToolsDashboard() {
+  const [query, setQuery] = useState("");
+  const [activeCat, setActiveCat] = useState("All");
+
+  const filteredTools = useMemo(() => {
+    return ALL_TOOLS.filter(tool => {
+      const matchesSearch = tool.name.toLowerCase().includes(query.toLowerCase()) || 
+                            tool.desc.toLowerCase().includes(query.toLowerCase());
+      const matchesCat = activeCat === "All" || tool.category === activeCat;
+      return matchesSearch && matchesCat;
+    });
+  }, [query, activeCat]);
+
+  return (
+    <div className="min-h-screen bg-slate-50/50 pb-20">
+      <div className="bg-white border-b border-slate-200 pt-12 pb-6 px-4 sticky top-16 z-10 shadow-sm">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">Tools Dashboard</h1>
+          <p className="text-slate-500 mb-6">Explore our suite of privacy-first utilities.</p>
+          <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
+            <div className="relative w-full md:w-96">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input type="text" placeholder="Search tools..." value={query} onChange={(e) => setQuery(e.target.value)} className="w-full pl-10 pr-4 py-2.5 bg-slate-100 border-transparent focus:bg-white focus:border-[rgb(117,163,163)] focus:ring-2 focus:ring-teal-500/20 rounded-xl outline-none transition-all font-medium text-slate-700" />
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-2 w-full md:w-auto no-scrollbar">
+              {CATEGORIES.map(cat => (
+                <button key={cat} onClick={() => setActiveCat(cat)} className={`px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${activeCat === cat ? "bg-[rgb(117,163,163)] text-white shadow-md shadow-teal-500/20" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        {filteredTools.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredTools.map(tool => (
+              <Link key={tool.id} href={tool.href} className={`group relative bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col ${tool.status === 'Soon' ? 'opacity-60 pointer-events-none' : ''}`}>
+                <div className="flex justify-between items-start mb-4">
+                  <div className={`w-14 h-14 rounded-2xl ${tool.bg} ${tool.color} flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform`}>{tool.icon}</div>
+                  {tool.status === "New" && <span className="px-2 py-1 bg-indigo-100 text-indigo-700 text-[10px] font-bold uppercase tracking-wider rounded-md">New</span>}
+                </div>
+                <h3 className="text-lg font-bold text-slate-800 mb-2 group-hover:text-[rgb(117,163,163)] transition-colors">{tool.name}</h3>
+                <p className="text-sm text-slate-500 leading-relaxed mb-6 flex-grow">{tool.desc}</p>
+                <div className="flex items-center text-sm font-semibold text-slate-900 mt-auto pt-4 border-t border-slate-50">
+                  Launch Tool <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform text-[rgb(117,163,163)]"/>
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20">
+            <div className="inline-flex p-4 bg-slate-100 rounded-full text-slate-400 mb-4"><Search size={32} /></div>
+            <h3 className="text-lg font-bold text-slate-700">No tools found</h3>
+            <button onClick={() => {setQuery(""); setActiveCat("All")}} className="mt-4 text-[rgb(117,163,163)] font-semibold hover:underline">Clear Filters</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+EOF
+
+echo "✅ Added Resizer, Password Gen, Unit Converter, and updated Dashboard."

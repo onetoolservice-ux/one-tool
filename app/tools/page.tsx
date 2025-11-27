@@ -1,152 +1,101 @@
+"use client";
+
 import Link from "next/link";
-import Button from "@/app/shared/ui/Button";
+import React, { useState, useMemo } from "react";
 import { 
-  ArrowRight, Wallet, FileText, Heart, Shield, 
-  Zap, Layers, PieChart, Lock, Sparkles 
+  Search, Wallet, FileText, Heart, Zap, 
+  Layers, Calculator, Image, Braces, 
+  ArrowRight, Sparkles, Lock, RefreshCw, Scale, Terminal
 } from "lucide-react";
 
-export default function Home() {
+// MASTER TOOL LIST
+const ALL_TOOLS = [
+  // FINANCE
+  { id: "budget", name: "Budget Ultimate", desc: "Track expenses, manage recurring bills, and visualize net worth.", category: "Finance", href: "/tools/finance/budget-tracker", icon: <Wallet size={24} />, color: "text-emerald-600", bg: "bg-emerald-50", status: "Ready" },
+  { id: "loan", name: "Loan Planner", desc: "Calculate EMI, total interest, and amortization schedules.", category: "Finance", href: "/tools/finance/loan-emi", icon: <Calculator size={24} />, color: "text-blue-600", bg: "bg-blue-50", status: "Ready" },
+
+  // DOCUMENTS
+  { id: "pdf-merge", name: "PDF Merger", desc: "Combine multiple PDF files into one document securely.", category: "Documents", href: "/tools/documents/pdf/merge", icon: <Layers size={24} />, color: "text-rose-600", bg: "bg-rose-50", status: "Ready" },
+  { id: "img-compress", name: "Image Compressor", desc: "Reduce JPG/PNG file size locally without quality loss.", category: "Documents", href: "/tools/documents/image/compressor", icon: <Image size={24} />, color: "text-indigo-600", bg: "bg-indigo-50", status: "Ready" },
+  { id: "img-convert", name: "Image Converter", desc: "Convert WebP/PNG/JPG files instantly in your browser.", category: "Documents", href: "/tools/documents/image/converter", icon: <RefreshCw size={24} />, color: "text-amber-600", bg: "bg-amber-50", status: "New" },
+  { id: "img-resize", name: "Image Resizer", desc: "Resize dimensions while maintaining aspect ratio.", category: "Documents", href: "/tools/documents/image/resizer", icon: <Image size={24} />, color: "text-pink-600", bg: "bg-pink-50", status: "New" },
+  { id: "json", name: "JSON Formatter", desc: "Validate, format, and minify JSON data structures.", category: "Documents", href: "/tools/documents/json/formatter", icon: <Braces size={24} />, color: "text-slate-600", bg: "bg-slate-200", status: "Ready" },
+
+  // HEALTH
+  { id: "bmi", name: "BMI Calculator", desc: "Check your Body Mass Index and health category.", category: "Health", href: "/tools/health/bmi", icon: <Calculator size={24} />, color: "text-teal-600", bg: "bg-teal-50", status: "Ready" },
+  { id: "breathing", name: "Breathing App", desc: "Visual 4-7-8 guided breathing for anxiety relief.", category: "Health", href: "/tools/health/breathing", icon: <Heart size={24} />, color: "text-sky-600", bg: "bg-sky-50", status: "Ready" },
+  { id: "timer", name: "Workout Timer", desc: "Interval timer for HIIT, Tabata, and Yoga flows.", category: "Health", href: "/tools/health/timer", icon: <Zap size={24} />, color: "text-orange-600", bg: "bg-orange-50", status: "Ready" },
+
+  // DEVELOPER & CONVERTERS
+  { id: "password", name: "Password Gen", desc: "Generate cryptographically secure passwords locally.", category: "Developer", href: "/tools/developer/password", icon: <Lock size={24} />, color: "text-purple-600", bg: "bg-purple-50", status: "New" },
+  { id: "unit", name: "Unit Converter", desc: "Convert Length, Weight, and Time measurements.", category: "Converters", href: "/tools/converters/unit", icon: <Scale size={24} />, color: "text-orange-600", bg: "bg-orange-50", status: "New" },
+
+  // AI
+  { id: "ai-text", name: "Text Intelligence", desc: "Analyze sentiment, reading time, and complexity locally.", category: "AI", href: "/ai", icon: <Sparkles size={24} />, color: "text-violet-600", bg: "bg-violet-50", status: "Ready" }
+];
+
+const CATEGORIES = ["All", "Finance", "Documents", "Health", "Developer", "Converters", "AI"];
+
+export default function ToolsDashboard() {
+  const [query, setQuery] = useState("");
+  const [activeCat, setActiveCat] = useState("All");
+
+  const filteredTools = useMemo(() => {
+    return ALL_TOOLS.filter(tool => {
+      const matchesSearch = tool.name.toLowerCase().includes(query.toLowerCase()) || 
+                            tool.desc.toLowerCase().includes(query.toLowerCase());
+      const matchesCat = activeCat === "All" || tool.category === activeCat;
+      return matchesSearch && matchesCat;
+    });
+  }, [query, activeCat]);
+
   return (
-    <div className="flex flex-col gap-8 pb-10">
-      
-      {/* 1. HERO SECTION - COMPACT */}
-      <section className="pt-16 pb-4 px-4 text-center relative overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-teal-500/5 rounded-full blur-[100px] -z-10" />
-        
-        <div className="max-w-4xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 shadow-sm text-xs font-medium text-slate-600 animate-in fade-in slide-in-from-bottom-4">
-            <Sparkles size={12} className="text-amber-500" />
-            <span>The All-in-One Digital Workspace</span>
-          </div>
-
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-slate-900 animate-in fade-in slide-in-from-bottom-5 duration-700">
-            One Platform.<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(117,163,163)] to-teal-600">
-              Infinite Possibilities.
-            </span>
-          </h1>
-
-          <p className="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700">
-            Manage your money, manipulate documents, and track your health. 
-            <br className="hidden md:block" />
-            No subscriptions. No data tracking. Just powerful tools.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4 animate-in fade-in slide-in-from-bottom-7 duration-700">
-            <Link href="/tools">
-              <Button className="h-12 px-8 text-base shadow-xl shadow-teal-900/10 hover:shadow-teal-900/20 transition-all hover:-translate-y-0.5">
-                Start Using Tools
-              </Button>
-            </Link>
-            <Link href="/about">
-              <Button variant="secondary" className="h-12 px-8 text-base bg-white/80 backdrop-blur">
-                Our Philosophy
-              </Button>
-            </Link>
+    <div className="min-h-screen bg-slate-50/50 pb-20">
+      <div className="bg-white border-b border-slate-200 pt-12 pb-6 px-4 sticky top-16 z-10 shadow-sm">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">Tools Dashboard</h1>
+          <p className="text-slate-500 mb-6">Explore our suite of privacy-first utilities.</p>
+          <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
+            <div className="relative w-full md:w-96">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input type="text" placeholder="Search tools..." value={query} onChange={(e) => setQuery(e.target.value)} className="w-full pl-10 pr-4 py-2.5 bg-slate-100 border-transparent focus:bg-white focus:border-[rgb(117,163,163)] focus:ring-2 focus:ring-teal-500/20 rounded-xl outline-none transition-all font-medium text-slate-700" />
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-2 w-full md:w-auto no-scrollbar">
+              {CATEGORIES.map(cat => (
+                <button key={cat} onClick={() => setActiveCat(cat)} className={`px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${activeCat === cat ? "bg-[rgb(117,163,163)] text-white shadow-md shadow-teal-500/20" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* 2. BENTO GRID - MOVED UP */}
-      <section className="max-w-6xl mx-auto px-4 w-full">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[240px]">
-          
-          {/* CARD 1: FINANCE (Large) */}
-          <Link href="/tools/finance/budget-tracker" className="group md:col-span-2 row-span-1 relative overflow-hidden bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-lg transition-all p-6 flex flex-col justify-between">
-            <div className="absolute right-0 top-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity group-hover:scale-110 duration-500">
-              <PieChart size={160} />
-            </div>
-            <div>
-              <div className="w-10 h-10 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center mb-3">
-                <Wallet size={20} />
-              </div>
-              <h3 className="text-xl font-bold text-slate-800">Finance Master</h3>
-              <p className="text-slate-500 mt-1 text-sm max-w-sm">Track expenses, incomes, and view analytics locally.</p>
-            </div>
-            <div className="flex items-center text-sm font-bold text-teal-600 mt-2">
-              Manage Budget <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
-            </div>
-          </Link>
-
-          {/* CARD 2: DOCUMENTS (Tall) */}
-          <Link href="/tools/documents" className="group md:col-span-1 row-span-1 md:row-span-2 bg-slate-900 text-white rounded-3xl shadow-lg hover:shadow-xl transition-all p-6 flex flex-col relative overflow-hidden">
-            <div className="absolute -right-4 -bottom-4 text-slate-800 group-hover:text-slate-700 transition-colors">
-              <Layers size={120} />
-            </div>
-            <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center mb-3 backdrop-blur-sm">
-              <FileText size={20} />
-            </div>
-            <h3 className="text-xl font-bold">Docs Studio</h3>
-            <p className="text-slate-400 mt-2 text-sm leading-relaxed">
-              Merge PDFs, compress images securely in browser.
-            </p>
-            <div className="mt-auto pt-4 flex items-center text-sm font-bold">
-              Open Studio <ArrowRight size={16} className="ml-2" />
-            </div>
-          </Link>
-
-          {/* CARD 3: HEALTH */}
-          <Link href="/tools/health" className="group bg-gradient-to-br from-rose-50 to-white rounded-3xl border border-rose-100 shadow-sm hover:shadow-md transition-all p-6 flex flex-col justify-between">
-            <div>
-              <div className="w-10 h-10 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center mb-3">
-                <Heart size={20} />
-              </div>
-              <h3 className="text-lg font-bold text-slate-800">Wellness</h3>
-              <p className="text-slate-500 text-sm mt-1">BMI & Breathing tools.</p>
-            </div>
-          </Link>
-
-          {/* CARD 4: AI (Coming Soon) */}
-          <div className="group bg-white rounded-3xl border border-slate-200 p-6 flex flex-col justify-center items-center text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mb-3">
-              <Zap size={20} />
-            </div>
-            <h3 className="text-lg font-bold text-slate-800">AI Suite</h3>
-            <span className="mt-1 px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold uppercase tracking-wider rounded-full">Coming Soon</span>
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        {filteredTools.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredTools.map(tool => (
+              <Link key={tool.id} href={tool.href} className={`group relative bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col ${tool.status === 'Soon' ? 'opacity-60 pointer-events-none' : ''}`}>
+                <div className="flex justify-between items-start mb-4">
+                  <div className={`w-14 h-14 rounded-2xl ${tool.bg} ${tool.color} flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform`}>{tool.icon}</div>
+                  {tool.status === "New" && <span className="px-2 py-1 bg-indigo-100 text-indigo-700 text-[10px] font-bold uppercase tracking-wider rounded-md">New</span>}
+                </div>
+                <h3 className="text-lg font-bold text-slate-800 mb-2 group-hover:text-[rgb(117,163,163)] transition-colors">{tool.name}</h3>
+                <p className="text-sm text-slate-500 leading-relaxed mb-6 flex-grow">{tool.desc}</p>
+                <div className="flex items-center text-sm font-semibold text-slate-900 mt-auto pt-4 border-t border-slate-50">
+                  Launch Tool <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform text-[rgb(117,163,163)]"/>
+                </div>
+              </Link>
+            ))}
           </div>
-
-          {/* CARD 5: PRIVACY PROMISE */}
-          <div className="md:col-span-2 bg-slate-50 rounded-3xl border border-slate-200 p-6 flex items-center gap-6">
-            <div className="p-3 bg-white rounded-full shadow-sm">
-              <Shield size={24} className="text-[rgb(117,163,163)]" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-slate-800 flex items-center gap-2">
-                <Lock size={14} className="text-slate-400"/> Local-First Architecture
-              </h3>
-              <p className="text-slate-500 text-xs mt-1">
-                Your data never leaves your device. Total privacy.
-              </p>
-            </div>
+        ) : (
+          <div className="text-center py-20">
+            <div className="inline-flex p-4 bg-slate-100 rounded-full text-slate-400 mb-4"><Search size={32} /></div>
+            <h3 className="text-lg font-bold text-slate-700">No tools found</h3>
+            <button onClick={() => {setQuery(""); setActiveCat("All")}} className="mt-4 text-[rgb(117,163,163)] font-semibold hover:underline">Clear Filters</button>
           </div>
-
-        </div>
-      </section>
-
-      {/* 3. BOTTOM STATS */}
-      <section className="border-t border-slate-100 bg-white mt-4">
-        <div className="max-w-6xl mx-auto px-4 py-8 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-          <div>
-            <div className="text-2xl font-bold text-slate-900">100%</div>
-            <div className="text-xs text-slate-500 font-medium">Client-Side</div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-slate-900">0</div>
-            <div className="text-xs text-slate-500 font-medium">Trackers</div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-slate-900">15+</div>
-            <div className="text-xs text-slate-500 font-medium">Tools</div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-slate-900">Free</div>
-            <div className="text-xs text-slate-500 font-medium">Forever</div>
-          </div>
-        </div>
-      </section>
-
+        )}
+      </div>
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Settings } from "lucide-react";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -14,17 +14,13 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           
-          {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-9 h-9 rounded-xl bg-[rgb(117,163,163)] flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
               <span className="text-white font-bold text-sm tracking-wider">OT</span>
             </div>
-            <span className="font-bold text-slate-800 text-lg tracking-tight">
-              One Tool
-            </span>
+            <span className="font-bold text-slate-800 text-lg tracking-tight">One Tool</span>
           </Link>
 
-          {/* Desktop Nav - DIRECT LINKS */}
           <div className="hidden md:flex items-center space-x-8">
             <NavLink href="/" active={pathname === "/"}>Home</NavLink>
             <NavLink href="/tools" active={pathname.startsWith("/tools")}>Tools</NavLink>
@@ -33,16 +29,17 @@ export default function Navbar() {
             <NavLink href="/about" active={pathname === "/about"}>About</NavLink>
           </div>
 
-          {/* Desktop CTA */}
-          <div className="hidden md:flex items-center gap-4">
-             <Link href="/login" className="text-sm font-medium text-slate-500 hover:text-slate-900">Log in</Link>
+          <div className="hidden md:flex items-center gap-3">
+             <Link href="/settings" className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+               <Settings size={20} />
+             </Link>
              <Link href="/tools" className="px-5 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors shadow-sm">
                Dashboard
              </Link>
           </div>
 
-          {/* Mobile Toggle */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-4">
+            <Link href="/settings" className="text-slate-500"><Settings size={20}/></Link>
             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg">
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -50,7 +47,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden border-t border-slate-100 bg-white absolute w-full shadow-xl">
           <div className="p-4 space-y-2">
@@ -66,7 +62,6 @@ export default function Navbar() {
   );
 }
 
-// Helper Components
 function NavLink({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
   return (
     <Link href={href} className={`text-sm font-medium transition-colors duration-200 ${active ? "text-[rgb(117,163,163)]" : "text-slate-600 hover:text-slate-900"}`}>

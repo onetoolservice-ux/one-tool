@@ -7,25 +7,56 @@
   --background-rgb: 249, 251, 255;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   color: rgb(var(--foreground-rgb));
-  background: #F9FBFF;
+  background: #F8FAFC; /* Crisp Slate-50 background */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-/* ... keep your existing styles ... */
 
-/* Add this new section for the background effect */
-.bg-gradient-radial {
-  background: radial-gradient(circle at 50% 0%, rgba(117, 163, 163, 0.08) 0%, rgba(249, 251, 255, 0) 50%);
+/* 1. BRANDED TEXT SELECTION */
+::selection {
+  background-color: rgb(117, 163, 163);
+  color: #ffffff;
 }
-body {
-  /* ... your colors ... */
-  -webkit-font-smoothing: antialiased; /* Critical for thin, clean text */
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+
+/* 2. CUSTOM SCROLLBAR (Chrome/Safari/Webkit) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
-/* Added by Upgrade Script */
-.bg-gradient-radial {
-  background: radial-gradient(circle at 50% 0%, rgba(117, 163, 163, 0.08) 0%, rgba(249, 251, 255, 0) 50%);
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #CBD5E1; /* Slate-300 */
+  border-radius: 20px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #94A3B8; /* Slate-400 */
+}
+
+/* 3. UTILITIES */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Hide scrollbar but keep functionality (good for sidebars) */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
