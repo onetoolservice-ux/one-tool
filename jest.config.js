@@ -1,9 +1,3 @@
-#!/bin/bash
-
-echo "🛡️ Fixing Jest Module Mapping..."
-
-# 1. UPDATE JEST CONFIG
-cat > jest.config.js << 'EOF'
 const nextJest = require('next/jest')
 
 const createJestConfig = nextJest({
@@ -28,6 +22,3 @@ const customJestConfig = {
 }
 
 module.exports = createJestConfig(customJestConfig)
-EOF
-
-echo "✅ Jest Config Updated."

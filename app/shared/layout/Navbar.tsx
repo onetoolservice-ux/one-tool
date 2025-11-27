@@ -1,79 +1,132 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Menu, X, Settings } from "lucide-react";
+import { Search, Settings, X, HardDrive, ChevronRight, Menu } from "lucide-react";
+import { useUI } from "@/app/lib/ui-context";
+
+const CATEGORIES = ["All", "Finance", "Documents", "Health", "Developer", "AI"];
 
 export default function Navbar() {
-  const pathname = usePathname();
+  const { 
+    searchQuery, setSearchQuery, 
+    activeCategory, setActiveCategory 
+  } = useUI();
+  
+  const [showSettings, setShowSettings] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
+    <>
+      <nav className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-xl border-b border-slate-200 shadow-sm transition-all">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-xl bg-[rgb(117,163,163)] flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-              <span className="text-white font-bold text-sm tracking-wider">OT</span>
+          <div className="flex items-center justify-between h-16 gap-4">
+            <Link href="/" className="flex items-center gap-2 group flex-shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+                <span className="font-bold text-xs tracking-wider">OT</span>
+              </div>
+              <span className="font-bold text-slate-800 text-lg tracking-tight hidden sm:inline">One Tool</span>
+            </Link>
+
+            <div className="flex-1 max-w-xl relative group hidden md:block">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[rgb(117,163,163)] transition-colors" size={18} />
+              <input 
+                type="text" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-slate-100 border-transparent border focus:bg-white focus:border-[rgb(117,163,163)] focus:ring-4 focus:ring-teal-500/10 rounded-xl outline-none transition-all text-sm font-medium text-slate-700"
+                placeholder="Search tools..."
+              />
             </div>
-            <span className="font-bold text-slate-800 text-lg tracking-tight">One Tool</span>
-          </Link>
 
-          <div className="hidden md:flex items-center space-x-8">
-            <NavLink href="/" active={pathname === "/"}>Home</NavLink>
-            <NavLink href="/tools" active={pathname.startsWith("/tools")}>Tools</NavLink>
-            <NavLink href="/ai" active={pathname === "/ai"}>AI</NavLink>
-            <NavLink href="/learn" active={pathname === "/learn"}>Learn</NavLink>
-            <NavLink href="/about" active={pathname === "/about"}>About</NavLink>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => setShowSettings(true)}
+                className="p-2.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                aria-label="Open Settings"
+              >
+                <Settings size={20}/>
+              </button>
+
+              <button 
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="md:hidden p-2.5 rounded-lg text-slate-500 hover:bg-slate-100"
+              >
+                {isMenuOpen ? <X size={20}/> : <Menu size={20}/>}
+              </button>
+            </div>
           </div>
 
-          <div className="hidden md:flex items-center gap-3">
-             <Link href="/settings" className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
-               <Settings size={20} />
-             </Link>
-             <Link href="/tools" className="px-5 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors shadow-sm">
-               Dashboard
-             </Link>
-          </div>
-
-          <div className="md:hidden flex items-center gap-4">
-            <Link href="/settings" className="text-slate-500"><Settings size={20}/></Link>
-            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg">
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+          <div className="flex justify-start md:justify-end overflow-x-auto pb-3 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div className="flex gap-1">
+              {CATEGORIES.map(cat => (
+                <button 
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
+                    activeCategory === cat 
+                      ? "bg-[rgb(117,163,163)] text-white shadow-md shadow-teal-900/10" 
+                      : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
 
-      {isMenuOpen && (
-        <div className="md:hidden border-t border-slate-100 bg-white absolute w-full shadow-xl">
-          <div className="p-4 space-y-2">
-            <MobileLink href="/" onClick={() => setIsMenuOpen(false)}>Home</MobileLink>
-            <MobileLink href="/tools" onClick={() => setIsMenuOpen(false)}>All Tools</MobileLink>
-            <MobileLink href="/ai" onClick={() => setIsMenuOpen(false)}>AI Tools</MobileLink>
-            <MobileLink href="/learn" onClick={() => setIsMenuOpen(false)}>Learn</MobileLink>
-            <MobileLink href="/about" onClick={() => setIsMenuOpen(false)}>About</MobileLink>
+        {isMenuOpen && (
+          <div className="md:hidden border-t border-slate-100 bg-white p-4 space-y-2 shadow-xl">
+            <input 
+              type="text" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none mb-4"
+              placeholder="Search..."
+            />
+            <Link href="/about" className="block px-4 py-3 rounded-lg hover:bg-slate-50 text-sm font-medium text-slate-700">About & Mission</Link>
+            <Link href="/tools" className="block px-4 py-3 rounded-lg bg-[rgb(117,163,163)] text-white text-sm font-medium">Go to Dashboard</Link>
+          </div>
+        )}
+      </nav>
+
+      {/* SETTINGS DRAWER */}
+      {showSettings && (
+        <div className="fixed inset-0 z-[100] flex justify-end">
+          <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm" onClick={() => setShowSettings(false)} />
+          <div className="relative w-full max-w-xs bg-white h-full shadow-2xl border-l border-slate-200 p-6 animate-in slide-in-from-right duration-200 flex flex-col">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-lg font-bold text-slate-800">Settings</h2>
+              <button onClick={() => setShowSettings(false)} className="p-2 bg-slate-100 rounded-full text-slate-500 hover:bg-slate-200"><X size={18}/></button>
+            </div>
+
+            <div className="space-y-8 flex-1">
+              <div>
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <HardDrive size={14}/> Data
+                </label>
+                <Link 
+                  href="/settings" 
+                  onClick={() => setShowSettings(false)}
+                  className="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 hover:border-slate-300 transition-all group"
+                >
+                  <div>
+                    <div className="text-sm font-bold text-slate-700">Manage Storage</div>
+                    <div className="text-xs text-slate-500">Backup or Reset</div>
+                  </div>
+                  <ChevronRight size={16} className="text-slate-400 group-hover:text-slate-800" />
+                </Link>
+              </div>
+            </div>
+
+            <div className="pt-6 border-t border-slate-100 text-center">
+              <p className="text-[10px] text-slate-400">One Tool Solutions v1.0</p>
+            </div>
           </div>
         </div>
       )}
-    </nav>
-  );
-}
-
-function NavLink({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
-  return (
-    <Link href={href} className={`text-sm font-medium transition-colors duration-200 ${active ? "text-[rgb(117,163,163)]" : "text-slate-600 hover:text-slate-900"}`}>
-      {children}
-    </Link>
-  );
-}
-
-function MobileLink({ href, children, onClick }: { href: string; children: React.ReactNode; onClick: () => void }) {
-  return (
-    <Link href={href} onClick={onClick} className="block px-3 py-3 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-200">
-      {children}
-    </Link>
+    </>
   );
 }

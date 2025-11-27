@@ -3,60 +3,36 @@
 @tailwind utilities;
 
 :root {
+  /* The Signature One Tool Teal */
+  --primary-rgb: 117, 163, 163; 
   --foreground-rgb: 30, 41, 59;
-  --background-rgb: 249, 251, 255;
-}
-
-html {
-  scroll-behavior: smooth;
+  --background-rgb: 248, 250, 252;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: #F8FAFC; /* Crisp Slate-50 background */
+  background: rgb(var(--background-rgb));
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* 1. BRANDED TEXT SELECTION */
+/* Utility Classes for the Brand Color */
+.text-primary { color: rgb(var(--primary-rgb)); }
+.bg-primary { background-color: rgb(var(--primary-rgb)); }
+.border-primary { border-color: rgb(var(--primary-rgb)); }
+.ring-primary { --tw-ring-color: rgb(var(--primary-rgb)); }
+
+/* Selection Color */
 ::selection {
-  background-color: rgb(117, 163, 163);
+  background-color: rgb(var(--primary-rgb));
   color: #ffffff;
 }
 
-/* 2. CUSTOM SCROLLBAR (Chrome/Safari/Webkit) */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
+/* Scrollbars */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background-color: #CBD5E1; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background-color: #94A3B8; }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: #CBD5E1; /* Slate-300 */
-  border-radius: 20px;
-  border: 3px solid transparent;
-  background-clip: content-box;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: #94A3B8; /* Slate-400 */
-}
-
-/* 3. UTILITIES */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-/* Hide scrollbar but keep functionality (good for sidebars) */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-}
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
