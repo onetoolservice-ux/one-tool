@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# One Tool Solutions (OTS) 🛠️
 
-## Getting Started
+> **Your digital life, simplified.** > A privacy-first workspace with 20+ essential tools for Finance, Documents, Health, and Developers.
+
+![One Tool Screenshot](https://placehold.co/1200x600/11998e/ffffff?text=One+Tool+Dashboard)
+
+## 🚀 Features
+
+- **100% Client-Side:** No servers, no database, no tracking. Your data stays on your device.
+- **PWA Ready:** Installable on iOS and Android. Works offline.
+- **Smart Dashboard:** Remembers your most-used tools.
+- **Universal Search:** Press `Cmd+K` to find anything instantly.
+
+## 🧰 The Tool Suite
+
+### 💰 Finance
+- **Budget Ultimate:** Expense tracking with visualizations.
+- **Loan Planner:** EMI & Amortization calculator.
+- **Debt Destroyer:** Snowball vs Avalanche planner.
+- **SIP Calculator:** Wealth growth projector.
+
+### 📄 Documents
+- **PDF Merger:** Combine files securely in-browser.
+- **Image Compressor:** Optimize JPG/PNG size locally.
+- **Image Converter:** WebP/PNG/JPG conversion.
+- **JSON Formatter:** Validate and minify code.
+
+### 🧡 Health
+- **BMI Calculator:** Health index checker.
+- **Breathing App:** 4-7-8 anxiety relief guide.
+- **Workout Timer:** Customizable HIIT/Tabata timer.
+
+## 🛠️ Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **Styling:** Tailwind CSS
+- **Icons:** Lucide React
+- **Logic:** LocalStorage & React Hooks
+- **Testing:** Jest & React Testing Library
+
+## ⚡ Getting Started
 
 First, run the development server:
 
-```bash
+\`\`\`bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+\`\`\`
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🧪 Running Tests
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Ensure the app is stable:
 
-## Learn More
+\`\`\`bash
+npm run test
+\`\`\`
 
-To learn more about Next.js, take a look at the following resources:
+## 📜 License
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open Source. Built for utility.
