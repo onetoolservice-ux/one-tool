@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 30, 41, 59;
+  --background-rgb: 249, 251, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: #F9FBFF;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+/* ... keep your existing styles ... */
+
+/* Add this new section for the background effect */
+.bg-gradient-radial {
+  background: radial-gradient(circle at 50% 0%, rgba(117, 163, 163, 0.08) 0%, rgba(249, 251, 255, 0) 50%);
+}
+body {
+  /* ... your colors ... */
+  -webkit-font-smoothing: antialiased; /* Critical for thin, clean text */
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+/* Added by Upgrade Script */
+.bg-gradient-radial {
+  background: radial-gradient(circle at 50% 0%, rgba(117, 163, 163, 0.08) 0%, rgba(249, 251, 255, 0) 50%);
+}
