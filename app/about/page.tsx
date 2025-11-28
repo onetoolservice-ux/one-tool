@@ -3,83 +3,104 @@ import { Shield, Zap, Heart, Globe, ArrowRight } from "lucide-react";
 
 export default function AboutPage() {
   return (
-    <div className="max-w-4xl mx-auto py-16 px-4">
+    <div className="max-w-5xl mx-auto py-20 px-6 animate-fadeIn">
       
-      {/* Hero */}
-      <div className="text-center mb-16 space-y-6">
-        <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">
-          Tools built for <span className="text-[rgb(117,163,163)]">privacy & speed.</span>
+      {/* Header */}
+      <div className="text-center mb-20 space-y-6">
+        <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-slate-900 leading-tight">
+          Built for <span className="text-[rgb(117,163,163)]">privacy.</span><br />
+          Designed for <span className="text-[rgb(117,163,163)]">speed.</span>
         </h1>
-        <p className="text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed">
-          One Tool Solutions (OTS) was born from a simple idea: 
-          You shouldn't have to upload your data to a server just to merge a PDF or track your expenses.
+        <p className="text-xl text-slate-500 max-w-3xl mx-auto leading-relaxed font-light">
+          One Tool Solutions (OTS) was created with a belief:  
+          <span className="font-medium text-slate-700">
+            simple tools should not steal your data.
+          </span>
         </p>
       </div>
 
-      {/* Values Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+      {/* Values */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-24">
         <ValueCard 
-          icon={<Shield size={24}/>} 
-          title="Privacy First" 
-          desc="Local-first architecture means your data never leaves your device. We have zero trackers."
+          icon={<Shield size={26}/>} 
+          title="Private by Default" 
+          desc="No servers. No logs. No tracking. Everything runs on your device using a pure local-first architecture."
         />
         <ValueCard 
-          icon={<Zap size={24}/>} 
-          title="Lightning Fast" 
-          desc="No server round-trips. Everything runs instantly in your browser using WebAssembly."
+          icon={<Zap size={26}/>} 
+          title="Blazing Fast" 
+          desc="Thanks to WebAssembly + client-side processing, OTS tools respond instantly — even offline."
         />
         <ValueCard 
-          icon={<Heart size={24}/>} 
-          title="Open Design" 
-          desc="Clean, ad-free, and accessible. Built to be the tool we actually want to use ourselves."
+          icon={<Heart size={26}/>} 
+          title="Purposeful Design" 
+          desc="Clean, distraction-free, ad-free UI focused purely on productivity and clarity."
         />
       </div>
 
-      {/* Story Section */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-8 md:p-12 shadow-sm mb-16">
-        <h2 className="text-2xl font-bold text-slate-800 mb-4">Our Mission</h2>
-        <div className="space-y-4 text-slate-600 leading-relaxed">
+      {/* Mission Section */}
+      <div className="bg-white rounded-3xl border border-slate-200 p-10 md:p-16 shadow-lg">
+        <h2 className="text-3xl font-semibold text-slate-900 mb-6">
+          Why We Built OTS
+        </h2>
+
+        <div className="space-y-5 text-slate-600 text-lg leading-relaxed">
           <p>
-            The internet is full of "free tools" that are actually data traps. You upload a sensitive PDF to convert it, and who knows where it goes? You track your budget, and suddenly you see ads for credit cards.
+            Most “free tools” aren’t actually free — they take your data.  
+            You upload a PDF to compress it, and suddenly your inbox is full of ads.
           </p>
+
           <p>
-            <strong>OTS is different.</strong> We are building a suite of essential digital utilities—Finance, Documents, Health—that run 100% client-side. This platform is a demonstration of what the modern web can do without invading your privacy.
+            <strong className="text-slate-900">OTS changes that.</strong>  
+            We are building essential digital utilities — Documents, Finance, Health — that run fully in your browser with no middleman.
+          </p>
+
+          <p>
+            Your files never leave your device.  
+            Not now. Not ever.  
           </p>
         </div>
-        <div className="mt-8 pt-8 border-t border-slate-100 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[rgb(117,163,163)] rounded-full flex items-center justify-center text-white font-bold text-sm">OT</div>
+
+        {/* Signature */}
+        <div className="mt-10 pt-8 border-t border-slate-200 flex items-center justify-between flex-wrap gap-6">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-[rgb(117,163,163)] text-white rounded-full flex items-center justify-center text-lg font-bold">OT</div>
             <div>
               <div className="text-sm font-bold text-slate-900">The OTS Team</div>
-              <div className="text-xs text-slate-500">Building for the future</div>
+              <div className="text-xs text-slate-500">Crafting tools for the next decade</div>
             </div>
           </div>
-          <Link href="/contact" className="text-sm font-semibold text-[rgb(117,163,163)] hover:underline">Get in Touch</Link>
+
+          <Link href="/contact" className="text-sm font-semibold text-[rgb(117,163,163)] hover:underline">
+            Connect with us →
+          </Link>
         </div>
       </div>
 
       {/* CTA */}
-      <div className="text-center">
-        <h3 className="text-2xl font-bold text-slate-900 mb-4">Ready to simplify your workflow?</h3>
+      <div className="text-center mt-24">
+        <h3 className="text-3xl font-bold text-slate-900 mb-5">
+          Ready to experience the future of simple tools?
+        </h3>
+
         <Link href="/tools">
-          <button className="inline-flex items-center gap-2 px-8 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-medium transition-all hover:-translate-y-1 shadow-lg shadow-slate-900/20">
-            Explore Tools <ArrowRight size={18}/>
+          <button className="inline-flex items-center gap-3 px-10 py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-medium transition-all hover:-translate-y-1 shadow-xl shadow-slate-900/20">
+            Explore All Tools <ArrowRight size={20}/>
           </button>
         </Link>
       </div>
-
     </div>
   );
 }
 
 function ValueCard({ icon, title, desc }: any) {
   return (
-    <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 hover:border-[rgb(117,163,163)]/30 transition-colors">
-      <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-[rgb(117,163,163)] shadow-sm mb-4">
+    <div className="p-8 bg-slate-50 rounded-2xl border border-slate-100 hover:border-[rgb(117,163,163)]/40 transition-all hover:bg-white hover:shadow-lg group cursor-default">
+      <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center text-[rgb(117,163,163)] shadow-sm mb-4 transition-transform group-hover:scale-110">
         {icon}
       </div>
-      <h3 className="text-lg font-bold text-slate-800 mb-2">{title}</h3>
+      <h3 className="text-xl font-semibold text-slate-800 mb-3">{title}</h3>
       <p className="text-sm text-slate-500 leading-relaxed">{desc}</p>
     </div>
-  )
+  );
 }

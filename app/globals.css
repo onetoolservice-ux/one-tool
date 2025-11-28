@@ -3,36 +3,24 @@
 @tailwind utilities;
 
 :root {
-  /* The Signature One Tool Teal */
-  --primary-rgb: 117, 163, 163; 
-  --foreground-rgb: 30, 41, 59;
-  --background-rgb: 248, 250, 252;
+  --foreground-rgb: 15, 23, 42; /* Slate 900 */
+  --background-rgb: 248, 250, 252; /* Slate 50 */
 }
 
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
+  font-family: var(--font-sans), system-ui, sans-serif; /* Enforce Font */
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Utility Classes for the Brand Color */
-.text-primary { color: rgb(var(--primary-rgb)); }
-.bg-primary { background-color: rgb(var(--primary-rgb)); }
-.border-primary { border-color: rgb(var(--primary-rgb)); }
-.ring-primary { --tw-ring-color: rgb(var(--primary-rgb)); }
-
-/* Selection Color */
-::selection {
-  background-color: rgb(var(--primary-rgb));
-  color: #ffffff;
+/* Compact Inputs (UAT Requirement) */
+input, select, textarea {
+  font-size: 0.875rem; /* 14px */
+  padding: 0.5rem 0.75rem; /* Compact padding */
 }
 
-/* Scrollbars */
+/* Scrollbar Polish */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background-color: #CBD5E1; border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background-color: #94A3B8; }
-
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
