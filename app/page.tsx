@@ -7,7 +7,7 @@ import { ArrowRight, Sparkles, LayoutGrid, Star } from "lucide-react";
 import { ALL_TOOLS } from "@/app/lib/tools-data";
 import { useUI } from "@/app/lib/ui-context";
 import CommandMenu from "@/app/components/layout/CommandMenu";
-import SmartWidgets from "@/app/components/dashboard/SmartWidgets"; // New Component
+import SmartWidgets from "@/app/components/dashboard/DynamicWidgets"; // New Component
 
 export default function Home() {
   const { searchQuery, activeCategory } = useUI();
@@ -64,7 +64,7 @@ export default function Home() {
                             <h4 className="font-bold text-main dark:text-slate-100 dark:text-slate-200 text-sm truncate group-hover:text-[rgb(117,163,163)] transition-colors">{tool.name}</h4>
                             <p className="text-xs text-muted dark:text-muted dark:text-muted dark:text-muted truncate mt-1">{tool.desc}</p>
                         </div>
-                        <button onClick={(e) => toggleFavorite(e, tool.id)} className="p-1 rounded-full hover:bg-slate-100 transition text-amber-400">
+                        <button onClick={(e) => toggleFavorite(e, tool.id)} aria-label="Toggle Favorite" className="p-1 rounded-full hover:bg-slate-100 transition text-amber-400">
                             <Star size={16} className="fill-amber-400"/>
                         </button>
                     </Link>

@@ -62,12 +62,12 @@ export default function Navbar() {
 
             {/* Theme Toggle Removed for Stability */}
 
-            <button onClick={(e) => { e.stopPropagation(); setIsAssistantOpen(!isAssistantOpen); }} className="p-2 rounded-full text-muted hover:bg-indigo-50 hover:text-indigo-600 transition-colors" title="Smart Guide">
+            <button aria-label="Open Guide" onClick={(e) => { e.stopPropagation(); setIsAssistantOpen(!isAssistantOpen); }} className="p-2 rounded-full text-muted hover:bg-indigo-50 hover:text-indigo-600 transition-colors" title="Smart Guide">
               <Info size={20} />
             </button>
 
             <div className="relative" ref={settingsRef}>
-              <button onClick={() => setIsSettingsOpen(!isSettingsOpen)} className={`p-2 rounded-full transition-colors ${isSettingsOpen ? 'bg-slate-100 text-main' : 'text-muted hover:bg-slate-100'}`}><Settings size={20}/></button>
+              <button aria-label="Toggle Settings" onClick={() => setIsSettingsOpen(!isSettingsOpen)} className={`p-2 rounded-full transition-colors ${isSettingsOpen ? 'bg-slate-100 text-main' : 'text-muted hover:bg-slate-100'}`}><Settings size={20}/></button>
               {isSettingsOpen && (
                 <div className="absolute right-0 top-full mt-2 w-48 bg-surface rounded-xl shadow-xl border border-line overflow-hidden animate-in fade-in slide-in-from-top-2">
                   <div className="p-1">
@@ -76,7 +76,7 @@ export default function Navbar() {
                 </div>
               )}
             </div>
-            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="xl:hidden p-2 rounded-lg text-muted hover:bg-slate-100">{isMenuOpen ? <X size={20}/> : <Menu size={20}/>}</button>
+            <button aria-label="Toggle Menu" onClick={() => setIsMenuOpen(!isMenuOpen)} className="xl:hidden p-2 rounded-lg text-muted hover:bg-slate-100">{isMenuOpen ? <X size={20}/> : <Menu size={20}/>}</button>
           </div>
         </div>
       </nav>
