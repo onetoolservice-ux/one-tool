@@ -18,7 +18,7 @@ export default function SmartMin() {
             <div className="p-2 rounded-lg bg-amber-600 text-white"><Minimize size={22} /></div>
             <div><h1 className="text-lg font-bold text-main dark:text-slate-100 dark:text-slate-200">Smart Minify</h1><p className="text-xs font-bold text-muted dark:text-muted dark:text-muted dark:text-muted uppercase">Code Shrinker</p></div>
         </div>
-        <button aria-label="View Tool"<button onClick={minify} className="px-4 py-2 bg-amber-600 text-white rounded-lg text-xs font-bold flex items-center gap-2"><ArrowRight size={14}/> Minify</button>
+        <button aria-label="View Tool" onClick={minify} className="px-4 py-2 bg-amber-600 text-white rounded-lg text-xs font-bold flex items-center gap-2"><ArrowRight size={14}/> Minify</button>
       </div>
       <div className="flex-1 grid grid-cols-2 divide-x">
         <textarea value={input} onChange={e=>setInput(e.target.value)} className="p-6 resize-none outline-none font-mono text-sm" />

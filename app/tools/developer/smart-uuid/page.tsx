@@ -40,8 +40,8 @@ export default function SmartUUID() {
                 <option value="no-hyphen">No Hyphens</option>
                 <option value="urn">URN</option>
             </select>
-            <button aria-label="Copy to Clipboard"<button onClick={copyAll} className="px-4 py-2 bg-surface dark:bg-slate-800 dark:bg-surface border border-line dark:border-slate-700 dark:border-slate-700 dark:border-slate-800 text-main dark:text-slate-300 rounded-lg text-xs font-bold flex items-center gap-2 hover:bg-background dark:bg-[#0f172a] dark:bg-[#020617]"><Copy size={14}/> Copy All</button>
-            <button aria-label="Reset/Refresh Data"<button onClick={generate} className="px-4 py-2 bg-slate-800 text-white rounded-lg text-xs font-bold flex items-center gap-2"><RefreshCw size={14}/> Regen</button>
+            <button aria-label="Copy to Clipboard" onClick={copyAll} className="px-4 py-2 bg-surface dark:bg-slate-800 dark:bg-surface border border-line dark:border-slate-700 dark:border-slate-700 dark:border-slate-800 text-main dark:text-slate-300 rounded-lg text-xs font-bold flex items-center gap-2 hover:bg-background dark:bg-[#0f172a] dark:bg-[#020617]"><Copy size={14}/> Copy All</button>
+            <button aria-label="Reset/Refresh Data" onClick={generate} className="px-4 py-2 bg-slate-800 text-white rounded-lg text-xs font-bold flex items-center gap-2"><RefreshCw size={14}/> Regen</button>
         </div>
       </div>
       <div className="flex-1 overflow-auto p-6">

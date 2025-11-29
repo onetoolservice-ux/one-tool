@@ -22,7 +22,7 @@ export default function SmartJSON2TS() {
             <div className="p-2 rounded-lg bg-blue-700 text-white"><Braces size={22} /></div>
             <div><h1 className="text-lg font-bold text-main dark:text-slate-100 dark:text-slate-200">Smart JSON to TS</h1><p className="text-xs font-bold text-muted dark:text-muted dark:text-muted dark:text-muted uppercase">Interface Gen</p></div>
         </div>
-        <button aria-label="View Tool"<button onClick={convert} className="px-4 py-2 bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center gap-2"><ArrowRight size={14}/> Convert</button>
+        <button aria-label="View Tool" onClick={convert} className="px-4 py-2 bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center gap-2"><ArrowRight size={14}/> Convert</button>
       </div>
       <div className="flex-1 grid grid-cols-2 divide-x">
         <textarea value={input} onChange={e=>setInput(e.target.value)} className="p-6 resize-none outline-none font-mono text-sm" />

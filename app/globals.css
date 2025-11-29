@@ -4,28 +4,33 @@
 
 @layer base {
   :root {
-    /* LIGHT MODE */
-    --bg-app: 244 244 245;
-    --bg-card: 255 255 255;
-    --text-main: 39 39 42;
-    --text-muted: 113 113 122;
-    --border-color: 228 228 231;
-    --primary: 79 70 229;
+    /* --- LIGHT MODE: Soft Zinc --- */
+    --bg-app: 244 244 245;      /* Zinc-100 (Page Background) */
+    --bg-card: 255 255 255;     /* White (Card Surface) */
+    --bg-input: 250 250 250;    /* Zinc-50 (Input Fill) */
+    
+    --text-main: 39 39 42;      /* Zinc 800 (Charcoal) */
+    --text-muted: 82 82 91;     /* Zinc 700 (High Legibility in Light Mode) */
+    
+    --border-color: 228 228 231; /* Zinc 200 */
+    --primary: 79 70 229;        /* Indigo 600 */
   }
 
   .dark {
-    /* DARK MODE */
-    --bg-app: 9 9 11;
-    --bg-card: 24 24 27;
-    --text-main: 244 244 245;
-    --text-muted: 161 161 170;
-    --border-color: 39 39 42;
-    --primary: 99 102 241;
+    /* --- DARK MODE: Deep Charcoal --- */
+    --bg-app: 9 9 11;           /* Zinc 950 */
+    --bg-card: 24 24 27;        /* Zinc 900 */
+    --bg-input: 39 39 42;       /* Zinc 800 */
+    
+    --text-main: 244 244 245;   /* Zinc 100 */
+    --text-muted: 161 161 170;  /* Zinc 400 (Soft contrast on dark backgrounds) */
+    
+    --border-color: 51 65 85;   /* Slate 700 */
+    --primary: 99 102 241;      /* Indigo 500 */
   }
 }
 
 body {
-  /* Final Adaptive Background */
   background-color: rgb(var(--bg-app));
   color: rgb(var(--text-main));
   font-family: var(--font-sans), system-ui, sans-serif;
@@ -48,11 +53,11 @@ body {
     );
 }
 
-/* --- ADAPTIVE COMPONENTS (Standardized) --- */
+/* 1. Inputs: Fixed background and text color to ensure legibility */
 input, select, textarea {
   background-color: rgb(var(--bg-input));
   color: rgb(var(--text-main));
-  border: 1px solid transparent;
+  border: 1px solid rgb(var(--border-color));
   border-radius: 0.5rem;
   padding: 0.7rem 1rem;
   font-size: 0.875rem;
@@ -68,6 +73,9 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
+input::placeholder, textarea::placeholder { color: rgb(var(--text-muted) / 0.6); }
+
+/* 2. Cards: Shadow Layering for Separation */
 .card-base {
   background-color: rgb(var(--bg-card));
   border: 1px solid rgb(var(--border-color));
@@ -78,7 +86,7 @@ input:focus, select:focus, textarea:focus {
   box-shadow: none;
 }
 
-/* Scrollbar Polish */
+/* 3. SCROLLBARS */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background-color: rgb(var(--text-muted) / 0.3); border-radius: 10px; }
