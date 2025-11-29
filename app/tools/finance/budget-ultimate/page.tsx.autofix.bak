@@ -1,0 +1,167 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { getTransactions, getCategories } from "./utils/sampleData";
+import AnalyticTile from "./components/AnalyticTile";
+import { Search, Filter, BarChart3, LayoutPanelLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
+
+export default function OverviewPage() {
+  const router = useRouter();
+
+  const [txns, setTxns] = useState([]);
+  const [cats, setCats] = useState([]);
+
+  const [search, setSearch] = useState("");
+
+  // Load client-only data
+  useEffect(() => {
+    setTxns(getTransactions());
+    setCats(getCategories());
+  }, []);
+
+  // Compute KPIs safely
+  const income = txns.filter(t => t.type === "Income").reduce((s, x) => s + x.amount, 0);
+  const expense = txns.filter(t => t.type === "Expense").reduce((s, x) => s + x.amount, 0);
+  const balance = income - expense;
+
+  const filtered = txns.filter(t =>
+    t.desc.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-8">
+
+      {/* 5 KPI Tiles */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <AnalyticTile
+          title="Income"
+          value={`₹${income.toLocaleString()}`}
+          colorClass="text-emerald-600"
+          trendText="+12% vs last month"
+          data={[{ amt: 2000 }, { amt: 3500 }, { amt: 5000 }]}
+        />
+
+        <AnalyticTile
+          title="Expense"
+          value={`₹${expense.toLocaleString()}`}
+          colorClass="text-rose-600"
+          trendText="-5% variance"
+          data={[{ amt: 400 }, { amt: 500 }, { amt: 350 }]}
+        />
+
+        <AnalyticTile
+          title="Balance"
+          value={`₹${balance.toLocaleString()}`}
+          colorClass="text-blue-600"
+          trendText="Stable"
+          data={[{ amt: balance - 2000 }, { amt: balance }]}
+        />
+
+        <AnalyticTile
+          title="Categories"
+          value={categories.length}
+          colorClass="text-slate-900"
+          trendText="Active groups"
+          data={[{ amt: 2 }, { amt: 3 }, { amt: 5 }]}
+        />
+
+        <AnalyticTile
+          title="Savings Rate"
+          value={`${savingsRate}%`}
+          colorClass="text-indigo-600"
+          trendText="Income saved"
+          data={[{ amt: 5 }, { amt: 10 }, { amt: 12 }]}
+        />
+      </div>
+
+
+      {/* Table Title + Actions */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Transactions</h2>
+
+        <div className="flex gap-3 text-sm">
+          <button className="px-3 py-2 border rounded-lg flex items-center gap-2">
+            <BarChart3 size={16} /> KPI Dashboard
+          </button>
+
+          <button className="px-3 py-2 border rounded-lg flex items-center gap-2">
+            <LayoutPanelLeft size={16} /> Detailed Analytics
+          </button>
+
+          <button className="px-3 py-2 border rounded-lg">
+            Group by…
+          </button>
+        </div>
+      </div>
+
+
+      {/* Filters */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="relative w-72">
+          <Search size={16} className="absolute left-3 top-2.5 text-slate-400" />
+          <input
+            className="pl-10 pr-3 py-2 border rounded-lg w-full"
+            placeholder="Search…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+
+        <button className="px-3 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2">
+          <Filter size={15} /> Filters
+        </button>
+      </div>
+
+
+      {/* Transaction Table */}
+      <Card className="p-0">
+        <table className="min-w-full text-sm">
+          <thead className="bg-slate-50 border-b">
+            <tr>
+              <th className="p-3 text-left">Date</th>
+              <th className="p-3 text-left">Description</th>
+              <th className="p-3 text-left">Category</th>
+              <th className="p-3 text-right">Amount</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {filtered.map((t) => (
+              <tr key={t.id} className="border-b hover:bg-slate-50">
+                <td className="p-3">{t.date}</td>
+                <td className="p-3">{t.desc}</td>
+                <td className="p-3">{t.category}</td>
+                <td
+                  className={`p-3 text-right font-medium ${
+                    t.type === "Income" ? "text-emerald-600" : "text-rose-600"
+                  }`}
+                >
+                  {t.type === "Expense" ? "-" : "+"}₹{t.amount}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+
+          <tfoot className="bg-slate-50 border-t font-semibold">
+            <tr>
+              <td className="p-3" colSpan={3}>
+                Total ({filtered.length} items)
+              </td>
+              <td className="p-3 text-right">
+                ₹
+                {filtered
+                  .reduce(
+                    (s, x) =>
+                      s + (x.type === "Expense" ? -x.amount : x.amount),
+                    0
+                  )
+                  .toLocaleString()}
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </Card>
+    </div>
+  );
+}

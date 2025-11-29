@@ -25,21 +25,21 @@ export default function UnitConverter() {
       
       <div className="flex gap-2 overflow-x-auto pb-2 mb-6 no-scrollbar">
         {Object.keys(UNITS).map(c => (
-          <button key={c} onClick={()=>{setCat(c); setFrom(Object.keys(UNITS[c])[0]); setTo(Object.keys(UNITS[c])[1]);}} className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${cat===c ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>{c}</button>
+          <button key={c} onClick={()=>{setCat(c); setFrom(Object.keys(UNITS[c])[0]); setTo(Object.keys(UNITS[c])[1]);}} className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${cat===c ? 'bg-slate-800 text-white' : 'bg-slate-100 text-muted dark:text-muted/70 dark:text-muted/70 hover:bg-slate-200'}`}>{c}</button>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-[1fr,auto,1fr] gap-4 items-center bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-[1fr,auto,1fr] gap-4 items-center bg-surface dark:bg-slate-800 dark:bg-surface p-8 rounded-2xl border   border-line dark:border-slate-700 dark:border-slate-700 dark:border-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-none">
         <div>
-          <input type="number" value={val} onChange={e=>setVal(Number(e.target.value))} className="text-3xl font-bold w-full outline-none text-slate-800 bg-transparent placeholder:text-slate-300" placeholder="0"/>
-          <select value={from} onChange={e=>setFrom(e.target.value)} className="mt-2 w-full p-2 bg-slate-50 rounded text-sm font-medium outline-none">
+          <input type="number" value={val} onChange={e=>setVal(Number(e.target.value))} className="text-3xl font-bold w-full outline-none text-main dark:text-slate-100 dark:text-slate-200 bg-transparent dark:text-white placeholder:text-slate-300" placeholder="0"/>
+          <select value={from} onChange={e=>setFrom(e.target.value)} className="mt-2 w-full p-2 bg-background dark:bg-[#0f172a] dark:bg-[#020617] rounded text-sm font-medium outline-none">
             {Object.keys(UNITS[cat]).map(u=><option key={u} value={u}>{u}</option>)}
           </select>
         </div>
         <div className="flex justify-center text-slate-300"><ArrowRightLeft /></div>
         <div className="text-right">
           <div className="text-3xl font-bold text-[rgb(117,163,163)] truncate">{result.toLocaleString(undefined, {maximumFractionDigits:4})}</div>
-          <select value={to} onChange={e=>setTo(e.target.value)} className="mt-2 w-full p-2 bg-slate-50 rounded text-sm font-medium outline-none text-right">
+          <select value={to} onChange={e=>setTo(e.target.value)} className="mt-2 w-full p-2 bg-background dark:bg-[#0f172a] dark:bg-[#020617] rounded text-sm font-medium outline-none text-right">
             {Object.keys(UNITS[cat]).map(u=><option key={u} value={u}>{u}</option>)}
           </select>
         </div>

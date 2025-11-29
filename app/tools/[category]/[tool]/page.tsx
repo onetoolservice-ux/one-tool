@@ -18,28 +18,28 @@ export default function GenericToolPage({ params }: { params: ToolParams }) {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header */}
-      <div className="flex flex-col gap-2 border-b border-slate-200 pb-6">
-        <div className="flex items-center gap-2 text-sm text-slate-500 capitalize">
+      <div className="flex flex-col gap-2 border-b border-line dark:border-slate-700 dark:border-slate-700 dark:border-slate-800 pb-6">
+        <div className="flex items-center gap-2 text-sm text-muted dark:text-muted dark:text-muted dark:text-muted capitalize">
           <span>Tools</span>
           <span>/</span>
           <span>{category}</span>
         </div>
-        <h1 className="text-3xl font-bold text-slate-900 capitalize">
+        <h1 className="text-3xl font-bold text-main dark:text-slate-100 dark:text-slate-200 capitalize">
           {tool.replace(/-/g, ' ')}
         </h1>
-        <p className="text-slate-500">
+        <p className="text-muted dark:text-muted dark:text-muted dark:text-muted">
           This is a placeholder for the {tool} tool. 
           The specific logic for this tool will be loaded here.
         </p>
       </div>
 
       {/* Placeholder Content Area */}
-      <div className="p-12 text-center bg-slate-50 rounded-xl border border-dashed border-slate-300">
-        <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm text-2xl">
+      <div className="p-12 text-center bg-background dark:bg-[#0f172a] dark:bg-[#020617] rounded-xl border border-dashed border-line">
+        <div className="w-16 h-16 bg-surface dark:bg-slate-800 dark:bg-surface rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-slate-200/50 dark:shadow-none text-2xl">
           🛠️
         </div>
-        <h3 className="text-lg font-medium text-slate-900">Work in Progress</h3>
-        <p className="text-slate-500 max-w-md mx-auto mt-2">
+        <h3 className="text-lg font-medium text-main dark:text-slate-100 dark:text-slate-200">Work in Progress</h3>
+        <p className="text-muted dark:text-muted dark:text-muted dark:text-muted max-w-md mx-auto mt-2">
           We have set up the route for <strong>{tool}</strong>. 
           The specific calculator or converter logic goes here.
         </p>

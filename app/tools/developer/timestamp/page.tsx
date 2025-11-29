@@ -26,22 +26,22 @@ export default function TimestampConverter() {
     <div className="max-w-3xl mx-auto p-6">
       <ToolHeader title="Unix Timestamp" desc="Epoch to Human Time" icon={<Clock size={20}/>} />
       
-      <div className="bg-slate-900 text-white p-8 rounded-2xl shadow-xl text-center mb-8">
-        <div className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">Current Unix Time</div>
+      <div className="bg-surface text-white p-8 rounded-2xl shadow-xl dark:shadow-none dark:border dark:border-slate-600 text-center mb-8">
+        <div className="text-sm font-bold text-muted/70 uppercase tracking-widest mb-2">Current Unix Time</div>
         <div className="text-6xl font-mono font-bold tracking-tighter">{now}</div>
       </div>
 
-      <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+      <div className="bg-surface dark:bg-slate-800 dark:bg-surface p-8 rounded-2xl border   border-line dark:border-slate-700 dark:border-slate-700 dark:border-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-none space-y-6">
         <div>
-          <label className="text-xs font-bold text-slate-500 uppercase mb-2 block">Enter Timestamp</label>
+          <label className="text-xs font-bold text-muted dark:text-muted dark:text-muted dark:text-muted uppercase mb-2 block">Enter Timestamp</label>
           <div className="flex gap-2">
             <input 
               type="number" 
               value={input} 
               onChange={e => setInput(e.target.value)} 
-              className="flex-1 p-3 border border-slate-200 rounded-xl font-mono text-lg outline-none focus:border-emerald-500"
+              className="flex-1 p-3 border border-line dark:border-slate-700 dark:border-slate-700 dark:border-slate-800 rounded-xl font-mono text-lg outline-none focus:border-emerald-500"
             />
-            <button onClick={() => setInput(String(now))} className="px-4 py-2 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 text-sm">
+            <button onClick={() => setInput(String(now))} className="px-4 py-2 bg-slate-100 text-muted dark:text-muted/70 dark:text-muted/70 font-bold rounded-xl hover:bg-slate-200 text-sm">
               Current
             </button>
           </div>
@@ -63,7 +63,7 @@ export default function TimestampConverter() {
             </div>
           </div>
         ) : (
-          <div className="p-4 bg-rose-50 text-rose-600 rounded-xl text-center font-bold text-sm">Invalid Timestamp</div>
+          <div className="p-4 bg-rose-50 text-rose-600 dark:text-rose-400 rounded-xl text-center font-bold text-sm">Invalid Timestamp</div>
         )}
       </div>
     </div>

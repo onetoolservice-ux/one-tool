@@ -6,8 +6,8 @@ export default function LearnPage() {
     <div className="max-w-6xl mx-auto py-16 px-4">
       
       <div className="text-center mb-16">
-        <h1 className="text-4xl font-bold text-slate-900 mb-4">Learning Center</h1>
-        <p className="text-lg text-slate-500 max-w-2xl mx-auto">
+        <h1 className="text-4xl font-bold text-main dark:text-slate-50 dark:text-slate-100 mb-4">Learning Center</h1>
+        <p className="text-lg text-muted dark:text-muted dark:text-muted dark:text-muted max-w-2xl mx-auto">
           Master your digital life with our step-by-step guides on finance, productivity, and wellness.
         </p>
       </div>
@@ -19,7 +19,7 @@ export default function LearnPage() {
           icon={<CreditCard size={24}/>}
           title="Finance Mastery"
           desc="How to take control of your monthly budget without complex spreadsheets."
-          color="text-teal-600"
+          color="text-teal-600 dark:text-teal-400"
           bg="bg-teal-50"
           articles={[
             "Getting started with 50/30/20 rule",
@@ -33,7 +33,7 @@ export default function LearnPage() {
           icon={<Layers size={24}/>}
           title="Document Workflow"
           desc="Tips for managing, merging, and optimizing your digital files securely."
-          color="text-blue-600"
+          color="text-blue-600 dark:text-blue-400"
           bg="bg-blue-50"
           articles={[
             "Merging contracts securely",
@@ -47,7 +47,7 @@ export default function LearnPage() {
           icon={<Activity size={24}/>}
           title="Health & Focus"
           desc="Using our wellness tools to maintain balance during your workday."
-          color="text-rose-600"
+          color="text-rose-600 dark:text-rose-400"
           bg="bg-rose-50"
           articles={[
             "The 4-7-8 breathing technique explained",
@@ -60,7 +60,7 @@ export default function LearnPage() {
 
       {/* FAQ Section */}
       <div className="mt-20 max-w-3xl mx-auto">
-        <h2 className="text-2xl font-bold text-slate-900 mb-8 text-center">Frequently Asked Questions</h2>
+        <h2 className="text-2xl font-bold text-main dark:text-slate-50 dark:text-slate-100 mb-8 text-center">Frequently Asked Questions</h2>
         <div className="space-y-4">
           <FAQ 
             q="Is my data really private?" 
@@ -83,23 +83,23 @@ export default function LearnPage() {
 
 function GuideCard({ icon, title, desc, color, bg, articles }: any) {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all">
+    <div className="bg-surface dark:bg-slate-800 dark:bg-surface rounded-2xl border   border-line dark:border-slate-700 dark:border-slate-800 p-6   hover:  transition-all">
       <div className={`w-12 h-12 ${bg} ${color} rounded-xl flex items-center justify-center mb-4`}>
         {icon}
       </div>
-      <h3 className="text-xl font-bold text-slate-800 mb-2">{title}</h3>
-      <p className="text-sm text-slate-500 mb-6 h-10">{desc}</p>
+      <h3 className="text-xl font-bold text-main dark:text-slate-100 dark:text-slate-200 mb-2">{title}</h3>
+      <p className="text-sm text-muted dark:text-muted dark:text-muted dark:text-muted mb-6 h-10">{desc}</p>
       
       <div className="space-y-3">
         {articles.map((art: string, i: number) => (
-          <div key={i} className="flex items-center gap-2 text-sm font-medium text-slate-700 hover:text-[rgb(117,163,163)] cursor-pointer group">
+          <div key={i} className="flex items-center gap-2 text-sm font-medium text-main dark:text-slate-300 hover:text-[rgb(117,163,163)] cursor-pointer group">
             <div className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-[rgb(117,163,163)]"></div>
             {art}
           </div>
         ))}
       </div>
       
-      <button className="mt-6 w-full py-2 rounded-lg border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors flex items-center justify-center gap-1">
+      <button className="mt-6 w-full py-2 rounded-lg border border-line dark:border-slate-700 dark:border-slate-800 text-sm font-bold text-muted dark:text-muted/70 dark:text-muted/70 hover:bg-background dark:bg-surface dark:bg-slate-950 transition-colors flex items-center justify-center gap-1">
         Read Guides <ChevronRight size={14}/>
       </button>
     </div>
@@ -108,9 +108,9 @@ function GuideCard({ icon, title, desc, color, bg, articles }: any) {
 
 function FAQ({ q, a }: { q: string, a: string }) {
   return (
-    <div className="bg-slate-50 rounded-xl p-6 border border-slate-100">
-      <h4 className="font-bold text-slate-900 mb-2">{q}</h4>
-      <p className="text-sm text-slate-500 leading-relaxed">{a}</p>
+    <div className="bg-background dark:bg-surface dark:bg-slate-950 rounded-xl p-6 border border-line dark:border-slate-700 dark:border-slate-700 dark:border-slate-800">
+      <h4 className="font-bold text-main dark:text-slate-50 dark:text-slate-100 mb-2">{q}</h4>
+      <p className="text-sm text-muted dark:text-muted dark:text-muted dark:text-muted leading-relaxed">{a}</p>
     </div>
   )
 }

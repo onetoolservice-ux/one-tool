@@ -33,11 +33,11 @@ export default function CategoryPage({ params }: { params: Params }) {
   if (categoryTools.length === 0 && category !== "all") {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-        <div className="p-6 bg-slate-50 rounded-full mb-6">
+        <div className="p-6 bg-background dark:bg-[#0f172a] dark:bg-[#020617] rounded-full mb-6">
           <LayoutGrid className="text-slate-300" size={48} />
         </div>
-        <h2 className="text-2xl font-bold text-slate-800">Category Not Found</h2>
-        <Link href="/tools" className="mt-8 px-6 py-3 bg-slate-900 text-white rounded-xl font-medium">
+        <h2 className="text-2xl font-bold text-main dark:text-slate-100 dark:text-slate-200">Category Not Found</h2>
+        <Link href="/tools" className="mt-8 px-6 py-3 bg-surface text-white rounded-xl font-medium">
           Back to Dashboard
         </Link>
       </div>
@@ -46,13 +46,13 @@ export default function CategoryPage({ params }: { params: Params }) {
 
   return (
     <div className="max-w-6xl mx-auto py-12 px-4 min-h-screen">
-      <div className="mb-12 border-b border-slate-200 pb-8">
-        <div className="flex items-center gap-3 mb-3 text-sm font-medium text-slate-500">
-          <Link href="/tools" className="hover:text-slate-900">Tools</Link>
+      <div className="mb-12 border-b border-line dark:border-slate-700 dark:border-slate-700 dark:border-slate-800 pb-8">
+        <div className="flex items-center gap-3 mb-3 text-sm font-medium text-muted dark:text-muted dark:text-muted dark:text-muted">
+          <Link href="/tools" className="hover:text-main dark:text-slate-100 dark:text-slate-200">Tools</Link>
           <span className="text-slate-300">/</span>
           <span className="capitalize text-[rgb(117,163,163)]">{capitalize(category)}</span>
         </div>
-        <h1 className="text-4xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
+        <h1 className="text-4xl font-bold text-main dark:text-slate-100 dark:text-slate-200 tracking-tight flex items-center gap-3">
           {capitalize(category)} Tools
         </h1>
       </div>
@@ -62,17 +62,17 @@ export default function CategoryPage({ params }: { params: Params }) {
           <Link 
             key={tool.id} 
             href={tool.href}
-            className={`group relative bg-white p-6 rounded-2xl border border-slate-200 shadow-sm transition-all duration-300 flex flex-col h-full ${tool.status === 'Soon' ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-xl hover:-translate-y-1'}`}
+            className={`group relative bg-surface dark:bg-slate-800 dark:bg-surface p-6 rounded-2xl border   border-line dark:border-slate-700 dark:border-slate-700 dark:border-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-none transition-all duration-300 flex flex-col h-full ${tool.status === 'Soon' ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-xl dark:shadow-none dark:border dark:border-slate-600 hover:-translate-y-1'}`}
           >
             <div className="flex justify-between items-start mb-4">
-              <div className={`w-14 h-14 rounded-2xl ${tool.bg} ${tool.color} flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300`}>
+              <div className={`w-14 h-14 rounded-2xl ${tool.bg} ${tool.color} flex items-center justify-center shadow-lg shadow-slate-200/50 dark:shadow-none group-hover:scale-110 transition-transform duration-300`}>
                 {tool.icon}
               </div>
-              {tool.status === "New" && <span className="px-2 py-1 bg-indigo-50 text-indigo-700 text-[10px] font-bold uppercase tracking-wider rounded-md border border-indigo-100">New</span>}
+              {tool.status === "New" && <span className="px-2 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold uppercase tracking-wide tracking-wider rounded-md border border-indigo-100">New</span>}
             </div>
-            <h3 className="text-lg font-bold text-slate-800 mb-2 group-hover:text-[rgb(117,163,163)] transition-colors">{tool.name}</h3>
-            <p className="text-sm text-slate-500 leading-relaxed mb-6 flex-grow">{tool.desc}</p>
-            <div className="flex items-center text-sm font-semibold text-slate-900 mt-auto pt-4 border-t border-slate-50">
+            <h3 className="text-lg font-bold text-main dark:text-slate-100 dark:text-slate-200 mb-2 group-hover:text-[rgb(117,163,163)] transition-colors">{tool.name}</h3>
+            <p className="text-sm text-muted dark:text-muted dark:text-muted dark:text-muted leading-relaxed mb-6 flex-grow">{tool.desc}</p>
+            <div className="flex items-center text-sm font-semibold text-main dark:text-slate-100 dark:text-slate-200 mt-auto pt-4 border-t border-slate-50">
               {tool.status === 'Soon' ? 'Coming Soon' : 'Open Tool'}
               {tool.status !== 'Soon' && <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform text-[rgb(117,163,163)]"/>}
             </div>

@@ -1,0 +1,114 @@
+"use client";
+import React, { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { loadTransactions, loadCategories } from "../utils/sampleData";
+import Card from "../components/Card";
+import {
+  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, Treemap
+} from "recharts";
+
+/**
+ * Analytics page supports query params:
+ * ?view=detailed  -> detailed view
+ * ?group=Category -> pre-grouped by category
+ */
+
+export default function AnalyticsPage() {
+  const searchParams = useSearchParams();
+  const view = searchParams?.get("view") || "summary";
+  const group = searchParams?.get("group") || null;
+
+  const tx = loadTransactions();
+  const cats = loadCategories();
+
+  // KPI numbers
+  const income = tx.filter(t=>t.type==="Income").reduce((s,x)=>s+x.amount,0);
+  const expense = tx.filter(t=>t.type==="Expense").reduce((s,x)=>s+x.amount,0);
+  const balance = income - expense;
+
+  // monthly trend
+  const monthly = useMemo(()=> {
+    const map: Record<string, number> = {};
+    tx.forEach(t => {
+      const m = (t.date || "").slice(0,7);
+      if (!map[m]) map[m] = 0;
+      if (t.type === "Expense") map[m] += t.amount;
+    });
+    return Object.keys(map).sort().map(k=>({month:k, amount: map[k]}));
+  }, [tx]);
+
+  // category split
+  const categorySplit = useMemo(()=>{
+    const map: Record<string, number> = {};
+    tx.forEach(t=>{
+      const k = t.category || "Other";
+      if (!map[k]) map[k] = 0;
+      map[k] += (t.type === "Expense"? t.amount : 0);
+    });
+    return Object.entries(map).map(([name, value])=>({name, value}));
+  }, [tx]);
+
+  const COLORS = ["#0088FE","#00C49F","#FFBB28","#FF8042","#6366F1","#EC4899"];
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold">Analytics</h1>
+        <p className="text-sm text-slate-500">Quick insights — {view === "detailed" ? "Detailed" : "Summary"} view {group ? ` · grouped by ${group}` : ""}</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="p-4">
+          <div className="text-xs text-slate-500">Income</div>
+          <div className="text-2xl font-bold mt-1">₹{income.toLocaleString()}</div>
+        </Card>
+        <Card className="p-4">
+          <div className="text-xs text-slate-500">Expense</div>
+          <div className="text-2xl font-bold mt-1 text-rose-600">₹{expense.toLocaleString()}</div>
+        </Card>
+        <Card className="p-4">
+          <div className="text-xs text-slate-500">Balance</div>
+          <div className="text-2xl font-bold mt-1 text-blue-600">₹{balance.toLocaleString()}</div>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="bg-white p-3 rounded border">
+          <div className="text-sm font-semibold mb-2">Monthly Expense Trend</div>
+          <div style={{height:200}}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={monthly}>
+                <XAxis dataKey="month"/>
+                <YAxis/>
+                <Tooltip/>
+                <Line type="monotone" dataKey="amount" stroke="#6366F1" strokeWidth={2}/>
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="bg-white p-3 rounded border">
+          <div className="text-sm font-semibold mb-2">Category Split</div>
+          <div style={{height:200}}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={categorySplit} dataKey="value" nameKey="name" innerRadius={30} outerRadius={70} label>
+                  {categorySplit.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="bg-white p-3 rounded border">
+          <div className="text-sm font-semibold mb-2">Category Treemap</div>
+          <div style={{height:200}}>
+            <ResponsiveContainer width="100%" height="100%">
+              <Treemap data={categorySplit.map(d=>({name:d.name, size:d.value}))} dataKey="size" ratio={4/3} />
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

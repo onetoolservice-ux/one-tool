@@ -1,0 +1,60 @@
+import { uid } from "@/app/utils/uid";
+import { LS_KEYS } from "../storage";
+import { readLS, writeLS } from "../storage";
+
+// ===============================
+// Types
+// ===============================
+export type Txn = {
+  id: string;
+  date: string;
+  amount: number;
+  type: string;
+  category: string;
+  note?: string;
+};
+
+export type Category = {
+  id: string;
+  name: string;
+  type: "income" | "expense";
+};
+
+// ===============================
+// Transaction Logic
+// ===============================
+
+export function getTransactions(): Txn[] {
+  return readLS(LS_KEYS.TRANSACTIONS, []);
+}
+
+export function saveTransactions(list: Txn[]) {
+  writeLS(LS_KEYS.TRANSACTIONS, list);
+}
+
+export function addTransaction(txn: Omit<Txn, "id">) {
+  const all = getTransactions();
+  const newTxn = { id: uid(), ...txn };
+  const updated = [...all, newTxn];
+  saveTransactions(updated);
+  return newTxn;
+}
+
+export function clearTransactions() {
+  saveTransactions([]);
+}
+
+// ===============================
+// Categories Logic
+// ===============================
+
+export function getCategories(): Category[] {
+  return readLS(LS_KEYS.CATEGORIES, []);
+}
+
+export function addCategory(name: string, type: "income" | "expense") {
+  const all = getCategories();
+  const newCat = { id: uid(), name, type };
+  writeLS(LS_KEYS.CATEGORIES, [...all, newCat]);
+  return newCat;
+}

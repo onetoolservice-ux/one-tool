@@ -4,11 +4,11 @@ import { FileQuestion, ArrowLeft } from "lucide-react";
 export default function NotFound() {
   return (
     <div className="flex h-[80vh] flex-col items-center justify-center text-center px-4">
-      <div className="p-4 bg-slate-50 rounded-full mb-6">
-        <FileQuestion size={48} className="text-slate-400" />
+      <div className="p-4 bg-background dark:bg-surface dark:bg-slate-950 rounded-full mb-6">
+        <FileQuestion size={48} className="text-muted/70" />
       </div>
-      <h2 className="text-3xl font-bold text-slate-800">Page Not Found</h2>
-      <p className="text-slate-500 mt-2 max-w-md">
+      <h2 className="text-3xl font-bold text-main dark:text-slate-100 dark:text-slate-200">Page Not Found</h2>
+      <p className="text-muted dark:text-muted dark:text-muted dark:text-muted mt-2 max-w-md">
         We couldn't find the tool or page you're looking for. It might have been moved or doesn't exist.
       </p>
       <Link 

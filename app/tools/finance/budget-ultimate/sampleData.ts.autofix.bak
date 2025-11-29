@@ -1,0 +1,45 @@
+import { getTransactions, saveTransactions, addTransaction, clearTransactions, getCategories } from "../utils/sampleData";
+// Auto-fixed sample data schema — OneTool Budget Ultimate
+
+import { uid } from "@/app/utils/uid";
+  {
+    id: uid(),
+    date: "2025-05-01",
+    type: "Expense",
+    category: "Groceries",
+    desc: "Milk + Vegetables",
+    mode: "Card",
+    amount: 550,
+    status: "Posted",
+  },{
+    id: uid(),
+    date: "2025-05-02",
+    type: "Income",
+    category: "Salary",
+    desc: "Monthly salary",
+    mode: "Bank",
+    amount: 48000,
+    date: "2025-05-03",
+    category: "Transport",
+    desc: "Cab + Bus",
+    mode: "Cash",
+    amount: 320,
+    date: "2025-05-04",
+    category: "Food",
+    desc: "Lunch outside",
+    amount: 250,
+  }
+];
+// Auto schema safety wrapper
+export function normalizeTransactions(list) {
+  return list.map((row) => ({
+    id: row.id ?? uid(),
+    date: row.date ?? new Date().toISOString().slice(0, 10),
+    type: row.type ?? "Expense",
+    category: row.category ?? "General",
+    desc: row.desc ?? "",
+    mode: row.mode ?? "Card",
+    amount: Number(row.amount ?? 0),
+    status: row.status ?? "Posted",
+  }));
+}

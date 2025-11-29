@@ -30,9 +30,9 @@ export default function AIStudio() {
     positiveWords.forEach(w => { if(lowerText.includes(w)) score++ });
     negativeWords.forEach(w => { if(lowerText.includes(w)) score-- });
 
-    let sentiment = { label: "Neutral", color: "text-slate-500", bg: "bg-slate-100", icon: <Minus size={20}/> };
-    if (score > 0) sentiment = { label: "Positive", color: "text-emerald-600", bg: "bg-emerald-50", icon: <Smile size={20}/> };
-    if (score < 0) sentiment = { label: "Negative", color: "text-rose-600", bg: "bg-rose-50", icon: <Frown size={20}/> };
+    let sentiment = { label: "Neutral", color: "text-muted dark:text-muted dark:text-muted dark:text-muted", bg: "bg-slate-100", icon: <Minus size={20}/> };
+    if (score > 0) sentiment = { label: "Positive", color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50", icon: <Smile size={20}/> };
+    if (score < 0) sentiment = { label: "Negative", color: "text-rose-600 dark:text-rose-400", bg: "bg-rose-50", icon: <Frown size={20}/> };
 
     return { words, chars, sentences, paragraphs, readingTime, sentiment };
   }, [text]);
@@ -48,13 +48,13 @@ export default function AIStudio() {
       
       {/* Header */}
       <div className="text-center mb-12">
-        <div className="inline-flex p-3 bg-indigo-50 text-indigo-600 rounded-2xl mb-4 shadow-sm">
+        <div className="inline-flex p-3 bg-indigo-50 text-indigo-600 dark:text-indigo-400 rounded-2xl mb-4  ">
           <Bot size={32} />
         </div>
-        <h1 className="text-4xl font-bold text-slate-900 tracking-tight">Local Intelligence</h1>
-        <p className="text-lg text-slate-500 mt-3 max-w-2xl mx-auto">
+        <h1 className="text-4xl font-bold text-main dark:text-slate-50 dark:text-slate-100 tracking-tight">Local Intelligence</h1>
+        <p className="text-lg text-muted dark:text-muted dark:text-muted dark:text-muted mt-3 max-w-2xl mx-auto">
           Analyze text structure and sentiment instantly. 
-          <span className="text-indigo-600 font-medium bg-indigo-50 px-2 py-0.5 rounded ml-1">100% Offline</span>
+          <span className="text-indigo-600 dark:text-indigo-400 font-medium bg-indigo-50 px-2 py-0.5 rounded ml-1">100% Offline</span>
         </p>
       </div>
 
@@ -62,15 +62,15 @@ export default function AIStudio() {
         
         {/* INPUT AREA (Left) */}
         <div className="lg:col-span-8 flex flex-col h-[600px]">
-          <div className="bg-white rounded-t-2xl border border-slate-200 border-b-0 p-4 flex justify-between items-center bg-slate-50/50">
-            <div className="flex items-center gap-2 text-sm font-bold text-slate-500 uppercase tracking-wider">
+          <div className="bg-surface dark:bg-slate-800 dark:bg-surface rounded-t-2xl border border-line dark:border-slate-700 dark:border-slate-800 border-b-0 p-4 flex justify-between items-center bg-background dark:bg-surface dark:bg-slate-950/50">
+            <div className="flex items-center gap-2 text-sm font-bold text-muted dark:text-muted dark:text-muted dark:text-muted uppercase tracking-wider">
               <AlignLeft size={16} /> Input Text
             </div>
             <div className="flex gap-2">
-              <button onClick={() => setText("")} className="text-xs font-medium text-slate-500 hover:text-rose-600 px-3 py-1.5 hover:bg-rose-50 rounded-lg transition-colors">
+              <button onClick={() => setText("")} className="text-xs font-medium text-muted dark:text-muted dark:text-muted dark:text-muted hover:text-rose-600 dark:text-rose-400 px-3 py-1.5 hover:bg-rose-50 rounded-lg transition-colors">
                 Clear
               </button>
-              <button onClick={handleCopy} className="text-xs font-medium text-slate-500 hover:text-indigo-600 px-3 py-1.5 hover:bg-indigo-50 rounded-lg transition-colors flex items-center gap-1">
+              <button onClick={handleCopy} className="text-xs font-medium text-muted dark:text-muted dark:text-muted dark:text-muted hover:text-indigo-600 dark:text-indigo-400 px-3 py-1.5 hover:bg-indigo-50 rounded-lg transition-colors flex items-center gap-1">
                 {copied ? <Check size={12}/> : <Copy size={12}/>} Copy
               </button>
             </div>
@@ -79,7 +79,7 @@ export default function AIStudio() {
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Paste your article, email, or essay here to analyze..."
-            className="flex-1 w-full p-6 resize-none outline-none text-slate-700 text-lg leading-relaxed placeholder:text-slate-300 border border-slate-200 border-t-0 rounded-b-2xl focus:ring-2 focus:ring-indigo-500/10 transition-all shadow-sm"
+            className="flex-1 w-full p-6 resize-none outline-none text-main dark:text-slate-300 text-lg leading-relaxed placeholder:text-slate-300 border border-line dark:border-slate-700 dark:border-slate-800 border-t-0 rounded-b-2xl focus:ring-2 focus:ring-indigo-500/10 transition-all  "
             spellCheck={false}
           />
         </div>
@@ -88,12 +88,12 @@ export default function AIStudio() {
         <div className="lg:col-span-4 space-y-6">
           
           {/* Privacy Badge */}
-          <div className="bg-slate-900 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group">
+          <div className="bg-surface rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
               <ShieldCheck size={80} />
             </div>
             <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-white/10 rounded-lg"><ShieldCheck size={20}/></div>
+              <div className="p-2 bg-surface dark:bg-slate-800 dark:bg-surface/10 rounded-lg"><ShieldCheck size={20}/></div>
               <span className="font-semibold text-sm uppercase tracking-wide text-slate-300">Privacy Shield</span>
             </div>
             <p className="text-sm text-slate-300 leading-relaxed">
@@ -105,8 +105,8 @@ export default function AIStudio() {
             <div className="animate-in fade-in slide-in-from-bottom-4 space-y-4">
               
               {/* Sentiment Card */}
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <div className="bg-surface dark:bg-slate-800 dark:bg-surface p-6 rounded-2xl border   border-line dark:border-slate-700 dark:border-slate-800  ">
+                <div className="text-xs font-bold text-muted/70 uppercase tracking-wider mb-4 flex items-center gap-2">
                   <Sparkles size={14} /> Tone Analysis
                 </div>
                 <div className="flex items-center gap-4">
@@ -117,7 +117,7 @@ export default function AIStudio() {
                     <div className={`text-xl font-bold ${stats.sentiment.color}`}>
                       {stats.sentiment.label}
                     </div>
-                    <div className="text-xs text-slate-400 mt-0.5">Detected Sentiment</div>
+                    <div className="text-xs text-muted/70 mt-0.5">Detected Sentiment</div>
                   </div>
                 </div>
               </div>
@@ -132,7 +132,7 @@ export default function AIStudio() {
 
             </div>
           ) : (
-            <div className="h-64 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center text-slate-400 text-center p-6">
+            <div className="h-64 border-2 border-dashed border-line dark:border-slate-700 dark:border-slate-800 rounded-2xl flex flex-col items-center justify-center text-muted/70 text-center p-6">
               <Zap size={32} className="mb-3 opacity-20" />
               <p className="text-sm">Start typing or paste text to see real-time intelligence.</p>
             </div>
@@ -146,10 +146,10 @@ export default function AIStudio() {
 
 function StatBox({ label, value, icon }: any) {
   return (
-    <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-200 transition-colors">
-      <div className="text-slate-400 mb-2">{icon}</div>
-      <div className="text-2xl font-bold text-slate-800">{value}</div>
-      <div className="text-xs text-slate-500 font-medium mt-1">{label}</div>
+    <div className="bg-surface dark:bg-slate-800 dark:bg-surface p-4 rounded-xl border border-line dark:border-slate-700 dark:border-slate-800   hover:border-indigo-200 transition-colors">
+      <div className="text-muted/70 mb-2">{icon}</div>
+      <div className="text-2xl font-bold text-main dark:text-slate-100 dark:text-slate-200">{value}</div>
+      <div className="text-xs text-muted dark:text-muted dark:text-muted dark:text-muted font-medium mt-1">{label}</div>
     </div>
   )
 }

@@ -1,0 +1,46 @@
+"use client";
+import { useState } from "react";
+
+export default function EditableTable() {
+  const [rows, setRows] = useState([
+    {
+      id: 1,
+      date: "2025-05-01",
+      desc: "Groceries",
+      category: "Food",
+      amount: 550,
+    },
+    {
+      id: 2,
+      date: "2025-05-02",
+      desc: "Salary",
+      category: "Income",
+      amount: 48000,
+    },
+  ]);
+  return (
+    <div className="bg-white border rounded p-4">
+      <div className="font-semibold mb-3">Transactions</div>
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="text-left bg-slate-50">
+            <th className="p-3">Date</th>
+            <th className="p-3">Description</th>
+            <th className="p-3">Category</th>
+            <th className="p-3">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.id} className="border-t">
+              <td className="p-3">{r.date}</td>
+              <td className="p-3">{r.desc}</td>
+              <td className="p-3">{r.category}</td>
+              <td className="p-3">₹{r.amount.toLocaleString()}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}

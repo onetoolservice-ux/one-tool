@@ -1,0 +1,174 @@
+import { getTransactions, saveTransactions, addTransaction, clearTransactions, getCategories } from "../utils/sampleData";
+"use client";
+
+import { useState } from "react";
+import { Search, Filter, BarChart3, LayoutPanelLeft } from "lucide-react";
+import AnalyticTile from "../components/AnalyticTile";
+
+export default function OverviewPage() {
+  const [search, setSearch] = useState("");
+
+    .filter((t) => t.type === "Income")
+    .reduce((s, x) => s + x.amount, 0);
+
+    .filter((t) => t.type === "Expense")
+    .reduce((s, x) => s + x.amount, 0);
+
+  const balance = income - expense;
+  const savingsRate = income > 0 ? ((balance / income) * 100).toFixed(1) : 0;
+
+    t.desc.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-8">
+      
+      {/* =========================================================
+            TOP ANALYTICAL DASHBOARD — 5 tiles
+      ========================================================== */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+
+        <AnalyticTile
+          title="Income"
+          value={`₹${income.toLocaleString()}`}
+          colorClass="text-emerald-600"
+          trendText="+12% vs last month"
+          data={[{ amt: 2000 }, { amt: 3500 }, { amt: 5000 }, { amt: 4200 }, { amt: 6000 }]}
+        />
+
+        <AnalyticTile
+          title="Expense"
+          value={`₹${expense.toLocaleString()}`}
+          colorClass="text-rose-600"
+          trendText="-5% variance"
+          data={[{ amt: 400 }, { amt: 320 }, { amt: 500 }, { amt: 450 }, { amt: 380 }]}
+        />
+
+        <AnalyticTile
+          title="Balance"
+          value={`₹${balance.toLocaleString()}`}
+          colorClass="text-blue-600"
+          trendText="Stable"
+          data={[{ amt: balance - 2000 }, { amt: balance - 1000 }, { amt: balance }]}
+        />
+
+        <AnalyticTile
+          title="Categories"
+          colorClass="text-slate-900"
+          trendText="Active groups"
+          data={[{ amt: 3 }, { amt: 4 }, { amt: 5 }, { amt: 3 }, { amt: 4 }]}
+        />
+
+        <AnalyticTile
+          title="Savings Rate"
+          value={`${savingsRate}%`}
+          colorClass="text-indigo-600"
+          trendText="Income saved"
+          data={[{ amt: 5 }, { amt: 8 }, { amt: 10 }, { amt: 7 }, { amt: 11 }]}
+        />
+      </div>
+
+
+      {/* =========================================================
+          TABLE TITLE + ACTION BUTTONS
+      ========================================================== */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Transactions</h2>
+
+        <div className="flex gap-3 text-sm">
+          <button className="px-3 py-2 border rounded-lg flex items-center gap-2">
+            <BarChart3 size={16} /> KPI Dashboard
+          </button>
+          <button className="px-3 py-2 border rounded-lg flex items-center gap-2">
+            <LayoutPanelLeft size={16} /> Detailed Analytics
+          </button>
+          <button className="px-3 py-2 border rounded-lg">Group by…</button>
+        </div>
+      </div>
+
+
+      {/* =========================================================
+          FILTER BAR — AGGREGATED + MOVED UP
+      ========================================================== */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+        
+        {/* Search */}
+        <div className="relative w-full md:w-80">
+          <Search
+            size={16}
+            className="absolute left-3 top-2.5 text-slate-400"
+          />
+          <input
+            className="w-full pl-10 pr-3 py-2 border rounded-lg text-sm"
+            placeholder="Search description or category..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+
+        {/* Filters */}
+        <div className="flex gap-3">
+          <button className="px-3 py-2 rounded-lg bg-blue-600 text-white flex items-center gap-2">
+            <Filter size={15} /> Filters
+          </button>
+        </div>
+      </div>
+
+
+      {/* =========================================================
+          TRANSACTION TABLE — compact, no scrolling needed
+      ========================================================== */}
+      <div className="border rounded-lg overflow-hidden">
+        <table className="min-w-full text-sm">
+          <thead className="bg-slate-50 border-b">
+            <tr>
+              <th className="p-3 text-left">Date</th>
+              <th className="p-3 text-left">Description</th>
+              <th className="p-3 text-left">Category</th>
+              <th className="p-3 text-left">Type</th>
+              <th className="p-3 text-right">Amount</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {filtered.map((t) => (
+              <tr key={t.id} className="border-b hover:bg-slate-50">
+                <td className="p-3">{t.date}</td>
+                <td className="p-3">{t.desc}</td>
+                <td className="p-3">{t.category}</td>
+                <td className="p-3">{t.type}</td>
+                <td
+                  className={`p-3 text-right font-medium ${
+                    t.type === "Income"
+                      ? "text-emerald-600"
+                      : "text-rose-600"
+                  }`}
+                >
+                  {t.type === "Expense" ? "-" : "+"}₹{t.amount}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+
+          <tfoot className="bg-slate-50 border-t font-semibold">
+            <tr>
+              <td className="p-3" colSpan={4}>
+                Total ({filtered.length} items)
+              </td>
+              <td className="p-3 text-right">
+                ₹
+                {filtered
+                  .reduce(
+                    (s, x) =>
+                      s + (x.type === "Expense" ? -x.amount : x.amount),
+                    0
+                  )
+                  .toLocaleString()}
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  );
+}

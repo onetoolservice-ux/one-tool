@@ -15,7 +15,7 @@ export default function Navbar(){
     return ()=> document.removeEventListener("click", onDoc);
   },[]);
   return (
-    <header className="w-full bg-white border-b border-[#E5E7EB]">
+    <header className="w-full bg-surface dark:bg-slate-800 dark:bg-surface border-b border-[#E5E7EB]">
       <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{background:"rgb(117,163,163)"}}>
@@ -34,7 +34,7 @@ export default function Navbar(){
             </button>
 
             {open && (
-              <div className="absolute right-0 mt-2 w-64 bg-white border rounded-lg shadow-smooth p-4 z-50">
+              <div className="absolute right-0 mt-2 w-64 bg-surface dark:bg-slate-800 dark:bg-surface border rounded-lg  ooth p-4 z-50">
                 <div className="grid grid-cols-1 gap-2">
                   <Link href="/tools/finance" className="p-2 rounded hover:bg-gray-50">Finance</Link>
                   <Link href="/tools/health" className="p-2 rounded hover:bg-gray-50">Health</Link>

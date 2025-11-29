@@ -1,0 +1,36 @@
+// -----------------------------------------------------
+// LocalStorage Keys
+// -----------------------------------------------------
+export const LS_KEYS = {
+  TRANSACTIONS: "ots_budget_txns_v2",
+  CATEGORIES: "ots_budget_categories_v1",
+  FIRST_RUN: "ots_budget_first_run_v1",
+};
+
+// -----------------------------------------------------
+// Safe read/write helpers
+// -----------------------------------------------------
+export function readLS(key: string, fallback: any) {
+  try {
+    if (typeof window === "undefined") return fallback;
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+export function writeLS(key: string, value: any) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {}
+}
+
+// -----------------------------------------------------
+// Clear all user data
+// -----------------------------------------------------
+export function clearAllUserData() {
+  localStorage.removeItem(LS_KEYS.TRANSACTIONS);
+  localStorage.removeItem(LS_KEYS.CATEGORIES);
+  localStorage.setItem(LS_KEYS.FIRST_RUN, "false");
+}

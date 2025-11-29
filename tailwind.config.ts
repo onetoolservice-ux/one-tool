@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: "class",
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -10,18 +11,23 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-mono)', 'monospace'],
       },
       colors: {
-        brand: {
-          50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 900: '#134e4a',
-        },
-        slate: {
-          50: '#f8fafc', 100: '#f1f5f9', 400: '#94a3b8', 500: '#64748b', 800: '#1e293b', 900: '#0f172a',
-        },
+        // Semantic Tokens
+        background: "rgb(var(--bg-app) / <alpha-value>)",
+        surface: "rgb(var(--bg-surface) / <alpha-value>)",
+        input: "rgb(var(--bg-input) / <alpha-value>)",
+        
+        main: "rgb(var(--text-main) / <alpha-value>)",
+        muted: "rgb(var(--text-muted) / <alpha-value>)",
+        
+        line: "rgb(var(--border-color) / <alpha-value>)",
+        brand: "rgb(var(--primary) / <alpha-value>)",
       },
       boxShadow: {
-        'sm': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-        'DEFAULT': '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+        'glow': '0 0 15px rgba(79, 70, 229, 0.3)',
       }
     },
   },

@@ -2,7 +2,7 @@ export default function PrivacyPolicy() {
   return (
     <div className="max-w-3xl mx-auto py-16 px-4 prose prose-slate">
       <h1>Privacy Policy</h1>
-      <p className="text-lg text-slate-600">Last updated: November 2025</p>
+      <p className="text-lg text-muted dark:text-muted/70 dark:text-muted/70">Last updated: November 2025</p>
       
       <h3>1. Our Core Promise</h3>
       <p>One Tool Solutions (OTS) is built on a <strong>Local-First Architecture</strong>. This means that when you use our tools (like calculating a budget, merging a PDF, or editing an image), the processing happens entirely within your web browser using JavaScript and WebAssembly.</p>

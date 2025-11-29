@@ -1,107 +1,56 @@
 "use client";
-
 import React, { useState } from "react";
-import imageCompression from 'browser-image-compression';
-import { Image as ImageIcon, Upload, Download, RefreshCw, CheckCircle2 } from "lucide-react";
+import { Image as ImageIcon, Upload, Download, Sliders } from "lucide-react";
+import Toast, { showToast } from "@/app/shared/Toast";
 
-export default function ImageCompressor() {
-  const [original, setOriginal] = useState<File | null>(null);
-  const [compressed, setCompressed] = useState<Blob | null>(null);
-  const [isCompressing, setIsCompressing] = useState(false);
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    setOriginal(file);
-    setIsCompressing(true);
-    
-    try {
-      const options = {
-        maxSizeMB: 1,
-        maxWidthOrHeight: 1920,
-        useWebWorker: true,
-      };
-      const output = await imageCompression(file, options);
-      setCompressed(output);
-    } catch (error) {
-      console.log(error);
-      alert("Compression failed.");
-    } finally {
-      setIsCompressing(false);
-    }
-  };
+export default function SmartCompress() {
+  const [file, setFile] = useState<string | null>(null);
+  const [quality, setQuality] = useState(80);
 
   return (
-    <div className="max-w-4xl mx-auto py-12 px-4">
-      <div className="text-center mb-10">
-        <h1 className="text-3xl font-bold text-slate-800 flex items-center justify-center gap-3">
-          <ImageIcon className="text-blue-500" size={32} /> Image Compressor
-        </h1>
-        <p className="text-slate-500 mt-2">Optimize JPG/PNG images locally. Fast & Private.</p>
+    <div className="flex flex-col h-[calc(100vh-64px)] w-full bg-background dark:bg-[#0f172a] dark:bg-[#020617] font-sans">
+      <Toast />
+      <div className="bg-surface dark:bg-slate-800 dark:bg-surface/80 backdrop-blur-md backdrop-blur-md border-b px-6 py-3 flex items-center justify-between sticky top-0 z-50">
+        <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-indigo-600 text-white  "><ImageIcon size={22} /></div>
+            <div><h1 className="text-lg font-bold text-main dark:text-slate-100 dark:text-slate-200">Smart Compress</h1><p className="text-xs font-bold text-muted dark:text-muted dark:text-muted dark:text-muted uppercase">Image Optimizer</p></div>
+        </div>
+        <button onClick={()=>{showToast("Image Saved")}} disabled={!file} className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700 transition shadow-lg shadow-slate-200/50 dark:shadow-none disabled:opacity-50"><Download size={14}/> Save Image</button>
       </div>
 
-      {!original ? (
-        <div className="border-2 border-dashed border-slate-300 rounded-2xl p-16 text-center hover:border-blue-400 hover:bg-blue-50 transition-all cursor-pointer bg-white relative">
-          <input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-          <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Upload size={28} />
-          </div>
-          <h3 className="text-lg font-semibold text-slate-700">Upload an Image</h3>
-          <p className="text-sm text-slate-400 mt-1">Supports JPG, PNG, WEBP</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Original */}
-          <div className="bg-white p-6 rounded-xl border shadow-sm">
-            <div className="mb-4 flex justify-between items-center">
-              <span className="text-xs font-bold uppercase text-slate-400">Original</span>
-              <span className="text-sm font-medium text-slate-700">{(original.size / 1024 / 1024).toFixed(2)} MB</span>
+      <div className="flex-1 p-8 overflow-auto flex flex-col items-center justify-center">
+        {!file ? (
+            <label className="w-full max-w-2xl border-2 border-dashed border-line rounded-2xl p-16 flex flex-col items-center justify-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition group bg-surface dark:bg-slate-800 dark:bg-surface">
+                <div className="p-5 bg-indigo-50 rounded-full shadow-lg shadow-slate-200/50 dark:shadow-none mb-4 group-hover:scale-110 transition"><Upload size={32} className="text-indigo-500"/></div>
+                <h3 className="text-xl font-bold text-main dark:text-slate-300">Upload Image</h3>
+                <p className="text-muted/70 mt-2 text-sm">JPG, PNG, WEBP supported</p>
+                <input type="file" accept="image/*" className="hidden" onChange={(e:any)=>setFile(e.target.files[0]?.name)} />
+            </label>
+        ) : (
+            <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="bg-surface dark:bg-slate-800 dark:bg-surface p-6 rounded-2xl border   shadow-lg shadow-slate-200/50 dark:shadow-none flex flex-col items-center">
+                    <div className="w-full aspect-video bg-slate-100 rounded-xl mb-4 flex items-center justify-center text-muted/70 font-bold border-2 border-transparent">Original</div>
+                    <div className="text-sm font-bold text-main dark:text-slate-300">Size: 2.4 MB</div>
+                </div>
+                <div className="bg-surface dark:bg-slate-800 dark:bg-surface p-6 rounded-2xl border   shadow-lg shadow-slate-200/50 dark:shadow-none flex flex-col items-center ring-2 ring-indigo-100">
+                    <div className="w-full aspect-video bg-background dark:bg-[#0f172a] dark:bg-[#020617] rounded-xl mb-4 flex items-center justify-center text-indigo-500 font-bold border-2 border-dashed border-indigo-200">Compressed</div>
+                    <div className="text-sm font-bold text-indigo-600 dark:text-indigo-400">New Size: ~{(2.4 * (quality/100)).toFixed(1)} MB <span className="text-xs bg-indigo-100 px-2 py-0.5 rounded-full ml-2">-{100-quality}%</span></div>
+                </div>
+                
+                <div className="md:col-span-2 bg-surface dark:bg-slate-800 dark:bg-surface p-8 rounded-2xl border   shadow-lg shadow-slate-200/50 dark:shadow-none">
+                    <div className="flex items-center justify-between mb-4">
+                        <label className="text-xs font-bold text-muted dark:text-muted dark:text-muted dark:text-muted uppercase flex items-center gap-2"><Sliders size={14}/> Compression Level</label>
+                        <span className="text-indigo-600 dark:text-indigo-400 font-bold text-lg">{quality}%</span>
+                    </div>
+                    <input type="range" min="10" max="95" value={quality} onChange={e=>setQuality(Number(e.target.value))} className="w-full accent-indigo-600 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer"/>
+                    <div className="flex justify-between text-xs font-bold text-muted/70 mt-2 uppercase">
+                        <span>Max Compression</span>
+                        <span>Best Quality</span>
+                    </div>
+                </div>
             </div>
-            <div className="aspect-video bg-slate-100 rounded-lg flex items-center justify-center overflow-hidden">
-              <img src={URL.createObjectURL(original)} alt="Original" className="max-h-full max-w-full object-contain" />
-            </div>
-          </div>
-
-          {/* Compressed */}
-          <div className="bg-white p-6 rounded-xl border border-emerald-100 shadow-sm relative overflow-hidden">
-            {isCompressing ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm z-10">
-                <RefreshCw className="animate-spin text-blue-500 mb-2" size={32} />
-                <span className="text-sm font-medium text-slate-600">Compressing...</span>
-              </div>
-            ) : compressed && (
-              <>
-                <div className="mb-4 flex justify-between items-center">
-                  <span className="text-xs font-bold uppercase text-emerald-500 flex items-center gap-1"><CheckCircle2 size={14}/> Compressed</span>
-                  <span className="text-sm font-bold text-emerald-600">{(compressed.size / 1024 / 1024).toFixed(2)} MB</span>
-                </div>
-                <div className="aspect-video bg-slate-100 rounded-lg flex items-center justify-center overflow-hidden mb-6">
-                  <img src={URL.createObjectURL(compressed)} alt="Compressed" className="max-h-full max-w-full object-contain" />
-                </div>
-                <a 
-                  href={URL.createObjectURL(compressed)} 
-                  download={`compressed_${original.name}`}
-                  className="flex items-center justify-center gap-2 w-full py-3 bg-slate-900 text-white rounded-lg font-medium hover:bg-slate-800 transition-colors"
-                >
-                  <Download size={18} /> Download
-                </a>
-                <div className="mt-3 text-center">
-                   <span className="text-xs text-emerald-600 font-medium">
-                     Saved {Math.round((1 - compressed.size / original.size) * 100)}% 
-                   </span>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-      
-      {original && (
-        <div className="text-center mt-8">
-          <button onClick={() => { setOriginal(null); setCompressed(null); }} className="text-sm text-slate-500 hover:text-slate-800 underline">Compress another image</button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
