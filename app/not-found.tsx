@@ -1,21 +1,21 @@
 import Link from "next/link";
-import { FileQuestion, ArrowLeft } from "lucide-react";
+import { FileQuestion } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <div className="flex h-[80vh] flex-col items-center justify-center text-center px-4">
-      <div className="p-4 bg-background dark:bg-surface dark:bg-slate-950 rounded-full mb-6">
-        <FileQuestion size={48} className="text-muted/70" />
+    <div className="flex flex-col items-center justify-center min-h-[70vh] text-center p-6 animate-in fade-in duration-500">
+      <div className="p-6 bg-slate-100 dark:bg-slate-800 rounded-full mb-6">
+        <FileQuestion size={64} className="text-slate-400" />
       </div>
-      <h2 className="text-3xl font-bold text-main dark:text-slate-100 dark:text-slate-200">Page Not Found</h2>
-      <p className="text-muted dark:text-muted dark:text-muted dark:text-muted mt-2 max-w-md">
-        We couldn't find the tool or page you're looking for. It might have been moved or doesn't exist.
+      <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white mb-2">Page Not Found</h1>
+      <p className="text-slate-500 max-w-md mb-8 text-lg">
+        We couldn't find the tool you were looking for. It might have been moved or deleted.
       </p>
       <Link 
-        href="/"
-        className="mt-8 flex items-center gap-2 px-6 py-3 bg-[rgb(117,163,163)] text-white rounded-xl font-medium hover:opacity-90 transition-all active:scale-95"
+        href="/" 
+        className="px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20"
       >
-        <ArrowLeft size={18} /> Back Home
+        Return to Dashboard
       </Link>
     </div>
   );

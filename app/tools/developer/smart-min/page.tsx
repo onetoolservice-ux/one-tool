@@ -1,29 +1,31 @@
 "use client";
 import React, { useState } from "react";
-import { Minimize, ArrowRight } from "lucide-react";
-import Toast from "@/app/shared/Toast";
+import Button from "@/app/shared/ui/Button";
 
-export default function SmartMin() {
-  const [input, setInput] = useState(".class { color: red; }");
-  const [output, setOutput] = useState("");
+export default function SmartMinifier() {
+  const [code, setCode] = useState("");
+  const [minified, setMinified] = useState("");
 
   const minify = () => {
-    setOutput(input.replace(/\s+/g, ' ').replace(/{\s/g, '{').replace(/\s}/g, '}').trim());
+    // Simple regex minifier for JS/CSS
+    let res = code
+        .replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, '$1') // Remove comments
+        .replace(/\s+/g, ' ') // Collapse whitespace
+        .replace(/\s*([:;{}])\s*/g, '$1') // Remove space around symbols
+        .replace(/;}/g, '}') // Remove last semicolon
+        .trim();
+    setMinified(res);
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] w-full bg-background dark:bg-[#0f172a] dark:bg-[#020617]">
-      <div className="bg-surface dark:bg-slate-800 dark:bg-surface/80 backdrop-blur-md backdrop-blur-md border-b px-6 py-3 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-amber-600 text-white"><Minimize size={22} /></div>
-            <div><h1 className="text-lg font-bold text-main dark:text-slate-100 dark:text-slate-200">Smart Minify</h1><p className="text-xs font-bold text-muted dark:text-muted dark:text-muted dark:text-muted uppercase">Code Shrinker</p></div>
-        </div>
-        <button aria-label="View Tool" onClick={minify} className="px-4 py-2 bg-amber-600 text-white rounded-lg text-xs font-bold flex items-center gap-2"><ArrowRight size={14}/> Minify</button>
+    <div className="max-w-5xl mx-auto p-6 space-y-6 h-[calc(100vh-100px)] flex flex-col">
+      <div className="text-center"><h1 className="text-2xl font-extrabold text-slate-900 dark:text-white">Code Minifier</h1><p className="text-slate-500">Simple JS/CSS compression.</p></div>
+      
+      <div className="grid grid-cols-2 gap-4 flex-1">
+         <textarea value={code} onChange={e=>setCode(e.target.value)} className="p-4 rounded-xl border bg-white dark:bg-slate-800 resize-none font-mono text-xs" placeholder="Paste Source Code..."/>
+         <textarea readOnly value={minified} className="p-4 rounded-xl border bg-slate-50 dark:bg-slate-900/50 resize-none font-mono text-xs text-indigo-600 dark:text-indigo-400" placeholder="Minified output..."/>
       </div>
-      <div className="flex-1 grid grid-cols-2 divide-x">
-        <textarea value={input} onChange={e=>setInput(e.target.value)} className="p-6 resize-none outline-none font-mono text-sm" />
-        <textarea readOnly value={output} className="p-6 resize-none outline-none font-mono text-sm bg-background dark:bg-[#0f172a] dark:bg-[#020617] text-main dark:text-slate-300" />
-      </div>
+      <div className="text-center"><Button onClick={minify} className="w-48">Minify</Button></div>
     </div>
   );
 }

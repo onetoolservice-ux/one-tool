@@ -1,56 +1,51 @@
 "use client";
-
 import React, { useState } from "react";
-import { Type, Copy, Check, RefreshCw } from "lucide-react";
+import { Copy } from "lucide-react";
+import Button from "@/app/shared/ui/Button";
+import { showToast } from "@/app/shared/Toast";
 
 export default function CaseConverter() {
   const [text, setText] = useState("");
-  const [copied, setCopied] = useState(false);
 
-  const convert = (type: string) => {
-    switch (type) {
-      case "upper": setText(text.toUpperCase()); break;
-      case "lower": setText(text.toLowerCase()); break;
-      case "title": setText(text.toLowerCase().replace(/\b\w/g, s => s.toUpperCase())); break;
-      case "sentence": setText(text.charAt(0).toUpperCase() + text.slice(1).toLowerCase()); break;
-      case "camel": setText(text.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())); break;
-    }
-  };
+  const transforms = [
+    { name: "UPPERCASE", fn: (s: string) => s.toUpperCase() },
+    { name: "lowercase", fn: (s: string) => s.toLowerCase() },
+    { name: "Title Case", fn: (s: string) => s.toLowerCase().replace(/\b\w/g, c => c.toUpperCase()) },
+    { name: "camelCase", fn: (s: string) => s.replace(/(?:^\w|[A-Z]|\b\w)/g, (w, i) => i === 0 ? w.toLowerCase() : w.toUpperCase()).replace(/\s+/g, '') },
+    { name: "snake_case", fn: (s: string) => s && s.match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)?.map(x => x.toLowerCase()).join('_') },
+  ];
 
-  const copy = () => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const copy = (txt: string) => {
+    navigator.clipboard.writeText(txt);
+    showToast("Copied!", "success");
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-12 px-4">
-      <div className="text-center mb-10">
-        <div className="inline-flex p-3 bg-amber-50 text-amber-600 rounded-xl mb-4"><Type size={32} /></div>
-        <h1 className="text-3xl font-bold text-main dark:text-slate-100 dark:text-slate-200">Case Converter</h1>
-        <p className="text-muted dark:text-muted dark:text-muted dark:text-muted mt-2">Easily switch between Uppercase, Lowercase, Title Case, and more.</p>
+    <div className="max-w-4xl mx-auto p-6 space-y-8">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-extrabold text-main dark:text-white">Case Converter</h1>
+        <p className="text-muted">Transform text case instantly.</p>
       </div>
+      
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+           <label className="text-xs font-bold text-muted uppercase">Input</label>
+           <textarea value={text} onChange={(e) => setText(e.target.value)} className="w-full h-64 p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl resize-none focus:ring-2 focus:ring-indigo-500/20" placeholder="Type or paste your text here..." autoFocus />
+        </div>
 
-      <div className="bg-surface dark:bg-slate-800 dark:bg-surface rounded-2xl border   border-line dark:border-slate-700 dark:border-slate-700 dark:border-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-none overflow-hidden">
-        <textarea 
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Type or paste your text here..."
-          className="w-full h-64 p-6 resize-none outline-none text-lg text-main dark:text-slate-300 placeholder:text-slate-300"
-        />
-        <div className="bg-background dark:bg-[#0f172a] dark:bg-[#020617] p-4 border-t border-line dark:border-slate-700 dark:border-slate-700 dark:border-slate-800 flex flex-wrap gap-2 items-center justify-between">
-          <div className="flex flex-wrap gap-2">
-            <button onClick={() => convert('upper')} className="px-3 py-1.5 bg-surface dark:bg-slate-800 dark:bg-surface border rounded-lg text-sm font-semibold text-muted dark:text-muted/70 dark:text-muted/70 hover:text-amber-600 hover:border-amber-200 transition-colors">UPPERCASE</button>
-            <button onClick={() => convert('lower')} className="px-3 py-1.5 bg-surface dark:bg-slate-800 dark:bg-surface border rounded-lg text-sm font-semibold text-muted dark:text-muted/70 dark:text-muted/70 hover:text-amber-600 hover:border-amber-200 transition-colors">lowercase</button>
-            <button onClick={() => convert('title')} className="px-3 py-1.5 bg-surface dark:bg-slate-800 dark:bg-surface border rounded-lg text-sm font-semibold text-muted dark:text-muted/70 dark:text-muted/70 hover:text-amber-600 hover:border-amber-200 transition-colors">Title Case</button>
-            <button onClick={() => convert('sentence')} className="px-3 py-1.5 bg-surface dark:bg-slate-800 dark:bg-surface border rounded-lg text-sm font-semibold text-muted dark:text-muted/70 dark:text-muted/70 hover:text-amber-600 hover:border-amber-200 transition-colors">Sentence case</button>
-          </div>
-          <div className="flex gap-2">
-            <button onClick={() => setText("")} className="p-2 text-muted/70 hover:text-rose-500 transition-colors" title="Clear"><RefreshCw size={18}/></button>
-            <button onClick={copy} className="flex items-center gap-1 px-4 py-2 bg-surface text-white rounded-lg text-sm font-bold   hover:bg-slate-800 transition-all">
-              {copied ? <Check size={16}/> : <Copy size={16}/>} Copy
-            </button>
-          </div>
+        <div className="space-y-3">
+           <label className="text-xs font-bold text-muted uppercase">Outputs (Click to Copy)</label>
+           <div className="space-y-3 h-64 overflow-y-auto pr-2">
+             {transforms.map((t) => (
+               <button key={t.name} onClick={() => copy(t.fn(text || "Example Text"))} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl flex justify-between items-center hover:border-indigo-500 group transition-all">
+                 <div className="text-left">
+                    <div className="text-[10px] font-bold text-muted uppercase mb-0.5">{t.name}</div>
+                    <div className="text-sm font-medium text-main dark:text-slate-300 truncate w-64">{t.fn(text || "Example Text")}</div>
+                 </div>
+                 <Copy size={16} className="text-muted group-hover:text-indigo-500" />
+               </button>
+             ))}
+           </div>
         </div>
       </div>
     </div>

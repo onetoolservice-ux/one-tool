@@ -1,34 +1,45 @@
 "use client";
 import React, { useState } from "react";
-import { Command, ArrowRight } from "lucide-react";
-import Toast from "@/app/shared/Toast";
+import { Copy } from "lucide-react";
+import Button from "@/app/shared/ui/Button";
+import { showToast } from "@/app/shared/Toast";
 
 export default function SmartCurl() {
-  const [input, setInput] = useState("curl https://api.example.com/data");
-  const [output, setOutput] = useState("");
+  const [url, setUrl] = useState("https://api.example.com/data");
+  const [method, setMethod] = useState("GET");
+  const [header, setHeader] = useState("Authorization: Bearer token");
+  const [body, setBody] = useState('{"key": "value"}');
 
-  const convert = () => {
-    const url = input.match(/https?:\/\/[^\s]+/)?.[0] || "";
-    setOutput(`fetch("${url}", {\n  method: "GET"\n});`);
-  };
+  const curl = `curl -X ${method} "${url}" \\\n${header.split('\n').map(h => `  -H "${h}"`).join(' \\\n')} ${method !== 'GET' ? `\\\n  -d '${body}'` : ''}`;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] w-full bg-background dark:bg-[#0f172a] dark:bg-[#020617]">
-      <div className="bg-surface dark:bg-slate-800 dark:bg-surface/80 backdrop-blur-md backdrop-blur-md border-b px-6 py-3 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-slate-700 text-white"><Command size={22} /></div>
-          <div><h1 className="text-lg font-bold text-main dark:text-slate-100 dark:text-slate-200">Smart Curl</h1><p className="text-xs font-bold text-muted dark:text-muted dark:text-muted dark:text-muted uppercase">Curl to Fetch</p></div>
-        </div>
-        <button
-          aria-label="View Tool"
-          onClick={convert}
-          className="px-4 py-2 bg-slate-800 text-white rounded-lg text-xs font-bold flex items-center gap-2"
-        >
-          <ArrowRight size={14} /> Convert
-        </button>      </div>
-      <div className="flex-1 grid grid-cols-2 divide-x">
-        <textarea value={input} onChange={e => setInput(e.target.value)} className="p-6 resize-none outline-none font-mono text-sm" />
-        <textarea readOnly value={output} className="p-6 resize-none outline-none font-mono text-sm bg-[#1e293b] text-emerald-400" />
+    <div className="max-w-4xl mx-auto p-6 space-y-8">
+      <div className="text-center"><h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">cURL Builder</h1></div>
+
+      <div className="grid md:grid-cols-3 gap-6">
+         <div className="md:col-span-1 space-y-4">
+            <div>
+               <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">Method</label>
+               <select value={method} onChange={e=>setMethod(e.target.value)} className="w-full p-2 bg-white border rounded-lg"><option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option></select>
+            </div>
+            <div>
+               <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">URL</label>
+               <input value={url} onChange={e=>setUrl(e.target.value)} className="w-full p-2 bg-white border rounded-lg"/>
+            </div>
+            <div>
+               <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">Headers (One per line)</label>
+               <textarea value={header} onChange={e=>setHeader(e.target.value)} className="w-full h-24 p-2 bg-white border rounded-lg resize-none"/>
+            </div>
+            {method !== 'GET' && <div>
+               <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">Body</label>
+               <textarea value={body} onChange={e=>setBody(e.target.value)} className="w-full h-24 p-2 bg-white border rounded-lg resize-none"/>
+            </div>}
+         </div>
+
+         <div className="md:col-span-2 bg-slate-900 rounded-2xl p-6 relative group">
+            <pre className="text-sm font-mono text-green-400 whitespace-pre-wrap">{curl}</pre>
+            <Button onClick={() => {navigator.clipboard.writeText(curl); showToast("Copied!");}} className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"><Copy size={16} className="mr-2"/> Copy</Button>
+         </div>
       </div>
     </div>
   );

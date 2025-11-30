@@ -1,55 +1,97 @@
 "use client";
-import React, { useState } from "react";
-import { Image as ImageIcon, Upload, Download, Sliders } from "lucide-react";
-import Toast, { showToast } from "@/app/shared/Toast";
+import React, { useState, useRef } from "react";
+import { Upload, Download, Minimize } from "lucide-react";
+import Button from "@/app/shared/ui/Button";
 
-export default function SmartCompress() {
-  const [file, setFile] = useState<string | null>(null);
-  const [quality, setQuality] = useState(80);
+export default function ImageCompressor() {
+  const [original, setOriginal] = useState<string | null>(null);
+  const [compressed, setCompressed] = useState<string | null>(null);
+  const [quality, setQuality] = useState(0.6);
+  const [ogSize, setOgSize] = useState(0);
+  const [newSize, setNewSize] = useState(0);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setOgSize(file.size);
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setOriginal(ev.target?.result as string);
+        compress(ev.target?.result as string, quality);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const compress = (src: string, q: number) => {
+    const img = new Image();
+    img.onload = () => {
+       const canvas = canvasRef.current;
+       if(canvas) {
+           canvas.width = img.width;
+           canvas.height = img.height;
+           const ctx = canvas.getContext("2d");
+           ctx?.drawImage(img, 0, 0);
+           const dataUrl = canvas.toDataURL("image/jpeg", q);
+           setCompressed(dataUrl);
+           // Estimate size
+           const head = "data:image/jpeg;base64,";
+           const size = Math.round((dataUrl.length - head.length)*3/4);
+           setNewSize(size);
+       }
+    };
+    img.src = src;
+  };
+
+  const handleQuality = (q: number) => {
+      setQuality(q);
+      if(original) compress(original, q);
+  };
+
+  const formatSize = (b: number) => (b / 1024).toFixed(1) + " KB";
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] w-full bg-background dark:bg-[#0f172a] dark:bg-[#020617] font-sans">
-      <Toast />
-      <div className="bg-surface dark:bg-slate-800 dark:bg-surface/80 backdrop-blur-md backdrop-blur-md border-b px-6 py-3 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-indigo-600 text-white  "><ImageIcon size={22} /></div>
-            <div><h1 className="text-lg font-bold text-main dark:text-slate-100 dark:text-slate-200">Smart Compress</h1><p className="text-xs font-bold text-muted dark:text-muted dark:text-muted dark:text-muted uppercase">Image Optimizer</p></div>
-        </div>
-        <button onClick={()=>{showToast("Image Saved")}} disabled={!file} className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700 transition shadow-lg shadow-slate-200/50 dark:shadow-none disabled:opacity-50"><Download size={14}/> Save Image</button>
+    <div className="max-w-4xl mx-auto p-6 space-y-8">
+      <div className="text-center">
+        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">Image Compressor</h1>
+        <p className="text-slate-500">Reduce file size directly in browser.</p>
       </div>
 
-      <div className="flex-1 p-8 overflow-auto flex flex-col items-center justify-center">
-        {!file ? (
-            <label className="w-full max-w-2xl border-2 border-dashed border-line rounded-2xl p-16 flex flex-col items-center justify-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition group bg-surface dark:bg-slate-800 dark:bg-surface">
-                <div className="p-5 bg-indigo-50 rounded-full shadow-lg shadow-slate-200/50 dark:shadow-none mb-4 group-hover:scale-110 transition"><Upload size={32} className="text-indigo-500"/></div>
-                <h3 className="text-xl font-bold text-main dark:text-slate-300">Upload Image</h3>
-                <p className="text-muted/70 mt-2 text-sm">JPG, PNG, WEBP supported</p>
-                <input type="file" accept="image/*" className="hidden" onChange={(e:any)=>setFile(e.target.files[0]?.name)} />
-            </label>
-        ) : (
-            <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-surface dark:bg-slate-800 dark:bg-surface p-6 rounded-2xl border   shadow-lg shadow-slate-200/50 dark:shadow-none flex flex-col items-center">
-                    <div className="w-full aspect-video bg-slate-100 rounded-xl mb-4 flex items-center justify-center text-muted/70 font-bold border-2 border-transparent">Original</div>
-                    <div className="text-sm font-bold text-main dark:text-slate-300">Size: 2.4 MB</div>
-                </div>
-                <div className="bg-surface dark:bg-slate-800 dark:bg-surface p-6 rounded-2xl border   shadow-lg shadow-slate-200/50 dark:shadow-none flex flex-col items-center ring-2 ring-indigo-100">
-                    <div className="w-full aspect-video bg-background dark:bg-[#0f172a] dark:bg-[#020617] rounded-xl mb-4 flex items-center justify-center text-indigo-500 font-bold border-2 border-dashed border-indigo-200">Compressed</div>
-                    <div className="text-sm font-bold text-indigo-600 dark:text-indigo-400">New Size: ~{(2.4 * (quality/100)).toFixed(1)} MB <span className="text-xs bg-indigo-100 px-2 py-0.5 rounded-full ml-2">-{100-quality}%</span></div>
-                </div>
-                
-                <div className="md:col-span-2 bg-surface dark:bg-slate-800 dark:bg-surface p-8 rounded-2xl border   shadow-lg shadow-slate-200/50 dark:shadow-none">
-                    <div className="flex items-center justify-between mb-4">
-                        <label className="text-xs font-bold text-muted dark:text-muted dark:text-muted dark:text-muted uppercase flex items-center gap-2"><Sliders size={14}/> Compression Level</label>
-                        <span className="text-indigo-600 dark:text-indigo-400 font-bold text-lg">{quality}%</span>
-                    </div>
-                    <input type="range" min="10" max="95" value={quality} onChange={e=>setQuality(Number(e.target.value))} className="w-full accent-indigo-600 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer"/>
-                    <div className="flex justify-between text-xs font-bold text-muted/70 mt-2 uppercase">
-                        <span>Max Compression</span>
-                        <span>Best Quality</span>
-                    </div>
-                </div>
+      <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700">
+         {!original ? (
+            <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl h-64 flex flex-col items-center justify-center relative cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+               <Upload size={48} className="text-slate-300 mb-4"/>
+               <span className="font-bold text-slate-600 dark:text-slate-400">Upload Image</span>
+               <input type="file" accept="image/*" onChange={handleUpload} className="absolute inset-0 opacity-0" />
             </div>
-        )}
+         ) : (
+            <div className="space-y-6">
+               <div className="grid md:grid-cols-2 gap-6">
+                  <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+                     <div className="text-xs font-bold uppercase text-slate-400 mb-2">Original</div>
+                     <img src={original} className="max-h-64 mx-auto rounded-lg" alt="Og"/>
+                     <div className="text-center mt-2 font-mono font-bold">{formatSize(ogSize)}</div>
+                  </div>
+                  <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
+                     <div className="text-xs font-bold uppercase text-indigo-400 mb-2">Compressed</div>
+                     {compressed && <img src={compressed} className="max-h-64 mx-auto rounded-lg" alt="Comp"/>}
+                     <div className="text-center mt-2 font-mono font-bold text-indigo-600">{formatSize(newSize)} <span className="text-xs text-emerald-500">({Math.round((1 - newSize/ogSize)*100)}% Saved)</span></div>
+                  </div>
+               </div>
+
+               <div>
+                  <label className="text-xs font-bold text-slate-500 uppercase mb-2 block">Quality: {Math.round(quality*100)}%</label>
+                  <input type="range" min="0.1" max="1" step="0.1" value={quality} onChange={e=>handleQuality(Number(e.target.value))} className="w-full h-2 bg-slate-200 rounded-lg accent-indigo-600 cursor-pointer"/>
+               </div>
+
+               <div className="flex gap-4">
+                  <Button onClick={() => { const a = document.createElement('a'); a.href=compressed!; a.download="compressed.jpg"; a.click(); }} className="flex-1 py-3"><Download size={18} className="mr-2"/> Download</Button>
+                  <Button variant="secondary" onClick={() => setOriginal(null)}>Start Over</Button>
+               </div>
+            </div>
+         )}
+         <canvas ref={canvasRef} className="hidden"/>
       </div>
     </div>
   );

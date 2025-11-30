@@ -1,72 +1,107 @@
 "use client";
-import React, { useState } from "react";
-import { Crop, Upload, Download, Lock, Unlock } from "lucide-react";
-import Toast, { showToast } from "@/app/shared/Toast";
+import React, { useState, useRef } from "react";
+import { Upload, Download, Image as ImageIcon } from "lucide-react";
+import Button from "@/app/shared/ui/Button";
 
-export default function SmartResize() {
-  const [width, setWidth] = useState(1920);
-  const [height, setHeight] = useState(1080);
-  const [locked, setLocked] = useState(true);
-  const [file, setFile] = useState<string|null>(null);
+export default function ImageResizer() {
+  const [image, setImage] = useState<string | null>(null);
+  const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(0);
+  const [ogRatio, setOgRatio] = useState(0);
+  const [lockRatio, setLockRatio] = useState(true);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const handleRatio = (dim: 'w'|'h', val: number) => {
-    if(dim === 'w') {
-        setWidth(val);
-        if(locked) setHeight(Math.round(val * 0.5625));
-    } else {
-        setHeight(val);
-        if(locked) setWidth(Math.round(val / 0.5625));
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          setImage(event.target?.result as string);
+          setWidth(img.width);
+          setHeight(img.height);
+          setOgRatio(img.width / img.height);
+        };
+        img.src = event.target?.result as string;
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  };
+
+  const handleWidthChange = (w: number) => {
+    setWidth(w);
+    if (lockRatio) setHeight(Math.round(w / ogRatio));
+  };
+
+  const handleHeightChange = (h: number) => {
+    setHeight(h);
+    if (lockRatio) setWidth(Math.round(h * ogRatio));
+  };
+
+  const download = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    const img = new Image();
+    if (image && canvas && ctx) {
+      img.onload = () => {
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+        const link = document.createElement("a");
+        link.download = "resized-image.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      };
+      img.src = image;
     }
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] w-full bg-background dark:bg-[#0f172a] dark:bg-[#020617] font-sans">
-      <Toast />
-      <div className="bg-surface dark:bg-slate-800 dark:bg-surface/80 backdrop-blur-md backdrop-blur-md border-b px-6 py-3 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-pink-600 text-white  "><Crop size={22} /></div>
-            <div><h1 className="text-lg font-bold text-main dark:text-slate-100 dark:text-slate-200">Smart Resize</h1><p className="text-xs font-bold text-muted dark:text-muted dark:text-muted dark:text-muted uppercase">Pixel Editor</p></div>
-        </div>
-        <button onClick={()=>{showToast("Image Saved")}} disabled={!file} className="flex items-center gap-2 px-4 py-2 bg-pink-600 text-white rounded-lg text-xs font-bold hover:bg-pink-700 transition shadow-lg shadow-slate-200/50 dark:shadow-none disabled:opacity-50"><Download size={14}/> Save</button>
+    <div className="max-w-4xl mx-auto p-6 space-y-8">
+      <div className="text-center space-y-2">
+        <h1 className="text-3xl font-extrabold text-main dark:text-white">Image Resizer</h1>
+        <p className="text-muted">Resize images pixel-perfectly directly in your browser.</p>
       </div>
 
-      <div className="flex-1 p-8 overflow-auto flex flex-col items-center justify-center">
-        {!file ? (
-             <label className="w-full max-w-2xl border-2 border-dashed border-line rounded-2xl p-16 flex flex-col items-center justify-center cursor-pointer hover:border-pink-400 hover:bg-pink-50 transition group bg-surface dark:bg-slate-800 dark:bg-surface">
-                <div className="p-5 bg-pink-50 rounded-full shadow-lg shadow-slate-200/50 dark:shadow-none mb-4 group-hover:scale-110 transition"><Upload size={32} className="text-pink-500"/></div>
-                <h3 className="text-xl font-bold text-main dark:text-slate-300">Upload Image</h3>
-                <input type="file" className="hidden" onChange={(e:any)=>setFile(e.target.files[0]?.name)} />
-            </label>
-        ) : (
-            <div className="bg-surface dark:bg-slate-800 dark:bg-surface p-8 rounded-2xl border   shadow-lg shadow-slate-200/50 dark:shadow-none w-full max-w-lg space-y-8">
-                <div className="text-center pb-4 border-b">
-                    <div className="text-lg font-bold text-main dark:text-slate-100 dark:text-slate-200">{file}</div>
-                    <div className="text-xs font-bold text-muted/70 uppercase mt-1">Current: 3840 x 2160</div>
-                </div>
-                
-                <div className="flex items-end gap-3">
-                    <div className="flex-1">
-                        <label className="text-xs font-bold text-muted dark:text-muted dark:text-muted dark:text-muted uppercase mb-1 block">Width (px)</label>
-                        <input type="number" value={width} onChange={e=>handleRatio('w', Number(e.target.value))} className="w-full p-4 border rounded-xl font-bold text-2xl text-main dark:text-slate-300 outline-none focus:border-pink-500 text-center" />
-                    </div>
-                    <button onClick={()=>setLocked(!locked)} className={`p-4 mb-[2px] rounded-xl transition ${locked ? 'bg-pink-50 text-pink-600' : 'bg-background dark:bg-[#0f172a] dark:bg-[#020617] text-muted/70'}`}>
-                        {locked ? <Lock size={20}/> : <Unlock size={20}/>}
-                    </button>
-                    <div className="flex-1">
-                        <label className="text-xs font-bold text-muted dark:text-muted dark:text-muted dark:text-muted uppercase mb-1 block">Height (px)</label>
-                        <input type="number" value={height} onChange={e=>handleRatio('h', Number(e.target.value))} className="w-full p-4 border rounded-xl font-bold text-2xl text-main dark:text-slate-300 outline-none focus:border-pink-500 text-center" />
-                    </div>
-                </div>
-                
-                <div className="grid grid-cols-4 gap-2">
-                    {[0.25, 0.5, 0.75, 1].map(scale => (
-                        <button key={scale} onClick={()=>{setWidth(3840*scale); setHeight(2160*scale)}} className="py-2 bg-background dark:bg-[#0f172a] dark:bg-[#020617] rounded-lg text-xs font-bold text-muted dark:text-muted/70 dark:text-muted/70 hover:bg-pink-50 hover:text-pink-600 hover:border-pink-200 border border-transparent transition">
-                            {scale*100}%
-                        </button>
-                    ))}
-                </div>
+      <div className="grid md:grid-cols-2 gap-8">
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-6">
+          {!image ? (
+            <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl h-64 flex flex-col items-center justify-center text-muted hover:bg-slate-50 dark:hover:bg-slate-700/50 transition relative">
+              <Upload size={32} className="mb-2" />
+              <span className="text-sm font-bold">Click to Upload Image</span>
+              <input type="file" accept="image/*" onChange={handleUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
             </div>
-        )}
+          ) : (
+            <div className="space-y-4">
+               <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-muted uppercase">Width (px)</label>
+                    <input type="number" value={width} onChange={e => handleWidthChange(Number(e.target.value))} className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg font-mono" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-muted uppercase">Height (px)</label>
+                    <input type="number" value={height} onChange={e => handleHeightChange(Number(e.target.value))} className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg font-mono" />
+                  </div>
+               </div>
+               <label className="flex items-center gap-2 text-sm font-medium text-muted dark:text-muted">
+                  <input type="checkbox" checked={lockRatio} onChange={e => setLockRatio(e.target.checked)} className="rounded text-indigo-600" />
+                  Lock Aspect Ratio
+               </label>
+               <Button onClick={download} className="w-full py-3"><Download size={18} className="mr-2"/> Download Resized</Button>
+               <button onClick={() => setImage(null)} className="w-full text-xs text-rose-500 hover:underline">Remove Image</button>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center justify-center bg-slate-100 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 overflow-hidden relative min-h-[300px]">
+           {image ? (
+             // eslint-disable-next-line @next/next/no-img-element
+             <img src={image} alt="Preview" className="max-w-full max-h-[400px] rounded shadow-lg" />
+           ) : (
+             <div className="text-slate-300 flex flex-col items-center"><ImageIcon size={48} /><span className="text-sm mt-2">Preview</span></div>
+           )}
+           <canvas ref={canvasRef} className="hidden" />
+        </div>
       </div>
     </div>
   );

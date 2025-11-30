@@ -9,14 +9,7 @@ import { Calculator, List, PieChart } from "lucide-react";
 import Toast from "@/app/shared/Toast";
 
 export default function SmartLoanPro() {
-  const { 
-    amount, setAmount, 
-    rate, setRate, 
-    years, setYears, 
-    startDate, setStartDate, 
-    summary, schedule, reset, isLoaded 
-  } = useLoanCalculator();
-  
+  const { amount, setAmount, rate, setRate, years, setYears, startDate, setStartDate, summary, schedule, reset, isLoaded } = useLoanCalculator();
   const [activeTab, setActiveTab] = useState('schedule');
 
   if (!isLoaded) return <div className="p-10 text-center text-muted">Loading Loan Engine...</div>;
@@ -31,20 +24,13 @@ export default function SmartLoanPro() {
       <div className="flex-1 overflow-auto relative">
          <div className="min-w-[800px]">
             <LoanKPI summary={summary} /> 
-            <LoanInputs 
-              amount={amount} setAmount={setAmount} 
-              rate={rate} setRate={setRate} 
-              years={years} setYears={setYears} 
-              startDate={startDate} setStartDate={setStartDate} 
-              onReset={reset} 
-            />
+            <LoanInputs amount={amount} setAmount={setAmount} rate={rate} setRate={setRate} years={years} setYears={setYears} startDate={startDate} setStartDate={setStartDate} onReset={reset} />
             <div className="flex px-6 bg-surface border-b sticky top-[60px] z-10">
                 <button onClick={() => setActiveTab('schedule')} className={`flex items-center gap-2 px-4 py-3 text-sm font-bold border-b-2 transition ${activeTab === 'schedule' ? 'border-blue-600 text-blue-800' : 'border-transparent text-muted'}`}><List size={16} /> Schedule</button>
                 <button onClick={() => setActiveTab('charts')} className={`flex items-center gap-2 px-4 py-3 text-sm font-bold border-b-2 transition ${activeTab === 'charts' ? 'border-blue-600 text-blue-800' : 'border-transparent text-muted'}`}><PieChart size={16} /> Projection</button>
             </div>
             <div className="w-full h-full pb-20 bg-background">
-                {/* FIX: Changed prop name from 'schedule' to 'data' to match component definition */}
-                {activeTab === 'schedule' ? <AmortizationTable data={schedule} /> : <LoanCharts data={schedule} summary={summary} />}
+                {activeTab === 'schedule' ? <AmortizationTable schedule={schedule} /> : <LoanCharts schedule={schedule} summary={summary} />}
             </div>
          </div>
       </div>

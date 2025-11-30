@@ -1,16 +1,18 @@
 "use client";
 import React, { useState } from "react";
-import { SmartGuide } from "./components/SmartGuide";
 import { useSmartNetWorth } from "./hooks/useSmartNetWorth";
-import { Landmark, Plus, Trash2, TrendingUp, TrendingDown, Wallet } from "lucide-react";
+import { Landmark, Plus, Trash2, TrendingUp, TrendingDown, Wallet, PieChart as PieIcon, List } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
-import Toast from "../../../shared/Toast";
+import Toast from "@/app/shared/Toast";
+import Button from "@/app/shared/ui/Button";
+import EmptyState from "@/app/shared/ui/EmptyState";
+import { SmartGuide } from "./components/SmartGuide";
 
 export default function SmartNetWorth() {
-  const [showGuide, setShowGuide] = useState(false);
   const { items, addItem, deleteItem, summary, chartData } = useSmartNetWorth();
   const [activeTab, setActiveTab] = useState<'list' | 'chart'>('list');
   const [isOpen, setIsOpen] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
   const [form, setForm] = useState({ name: "", value: "", type: "Asset", category: "General" });
 
   const submit = (e: React.FormEvent) => {
@@ -20,72 +22,102 @@ export default function SmartNetWorth() {
     setIsOpen(false); setForm({ name: "", value: "", type: "Asset", category: "General" });
   };
 
+  // Helper for deterministic formatting
+  const fmt = (n: number) => n.toLocaleString('en-IN');
+
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] w-full bg-background dark:bg-[#0f172a] dark:bg-[#020617]/30 overflow-hidden font-sans">
+    <div className="flex flex-col h-[calc(100vh-64px)] w-full bg-background overflow-hidden font-sans">
       <Toast />
       <SmartGuide isOpen={showGuide} onClose={() => setShowGuide(false)} />
-      <div className="bg-surface dark:bg-slate-800 dark:bg-surface/80 backdrop-blur-md backdrop-blur-md border-b px-6 py-3 flex items-center gap-3 shadow-lg shadow-slate-200/50 dark:shadow-none shrink-0 sticky top-0 z-50">
-        <div className="p-2 rounded-lg bg-slate-800 text-white  "><Landmark size={22} /></div>
-        <div><h1 className="text-lg font-extrabold text-main dark:text-slate-100 dark:text-slate-200">Smart Net Worth</h1><p className="text-xs text-muted dark:text-muted dark:text-muted dark:text-muted font-bold uppercase">Asset Tracker</p></div>
-        <div className="ml-auto"><button onClick={() => setIsOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-surface text-white rounded-lg text-xs font-bold hover:bg-slate-800"><Plus size={14} /> Add Item</button></div>
+      
+      {/* HEADER */}
+      <div className="bg-surface/80 backdrop-blur-md border-b border-line px-6 py-3 flex items-center justify-between sticky top-0 z-50">
+        <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-amber-500 text-white shadow-sm"><Landmark size={22} /></div>
+            <div><h1 className="text-lg font-extrabold text-main">Smart Net Worth</h1><p className="text-xs text-muted font-bold uppercase">Asset Tracker</p></div>
+        </div>
+        <Button onClick={() => setIsOpen(true)} className="text-xs h-8 px-3 flex items-center gap-1.5"><Plus size={14} /> Add Item</Button>
       </div>
 
-      <div className="grid grid-cols-3 divide-x bg-surface dark:bg-slate-800 dark:bg-surface/80 backdrop-blur-md backdrop-blur-md border-b sticky top-[60px] z-40">
-        <div className="p-4 pl-6"><div className="flex gap-2 mb-1 text-emerald-600 dark:text-emerald-400 items-center text-xs font-bold uppercase tracking-wide"><TrendingUp size={14} /> Assets</div><div className="text-xl font-bold text-emerald-700">₹{summary.assets.toLocaleString()}</div></div>
-        <div className="p-4"><div className="flex gap-2 mb-1 text-rose-600 dark:text-rose-400 items-center text-xs font-bold uppercase tracking-wide"><TrendingDown size={14} /> Liabilities</div><div className="text-xl font-bold text-rose-700">₹{summary.liabilities.toLocaleString()}</div></div>
-        <div className="p-4"><div className="flex gap-2 mb-1 text-blue-600 dark:text-blue-400 items-center text-xs font-bold uppercase tracking-wide"><Wallet size={14} /> Net Worth</div><div className="text-xl font-bold text-blue-700">₹{summary.netWorth.toLocaleString()}</div></div>
+      {/* KPI RIBBON */}
+      <div className="grid grid-cols-3 divide-x border-line bg-surface/50 backdrop-blur-sm border-b sticky top-[60px] z-40">
+        <div className="p-4 pl-6">
+            <div className="flex gap-2 mb-1 text-emerald-600 font-bold text-xs uppercase tracking-wide"><TrendingUp size={14} /> Assets</div>
+            <div className="text-xl font-black text-slate-900 dark:text-white">₹{fmt(summary.assets)}</div>
+        </div>
+        <div className="p-4">
+            <div className="flex gap-2 mb-1 text-rose-600 font-bold text-xs uppercase tracking-wide"><TrendingDown size={14} /> Liabilities</div>
+            <div className="text-xl font-black text-slate-900 dark:text-white">₹{fmt(summary.liabilities)}</div>
+        </div>
+        <div className="p-4">
+            <div className="flex gap-2 mb-1 text-blue-600 font-bold text-xs uppercase tracking-wide"><Wallet size={14} /> Net Worth</div>
+            <div className={`text-xl font-black ${summary.netWorth >= 0 ? 'text-blue-600' : 'text-rose-600'}`}>₹{fmt(summary.netWorth)}</div>
+        </div>
       </div>
 
-      <div className="flex px-6 bg-surface dark:bg-slate-800 dark:bg-surface/80 backdrop-blur-md backdrop-blur-md border-b sticky top-[133px] z-30">
-         <button onClick={() => setActiveTab('list')} className={`px-4 py-3 text-sm font-bold border-b-2 ${activeTab === 'list' ? 'border-slate-800 text-main dark:text-slate-100 dark:text-slate-200' : 'border-transparent text-muted dark:text-muted dark:text-muted dark:text-muted'}`}>Items</button>
-         <button onClick={() => setActiveTab('chart')} className={`px-4 py-3 text-sm font-bold border-b-2 ${activeTab === 'chart' ? 'border-slate-800 text-main dark:text-slate-100 dark:text-slate-200' : 'border-transparent text-muted dark:text-muted dark:text-muted dark:text-muted'}`}>Analysis</button>
+      {/* TABS */}
+      <div className="flex px-6 bg-surface/50 backdrop-blur-sm border-b border-line sticky top-[133px] z-30 gap-6">
+         <button onClick={() => setActiveTab('list')} className={`flex items-center gap-2 py-3 text-sm font-bold border-b-2 transition-all ${activeTab === 'list' ? 'border-amber-500 text-amber-700 dark:text-amber-400' : 'border-transparent text-muted hover:text-main'}`}><List size={16} /> Items</button>
+         <button onClick={() => setActiveTab('chart')} className={`flex items-center gap-2 py-3 text-sm font-bold border-b-2 transition-all ${activeTab === 'chart' ? 'border-amber-500 text-amber-700 dark:text-amber-400' : 'border-transparent text-muted hover:text-main'}`}><PieIcon size={16} /> Breakdown</button>
       </div>
 
-      <div className="flex-1 overflow-auto bg-background dark:bg-[#0f172a] dark:bg-[#020617] p-6">
-        {activeTab === 'list' ? (
-            <div className="max-w-4xl mx-auto border border-line dark:border-slate-700 dark:border-slate-700 dark:border-slate-800 rounded-lg overflow-hidden bg-surface dark:bg-slate-800 dark:bg-surface shadow-lg shadow-slate-200/50 dark:shadow-none">
-                <table className="w-full text-sm text-left border-collapse">
-                    <thead className="bg-background dark:bg-[#0f172a] dark:bg-[#020617] border-b border-line dark:border-slate-700 dark:border-slate-700 dark:border-slate-800 text-muted dark:text-muted dark:text-muted dark:text-muted font-bold text-xs uppercase tracking-wide">
-                        <tr><th className="p-4 pl-6 border-r border-line dark:border-slate-700 dark:border-slate-700 dark:border-slate-800">Name</th><th className="p-4 border-r border-line dark:border-slate-700 dark:border-slate-700 dark:border-slate-800">Category</th><th className="p-4 text-right border-r border-line dark:border-slate-700 dark:border-slate-700 dark:border-slate-800">Value</th><th className="p-4 w-10 text-center">Action</th></tr>
-                    </thead>
-                    <tbody>
-                        {items.map((i, idx) => (
-                            <tr key={i.id} className={`border-b border-line dark:border-slate-700 dark:border-slate-700 dark:border-slate-800 ${idx % 2 === 0 ? 'bg-surface dark:bg-slate-800 dark:bg-surface' : 'bg-background dark:bg-[#0f172a] dark:bg-[#020617]/30'} hover:bg-blue-50/30 transition`}>
-                                <td className="p-4 pl-6 border-r border-line dark:border-slate-700 dark:border-slate-700 dark:border-slate-800 font-medium text-main dark:text-slate-300 flex items-center gap-2">{i.name} <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${i.type === 'Asset' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-100'}`}>{i.type}</span></td>
-                                <td className="p-4 border-r border-line dark:border-slate-700 dark:border-slate-700 dark:border-slate-800 text-muted dark:text-muted dark:text-muted dark:text-muted">{i.category}</td>
-                                <td className={`p-4 border-r border-line dark:border-slate-700 dark:border-slate-700 dark:border-slate-800 text-right font-mono font-bold ${i.type === 'Asset' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>₹{i.value.toLocaleString()}</td>
-                                <td className="p-4 text-center"><button onClick={() => deleteItem(i.id)} className="p-1.5 text-slate-300 hover:text-rose-600 dark:text-rose-400 rounded hover:bg-rose-50 transition"><Trash2 size={16}/></button></td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+      <div className="flex-1 overflow-auto bg-background p-6">
+        <div className="max-w-4xl mx-auto">
+        {items.length === 0 ? (
+            <EmptyState title="Track Your Wealth" description="Add your assets (Savings, Property) and liabilities (Loans) to see your true Net Worth." icon={Landmark} color="amber" action={<Button onClick={() => setIsOpen(true)}>Add First Item</Button>} />
         ) : (
-            <div className="h-[400px] w-full max-w-4xl mx-auto bg-surface dark:bg-slate-800 dark:bg-surface p-6 rounded-2xl border   shadow-lg shadow-slate-200/50 dark:shadow-none">
-                <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                        <Pie data={chartData} dataKey="value" nameKey="name" outerRadius={120} label>{chartData.map((e, i) => <Cell key={i} fill={e.type === 'Asset' ? '#10b981' : '#f43f5e'} />)}</Pie>
-                        <Tooltip formatter={(val:number) => `₹${val.toLocaleString()}`} />
-                        <Legend />
-                    </PieChart>
-                </ResponsiveContainer>
-            </div>
+            activeTab === 'list' ? (
+                <div className="border border-line rounded-xl overflow-hidden bg-surface shadow-sm">
+                    <table className="w-full text-sm text-left">
+                        <thead className="bg-slate-50 dark:bg-slate-900 border-b border-line text-muted font-bold text-xs uppercase tracking-wide">
+                            <tr><th className="p-4 pl-6">Name</th><th className="p-4">Category</th><th className="p-4 text-right">Value</th><th className="p-4 w-10 text-center">Action</th></tr>
+                        </thead>
+                        <tbody className="divide-y divide-line">
+                            {items.map((i) => (
+                                <tr key={i.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+                                    <td className="p-4 pl-6 font-medium text-main flex items-center gap-2">
+                                        {i.name} 
+                                        <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${i.type === 'Asset' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'}`}>{i.type}</span>
+                                    </td>
+                                    <td className="p-4 text-muted">{i.category}</td>
+                                    <td className={`p-4 text-right font-mono font-bold ${i.type === 'Asset' ? 'text-emerald-600' : 'text-rose-600'}`}>₹{fmt(i.value)}</td>
+                                    <td className="p-4 text-center"><button onClick={() => deleteItem(i.id)} className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition"><Trash2 size={16}/></button></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            ) : (
+                <div className="h-[400px] w-full bg-surface p-6 rounded-2xl border border-line shadow-sm">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                            <Pie data={chartData} dataKey="value" nameKey="name" outerRadius={140} label>{chartData.map((e, i) => <Cell key={i} fill={e.type === 'Asset' ? '#10b981' : '#f43f5e'} />)}</Pie>
+                            <Tooltip formatter={(val:number) => `₹${fmt(val)}`} contentStyle={{borderRadius: '12px'}} />
+                            <Legend />
+                        </PieChart>
+                    </ResponsiveContainer>
+                </div>
+            )
         )}
+        </div>
       </div>
 
       {isOpen && (
-        <div className="fixed inset-0 bg-surface/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-            <form onSubmit={submit} className="bg-surface dark:bg-slate-800 dark:bg-surface rounded-xl shadow-2xl p-6 w-full max-w-md space-y-4 border border-line dark:border-slate-700 dark:border-slate-700 dark:border-slate-800">
-                <h3 className="font-bold text-lg text-main dark:text-slate-100 dark:text-slate-200">Add Item</h3>
-                <input className="w-full border p-2.5 rounded-lg text-sm" placeholder="Name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} autoFocus />
-                <div className="grid grid-cols-2 gap-3">
-                    <input className="border p-2.5 rounded-lg text-sm" type="number" placeholder="Value" value={form.value} onChange={e => setForm({...form, value: e.target.value})} />
-                    <input className="border p-2.5 rounded-lg text-sm" placeholder="Category" value={form.category} onChange={e => setForm({...form, category: e.target.value})} />
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-in fade-in">
+            <form onSubmit={submit} className="bg-surface w-full max-w-md rounded-2xl shadow-2xl border border-line p-6 space-y-5 animate-in zoom-in-95">
+                <div className="flex justify-between items-center border-b border-line pb-4">
+                    <h3 className="font-bold text-lg text-main">Add Item</h3>
+                    <button type="button" onClick={() => setIsOpen(false)} className="text-muted hover:text-main"><Trash2 size={20} className="rotate-45"/></button>
                 </div>
-                <select className="w-full border p-2.5 rounded-lg text-sm bg-surface dark:bg-slate-800 dark:bg-surface" value={form.type} onChange={e => setForm({...form, type: e.target.value})}>
-                    <option value="Asset">Asset</option><option value="Liability">Liability</option>
+                <input className="w-full border border-line bg-background p-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-amber-500/20" placeholder="Name (e.g. House, Car)" value={form.name} onChange={e => setForm({...form, name: e.target.value})} autoFocus />
+                <div className="grid grid-cols-2 gap-4">
+                    <input className="border border-line bg-background p-3 rounded-xl text-sm outline-none" type="number" placeholder="Value" value={form.value} onChange={e => setForm({...form, value: e.target.value})} />
+                    <input className="border border-line bg-background p-3 rounded-xl text-sm outline-none" placeholder="Category" value={form.category} onChange={e => setForm({...form, category: e.target.value})} />
+                </div>
+                <select className="w-full border border-line bg-background p-3 rounded-xl text-sm outline-none" value={form.type} onChange={e => setForm({...form, type: e.target.value})}>
+                    <option value="Asset">Asset (Positive)</option><option value="Liability">Liability (Negative)</option>
                 </select>
-                <div className="flex gap-2 pt-2"><button type="button" onClick={() => setIsOpen(false)} className="flex-1 py-2 border rounded-lg hover:bg-background dark:bg-[#0f172a] dark:bg-[#020617] text-sm font-bold">Cancel</button><button className="flex-1 py-2 bg-surface text-white rounded-lg text-sm font-bold hover:bg-slate-800">Save</button></div>
+                <Button type="submit" className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white">Save Item</Button>
             </form>
         </div>
       )}

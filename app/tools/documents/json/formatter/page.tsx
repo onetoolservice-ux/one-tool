@@ -1,50 +1,57 @@
 "use client";
 import React, { useState } from "react";
-import { Braces, Minimize, CheckCircle, Copy, AlertCircle } from "lucide-react";
-import Toast, { showToast } from "@/app/shared/Toast";
+import { Copy, AlertTriangle, CheckCircle2 } from "lucide-react";
+import Button from "@/app/shared/ui/Button";
+import { showToast } from "@/app/shared/Toast";
 
-export default function SmartJSON() {
-  const [input, setInput] = useState('{"id":1,"name":"Test","active":true}');
-  const [output, setOutput] = useState("");
+export default function JsonFormatter() {
+  const [input, setInput] = useState("");
   const [error, setError] = useState("");
 
-  const process = (type: 'format' | 'minify') => {
+  const format = (minify = false) => {
     try {
-        const obj = JSON.parse(input);
-        setOutput(type === 'format' ? JSON.stringify(obj, null, 2) : JSON.stringify(obj));
-        setError("");
-        showToast(type === 'format' ? "Formatted" : "Minified");
-    } catch { setError("Invalid JSON Syntax"); }
+      if (!input.trim()) return;
+      const obj = JSON.parse(input);
+      setInput(JSON.stringify(obj, null, minify ? 0 : 2));
+      setError("");
+      showToast(minify ? "Minified!" : "Prettified!", "success");
+    } catch (e) {
+      setError("Invalid JSON: " + (e as Error).message);
+    }
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] w-full bg-background dark:bg-[#0f172a] dark:bg-[#020617] font-sans">
-      <Toast />
-      <div className="bg-surface dark:bg-slate-800 dark:bg-surface/80 backdrop-blur-md backdrop-blur-md border-b px-6 py-3 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-slate-700 text-white  "><Braces size={22} /></div>
-            <div><h1 className="text-lg font-bold text-main dark:text-slate-100 dark:text-slate-200">Smart JSON</h1><p className="text-xs font-bold text-muted dark:text-muted dark:text-muted dark:text-muted uppercase">Validator & Formatter</p></div>
+    <div className="max-w-5xl mx-auto p-6 h-[calc(100vh-100px)] flex flex-col">
+      <div className="flex justify-between items-center mb-4">
+        <div>
+           <h1 className="text-2xl font-extrabold text-main dark:text-white">JSON Formatter</h1>
+           <p className="text-xs text-muted">Validate, Prettify, and Minify.</p>
         </div>
         <div className="flex gap-2">
-            <button onClick={()=>process('minify')} className="flex items-center gap-2 px-4 py-2 bg-surface dark:bg-slate-800 dark:bg-surface border border-line dark:border-slate-700 dark:border-slate-700 dark:border-slate-800 text-muted dark:text-muted/70 dark:text-muted/70 rounded-lg text-xs font-bold hover:bg-background dark:bg-[#0f172a] dark:bg-[#020617] transition"><Minimize size={14}/> Minify</button>
-            <button onClick={()=>process('format')} className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-lg text-xs font-bold hover:bg-surface transition shadow-lg shadow-slate-200/50 dark:shadow-none"><CheckCircle size={14}/> Format</button>
+           <Button onClick={() => format(false)} variant="secondary" className="text-xs">Prettify</Button>
+           <Button onClick={() => format(true)} variant="secondary" className="text-xs">Minify</Button>
+           <Button onClick={() => { navigator.clipboard.writeText(input); showToast("Copied!"); }} className="text-xs"><Copy size={14} className="mr-1"/> Copy</Button>
         </div>
       </div>
-      
-      <div className="flex-1 grid grid-cols-2 divide-x h-full overflow-hidden">
-        <div className="flex flex-col h-full bg-surface dark:bg-slate-800 dark:bg-surface">
-            <div className="px-4 py-2 border-b bg-background dark:bg-[#0f172a] dark:bg-[#020617] text-xs font-bold text-muted dark:text-muted dark:text-muted dark:text-muted uppercase">Input</div>
-            <textarea value={input} onChange={e=>setInput(e.target.value)} className="flex-1 p-6 resize-none outline-none font-mono text-sm text-main dark:text-slate-300" placeholder="Paste JSON here..." spellCheck={false} />
-            {error && <div className="p-3 bg-rose-50 text-rose-600 dark:text-rose-400 text-xs font-bold border-t border-rose-100 flex items-center gap-2"><AlertCircle size={14}/> {error}</div>}
-        </div>
-        
-        <div className="flex flex-col h-full bg-[#1e293b] relative">
-            <div className="px-4 py-2 border-b border-slate-700 bg-[#0f172a] flex justify-between items-center">
-                <span className="text-xs font-bold text-muted/70 uppercase">Output</span>
-                <button onClick={()=>{navigator.clipboard.writeText(output); showToast("Copied")}} className="text-muted/70 hover:text-white transition"><Copy size={14}/></button>
+
+      <div className="flex-1 relative">
+        <textarea 
+          value={input} 
+          onChange={e => setInput(e.target.value)} 
+          className={`w-full h-full p-4 font-mono text-sm bg-white dark:bg-slate-900 border rounded-xl outline-none resize-none ${error ? 'border-rose-500 focus:ring-rose-500/20' : 'border-slate-200 dark:border-slate-700 focus:ring-indigo-500/20'} focus:ring-4 transition-all`}
+          placeholder="Paste JSON here..."
+          spellCheck={false}
+        />
+        {error && (
+            <div className="absolute bottom-4 left-4 right-4 bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-300 p-3 rounded-lg text-xs font-bold flex items-center gap-2 animate-in slide-in-from-bottom-2">
+                <AlertTriangle size={16} /> {error}
             </div>
-            <textarea readOnly value={output} className="flex-1 p-6 resize-none outline-none font-mono text-sm bg-transparent dark:text-white text-emerald-400" placeholder="Result..." />
-        </div>
+        )}
+        {!error && input && (
+            <div className="absolute bottom-4 right-4 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-300 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 animate-in fade-in">
+                <CheckCircle2 size={14} /> Valid JSON
+            </div>
+        )}
       </div>
     </div>
   );

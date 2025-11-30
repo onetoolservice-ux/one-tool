@@ -1,78 +1,89 @@
 "use client";
 import React, { useState, useMemo } from "react";
-import { Briefcase, TrendingUp, Calendar, Target } from "lucide-react";
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import Toast from "@/app/shared/Toast";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { TrendingUp } from "lucide-react";
 
-export default function SmartRetirement() {
+export default function FireCalc() {
   const [age, setAge] = useState(30);
-  const [retireAge, setRetireAge] = useState(60);
-  const [currentCorpus, setCurrentCorpus] = useState(500000);
-  const [monthlyInvest, setMonthlyInvest] = useState(25000);
-  const [rate, setRate] = useState(12);
-  const [expense, setExpense] = useState(50000); // Current monthly expense
+  const [retireAge, setRetireAge] = useState(55);
+  const [current, setCurrent] = useState(1000000);
+  const [monthly, setMonthly] = useState(50000);
+  const [expense, setExpense] = useState(40000);
+  const [roi, setRoi] = useState(10);
 
-  const { projection, corpusNeeded, finalCorpus } = useMemo(() => {
-    const years = retireAge - age;
-    const months = years * 12;
-    const r = rate / 12 / 100;
-    const inflation = 0.06 / 12; // 6% annual inflation
+  const data = useMemo(() => {
+    const result = [];
+    let balance = current;
+    const years = 90 - age; // Plan until 90
     
-    // Corpus needed (25x annual expense rule adjusted for inflation)
-    const futureMonthlyExpense = expense * Math.pow(1 + inflation, months);
-    const corpusNeeded = futureMonthlyExpense * 12 * 25;
-
-    let balance = currentCorpus;
-    const data = [];
-    for(let i=0; i<=years; i++) {
-        data.push({ year: age + i, balance: Math.round(balance), needed: Math.round(corpusNeeded * (i/years)) }); // Linear guide
-        balance = (balance * Math.pow(1+r, 12)) + (monthlyInvest * ((Math.pow(1+r, 12) - 1)/r));
+    for (let i = 0; i <= years; i++) {
+      const year = age + i;
+      const isRetired = year >= retireAge;
+      if (!isRetired) {
+         balance = (balance + (monthly * 12)) * (1 + roi/100);
+      } else {
+         balance = (balance * (1 + (roi-3)/100)) - (expense * 12); 
+      }
+      if (balance < 0) balance = 0;
+      result.push({ year, balance: Math.round(balance) });
     }
-    return { projection: data, corpusNeeded, finalCorpus: balance };
-  }, [age, retireAge, currentCorpus, monthlyInvest, rate, expense]);
+    return result;
+  }, [age, retireAge, current, monthly, expense, roi]);
 
-  const shortfall = finalCorpus - corpusNeeded;
+  const freedomNum = expense * 12 * 25; 
+  const canRetire = data.find(d => d.year === retireAge)?.balance || 0;
+  const status = canRetire > freedomNum ? "Safe" : "At Risk";
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] w-full bg-background dark:bg-[#0f172a] dark:bg-[#020617]/30 overflow-hidden font-sans">
-      <Toast />
-      <div className="bg-surface dark:bg-slate-800 dark:bg-surface/80 backdrop-blur-md backdrop-blur-md border-b px-6 py-3 flex items-center gap-3 shadow-lg shadow-slate-200/50 dark:shadow-none shrink-0 sticky top-0 z-50">
-        <div className="p-2 rounded-lg bg-orange-600 text-white  "><Briefcase size={22} /></div>
-        <div><h1 className="text-lg font-extrabold text-main dark:text-slate-100 dark:text-slate-200">Smart Retirement</h1><p className="text-xs text-muted dark:text-muted dark:text-muted dark:text-muted font-bold uppercase">FIRE Calculator</p></div>
+    <div className="max-w-6xl mx-auto p-6 space-y-8">
+      <div className="text-center">
+        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">FIRE Projection</h1>
+        <p className="text-slate-500">Financial Independence, Retire Early.</p>
       </div>
 
-      <div className="grid grid-cols-3 divide-x bg-surface dark:bg-slate-800 dark:bg-surface/80 backdrop-blur-md backdrop-blur-md border-b sticky top-[60px] z-40">
-        <div className="p-4 pl-6"><div className="text-xs font-bold uppercase tracking-wide text-muted dark:text-muted dark:text-muted dark:text-muted mb-1">Corpus Needed</div><div className="text-xl font-bold text-main dark:text-slate-100 dark:text-slate-200">₹{(corpusNeeded/10000000).toFixed(2)} Cr</div></div>
-        <div className="p-4"><div className="text-xs font-bold uppercase tracking-wide text-muted dark:text-muted dark:text-muted dark:text-muted mb-1">Projected Corpus</div><div className={`text-xl font-bold ${shortfall >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>₹{(finalCorpus/10000000).toFixed(2)} Cr</div></div>
-        <div className="p-4"><div className="text-xs font-bold uppercase tracking-wide text-muted dark:text-muted dark:text-muted dark:text-muted mb-1">Result</div><div className={`text-lg font-bold ${shortfall >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>{shortfall >= 0 ? 'Goal Met 🎉' : 'Shortfall ⚠️'}</div></div>
-      </div>
-
-      <div className="flex-1 overflow-auto bg-surface dark:bg-slate-800 dark:bg-surface p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="space-y-6 lg:col-span-1 bg-background dark:bg-[#0f172a] dark:bg-[#020617] p-6 rounded-xl border">
-            <h3 className="font-bold text-main dark:text-slate-100 dark:text-slate-200">Configuration</h3>
+      <div className="grid lg:grid-cols-3 gap-8">
+         <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-6 h-fit">
+            <div><label className="text-xs font-bold uppercase text-slate-500">Current Age: {age}</label><input type="range" min="18" max="70" value={age} onChange={e=>setAge(Number(e.target.value))} className="w-full accent-indigo-600"/></div>
+            <div><label className="text-xs font-bold uppercase text-slate-500">Retire At: {retireAge}</label><input type="range" min="40" max="80" value={retireAge} onChange={e=>setRetireAge(Number(e.target.value))} className="w-full accent-emerald-600"/></div>
+            
             <div className="grid grid-cols-2 gap-4">
-                <div><label className="text-xs font-bold uppercase tracking-wide text-muted dark:text-muted dark:text-muted dark:text-muted">Current Age</label><input type="number" className="w-full border p-2 rounded" value={age} onChange={e=>setAge(Number(e.target.value))}/></div>
-                <div><label className="text-xs font-bold uppercase tracking-wide text-muted dark:text-muted dark:text-muted dark:text-muted">Retire Age</label><input type="number" className="w-full border p-2 rounded" value={retireAge} onChange={e=>setRetireAge(Number(e.target.value))}/></div>
+               <div><label className="text-xs font-bold text-slate-500">Savings</label><input type="number" value={current} onChange={e=>setCurrent(Number(e.target.value))} className="w-full p-2 border rounded-lg bg-slate-50 dark:bg-slate-900"/></div>
+               <div><label className="text-xs font-bold text-slate-500">Return %</label><input type="number" value={roi} onChange={e=>setRoi(Number(e.target.value))} className="w-full p-2 border rounded-lg bg-slate-50 dark:bg-slate-900"/></div>
             </div>
-            <div><label className="text-xs font-bold uppercase tracking-wide text-muted dark:text-muted dark:text-muted dark:text-muted">Current Monthly Expense</label><input type="number" className="w-full border p-2 rounded" value={expense} onChange={e=>setExpense(Number(e.target.value))}/></div>
-            <div><label className="text-xs font-bold uppercase tracking-wide text-muted dark:text-muted dark:text-muted dark:text-muted">Existing Corpus</label><input type="number" className="w-full border p-2 rounded" value={currentCorpus} onChange={e=>setCurrentCorpus(Number(e.target.value))}/></div>
-            <div className="grid grid-cols-2 gap-4">
-                <div><label className="text-xs font-bold uppercase tracking-wide text-muted dark:text-muted dark:text-muted dark:text-muted">Monthly SIP</label><input type="number" className="w-full border p-2 rounded" value={monthlyInvest} onChange={e=>setMonthlyInvest(Number(e.target.value))}/></div>
-                <div><label className="text-xs font-bold uppercase tracking-wide text-muted dark:text-muted dark:text-muted dark:text-muted">Return Rate %</label><input type="number" className="w-full border p-2 rounded" value={rate} onChange={e=>setRate(Number(e.target.value))}/></div>
-            </div>
-        </div>
+            <div><label className="text-xs font-bold text-slate-500">Monthly Invest</label><input type="number" value={monthly} onChange={e=>setMonthly(Number(e.target.value))} className="w-full p-2 border rounded-lg bg-slate-50 dark:bg-slate-900"/></div>
+            <div><label className="text-xs font-bold text-slate-500">Monthly Expense</label><input type="number" value={expense} onChange={e=>setExpense(Number(e.target.value))} className="w-full p-2 border rounded-lg bg-slate-50 dark:bg-slate-900"/></div>
+         </div>
 
-        <div className="lg:col-span-2 h-[400px]">
-            <h3 className="font-bold text-main dark:text-slate-100 dark:text-slate-200 mb-4">Growth Projection</h3>
-            <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={projection}>
-                    <XAxis dataKey="year" />
-                    <YAxis tickFormatter={(val)=>`${(val/10000000).toFixed(1)}Cr`} />
-                    <Tooltip formatter={(val:number)=>`₹${(val/100000).toFixed(2)}L`} />
-                    <Area type="monotone" dataKey="balance" stroke="#ea580c" fill="#fff7ed" strokeWidth={2} />
-                </AreaChart>
-            </ResponsiveContainer>
-        </div>
+         <div className="lg:col-span-2 space-y-6">
+            <div className="grid grid-cols-3 gap-4">
+               <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
+                  <div className="text-xs uppercase font-bold text-indigo-500">Freedom Number</div>
+                  <div className="text-xl font-black text-indigo-900 dark:text-white">₹{(freedomNum/10000000).toFixed(2)} Cr</div>
+               </div>
+               <div className={`p-4 rounded-xl border ${status === 'Safe' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
+                  <div className="text-xs uppercase font-bold">Plan Status</div>
+                  <div className="text-xl font-black">{status}</div>
+               </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 h-[400px]">
+               <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={data}>
+                     <defs>
+                        <linearGradient id="colorBal" x1="0" y1="0" x2="0" y2="1">
+                           <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.3}/>
+                           <stop offset="95%" stopColor="#4F46E5" stopOpacity={0}/>
+                        </linearGradient>
+                     </defs>
+                     <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
+                     <XAxis dataKey="year" />
+                     <YAxis tickFormatter={(v) => `₹${v/100000}L`} />
+                     <Tooltip contentStyle={{borderRadius: '12px'}} formatter={(v: any) => `₹${v.toLocaleString()}`}/>
+                     <Area type="monotone" dataKey="balance" stroke="#4F46E5" fillOpacity={1} fill="url(#colorBal)" />
+                  </AreaChart>
+               </ResponsiveContainer>
+            </div>
+         </div>
       </div>
     </div>
   );

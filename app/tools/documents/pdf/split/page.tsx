@@ -1,53 +1,82 @@
 "use client";
 import React, { useState } from "react";
-import { Scissors, Upload, FileText, CheckCircle, ArrowRight } from "lucide-react";
-import Toast, { showToast } from "@/app/shared/Toast";
+import { PDFDocument } from "pdf-lib";
+import { Upload, Download, FileText, X } from "lucide-react";
+import Button from "@/app/shared/ui/Button";
+import { showToast } from "@/app/shared/Toast";
 
-export default function SmartPDFSplit() {
-  const [file, setFile] = useState<string | null>(null);
-  const [range, setRange] = useState("1-5");
+export default function PdfSplit() {
+  const [file, setFile] = useState<File | null>(null);
+  const [pageCount, setPageCount] = useState(0);
+  const [splitRange, setSplitRange] = useState("1");
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const f = e.target.files[0];
+      setFile(f);
+      const buffer = await f.arrayBuffer();
+      const pdf = await PDFDocument.load(buffer);
+      setPageCount(pdf.getPageCount());
+    }
+  };
+
+  const split = async () => {
+    if (!file) return;
+    try {
+        const buffer = await file.arrayBuffer();
+        const srcDoc = await PDFDocument.load(buffer);
+        const newDoc = await PDFDocument.create();
+        
+        const pagesToKeep = splitRange.split(',').map(s => parseInt(s.trim()) - 1).filter(n => n >= 0 && n < pageCount);
+        
+        if(pagesToKeep.length === 0) return showToast("Invalid Page Range", "error");
+
+        const copied = await newDoc.copyPages(srcDoc, pagesToKeep);
+        copied.forEach(p => newDoc.addPage(p));
+
+        const pdfBytes = await newDoc.save();
+        const blob = new Blob([pdfBytes], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `split-${file.name}`;
+        a.click();
+        showToast("PDF Split Successfully!", "success");
+    } catch(e) {
+        showToast("Error splitting PDF", "error");
+    }
+  };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] w-full bg-background dark:bg-[#0f172a] dark:bg-[#020617] font-sans">
-      <Toast />
-      <div className="bg-surface dark:bg-slate-800 dark:bg-surface/80 backdrop-blur-md backdrop-blur-md border-b px-6 py-3 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-red-600 text-white  "><Scissors size={22} /></div>
-            <div><h1 className="text-lg font-bold text-main dark:text-slate-100 dark:text-slate-200">Smart PDF Split</h1><p className="text-xs font-bold text-muted dark:text-muted dark:text-muted dark:text-muted uppercase">Page Extractor</p></div>
-        </div>
-        <button onClick={()=>{showToast("Pages Extracted")}} disabled={!file} className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-bold hover:bg-red-700 transition shadow-lg shadow-slate-200/50 dark:shadow-none disabled:opacity-50"><ArrowRight size={14}/> Process</button>
-      </div>
+    <div className="max-w-3xl mx-auto p-6 space-y-8">
+       <div className="text-center"><h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">PDF Splitter</h1><p className="text-slate-500">Extract specific pages from a PDF.</p></div>
 
-      <div className="flex-1 p-8 overflow-auto flex flex-col items-center">
-        {!file ? (
-            <label className="w-full max-w-2xl border-2 border-dashed border-line rounded-2xl p-16 flex flex-col items-center justify-center cursor-pointer hover:border-red-400 hover:bg-red-50 transition group bg-surface dark:bg-slate-800 dark:bg-surface">
-                <div className="p-5 bg-red-50 rounded-full shadow-lg shadow-slate-200/50 dark:shadow-none mb-4 group-hover:scale-110 transition"><Upload size={32} className="text-red-500"/></div>
-                <h3 className="text-xl font-bold text-main dark:text-slate-300">Select PDF to Split</h3>
-                <input type="file" accept=".pdf" className="hidden" onChange={(e:any)=>setFile(e.target.files[0]?.name)} />
-            </label>
-        ) : (
-            <div className="w-full max-w-2xl space-y-6">
-                <div className="bg-surface dark:bg-slate-800 dark:bg-surface p-6 rounded-2xl border   shadow-lg shadow-slate-200/50 dark:shadow-none flex items-center gap-4">
-                    <div className="p-3 bg-red-50 text-red-600 rounded-xl"><FileText size={32}/></div>
-                    <div className="flex-1">
-                        <h3 className="font-bold text-lg text-main dark:text-slate-100 dark:text-slate-200">{file}</h3>
-                        <p className="text-muted dark:text-muted dark:text-muted dark:text-muted text-sm">12 Pages • 2.4 MB</p>
-                    </div>
-                    <button onClick={()=>setFile(null)} className="text-xs font-bold text-red-600 hover:underline">Change</button>
-                </div>
-
-                <div className="bg-surface dark:bg-slate-800 dark:bg-surface p-8 rounded-2xl border   shadow-lg shadow-slate-200/50 dark:shadow-none space-y-4">
-                    <label className="text-xs font-bold text-muted dark:text-muted dark:text-muted dark:text-muted uppercase">Pages to Extract</label>
-                    <input value={range} onChange={e=>setRange(e.target.value)} className="w-full text-4xl font-bold text-main dark:text-slate-100 dark:text-slate-200 placeholder-slate-300 outline-none border-b-2 border-line dark:border-slate-700 dark:border-slate-700 dark:border-slate-800 focus:border-red-500 transition py-2" placeholder="e.g. 1-5" />
-                    <div className="flex gap-2 pt-2">
-                        {['All Pages', 'Odd Only', 'Even Only', 'First 10'].map(mode => (
-                            <button key={mode} className="px-3 py-1.5 bg-background dark:bg-[#0f172a] dark:bg-[#020617] border rounded-lg text-xs font-bold text-muted dark:text-muted/70 dark:text-muted/70 hover:bg-slate-100 transition">{mode}</button>
-                        ))}
-                    </div>
-                </div>
+       <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-6">
+          {!file ? (
+            <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-10 text-center relative cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                <Upload size={40} className="mx-auto text-slate-400 mb-2"/>
+                <span className="font-bold text-slate-600 dark:text-slate-300">Upload PDF</span>
+                <input type="file" accept=".pdf" onChange={handleUpload} className="absolute inset-0 opacity-0 cursor-pointer"/>
             </div>
-        )}
-      </div>
+          ) : (
+            <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-red-100 text-red-600 rounded"><FileText size={20}/></div>
+                        <div><div className="font-bold text-sm text-slate-800 dark:text-slate-200">{file.name}</div><div className="text-xs text-slate-500">{pageCount} Pages</div></div>
+                    </div>
+                    <button onClick={()=>setFile(null)} className="text-slate-400 hover:text-rose-500"><X size={20}/></button>
+                </div>
+
+                <div>
+                    <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">Pages to Extract (e.g. 1, 3, 5)</label>
+                    <input value={splitRange} onChange={e=>setSplitRange(e.target.value)} className="w-full p-3 border rounded-xl bg-slate-50 dark:bg-slate-900"/>
+                </div>
+
+                <Button onClick={split} className="w-full py-3"><Download size={18} className="mr-2"/> Download Pages</Button>
+            </div>
+          )}
+       </div>
     </div>
   );
 }

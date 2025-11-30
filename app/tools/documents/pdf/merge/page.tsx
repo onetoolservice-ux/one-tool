@@ -1,53 +1,72 @@
 "use client";
 import React, { useState } from "react";
-import { Layers, Upload, X, FileText, ArrowDown, Move } from "lucide-react";
-import Toast, { showToast } from "@/app/shared/Toast";
+import { PDFDocument } from "pdf-lib";
+import { Upload, FileText, Download, X } from "lucide-react";
+import Button from "@/app/shared/ui/Button";
+import { showToast } from "@/app/shared/Toast";
 
-export default function SmartPDFMerge() {
-  const [files, setFiles] = useState<string[]>([]);
+export default function PdfMerge() {
+  const [files, setFiles] = useState<File[]>([]);
 
-  const handleUpload = (e: any) => {
-    const newFiles = Array.from(e.target.files).map((f: any) => f.name);
-    setFiles([...files, ...newFiles]);
-    showToast(`${newFiles.length} PDFs Added`);
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFiles([...files, ...Array.from(e.target.files)]);
+    }
+  };
+
+  const remove = (idx: number) => {
+    setFiles(files.filter((_, i) => i !== idx));
+  };
+
+  const merge = async () => {
+    if (files.length < 2) return showToast("Select at least 2 PDFs", "error");
+    try {
+      const mergedPdf = await PDFDocument.create(); 
+      for (const file of files) {
+        const bytes = await file.arrayBuffer();
+        const pdf = await PDFDocument.load(bytes);
+        const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+        copiedPages.forEach((page) => mergedPdf.addPage(page));
+      }
+      const pdfBytes = await mergedPdf.save();
+      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "onetool-merged.pdf";
+      link.click();
+      showToast("PDFs Merged Successfully!", "success");
+    } catch (err) {
+      showToast("Failed to merge PDFs", "error");
+    }
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] w-full bg-background dark:bg-[#0f172a] dark:bg-[#020617] font-sans">
-      <Toast />
-      <div className="bg-surface dark:bg-slate-800 dark:bg-surface/80 backdrop-blur-md backdrop-blur-md border-b px-6 py-3 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-rose-600 text-white  "><Layers size={22} /></div>
-            <div><h1 className="text-lg font-bold text-main dark:text-slate-100 dark:text-slate-200">Smart PDF Merge</h1><p className="text-xs font-bold text-muted dark:text-muted dark:text-muted dark:text-muted uppercase">Combiner</p></div>
-        </div>
-        <button onClick={()=>{showToast("Merged PDF Downloaded")}} disabled={files.length<2} className="flex items-center gap-2 px-4 py-2 bg-rose-600 text-white rounded-lg text-xs font-bold hover:bg-rose-700 transition shadow-lg shadow-slate-200/50 dark:shadow-none disabled:opacity-50"><ArrowDown size={14}/> Merge & Download</button>
+    <div className="max-w-3xl mx-auto p-6 space-y-8">
+      <div className="text-center space-y-2">
+        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">PDF Merger</h1>
+        <p className="text-slate-500">Combine multiple PDF documents into one.</p>
       </div>
-      
-      <div className="flex-1 p-8 overflow-auto">
-        <div className="max-w-4xl mx-auto space-y-6">
-            <label className="border-2 border-dashed border-line rounded-2xl p-10 flex flex-col items-center justify-center cursor-pointer hover:border-rose-400 hover:bg-rose-50 transition group bg-surface dark:bg-slate-800 dark:bg-surface">
-                <div className="p-4 bg-rose-50 rounded-full shadow-lg shadow-slate-200/50 dark:shadow-none mb-4 group-hover:scale-110 transition"><Upload size={24} className="text-rose-500"/></div>
-                <h3 className="font-bold text-main dark:text-slate-300">Drop PDFs here</h3>
-                <p className="text-xs text-muted/70 mt-1">or click to browse</p>
-                <input type="file" multiple accept=".pdf" className="hidden" onChange={handleUpload} />
-            </label>
-
-            {files.length > 0 && (
-                <div className="space-y-2">
-                    <div className="text-xs font-bold text-muted/70 uppercase mb-2 ml-1">Sequence ({files.length})</div>
-                    {files.map((f, i) => (
-                        <div key={i} className="bg-surface dark:bg-slate-800 dark:bg-surface p-4 rounded-xl border flex items-center justify-between shadow-lg shadow-slate-200/50 dark:shadow-none group hover:border-rose-200 transition">
-                            <div className="flex items-center gap-4">
-                                <div className="text-slate-300 cursor-grab hover:text-muted dark:text-muted/70 dark:text-muted/70"><Move size={16}/></div>
-                                <div className="w-8 h-10 bg-rose-50 border border-rose-100 rounded flex items-center justify-center text-rose-500"><FileText size={16}/></div>
-                                <span className="font-medium text-main dark:text-slate-300 text-sm">{f}</span>
-                            </div>
-                            <button onClick={()=>setFiles(files.filter((_,x)=>x!==i))} className="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition"><X size={16}/></button>
+      <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 text-center space-y-6">
+         <div className="relative group cursor-pointer border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-10 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+            <Upload size={40} className="mx-auto text-slate-400 mb-3" />
+            <span className="font-bold text-slate-600 dark:text-slate-300">Click to Select PDFs</span>
+            <input type="file" accept=".pdf" multiple onChange={handleUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
+         </div>
+         {files.length > 0 && (
+             <div className="space-y-2">
+                {files.map((f, i) => (
+                    <div key={i} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-lg">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-red-100 dark:bg-red-900/20 rounded text-red-600"><FileText size={18}/></div>
+                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{f.name}</span>
                         </div>
-                    ))}
-                </div>
-            )}
-        </div>
+                        <button onClick={() => remove(i)} className="text-slate-400 hover:text-rose-500"><X size={18}/></button>
+                    </div>
+                ))}
+             </div>
+         )}
+         <Button onClick={merge} disabled={files.length < 2} className="w-full py-3"><Download size={18} className="mr-2"/> Merge & Download</Button>
       </div>
     </div>
   );

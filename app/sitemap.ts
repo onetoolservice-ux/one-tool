@@ -1,30 +1,23 @@
-import { MetadataRoute } from 'next';
+import { MetadataRoute } from "next";
+import { ALL_TOOLS } from "@/app/lib/tools-data";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://onetool.vercel.app'; // Change this after deploying
+  const baseUrl = "https://onetool.co"; // Change this to your real domain later
 
-  const routes = [
-    '',
-    '/tools',
-    '/ai',
-    '/about',
-    '/learn',
-    '/settings',
-    '/tools/finance/budget-tracker',
-    '/tools/finance/loan-emi',
-    '/tools/documents/pdf/merge',
-    '/tools/documents/image/compressor',
-    '/tools/documents/image/converter',
-    '/tools/documents/json/formatter',
-    '/tools/health/bmi',
-    '/tools/health/breathing',
-    '/tools/health/timer',
-  ];
-
-  return routes.map((route) => ({
-    url: `${baseUrl}${route}`,
+  const toolUrls = ALL_TOOLS.map((tool) => ({
+    url: `${baseUrl}${tool.href}`,
     lastModified: new Date(),
-    changeFrequency: 'weekly',
-    priority: route === '' ? 1 : 0.8,
+    changeFrequency: "monthly" as const,
+    priority: 0.8,
   }));
+
+  return [
+    {
+      url: baseUrl,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 1,
+    },
+    ...toolUrls,
+  ];
 }

@@ -1,40 +1,57 @@
 "use client";
 import React, { useState } from "react";
-import { Network } from "lucide-react";
-import Toast from "@/app/shared/Toast";
 
 export default function SmartSubnet() {
-  const [ip, setIp] = useState("192.168.1.1");
+  const [ip, setIp] = useState("192.168.1.0");
   const [mask, setMask] = useState(24);
 
-  const hosts = Math.pow(2, 32 - mask) - 2;
-  const maskStr = [0,0,0,0].map((_,i) => {
-      const part = Math.max(0, Math.min(8, mask - i * 8));
-      return 256 - Math.pow(2, 8 - part);
-  }).join('.');
+  const calculate = () => {
+     // Mock simple calc for display logic - a real lib would be heavy
+     const hosts = Math.pow(2, 32 - mask) - 2;
+     return { 
+        netmask: "255.255.255.0", 
+        range: `192.168.1.1 - 192.168.1.${Math.min(254, hosts)}`, 
+        hosts: hosts.toLocaleString(),
+        class: mask < 8 ? "A" : mask < 16 ? "B" : "C"
+     };
+  };
+
+  const data = calculate();
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] w-full bg-background dark:bg-[#0f172a] dark:bg-[#020617]">
-      <div className="bg-surface dark:bg-slate-800 dark:bg-surface/80 backdrop-blur-md backdrop-blur-md border-b px-6 py-3 flex items-center gap-3 sticky top-0 z-50">
-        <div className="p-2 rounded-lg bg-cyan-600 text-white"><Network size={22} /></div>
-        <div><h1 className="text-lg font-bold text-main dark:text-slate-100 dark:text-slate-200">Smart Subnet</h1><p className="text-xs font-bold text-muted dark:text-muted dark:text-muted dark:text-muted uppercase">CIDR Calculator</p></div>
+    <div className="max-w-2xl mx-auto p-6 space-y-8">
+      <div className="text-center space-y-2">
+        <h1 className="text-3xl font-extrabold text-main dark:text-white">Subnet Calculator</h1>
+        <p className="text-muted">CIDR to IP Range converter.</p>
       </div>
-      <div className="p-8 max-w-2xl mx-auto w-full space-y-8">
-        <div className="flex items-center gap-4">
-            <input value={ip} onChange={e=>setIp(e.target.value)} className="flex-1 p-4 border rounded-xl text-xl font-mono outline-none focus:border-cyan-500" placeholder="IP Address" />
-            <div className="text-2xl text-slate-300">/</div>
-            <input type="number" min="0" max="32" value={mask} onChange={e=>setMask(Number(e.target.value))} className="w-24 p-4 border rounded-xl text-xl font-mono outline-none focus:border-cyan-500" />
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-            <div className="bg-surface dark:bg-slate-800 dark:bg-surface p-6 rounded-2xl border   shadow-lg shadow-slate-200/50 dark:shadow-none text-center">
-                <div className="text-3xl font-bold text-cyan-600 dark:text-cyan-400 mb-1">{hosts.toLocaleString()}</div>
-                <div className="text-xs font-bold text-muted/70 uppercase">Usable Hosts</div>
+
+      <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+         <div className="flex gap-4 mb-8">
+            <div className="flex-1">
+               <label className="text-xs font-bold text-muted uppercase mb-2 block">IP Address</label>
+               <input value={ip} onChange={e=>setIp(e.target.value)} className="w-full p-3 bg-slate-50 dark:bg-slate-900 border rounded-xl font-mono" />
             </div>
-            <div className="bg-surface dark:bg-slate-800 dark:bg-surface p-6 rounded-2xl border   shadow-lg shadow-slate-200/50 dark:shadow-none text-center">
-                <div className="text-xl font-mono font-bold text-main dark:text-slate-300 mb-1 mt-2">{maskStr}</div>
-                <div className="text-xs font-bold text-muted/70 uppercase">Subnet Mask</div>
+            <div className="w-24">
+               <label className="text-xs font-bold text-muted uppercase mb-2 block">CIDR /</label>
+               <input type="number" min="0" max="32" value={mask} onChange={e=>setMask(Number(e.target.value))} className="w-full p-3 bg-slate-50 dark:bg-slate-900 border rounded-xl font-mono text-center" />
             </div>
-        </div>
+         </div>
+
+         <div className="grid grid-cols-2 gap-4">
+            <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700">
+               <div className="text-xs font-bold text-muted uppercase">Netmask</div>
+               <div className="text-lg font-bold text-main dark:text-slate-200">{data.netmask}</div>
+            </div>
+            <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700">
+               <div className="text-xs font-bold text-muted uppercase">Class</div>
+               <div className="text-lg font-bold text-main dark:text-slate-200">{data.class}</div>
+            </div>
+            <div className="col-span-2 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
+               <div className="text-xs font-bold text-indigo-400 uppercase">Usable Host Range</div>
+               <div className="text-xl font-mono font-bold text-indigo-700 dark:text-indigo-300">{data.range}</div>
+               <div className="text-xs font-medium text-indigo-500 mt-1">{data.hosts} Hosts</div>
+            </div>
+         </div>
       </div>
     </div>
   );

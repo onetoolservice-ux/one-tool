@@ -1,53 +1,83 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { Link, Copy } from "lucide-react";
-import Toast, { showToast } from "@/app/shared/Toast";
+import React, { useState, useMemo } from "react";
+import { Link as LinkIcon } from "lucide-react";
 
 export default function SmartURL() {
-  const [url, setUrl] = useState("https://example.com/search?q=hello&lang=en");
-  const [params, setParams] = useState<[string,string][]>([]);
-  const [host, setHost] = useState("");
-  const [path, setPath] = useState("");
+  const [url, setUrl] = useState("https://onetool.co/search?q=developer&sort=asc");
 
-  useEffect(() => {
+  const parsed = useMemo(() => {
     try {
-        const u = new URL(url);
-        setHost(u.hostname);
-        setPath(u.pathname);
-        setParams(Array.from(u.searchParams.entries()));
-    } catch { setHost("Invalid URL"); setPath(""); setParams([]); }
+      const u = new URL(url);
+      const params: Record<string, string> = {};
+      u.searchParams.forEach((v, k) => { params[k] = v; });
+      
+      return {
+        valid: true,
+        protocol: u.protocol,
+        host: u.hostname,
+        path: u.pathname,
+        params
+      };
+    } catch (e) {
+      return { valid: false };
+    }
   }, [url]);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] w-full bg-background dark:bg-[#0f172a] dark:bg-[#020617]">
-      <Toast />
-      <div className="bg-surface dark:bg-slate-800 dark:bg-surface/80 backdrop-blur-md backdrop-blur-md border-b px-6 py-3 flex items-center gap-3 sticky top-0 z-50">
-        <div className="p-2 rounded-lg bg-blue-500 text-white"><Link size={22} /></div>
-        <div><h1 className="text-lg font-bold text-main dark:text-slate-100 dark:text-slate-200">Smart URL</h1><p className="text-xs font-bold text-muted dark:text-muted dark:text-muted dark:text-muted uppercase">Parser & Builder</p></div>
+    <div className="max-w-3xl mx-auto p-6 space-y-8">
+      <div className="text-center space-y-2">
+        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">URL Parser</h1>
+        <p className="text-slate-500">Analyze URL parameters and structure.</p>
       </div>
-      <div className="p-6 space-y-6 overflow-auto">
-        <input value={url} onChange={e=>setUrl(e.target.value)} className="w-full p-4 border rounded-xl font-mono text-sm focus:ring-2 ring-blue-200 outline-none" />
-        <div className="grid grid-cols-2 gap-4">
-            <div className="bg-surface dark:bg-slate-800 dark:bg-surface p-4 rounded-xl border">
-                <label className="text-xs font-bold text-muted/70 uppercase">Hostname</label>
-                <div className="font-mono font-bold text-main dark:text-slate-300">{host}</div>
-            </div>
-            <div className="bg-surface dark:bg-slate-800 dark:bg-surface p-4 rounded-xl border">
-                <label className="text-xs font-bold text-muted/70 uppercase">Path</label>
-                <div className="font-mono font-bold text-main dark:text-slate-300">{path}</div>
-            </div>
-        </div>
-        <div className="bg-surface dark:bg-slate-800 dark:bg-surface rounded-xl border overflow-hidden">
-            <div className="px-4 py-2 bg-background dark:bg-[#0f172a] dark:bg-[#020617] border-b text-xs font-bold text-muted dark:text-muted dark:text-muted dark:text-muted uppercase">Query Parameters</div>
-            {params.map(([k,v], i) => (
-                <div key={i} className="flex border-b last:border-0 p-3 items-center">
-                    <input className="w-1/3 font-bold text-sm outline-none text-blue-600 dark:text-blue-400" value={k} readOnly />
-                    <input className="flex-1 text-sm outline-none text-muted dark:text-muted/70 dark:text-muted/70" value={v} readOnly />
-                </div>
-            ))}
-            {params.length===0 && <div className="p-4 text-center text-muted/70 text-sm italic">No parameters</div>}
-        </div>
+
+      <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
+         <label className="text-xs font-bold text-slate-500 uppercase mb-2 block">Input URL</label>
+         <div className="relative">
+            <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <input value={url} onChange={e => setUrl(e.target.value)} className="w-full pl-10 p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl" />
+         </div>
       </div>
+
+      {parsed.valid ? (
+        <div className="grid gap-6">
+           <div className="grid grid-cols-3 gap-4">
+              <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800 text-center">
+                 <div className="text-xs font-bold text-emerald-600 uppercase">Protocol</div>
+                 <div className="font-mono font-bold text-emerald-800 dark:text-emerald-300">{parsed.protocol}</div>
+              </div>
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800 text-center">
+                 <div className="text-xs font-bold text-blue-600 uppercase">Host</div>
+                 <div className="font-mono font-bold text-blue-800 dark:text-blue-300 truncate">{parsed.host}</div>
+              </div>
+              <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800 text-center">
+                 <div className="text-xs font-bold text-amber-600 uppercase">Path</div>
+                 <div className="font-mono font-bold text-amber-800 dark:text-amber-300 truncate">{parsed.path}</div>
+              </div>
+           </div>
+
+           <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+              <div className="bg-slate-50 dark:bg-slate-900 px-6 py-3 border-b border-slate-200 dark:border-slate-700 font-bold text-sm text-slate-600 dark:text-slate-300">
+                 Query Parameters
+              </div>
+              {Object.keys(parsed.params || {}).length > 0 ? (
+                  <table className="w-full text-sm text-left">
+                    <tbody>
+                        {Object.entries(parsed.params || {}).map(([k, v]) => (
+                            <tr key={k} className="border-b border-slate-100 dark:border-slate-800 last:border-0">
+                                <td className="p-4 font-bold text-slate-700 dark:text-slate-300 w-1/3 border-r border-slate-100 dark:border-slate-800">{k}</td>
+                                <td className="p-4 font-mono text-indigo-600 dark:text-indigo-400">{v}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                  </table>
+              ) : (
+                  <div className="p-8 text-center text-slate-400 italic">No parameters found.</div>
+              )}
+           </div>
+        </div>
+      ) : (
+        <div className="p-4 bg-rose-50 text-rose-600 rounded-xl text-center font-bold">Invalid URL format</div>
+      )}
     </div>
   );
 }

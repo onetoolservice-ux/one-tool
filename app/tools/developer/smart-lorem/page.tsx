@@ -1,43 +1,55 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { FileText, Copy, Code } from "lucide-react";
-import Toast, { showToast } from "@/app/shared/Toast";
+import React, { useState } from "react";
+import { Copy, RefreshCw } from "lucide-react";
+import Button from "@/app/shared/ui/Button";
+import { showToast } from "@/app/shared/Toast";
 
 export default function SmartLorem() {
-  const [paras, setParas] = useState(3);
-  const [type, setType] = useState<"text" | "html" | "markdown">("text");
+  const [count, setCount] = useState(3);
+  const [type, setType] = useState<"paragraphs" | "sentences">("paragraphs");
   const [text, setText] = useState("");
-  
-  useEffect(() => {
-    const lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
-    let res = Array(paras).fill(lorem);
-    
-    if(type === "html") res = res.map(p => `<p>${p}</p>`);
-    if(type === "markdown") res = res.map(p => `### Section\n${p}`);
-    
-    setText(res.join("\n\n"));
-  }, [paras, type]);
+
+  const LOREM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+
+  const generate = () => {
+    let result = [];
+    for(let i=0; i<count; i++) {
+        if(type === 'paragraphs') result.push(LOREM);
+        else result.push(LOREM.split('.')[0] + ".");
+    }
+    setText(result.join("\n\n"));
+  };
+
+  React.useEffect(generate, []);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] w-full bg-background dark:bg-[#0f172a] dark:bg-[#020617]">
-      <Toast />
-      <div className="bg-surface dark:bg-slate-800 dark:bg-surface/80 backdrop-blur-md backdrop-blur-md border-b px-6 py-3 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-background dark:bg-[#0f172a] dark:bg-[#020617]0 text-white"><FileText size={22} /></div>
-            <div><h1 className="text-lg font-bold text-main dark:text-slate-100 dark:text-slate-200">Smart Lorem</h1><p className="text-xs font-bold text-muted dark:text-muted dark:text-muted dark:text-muted uppercase">Text Generator</p></div>
-        </div>
-        <div className="flex items-center gap-4">
-            <div className="flex bg-slate-100 p-1 rounded-lg">
-                {['text', 'html', 'markdown'].map(t => (
-                    <button key={t} onClick={()=>setType(t as any)} className={`px-3 py-1 text-xs font-bold uppercase tracking-wide rounded ${type===t ? 'bg-surface dark:bg-slate-800 dark:bg-surface shadow text-main dark:text-slate-100 dark:text-slate-200' : 'text-muted dark:text-muted dark:text-muted dark:text-muted'}`}>{t}</button>
-                ))}
-            </div>
-            <input type="range" min="1" max="20" value={paras} onChange={e=>setParas(Number(e.target.value))} className="w-24 accent-slate-600" />
-            <span className="text-xs font-bold w-4">{paras}</span>
-            <button onClick={() => {navigator.clipboard.writeText(text); showToast("Copied");}} className="px-4 py-2 bg-slate-800 text-white rounded-lg text-xs font-bold flex items-center gap-2"><Copy size={14}/> Copy</button>
-        </div>
+    <div className="max-w-3xl mx-auto p-6 space-y-8">
+       <div className="text-center space-y-2">
+        <h1 className="text-3xl font-extrabold text-main dark:text-white">Lorem Ipsum</h1>
+        <p className="text-muted">Generate placeholder text.</p>
       </div>
-      <textarea value={text} readOnly className="flex-1 p-8 resize-none outline-none text-muted dark:text-muted/70 dark:text-muted/70 leading-relaxed font-mono" />
+
+      <div className="flex gap-4 items-end bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
+         <div className="flex-1 space-y-1">
+            <label className="text-xs font-bold text-muted uppercase">Count</label>
+            <input type="number" min="1" max="20" value={count} onChange={e=>setCount(Number(e.target.value))} className="w-full p-2 bg-slate-50 dark:bg-slate-900 border rounded-lg"/>
+         </div>
+         <div className="flex-1 space-y-1">
+            <label className="text-xs font-bold text-muted uppercase">Type</label>
+            <select value={type} onChange={e=>setType(e.target.value as any)} className="w-full p-2 bg-slate-50 dark:bg-slate-900 border rounded-lg">
+                <option value="paragraphs">Paragraphs</option>
+                <option value="sentences">Sentences</option>
+            </select>
+         </div>
+         <Button onClick={generate} className="h-[42px]">Generate</Button>
+      </div>
+
+      <div className="relative group">
+         <textarea readOnly value={text} className="w-full h-96 p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl resize-none outline-none text-muted dark:text-slate-300 leading-relaxed" />
+         <Button onClick={()=>{navigator.clipboard.writeText(text); showToast("Copied!");}} className="absolute top-4 right-4 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+            <Copy size={16} className="mr-2"/> Copy
+         </Button>
+      </div>
     </div>
   );
 }

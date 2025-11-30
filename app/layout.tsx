@@ -1,9 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { UIProvider } from "@/app/lib/ui-context"; // Import Provider
+import { UIProvider } from "@/app/lib/ui-context";
 import Navbar from "@/app/shared/layout/Navbar";
- // Updated Nav
+import Sidebar from "@/app/components/layout/Sidebar";
+import Footer from "@/app/shared/layout/Footer";
+import ThemeEngine from "./components/layout/ThemeEngine"; 
+import UseScrollToTop from "./utils/hooks/useScrollToTop";
+import PageWrapper from "@/app/components/layout/PageWrapper";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
@@ -15,12 +19,12 @@ export const metadata: Metadata = {
   icons: { icon: "/icon.svg" },
 };
 
+// FIX: Removed 'userScalable: false' (Critical Lighthouse Fix)
 export const viewport: Viewport = {
-  themeColor: "#ffffff",
+  themeColor: "#4F46E5",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  maximumScale: 5, 
 };
 
 export default function RootLayout({
@@ -30,13 +34,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${mono.variable} font-sans bg-background dark:bg-surface dark:bg-slate-950 text-main dark:text-slate-50 dark:text-slate-100 antialiased`}>
+      <body className={`${inter.variable} ${mono.variable} font-sans bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased`}>
         <UIProvider>
+          <ThemeEngine />
+          <UseScrollToTop />
           <Navbar />
-          <main className="flex-grow pt-16 pb-10">
+          <Sidebar />
+          <PageWrapper>
             {children}
-          </main>
-        
+          </PageWrapper>
         </UIProvider>
       </body>
     </html>

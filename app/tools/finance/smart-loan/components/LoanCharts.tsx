@@ -52,7 +52,7 @@ export function LoanCharts({ data, summary }: Props) {
                 <div className="text-main dark:text-slate-100 dark:text-slate-200">₹{summary.totalInterest.toLocaleString()}</div>
               </div>
               <div>
-                <div className="font-bold text-slate-400">Principal</div>
+                <div className="font-bold text-muted">Principal</div>
                 <div className="text-main dark:text-slate-100 dark:text-slate-200">₹{(summary.totalPayment - summary.totalInterest).toLocaleString()}</div>
               </div>
            </div>
