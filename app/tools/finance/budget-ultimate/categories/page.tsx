@@ -1,52 +1,30 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import Card from "../components/Card";
 import Drawer from "../components/Drawer";
 import { Plus, Search } from "lucide-react";
-
-import {
-  getCategories,
-  // saveCategories,
-  addCategory,
-} from "../utils/sampleData";
+import { getCategories, saveCategories, addCategory, Category } from "../utils/sampleData";
 
 export default function CategoriesPage() {
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [search, setSearch] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState<Category | null>(null);
 
-  // Load categories on mount
-  useEffect(() => {
-    const data = getCategories();
-    setCategories(data);
-  }, []);
+  useEffect(() => { setCategories(getCategories()); }, []);
 
-  // Search filter
-  const filtered = categories.filter((c) =>
-    c.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = categories.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
 
-  // Delete category
   const handleDelete = (id: string) => {
     const updated = categories.filter((c) => c.id !== id);
     saveCategories(updated);
     setCategories(updated);
   };
 
-  // Save new/edited category
   const handleSave = (item: any) => {
-    let updated = [];
-
-    if (item.id) {
-      // EDIT
-      updated = categories.map((c) => (c.id === item.id ? item : c));
-    } else {
-      // ADD
-      updated = [...categories, addCategory(item)];
-    }
-
+    let updated: Category[] = [];
+    if (item.id) { updated = categories.map((c) => (c.id === item.id ? item : c)); } 
+    else { updated = [...categories, addCategory(item)]; }
     saveCategories(updated);
     setCategories(updated);
     setDrawerOpen(false);
@@ -54,115 +32,15 @@ export default function CategoriesPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-main dark:text-slate-100 dark:text-slate-200">Categories</h1>
-        <p className="text-sm text-muted dark:text-muted dark:text-muted dark:text-muted">
-          Create, edit, and organize your budget categories.
-        </p>
-      </div>
-
-      {/* 🔍 Search + Add */}
+      <div><h1 className="text-2xl font-bold">Categories</h1><p className="text-sm text-muted">Manage your categories.</p></div>
       <Card className="py-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="relative w-full lg:w-80">
-            <Search
-              size={18}
-              className="absolute left-3 top-2.5 text-muted/70"
-            />
-            <input
-              className="w-full pl-10 pr-3 py-2 border rounded-lg text-sm"
-              placeholder="Search categories..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-
-          <button
-            onClick={() => {
-              setSelected(null);
-              setDrawerOpen(true);
-            }}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2 text-sm"
-          >
-            <Plus size={15} /> Add Category
-          </button>
+          <div className="relative w-full lg:w-80"><Search size={18} className="absolute left-3 top-2.5 text-muted/70" /><input className="w-full pl-10 pr-3 py-2 border rounded-lg text-sm" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} /></div>
+          <button onClick={() => { setSelected(null); setDrawerOpen(true); }} className="px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2 text-sm"><Plus size={15} /> Add Category</button>
         </div>
       </Card>
-
-      {/* 🧮 Category Count */}
-      <div className="text-sm text-muted dark:text-muted dark:text-muted dark:text-muted">
-        Showing <b>{filtered.length}</b> of <b>{categories.length}</b>{" "}
-        categories
-      </div>
-
-      {/* 📊 Table */}
-      <Card>
-        <div className="overflow-auto">
-          <table className="min-w-full text-sm">
-            <thead className="bg-background dark:bg-[#0f172a] dark:bg-[#020617] text-left border-b">
-              <tr>
-                <th className="p-3">Name</th>
-                <th className="p-3">Type</th>
-                <th className="p-3">Color</th>
-                <th className="p-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="text-center py-8 text-muted/70">
-                    No categories found
-                  </td>
-                </tr>
-              )}
-
-              {filtered.map((c) => (
-                <tr
-                  key={c.id}
-                  className="border-b hover:bg-background dark:bg-[#0f172a] dark:bg-[#020617] cursor-pointer"
-                >
-                  <td className="p-3 font-medium">{c.name}</td>
-                  <td className="p-3">{c.type}</td>
-
-                  <td className="p-3">
-                    <span
-                      className="inline-block w-4 h-4 rounded"
-                      style={{ backgroundColor: c.color }}
-                    ></span>
-                  </td>
-
-                  <td className="p-3 text-right space-x-3">
-                    <button
-                      className="text-blue-600 dark:text-blue-400 hover:underline"
-                      onClick={() => {
-                        setSelected(c);
-                        setDrawerOpen(true);
-                      }}
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      className="text-rose-600 dark:text-rose-400 hover:underline"
-                      onClick={() => handleDelete(c.id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-
-      {/* Drawer (Add / Edit) */}
-      <Drawer
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        defaultData={selected}
-        onSave={handleSave}
-      />
+      <Card><div className="overflow-auto"><table className="min-w-full text-sm"><thead className="bg-background text-left border-b"><tr><th className="p-3">Name</th><th className="p-3">Type</th><th className="p-3">Color</th><th className="p-3 text-right">Actions</th></tr></thead><tbody>{filtered.length === 0 && (<tr><td colSpan={4} className="text-center py-8 text-muted/70">No categories found</td></tr>)}{filtered.map((c) => (<tr key={c.id} className="border-b hover:bg-background cursor-pointer"><td className="p-3 font-medium">{c.name}</td><td className="p-3">{c.type}</td><td className="p-3"><span className="inline-block w-4 h-4 rounded" style={{ backgroundColor: c.color }}></span></td><td className="p-3 text-right space-x-3"><button className="text-blue-600 hover:underline" onClick={() => { setSelected(c); setDrawerOpen(true); }}>Edit</button><button className="text-rose-600 hover:underline" onClick={() => handleDelete(c.id)}>Delete</button></td></tr>))}</tbody></table></div></Card>
+      <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} defaultData={selected} onSave={handleSave} />
     </div>
   );
 }
