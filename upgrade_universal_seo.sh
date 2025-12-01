@@ -1,3 +1,12 @@
+#!/bin/bash
+
+echo "í¼ Upgrading Universal SEO Engine (All Tools)..."
+
+# We are overwriting the GENERIC page handler.
+# This file handles every tool that DOESN'T have a specific folder yet.
+# It acts as the "Fallback" but now it will be a "Premium Fallback".
+
+cat > app/tools/\[category\]/\[tool\]/page.tsx << 'PAGE_EOF'
 import { Metadata } from "next";
 import ToolClient from "./ToolClient";
 import ToolSchema from "@/app/components/seo/ToolSchema";
@@ -36,21 +45,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const categoryName = tool.category === "AI" ? "AI" : tool.category.slice(0, -1); // Remove 's' from 'Documents' -> 'Document'
 
   return {
-    title: `${displayName} - Free Online ${categoryName} Tool | One Tool`,
-    description: `Use ${displayName} online for free. ${tool.desc} Simple, private, and fast tool for everyone. No login required.`,
+    title: \`\${displayName} - Free Online \${categoryName} Tool | One Tool\`,
+    description: \`Use \${displayName} online for free. \${tool.desc} Simple, private, and fast tool for everyone. No login required.\`,
     keywords: [
       displayName.toLowerCase(), 
-      `free ${displayName.toLowerCase()}`, 
-      `online ${displayName.toLowerCase()}`, 
+      \`free \${displayName.toLowerCase()}\`, 
+      \`online \${displayName.toLowerCase()}\`, 
       tool.category.toLowerCase(), 
       "one tool", 
       "web utility"
     ],
     alternates: {
-      canonical: `https://onetool.co.in/tools/${tool.category}/${tool.id}`,
+      canonical: \`https://onetool.co.in/tools/\${tool.category}/\${tool.id}\`,
     },
     openGraph: {
-      title: `${displayName} - Free Online Tool`,
+      title: \`\${displayName} - Free Online Tool\`,
       description: tool.desc,
       type: "website",
       siteName: "One Tool",
@@ -68,7 +77,7 @@ export default async function UniversalToolPage({ params }: Props) {
   }
 
   // Friendly Schema Description
-  const schemaDesc = `Free online ${tool.name}. ${tool.desc} Safe, client-side processing.`;
+  const schemaDesc = \`Free online \${tool.name}. \${tool.desc} Safe, client-side processing.\`;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#020617]">
@@ -76,7 +85,7 @@ export default async function UniversalToolPage({ params }: Props) {
       <ToolSchema 
         name={tool.name}
         description={schemaDesc}
-        path={`/tools/${tool.category}/${tool.id}`}
+        path={\`/tools/\${tool.category}/\${tool.id}\`}
         category="WebApplication"
       />
 
@@ -85,3 +94,7 @@ export default async function UniversalToolPage({ params }: Props) {
     </div>
   );
 }
+PAGE_EOF
+
+echo "âœ… Universal SEO Engine Deployed."
+echo "í±‰ Every single tool now has Title Tags, Meta Descriptions, and JSON-LD Schema."

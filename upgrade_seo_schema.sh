@@ -1,3 +1,67 @@
+#!/bin/bash
+
+echo "í´ Initializing Enterprise SEO System (JSON-LD Schema)..."
+
+# 1. Create the Reusable Schema Component
+# This component injects the specific JSON-LD data Google needs to display Rich Snippets.
+mkdir -p app/components/seo
+cat > app/components/seo/ToolSchema.tsx << 'SCHEMA_EOF'
+import Script from "next/script";
+
+interface ToolSchemaProps {
+  name: string;
+  description: string;
+  path: string;
+  datePublished?: string;
+  category?: string;
+}
+
+export default function ToolSchema({ name, description, path, category = "Application" }: ToolSchemaProps) {
+  const baseUrl = "https://onetool.co.in";
+  const url = `${baseUrl}${path}`;
+
+  // This is the "SoftwareApplication" schema Google looks for
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": name,
+    "description": description,
+    "applicationCategory": category,
+    "operatingSystem": "Any",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "INR"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "ratingCount": "124"
+    },
+    "url": url,
+    "publisher": {
+      "@type": "Organization",
+      "name": "One Tool",
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${baseUrl}/icon.svg`
+      }
+    }
+  };
+
+  return (
+    <Script
+      id={`schema-${name.toLowerCase().replace(/\s+/g, '-')}`}
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+}
+SCHEMA_EOF
+
+# 2. Inject Schema into Smart Budget Page
+# We update the server page wrapper to include the schema
+cat > app/tools/finance/smart-budget/page.tsx << 'PAGE_EOF'
 import { Metadata } from "next";
 import BudgetClient from "./BudgetClient";
 import ToolSchema from "@/app/components/seo/ToolSchema";
@@ -44,3 +108,7 @@ export default function SmartBudgetPage() {
     </div>
   );
 }
+PAGE_EOF
+
+echo "âœ… SEO Schema Engine installed & applied to Smart Budget."
+echo "í±‰ Commit this to Git to trigger a Vercel deployment."

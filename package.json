@@ -34,7 +34,7 @@
     "react-is": "^19.2.0",
     "react-markdown": "^10.1.0",
     "react-qr-code": "^2.0.18",
-    "react-quill": "^2.0.0",
+    "react-quill-new": "^3.6.0",
     "react-swipeable": "^7.0.2",
     "react-toastify": "^11.0.5",
     "recharts": "^3.5.1",

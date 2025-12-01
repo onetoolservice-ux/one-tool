@@ -1,3 +1,9 @@
+#!/bin/bash
+
+echo "í´§ Fixing syntax error in Universal Tool Page..."
+
+# Using quoted EOF to prevent shell expansion of ${...}
+cat > app/tools/\[category\]/\[tool\]/page.tsx << 'PAGE_CODE'
 import { Metadata } from "next";
 import ToolClient from "./ToolClient";
 import ToolSchema from "@/app/components/seo/ToolSchema";
@@ -85,3 +91,7 @@ export default async function UniversalToolPage({ params }: Props) {
     </div>
   );
 }
+PAGE_CODE
+
+echo "âœ… Universal Tool Page Syntax Fixed."
+echo "í±‰ Run 'npm run dev' to verify."

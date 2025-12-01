@@ -1,16 +1,18 @@
 {
-  "name": "OneTool",
+  "name": "One Tool Enterprise",
   "short_name": "OneTool",
-  "description": "Your Privacy-First Digital Command Center.",
+  "description": "The all-in-one privacy-first utility suite for professionals.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#4F46E5",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "/icon.svg",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
   ]
 }

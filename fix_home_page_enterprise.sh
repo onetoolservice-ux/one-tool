@@ -1,3 +1,8 @@
+#!/bin/bash
+
+echo "í´§ Fixing syntax error in Enterprise Home Page..."
+
+cat > app/page.tsx << 'HOME_CODE'
 "use client";
 
 import Link from "next/link";
@@ -166,3 +171,7 @@ export default function Home() {
     </div>
   );
 }
+HOME_CODE
+
+echo "âœ… Home Page Syntax Fixed."
+echo "í±‰ Run 'npm run dev' to verify the Enterprise Layout."

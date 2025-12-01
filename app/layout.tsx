@@ -1,3 +1,6 @@
+import GlobalCommand from "@/app/components/layout/GlobalCommand";
+import GoogleAnalytics from "@/app/components/analytics/GoogleAnalytics";
+import DynamicBackground from "@/app/components/layout/DynamicBackground";
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
@@ -35,6 +38,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${mono.variable} font-sans bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased`}>
+        <GlobalCommand />
+        <DynamicBackground />
         <UIProvider>
           <ThemeEngine />
           <UseScrollToTop />
@@ -44,6 +49,7 @@ export default function RootLayout({
             {children}
           </PageWrapper>
         </UIProvider>
+        <GoogleAnalytics gaId="G-MEASUREMENT_ID" />
       </body>
     </html>
   );

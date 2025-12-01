@@ -1,3 +1,9 @@
+#!/bin/bash
+
+echo "í´§ Fixing syntax error in ToolTile.tsx..."
+
+# We use a quoted heredoc ('TILE_CODE') to prevent the shell from messing with ${}
+cat > app/shared/ToolTile.tsx << 'TILE_CODE'
 "use client";
 
 import Link from "next/link";
@@ -94,3 +100,7 @@ export default function ToolTile({ tool }: { tool: Tool }) {
     </Link>
   );
 }
+TILE_CODE
+
+echo "âœ… ToolTile.tsx repaired."
+echo "í±‰ Run 'npm run dev' to see your Enterprise Dashboard."

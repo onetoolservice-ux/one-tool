@@ -1,3 +1,8 @@
+#!/bin/bash
+
+echo "í» ï¸ Fixing syntax in SmartWidgets.tsx..."
+
+cat > app/components/dashboard/SmartWidgets.tsx << 'WIDGET_CODE'
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -103,3 +108,7 @@ export default function SmartWidgets() {
     </div>
   );
 }
+WIDGET_CODE
+
+echo "âœ… SmartWidgets.tsx fixed."
+echo "í±‰ Run 'npm run dev' to confirm."

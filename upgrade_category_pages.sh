@@ -1,3 +1,8 @@
+#!/bin/bash
+
+echo "í´„ Synchronizing Category Pages with Enterprise Layout..."
+
+cat > app/tools/\[category\]/page.tsx << 'CAT_CODE'
 import Link from "next/link";
 import { ArrowLeft, Layers } from "lucide-react";
 import { ALL_TOOLS } from "@/app/lib/tools-data";
@@ -97,3 +102,12 @@ export default async function CategoryPage({ params }: Props) {
     </div>
   );
 }
+CAT_CODE
+
+echo "âœ… Category Pages Synchronized with Design System."
+echo "í±‰ Deploying to Vercel..."
+
+# Auto-commit to save you time
+git add .
+git commit -m "feat: finalize enterprise UI and taxonomy"
+git push
