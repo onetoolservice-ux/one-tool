@@ -24,7 +24,7 @@ export default function Toast() {
   if (!toast) return null;
 
   const styles = {
-    success: "bg-emerald-600 text-white",
+    success: "bg-[#638c80] text-white",
     error: "bg-rose-600 text-white",
     info: "bg-slate-800 text-white"
   };

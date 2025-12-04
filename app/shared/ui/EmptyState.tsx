@@ -12,7 +12,7 @@ interface EmptyStateProps {
 export default function EmptyState({ title, description, icon: Icon, action, color = "indigo" }: EmptyStateProps) {
   
   const colors = {
-    emerald: "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400",
+    emerald: "bg-[#638c80]/10 dark:bg-emerald-900/20 text-[#4a6b61] dark:text-[#638c80]",
     blue: "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400",
     indigo: "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400",
     rose: "bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400",

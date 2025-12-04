@@ -1,0 +1,71 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - link "Back to Developer" [ref=e7] [cursor=pointer]:
+          - /url: /?cat=Developer
+          - img [ref=e8]
+        - generic [ref=e11]:
+          - link [ref=e12] [cursor=pointer]:
+            - /url: /
+            - img [ref=e13]
+          - generic [ref=e16]: /
+          - link "Developer" [ref=e17] [cursor=pointer]:
+            - /url: /?cat=Developer
+          - generic [ref=e18]: /
+          - generic [ref=e19]: JSON Editor
+      - generic [ref=e21]:
+        - img [ref=e22]
+        - textbox "Jump to tool..." [ref=e25]
+        - generic [ref=e26]:
+          - generic:
+            - img
+            - generic: K
+      - generic [ref=e27]:
+        - generic [ref=e31]: 02:22:39
+        - button "Switch to Dark Mode" [ref=e33] [cursor=pointer]:
+          - img [ref=e34]
+        - button "Share" [ref=e40] [cursor=pointer]:
+          - img [ref=e41]
+          - text: Share
+        - button [ref=e47] [cursor=pointer]:
+          - img [ref=e48]
+    - main [ref=e50]:
+      - generic [ref=e52]:
+        - generic [ref=e53]:
+          - generic [ref=e54]:
+            - img [ref=e55]
+            - generic [ref=e58]: JSON Architect
+          - button "Docs" [ref=e59] [cursor=pointer]:
+            - img [ref=e60]
+            - text: Docs
+        - code [ref=e66]:
+          - generic [ref=e67]:
+            - textbox "Editor content"
+            - textbox [ref=e68]
+            - generic [ref=e73]: "1"
+        - generic [ref=e80]:
+          - button "Format" [ref=e82] [cursor=pointer]:
+            - img [ref=e83]
+            - text: Format
+          - generic [ref=e84]:
+            - button [ref=e85] [cursor=pointer]:
+              - img [ref=e86]
+            - button "Copy" [ref=e89] [cursor=pointer]:
+              - img [ref=e90]
+              - text: Copy
+  - generic [ref=e93]:
+    - img [ref=e95]
+    - paragraph [ref=e99]: Welcome to OneTool Enterprise. Secure & Offline.
+    - button [ref=e100] [cursor=pointer]:
+      - img [ref=e101]
+  - button "Open Next.js Dev Tools" [ref=e109] [cursor=pointer]:
+    - img [ref=e110]
+  - alert [ref=e113]
+  - generic [ref=e114]:
+    - alert
+    - alert
+```

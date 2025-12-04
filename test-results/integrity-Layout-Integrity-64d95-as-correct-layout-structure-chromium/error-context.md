@@ -1,0 +1,93 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - link "Back to Finance" [ref=e7] [cursor=pointer]:
+          - /url: /?cat=Finance
+          - img [ref=e8]
+        - generic [ref=e11]:
+          - link [ref=e12] [cursor=pointer]:
+            - /url: /
+            - img [ref=e13]
+          - generic [ref=e16]: /
+          - link "Finance" [ref=e17] [cursor=pointer]:
+            - /url: /?cat=Finance
+          - generic [ref=e18]: /
+          - generic [ref=e19]: Budget Planner Pro
+      - generic [ref=e21]:
+        - img [ref=e22]
+        - textbox "Jump to tool..." [ref=e25]
+        - generic [ref=e26]:
+          - generic:
+            - img
+            - generic: K
+      - generic [ref=e27]:
+        - generic [ref=e31]: 02:22:40
+        - button "Switch to Dark Mode" [ref=e33] [cursor=pointer]:
+          - img [ref=e34]
+        - button "Share" [ref=e40] [cursor=pointer]:
+          - img [ref=e41]
+          - text: Share
+        - button [ref=e47] [cursor=pointer]:
+          - img [ref=e48]
+    - main [ref=e50]:
+      - generic [ref=e51]:
+        - generic [ref=e52]:
+          - generic [ref=e53]:
+            - generic [ref=e54]:
+              - heading "Income" [level=3] [ref=e55]
+              - button [ref=e56] [cursor=pointer]:
+                - img [ref=e57]
+            - generic [ref=e58]:
+              - generic [ref=e59]:
+                - textbox [ref=e60]: Salary
+                - spinbutton [ref=e61]: "85000"
+              - generic [ref=e62]:
+                - textbox [ref=e63]: Freelance
+                - spinbutton [ref=e64]: "15000"
+          - generic [ref=e65]:
+            - generic [ref=e66]:
+              - heading "Expenses" [level=3] [ref=e67]
+              - button [ref=e68] [cursor=pointer]:
+                - img [ref=e69]
+            - generic [ref=e70]:
+              - generic [ref=e71]:
+                - textbox [ref=e72]: Rent
+                - spinbutton [ref=e73]: "22000"
+              - generic [ref=e74]:
+                - textbox [ref=e75]: Groceries
+                - spinbutton [ref=e76]: "8000"
+              - generic [ref=e77]:
+                - textbox [ref=e78]: SIP
+                - spinbutton [ref=e79]: "15000"
+              - generic [ref=e80]:
+                - textbox [ref=e81]: Fun
+                - spinbutton [ref=e82]: "6000"
+        - generic [ref=e83]:
+          - generic [ref=e86]:
+            - list [ref=e88]:
+              - listitem [ref=e89]:
+                - img "Needs legend icon" [ref=e90]
+                - text: Needs
+              - listitem [ref=e92]:
+                - img "Savings legend icon" [ref=e93]
+                - text: Savings
+              - listitem [ref=e95]:
+                - img "Wants legend icon" [ref=e96]
+                - text: Wants
+            - application [ref=e98]
+          - generic [ref=e108]:
+            - paragraph [ref=e109]: Balance
+            - heading "₹ 49,000" [level=2] [ref=e110]
+  - generic [ref=e111]:
+    - img [ref=e113]
+    - paragraph [ref=e117]: Welcome to OneTool Enterprise. Secure & Offline.
+    - button [ref=e118] [cursor=pointer]:
+      - img [ref=e119]
+  - button "Open Next.js Dev Tools" [ref=e127] [cursor=pointer]:
+    - img [ref=e128]
+  - alert [ref=e131]
+```

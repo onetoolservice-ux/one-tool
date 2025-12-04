@@ -1,168 +1,56 @@
-"use client";
+import { Suspense } from 'react';
+import { SuperNavbar } from "@/app/components/layout/super-navbar";
+import { BentoHero } from "@/app/components/home/bento-hero";
+import { ToolGrid } from "@/app/components/home/tool-grid";
+import { Footer } from "@/app/components/layout/Footer";
+import { DynamicBackground } from "@/app/components/layout/dynamic-background";
+import { Loader2 } from "lucide-react";
 
-import Link from "next/link";
-import { useMemo, useState, useEffect } from "react";
-import { Sparkles, Search, Clock, Layers, Star, ChevronRight } from "lucide-react";
-import { ALL_TOOLS } from "@/app/lib/tools-data";
-import { useUI } from "@/app/lib/ui-context";
-import CommandMenu from "@/app/components/layout/CommandMenu";
-import SmartWidgets from "@/app/components/dashboard/SmartWidgets";
-import ToolTile from "@/app/shared/ToolTile";
-import { useRecentTools } from "@/app/hooks/useRecentTools";
+type Props = {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
 
-export default function Home() {
-  const { searchQuery, activeCategory } = useUI();
-  const [isClient, setIsClient] = useState(false);
-  const [favorites, setFavorites] = useState<string[]>([]);
-  const { recentTools } = useRecentTools();
-
-  // Listen for storage events to update favorites instantly
-  useEffect(() => { 
-    setIsClient(true);
-    const loadFavs = () => {
-      const saved = localStorage.getItem("onetool-favorites");
-      if(saved) setFavorites(JSON.parse(saved));
-    };
-    loadFavs();
-    window.addEventListener("storage", loadFavs);
-    return () => window.removeEventListener("storage", loadFavs);
-  }, []);
-
-  // Group tools: Category -> Subcategory -> Tools
-  const structuredTools = useMemo(() => {
-    const cats = ["Finance", "Documents", "Developer", "Health", "Design", "Converters", "AI"];
-    
-    return cats.map(catName => {
-      // Get all tools in this category
-      const toolsInCat = ALL_TOOLS.filter(t => t.category === catName);
-      if (toolsInCat.length === 0) return null;
-
-      // Group by Subcategory
-      const subcats: Record<string, typeof ALL_TOOLS> = {};
-      toolsInCat.forEach(tool => {
-        const sub = tool.subcategory || "General";
-        if (!subcats[sub]) subcats[sub] = [];
-        subcats[sub].push(tool);
-      });
-
-      return {
-        name: catName,
-        subcategories: subcats
-      };
-    }).filter(Boolean);
-  }, []);
-
-  const filteredTools = useMemo(() => {
-    return ALL_TOOLS.filter(tool => {
-      const query = searchQuery || "";
-      const name = tool.name || "";
-      const desc = tool.desc || "";
-      const matchesSearch = name.toLowerCase().includes(query.toLowerCase()) || 
-                            desc.toLowerCase().includes(query.toLowerCase());
-      const matchesCat = activeCategory === "All" || tool.category === activeCategory;
-      return matchesSearch && matchesCat;
-    });
-  }, [searchQuery, activeCategory]);
-
-  const favoriteTools = ALL_TOOLS.filter(t => favorites.includes(t.id));
-
-  if (!isClient) return <div className="min-h-screen bg-slate-50 dark:bg-[#020617]" />;
+export default async function Home(props: Props) {
+  const searchParams = await props.searchParams;
+  const category = searchParams.cat;
+  const query = searchParams.q;
+  const showHero = (!category || category === 'All Tools') && !query;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0B1120]">
-      {/* Enterprise Header Background - Clean & Subtle */}
-      <div className="bg-white dark:bg-[#0f172a] border-b border-slate-200 dark:border-slate-800 pb-8 pt-6 px-6">
-        <div className="max-w-[1600px] mx-auto space-y-6">
-           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-             <div>
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Enterprise Dashboard</h1>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Welcome back. Select a utility to begin.</p>
-             </div>
-             <div className="w-full md:w-auto">
-                <CommandMenu />
-             </div>
+    <div className="min-h-screen bg-transparent flex flex-col font-sans selection:bg-indigo-100 selection:text-indigo-900 relative overflow-hidden">
+      <DynamicBackground />
+      
+      <Suspense fallback={<div className="h-16 border-b bg-white dark:bg-slate-950"></div>}>
+        <SuperNavbar />
+      </Suspense>
+
+      <main className="flex-1 flex flex-col h-[calc(100vh-64px)] p-4 max-w-[1600px] mx-auto w-full gap-4">
+        
+        {/* COMPACT HERO (Only ~20% Height now) */}
+        {showHero && (
+           <div className="flex-shrink-0 h-[180px] animate-in fade-in slide-in-from-top-2 duration-500">
+              <BentoHero />
+           </div>
+        )}
+
+        {/* MAIN GRID (Takes remaining 80%) */}
+        <div className={`flex-1 overflow-y-auto custom-scrollbar rounded-3xl border border-slate-200/50 dark:border-slate-700/50 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm p-5 transition-all duration-500 ${showHero ? '' : 'h-full border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80'}`}>
+           <div className="flex items-center justify-between mb-4 sticky top-0 z-10">
+              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                {showHero ? 'All Utilities' : (
+                  <><span className="text-teal-600 dark:text-teal-400">{category || 'Search'}</span> <span className="opacity-50">/</span> Tools</>
+                )}
+              </h3>
+              <span className="text-[10px] font-mono bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded text-slate-500">63 APPS</span>
            </div>
            
-           <SmartWidgets />
+           <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="animate-spin text-slate-300" size={30} /></div>}>
+              <ToolGrid /> 
+           </Suspense>
+           <div className="mt-8"><Footer /></div>
         </div>
-      </div>
 
-      <div className="w-full px-6 space-y-10 pt-8 pb-24 max-w-[1600px] mx-auto">
-        
-        {/* RECENTLY USED (Row 1) */}
-        {activeCategory === "All" && !searchQuery && recentTools.length > 0 && (
-          <section>
-              <div className="flex items-center gap-2 mb-4">
-                  <Clock size={16} className="text-indigo-600 dark:text-indigo-400"/>
-                  <h2 className="text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wide">Recent Activity</h2>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                  {recentTools.map(tool => (
-                      <ToolTile key={tool.id} tool={tool} />
-                  ))}
-              </div>
-          </section>
-        )}
-
-        {/* FAVORITES (Row 2) */}
-        {activeCategory === "All" && !searchQuery && favorites.length > 0 && (
-          <section>
-              <div className="flex items-center gap-2 mb-4">
-                  <Star size={16} className="text-amber-500 fill-amber-500"/>
-                  <h2 className="text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wide">Starred Tools</h2>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                  {favoriteTools.map(tool => (
-                      <ToolTile key={tool.id} tool={tool} />
-                  ))}
-              </div>
-          </section>
-        )}
-
-        {/* MAIN CATEGORY SECTIONS (The AWS Console Look) */}
-        {!searchQuery && activeCategory === "All" ? (
-           <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-12 gap-y-12">
-             {structuredTools.map((cat: any) => (
-               <div key={cat.name} className="space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
-                     <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        {cat.name}
-                     </h2>
-                     <Link href={`/tools/${cat.name.toLowerCase()}`} className="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1">
-                        View All <ChevronRight size={14}/>
-                     </Link>
-                  </div>
-                  
-                  {/* Subcategory Grouping */}
-                  <div className="space-y-6">
-                    {Object.entries(cat.subcategories).map(([subName, tools]: [string, any]) => (
-                       <div key={subName}>
-                          <h4 className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3 pl-1">
-                            {subName}
-                          </h4>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                            {tools.map((tool: any) => (
-                              <ToolTile key={tool.id} tool={tool} />
-                            ))}
-                          </div>
-                       </div>
-                    ))}
-                  </div>
-               </div>
-             ))}
-           </div>
-        ) : (
-          // SEARCH RESULTS
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-             {filteredTools.map((tool) => <ToolTile key={tool.id} tool={tool} />)}
-             {filteredTools.length === 0 && (
-                <div className="col-span-full py-20 text-center text-slate-500">
-                   No tools found. Try a different keyword.
-                </div>
-             )}
-          </div>
-        )}
-      </div>
+      </main>
     </div>
   );
 }

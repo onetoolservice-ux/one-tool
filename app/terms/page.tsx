@@ -1,22 +1,42 @@
-"use client";
-import React from "react";
+import { Metadata } from "next";
+import ToolShell from "@/app/components/layout/ToolShell";
+import { FileText } from "lucide-react";
 
-export default function Terms() {
+export const metadata: Metadata = {
+  title: "Terms of Service | One Tool Enterprise",
+  robots: "noindex",
+};
+
+export default function TermsPage() {
   return (
-    <div className="max-w-4xl mx-auto p-8 md:p-16 space-y-8">
-       <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white">Terms of Service</h1>
-       <div className="prose dark:prose-invert max-w-none text-slate-600 dark:text-slate-300 space-y-6">
-          <p>By accessing One Tool, you agree to these terms.</p>
-          
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white">1. Usage License</h3>
-          <p>One Tool is free to use for personal and commercial purposes. You may not reverse engineer or resell the application source code without permission.</p>
+    <ToolShell
+      title="Terms of Service"
+      description="Last Updated: December 2024"
+      category="Legal"
+      icon={<FileText className="w-5 h-5 text-blue-500" />}
+    >
+      <div className="prose dark:prose-invert max-w-3xl mx-auto bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <h3>1. Acceptance of Terms</h3>
+        <p>
+          By accessing One Tool, you agree to be bound by these Terms of Service. If you do not agree, please do not use our tools.
+        </p>
 
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white">2. Disclaimer</h3>
-          <p>The tools provided (Financial Calculators, Crypto Generators) are for informational purposes only. One Tool is not responsible for financial losses or data errors resulting from use of the software.</p>
+        <h3>2. Usage License</h3>
+        <p>
+          One Tool is free for personal and commercial use. You may not reverse engineer, scrape, or resell the platform itself.
+        </p>
 
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white">3. "As Is" Basis</h3>
-          <p>The software is provided "as is," without warranty of any kind, express or implied.</p>
-       </div>
-    </div>
+        <h3>3. Disclaimer</h3>
+        <p>
+          The tools are provided "as is". While we strive for accuracy (especially in Finance/Math tools), 
+          we are not liable for any errors, financial losses, or data loss resulting from the use of this software.
+        </p>
+
+        <h3>4. Changes</h3>
+        <p>
+          We reserve the right to modify these terms at any time. Continued use constitutes acceptance of new terms.
+        </p>
+      </div>
+    </ToolShell>
   );
 }

@@ -1,0 +1,50 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - link "Back to Documents" [ref=e7] [cursor=pointer]:
+          - /url: /?cat=Documents
+          - img [ref=e8]
+        - generic [ref=e11]:
+          - link [ref=e12] [cursor=pointer]:
+            - /url: /
+            - img [ref=e13]
+          - generic [ref=e16]: /
+          - link "Documents" [ref=e17] [cursor=pointer]:
+            - /url: /?cat=Documents
+          - generic [ref=e18]: /
+          - generic [ref=e19]: PDF Workbench
+      - generic [ref=e21]:
+        - img [ref=e22]
+        - textbox "Jump to tool..." [ref=e25]
+        - generic [ref=e26]:
+          - generic:
+            - img
+            - generic: K
+      - generic [ref=e27]:
+        - generic [ref=e31]: 02:22:40
+        - button "Switch to Dark Mode" [ref=e33] [cursor=pointer]:
+          - img [ref=e34]
+        - button "Share" [ref=e40] [cursor=pointer]:
+          - img [ref=e41]
+          - text: Share
+        - button [ref=e47] [cursor=pointer]:
+          - img [ref=e48]
+    - main [ref=e50]:
+      - generic [ref=e52]:
+        - img [ref=e54]
+        - heading "Drag & Drop PDFs" [level=2] [ref=e57]
+        - paragraph [ref=e58]: Secure client-side merging. Your documents never leave this browser tab.
+        - generic [ref=e59]:
+          - button "Select Documents" [ref=e60] [cursor=pointer]
+          - button "Choose File" [ref=e61] [cursor=pointer]
+        - generic [ref=e62]:
+          - img [ref=e63]
+          - text: 100% Private & Offline Capable
+  - button "Open Next.js Dev Tools" [ref=e71] [cursor=pointer]:
+    - img [ref=e72]
+  - alert [ref=e75]
+```

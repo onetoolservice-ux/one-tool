@@ -1,0 +1,191 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - link "Back to Business" [ref=e7] [cursor=pointer]:
+          - /url: /?cat=Business
+          - img [ref=e8]
+        - generic [ref=e11]: Pro Invoice Studio
+      - generic [ref=e12]:
+        - button "Switch to Dark Mode" [ref=e13] [cursor=pointer]:
+          - img [ref=e14]
+        - button [ref=e20] [cursor=pointer]:
+          - img [ref=e21]
+    - main [ref=e23]:
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - generic [ref=e26]:
+            - generic [ref=e27]:
+              - generic [ref=e28]: Theme Color
+              - generic [ref=e29]:
+                - textbox [ref=e30] [cursor=pointer]: "#480a0a"
+                - generic [ref=e31]: "#480a0a"
+            - generic [ref=e32]:
+              - generic [ref=e33]: Company Logo
+              - generic [ref=e35] [cursor=pointer]:
+                - img [ref=e36]
+                - text: Upload
+          - generic [ref=e39]:
+            - generic [ref=e40]:
+              - generic [ref=e41]:
+                - img [ref=e43]
+                - heading "From (Biller)" [level=3] [ref=e47]
+              - generic [ref=e48]:
+                - generic [ref=e49]: Name
+                - textbox "Company" [ref=e51]: Acme Corp
+              - generic [ref=e52]:
+                - generic [ref=e53]: Email
+                - textbox "Email" [ref=e55]: billing@acme.com
+              - generic [ref=e56]:
+                - generic [ref=e57]: Phone
+                - textbox "Phone" [ref=e59]: +1 555 0123
+              - generic [ref=e60]:
+                - generic [ref=e61]: Address
+                - textbox "Address" [ref=e63]: 123 Tech City
+            - generic [ref=e64]:
+              - generic [ref=e65]:
+                - img [ref=e67]
+                - heading "Bill To (Client)" [level=3] [ref=e71]
+              - generic [ref=e72]:
+                - generic [ref=e73]: Name
+                - textbox "Client Name" [ref=e75]: John Doe
+              - generic [ref=e76]:
+                - generic [ref=e77]: Email
+                - textbox "Email" [ref=e79]: john@client.com
+              - generic [ref=e80]:
+                - generic [ref=e81]: Address
+                - textbox "Address" [ref=e83]: 456 Market Town
+          - generic [ref=e84]:
+            - generic [ref=e85]:
+              - img [ref=e87]
+              - heading "Invoice Details" [level=3] [ref=e90]
+            - generic [ref=e91]:
+              - generic [ref=e92]:
+                - generic [ref=e93]: "Invoice #"
+                - generic [ref=e94]:
+                  - generic:
+                    - img
+                  - textbox "001" [ref=e95]: INV-001
+              - generic [ref=e96]:
+                - generic [ref=e97]: Issued
+                - textbox [ref=e99] [cursor=pointer]: 2025-12-04
+              - generic [ref=e100]:
+                - generic [ref=e101]: Due
+                - textbox [ref=e103] [cursor=pointer]: 2025-12-11
+              - generic [ref=e104]:
+                - generic [ref=e105]: Currency
+                - generic [ref=e106]:
+                  - img
+                  - combobox [ref=e107] [cursor=pointer]:
+                    - option "INR (₹)" [selected]
+                    - option "USD ($)"
+                    - option "EUR (€)"
+          - generic [ref=e108]:
+            - generic [ref=e109]:
+              - generic [ref=e110]:
+                - generic [ref=e111]:
+                  - img [ref=e113]
+                  - heading "Payment QR" [level=3] [ref=e119]
+                - generic [ref=e120]:
+                  - button [ref=e121] [cursor=pointer]:
+                    - img [ref=e122]
+                  - button [ref=e124] [cursor=pointer]:
+                    - img [ref=e125]
+              - generic [ref=e129]:
+                - generic [ref=e130]: UPI ID / Link
+                - textbox "user@upi" [ref=e132]: upi@hdfcbank
+            - generic [ref=e133]:
+              - generic [ref=e134]:
+                - generic [ref=e135]:
+                  - img [ref=e137]
+                  - heading "Signature" [level=3] [ref=e142]
+                - generic [ref=e143]:
+                  - button [ref=e144] [cursor=pointer]:
+                    - img [ref=e145]
+                  - button [ref=e150] [cursor=pointer]:
+                    - img [ref=e151]
+              - generic [ref=e155]:
+                - generic: Sign Here
+                - button "Clear" [ref=e157] [cursor=pointer]
+          - generic [ref=e158]:
+            - generic [ref=e159]:
+              - generic [ref=e160]:
+                - img [ref=e162]
+                - heading "Line Items" [level=3] [ref=e166]
+              - button "Add" [ref=e167] [cursor=pointer]:
+                - img [ref=e168]
+                - text: Add
+            - generic [ref=e169]:
+              - generic [ref=e170]: "1"
+              - textbox "Description..." [ref=e171]: Professional Services
+              - spinbutton [ref=e172]: "1"
+              - spinbutton [ref=e173]: "25000"
+              - button [ref=e174] [cursor=pointer]:
+                - img [ref=e175]
+            - generic [ref=e179]:
+              - generic [ref=e180]: Tax %
+              - spinbutton [ref=e181]: "18"
+        - generic [ref=e182]:
+          - generic [ref=e183]:
+            - generic [ref=e186]: Preview (1 Pages)
+            - button "Download PDF" [ref=e187] [cursor=pointer]:
+              - img [ref=e188]
+              - text: Download PDF
+          - generic [ref=e192]:
+            - generic [ref=e193]:
+              - generic [ref=e194]:
+                - generic [ref=e195]:
+                  - generic [ref=e197]:
+                    - heading "INVOICE" [level=1] [ref=e198]
+                    - paragraph [ref=e199]: "#INV-001"
+                  - generic [ref=e200]:
+                    - heading "Acme Corp" [level=2] [ref=e201]
+                    - paragraph [ref=e202]: 123 Tech City
+                    - paragraph [ref=e203]: billing@acme.com
+                - generic [ref=e204]:
+                  - generic [ref=e205]:
+                    - paragraph [ref=e206]: Billed To
+                    - heading "John Doe" [level=3] [ref=e207]
+                    - paragraph [ref=e208]: john@client.com
+                    - paragraph [ref=e209]: 456 Market Town
+                  - generic [ref=e210]:
+                    - generic [ref=e211]:
+                      - text: Date
+                      - paragraph [ref=e212]: 2025-12-04
+                    - generic [ref=e213]:
+                      - text: Due
+                      - paragraph [ref=e214]: 2025-12-11
+              - generic [ref=e215]:
+                - generic [ref=e216]: Description
+                - generic [ref=e217]: Qty
+                - generic [ref=e218]: Price
+                - generic [ref=e219]: Total
+              - generic [ref=e221]:
+                - generic [ref=e222]: Professional Services
+                - generic [ref=e223]: "1"
+                - generic [ref=e224]: ₹ 25,000
+                - generic [ref=e225]: ₹ 25,000
+            - generic [ref=e226]:
+              - generic [ref=e228]:
+                - generic [ref=e229]:
+                  - generic [ref=e230]: Subtotal
+                  - generic [ref=e231]: ₹ 25,000
+                - generic [ref=e232]:
+                  - generic [ref=e233]: Tax (18%)
+                  - generic [ref=e234]: ₹ 4,500
+                - generic [ref=e235]:
+                  - generic [ref=e236]: Total
+                  - generic [ref=e237]: ₹ 29,500
+              - generic [ref=e239]:
+                - img [ref=e241]
+                - generic [ref=e244]:
+                  - paragraph [ref=e245]: Scan to Pay
+                  - paragraph [ref=e246]: upi@hdfcbank
+              - generic [ref=e248]: Page 1 of 1
+  - button "Open Next.js Dev Tools" [ref=e254] [cursor=pointer]:
+    - img [ref=e255]
+  - alert [ref=e258]
+```

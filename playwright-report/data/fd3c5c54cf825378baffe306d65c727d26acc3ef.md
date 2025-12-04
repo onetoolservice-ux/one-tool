@@ -1,0 +1,52 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - link "Back to Developer" [ref=e7] [cursor=pointer]:
+          - /url: /?cat=Developer
+          - img [ref=e8]
+        - generic [ref=e11]: JSON Editor
+      - generic [ref=e12]:
+        - button "Switch to Dark Mode" [ref=e13] [cursor=pointer]:
+          - img [ref=e14]
+        - button [ref=e20] [cursor=pointer]:
+          - img [ref=e21]
+    - main [ref=e23]:
+      - generic [ref=e25]:
+        - generic [ref=e26]:
+          - generic [ref=e27]:
+            - img [ref=e28]
+            - generic [ref=e31]: JSON Architect
+          - button "Docs" [ref=e32] [cursor=pointer]:
+            - img [ref=e33]
+            - text: Docs
+        - code [ref=e39]:
+          - generic [ref=e40]:
+            - textbox "Editor content"
+            - textbox [ref=e41]
+            - generic [ref=e46]: "1"
+        - generic [ref=e53]:
+          - button "Format" [ref=e55] [cursor=pointer]:
+            - img [ref=e56]
+            - text: Format
+          - generic [ref=e57]:
+            - button [ref=e58] [cursor=pointer]:
+              - img [ref=e59]
+            - button "Copy" [ref=e62] [cursor=pointer]:
+              - img [ref=e63]
+              - text: Copy
+  - generic [ref=e66]:
+    - img [ref=e68]
+    - paragraph [ref=e72]: Welcome to OneTool Enterprise. Secure & Offline.
+    - button [ref=e73] [cursor=pointer]:
+      - img [ref=e74]
+  - button "Open Next.js Dev Tools" [ref=e82] [cursor=pointer]:
+    - img [ref=e83]
+  - alert [ref=e86]
+  - generic [ref=e87]:
+    - alert
+    - alert
+```

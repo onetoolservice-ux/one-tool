@@ -1,7 +1,0 @@
-export default [
-  { id: 1, name: "Groceries", type: "Expense", amount: 1200, color: "#ff6565" },
-  { id: 2, name: "Fuel", type: "Expense", amount: 900, color: "#ff9f43" },
-  { id: 3, name: "Snacks", type: "Expense", amount: 250, color: "#ffcd3c" },
-  { id: 4, name: "Salary", type: "Income", amount: 35000, color: "#34c759" },
-  { id: 5, name: "Freelance", type: "Income", amount: 8000, color: "#0dcaf0" },
-];

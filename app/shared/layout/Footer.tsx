@@ -25,8 +25,8 @@ export default function Footer() {
         </div>
 
         <div className="mt-4 md:mt-0 flex items-center gap-6 justify-center">
-           <div className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 px-3 py-1 rounded-full font-bold text-xs border border-emerald-100 dark:border-emerald-800">
-              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+           <div className="flex items-center gap-2 bg-[#638c80]/10 dark:bg-emerald-900/20 text-[#4a6b61] dark:text-[#638c80] px-3 py-1 rounded-full font-bold text-xs border border-[#638c80]/20 dark:border-emerald-800">
+              <span className="w-1.5 h-1.5 bg-[#638c80] rounded-full animate-pulse"></span>
               System Normal
            </div>
            

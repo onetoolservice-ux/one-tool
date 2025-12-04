@@ -1,0 +1,210 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - link "Back to Business" [ref=e7] [cursor=pointer]:
+          - /url: /?cat=Business
+          - img [ref=e8]
+        - generic [ref=e11]:
+          - link [ref=e12] [cursor=pointer]:
+            - /url: /
+            - img [ref=e13]
+          - generic [ref=e16]: /
+          - link "Business" [ref=e17] [cursor=pointer]:
+            - /url: /?cat=Business
+          - generic [ref=e18]: /
+          - generic [ref=e19]: Pro Invoice Studio
+      - generic [ref=e21]:
+        - img [ref=e22]
+        - textbox "Jump to tool..." [ref=e25]
+        - generic [ref=e26]:
+          - generic:
+            - img
+            - generic: K
+      - generic [ref=e27]:
+        - generic [ref=e31]: 02:22:39
+        - button "Switch to Dark Mode" [ref=e33] [cursor=pointer]:
+          - img [ref=e34]
+        - button "Share" [ref=e40] [cursor=pointer]:
+          - img [ref=e41]
+          - text: Share
+        - button [ref=e47] [cursor=pointer]:
+          - img [ref=e48]
+    - main [ref=e50]:
+      - generic [ref=e51]:
+        - generic [ref=e52]:
+          - generic [ref=e53]:
+            - generic [ref=e54]:
+              - generic [ref=e55]: Theme Color
+              - generic [ref=e56]:
+                - textbox [ref=e57] [cursor=pointer]: "#480a0a"
+                - generic [ref=e58]: "#480a0a"
+            - generic [ref=e59]:
+              - generic [ref=e60]: Company Logo
+              - generic [ref=e62] [cursor=pointer]:
+                - img [ref=e63]
+                - text: Upload
+          - generic [ref=e66]:
+            - generic [ref=e67]:
+              - generic [ref=e68]:
+                - img [ref=e70]
+                - heading "From (Biller)" [level=3] [ref=e74]
+              - generic [ref=e75]:
+                - generic [ref=e76]: Name
+                - textbox "Company" [ref=e78]: Acme Corp
+              - generic [ref=e79]:
+                - generic [ref=e80]: Email
+                - textbox "Email" [ref=e82]: billing@acme.com
+              - generic [ref=e83]:
+                - generic [ref=e84]: Phone
+                - textbox "Phone" [ref=e86]: +1 555 0123
+              - generic [ref=e87]:
+                - generic [ref=e88]: Address
+                - textbox "Address" [ref=e90]: 123 Tech City
+            - generic [ref=e91]:
+              - generic [ref=e92]:
+                - img [ref=e94]
+                - heading "Bill To (Client)" [level=3] [ref=e98]
+              - generic [ref=e99]:
+                - generic [ref=e100]: Name
+                - textbox "Client Name" [ref=e102]: John Doe
+              - generic [ref=e103]:
+                - generic [ref=e104]: Email
+                - textbox "Email" [ref=e106]: john@client.com
+              - generic [ref=e107]:
+                - generic [ref=e108]: Address
+                - textbox "Address" [ref=e110]: 456 Market Town
+          - generic [ref=e111]:
+            - generic [ref=e112]:
+              - img [ref=e114]
+              - heading "Invoice Details" [level=3] [ref=e117]
+            - generic [ref=e118]:
+              - generic [ref=e119]:
+                - generic [ref=e120]: "Invoice #"
+                - generic [ref=e121]:
+                  - generic:
+                    - img
+                  - textbox "001" [ref=e122]: INV-001
+              - generic [ref=e123]:
+                - generic [ref=e124]: Issued
+                - textbox [ref=e126] [cursor=pointer]: 2025-12-04
+              - generic [ref=e127]:
+                - generic [ref=e128]: Due
+                - textbox [ref=e130] [cursor=pointer]: 2025-12-11
+              - generic [ref=e131]:
+                - generic [ref=e132]: Currency
+                - generic [ref=e133]:
+                  - img
+                  - combobox [ref=e134] [cursor=pointer]:
+                    - option "INR (₹)" [selected]
+                    - option "USD ($)"
+                    - option "EUR (€)"
+          - generic [ref=e135]:
+            - generic [ref=e136]:
+              - generic [ref=e137]:
+                - generic [ref=e138]:
+                  - img [ref=e140]
+                  - heading "Payment QR" [level=3] [ref=e146]
+                - generic [ref=e147]:
+                  - button [ref=e148] [cursor=pointer]:
+                    - img [ref=e149]
+                  - button [ref=e151] [cursor=pointer]:
+                    - img [ref=e152]
+              - generic [ref=e156]:
+                - generic [ref=e157]: UPI ID / Link
+                - textbox "user@upi" [ref=e159]: upi@hdfcbank
+            - generic [ref=e160]:
+              - generic [ref=e161]:
+                - generic [ref=e162]:
+                  - img [ref=e164]
+                  - heading "Signature" [level=3] [ref=e169]
+                - generic [ref=e170]:
+                  - button [ref=e171] [cursor=pointer]:
+                    - img [ref=e172]
+                  - button [ref=e177] [cursor=pointer]:
+                    - img [ref=e178]
+              - generic [ref=e182]:
+                - generic: Sign Here
+                - button "Clear" [ref=e184] [cursor=pointer]
+          - generic [ref=e185]:
+            - generic [ref=e186]:
+              - generic [ref=e187]:
+                - img [ref=e189]
+                - heading "Line Items" [level=3] [ref=e193]
+              - button "Add" [ref=e194] [cursor=pointer]:
+                - img [ref=e195]
+                - text: Add
+            - generic [ref=e196]:
+              - generic [ref=e197]: "1"
+              - textbox "Description..." [ref=e198]: Professional Services
+              - spinbutton [ref=e199]: "1"
+              - spinbutton [ref=e200]: "25000"
+              - button [ref=e201] [cursor=pointer]:
+                - img [ref=e202]
+            - generic [ref=e206]:
+              - generic [ref=e207]: Tax %
+              - spinbutton [ref=e208]: "18"
+        - generic [ref=e209]:
+          - generic [ref=e210]:
+            - generic [ref=e213]: Preview (1 Pages)
+            - button "Download PDF" [ref=e214] [cursor=pointer]:
+              - img [ref=e215]
+              - text: Download PDF
+          - generic [ref=e219]:
+            - generic [ref=e220]:
+              - generic [ref=e221]:
+                - generic [ref=e222]:
+                  - generic [ref=e224]:
+                    - heading "INVOICE" [level=1] [ref=e225]
+                    - paragraph [ref=e226]: "#INV-001"
+                  - generic [ref=e227]:
+                    - heading "Acme Corp" [level=2] [ref=e228]
+                    - paragraph [ref=e229]: 123 Tech City
+                    - paragraph [ref=e230]: billing@acme.com
+                - generic [ref=e231]:
+                  - generic [ref=e232]:
+                    - paragraph [ref=e233]: Billed To
+                    - heading "John Doe" [level=3] [ref=e234]
+                    - paragraph [ref=e235]: john@client.com
+                    - paragraph [ref=e236]: 456 Market Town
+                  - generic [ref=e237]:
+                    - generic [ref=e238]:
+                      - text: Date
+                      - paragraph [ref=e239]: 2025-12-04
+                    - generic [ref=e240]:
+                      - text: Due
+                      - paragraph [ref=e241]: 2025-12-11
+              - generic [ref=e242]:
+                - generic [ref=e243]: Description
+                - generic [ref=e244]: Qty
+                - generic [ref=e245]: Price
+                - generic [ref=e246]: Total
+              - generic [ref=e248]:
+                - generic [ref=e249]: Professional Services
+                - generic [ref=e250]: "1"
+                - generic [ref=e251]: ₹ 25,000
+                - generic [ref=e252]: ₹ 25,000
+            - generic [ref=e253]:
+              - generic [ref=e255]:
+                - generic [ref=e256]:
+                  - generic [ref=e257]: Subtotal
+                  - generic [ref=e258]: ₹ 25,000
+                - generic [ref=e259]:
+                  - generic [ref=e260]: Tax (18%)
+                  - generic [ref=e261]: ₹ 4,500
+                - generic [ref=e262]:
+                  - generic [ref=e263]: Total
+                  - generic [ref=e264]: ₹ 29,500
+              - generic [ref=e266]:
+                - img [ref=e268]
+                - generic [ref=e271]:
+                  - paragraph [ref=e272]: Scan to Pay
+                  - paragraph [ref=e273]: upi@hdfcbank
+              - generic [ref=e275]: Page 1 of 1
+  - button "Open Next.js Dev Tools" [ref=e281] [cursor=pointer]:
+    - img [ref=e282]
+  - alert [ref=e285]
+```

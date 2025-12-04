@@ -17,7 +17,7 @@ export default function About() {
              <p className="text-slate-500 leading-relaxed">We believe your financial data and developer secrets should never leave your device. That's why One Tool runs 100% offline.</p>
           </div>
           <div className="p-8 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
-             <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center text-emerald-600 mb-4"><Zap size={24}/></div>
+             <div className="w-12 h-12 bg-[#638c80]/20 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center text-[#4a6b61] mb-4"><Zap size={24}/></div>
              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Blazing Fast</h3>
              <p className="text-slate-500 leading-relaxed">No loading spinners. No server round-trips. Our tools calculate instantly using the power of your own device.</p>
           </div>

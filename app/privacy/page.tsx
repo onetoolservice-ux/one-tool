@@ -1,25 +1,50 @@
-"use client";
-import React from "react";
+import { Metadata } from "next";
+import ToolShell from "@/app/components/layout/ToolShell";
+import { Shield } from "lucide-react";
 
-export default function Privacy() {
+export const metadata: Metadata = {
+  title: "Privacy Policy | One Tool Enterprise",
+  robots: "noindex",
+};
+
+export default function PrivacyPage() {
   return (
-    <div className="max-w-4xl mx-auto p-8 md:p-16 space-y-8">
-       <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white">Privacy Policy</h1>
-       <div className="prose dark:prose-invert max-w-none text-slate-600 dark:text-slate-300 space-y-6">
-          <p className="lead text-xl">At One Tool, we believe your data belongs to you. Period.</p>
-          
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white">1. No Server Tracking</h3>
-          <p>One Tool operates as a <strong>Client-Side Application (PWA)</strong>. When you use tools like "Smart Budget" or "Password Generator," the logic runs entirely inside your browser. No data is sent to our servers.</p>
+    <ToolShell
+      title="Privacy Policy"
+      description="Last Updated: December 2024"
+      category="Legal"
+      icon={<Shield className="w-5 h-5 text-[#638c80]" />}
+    >
+      <div className="prose dark:prose-invert max-w-3xl mx-auto bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <h3>1. Data Privacy Summary</h3>
+        <p>
+          <strong>One Tool Enterprise</strong> operates on a "Local-First" architecture. 
+          We do not store, process, or transmit your input data (files, text, financial numbers) to any server.
+          All processing happens 100% within your web browser.
+        </p>
 
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white">2. Local Storage</h3>
-          <p>All user data (budgets, notes, settings) is stored in your device's <code>localStorage</code>. This means if you clear your browser cache, your data is removed. We do not have a copy.</p>
+        <h3>2. Analytics</h3>
+        <p>
+          We use privacy-friendly analytics (Google Analytics 4) to track page views and tool popularity. 
+          This data is anonymized and does not contain personal inputs.
+        </p>
 
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white">3. Analytics</h3>
-          <p>We do not use Google Analytics, Facebook Pixel, or any third-party trackers that monitor your behavior.</p>
+        <h3>3. Local Storage</h3>
+        <p>
+          Some tools (Smart Budget, Todo, Settings) save data to your browser's <code>localStorage</code> 
+          for your convenience. You can clear this at any time by clearing your browser cache.
+        </p>
 
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white">4. Contact</h3>
-          <p>If you have questions, email us at <a href="mailto:privacy@onetool.co" className="text-indigo-600 underline">privacy@onetool.co</a>.</p>
-       </div>
-    </div>
+        <h3>4. Third-Party Services</h3>
+        <p>
+          We rely on Vercel for hosting. No other third-party trackers are installed.
+        </p>
+
+        <h3>5. Contact</h3>
+        <p>
+          For privacy concerns, email us at <a href="mailto:support@onetool.co" className="text-indigo-600">support@onetool.co</a>.
+        </p>
+      </div>
+    </ToolShell>
   );
 }

@@ -1,0 +1,96 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - link "Back to Productivity" [ref=e7] [cursor=pointer]:
+          - /url: /?cat=Productivity
+          - img [ref=e8]
+        - generic [ref=e11]:
+          - link [ref=e12] [cursor=pointer]:
+            - /url: /
+            - img [ref=e13]
+          - generic [ref=e16]: /
+          - link "Productivity" [ref=e17] [cursor=pointer]:
+            - /url: /?cat=Productivity
+          - generic [ref=e18]: /
+          - generic [ref=e19]: Life OS Planner
+      - generic [ref=e21]:
+        - img [ref=e22]
+        - textbox "Jump to tool..." [ref=e25]
+        - generic [ref=e26]:
+          - generic:
+            - img
+            - generic: K
+      - generic [ref=e27]:
+        - generic [ref=e31]: 02:22:42
+        - button "Switch to Dark Mode" [ref=e33] [cursor=pointer]:
+          - img [ref=e34]
+        - button "Share" [ref=e40] [cursor=pointer]:
+          - img [ref=e41]
+          - text: Share
+        - button [ref=e47] [cursor=pointer]:
+          - img [ref=e48]
+    - main [ref=e50]:
+      - generic [ref=e51]:
+        - generic [ref=e52]:
+          - generic [ref=e53]:
+            - heading "Life OS v2.0" [level=1] [ref=e54]:
+              - text: Life OS
+              - generic [ref=e55]: v2.0
+            - paragraph [ref=e56]: December 5th, 2025
+          - generic [ref=e57]:
+            - generic [ref=e60]: 0% Done
+            - button "Focus Mode" [ref=e61] [cursor=pointer]:
+              - img [ref=e62]
+              - text: Focus Mode
+        - generic [ref=e64]:
+          - generic [ref=e65]:
+            - button "Daily" [ref=e66] [cursor=pointer]:
+              - img [ref=e67]
+              - text: Daily
+            - button "Weekly" [ref=e70] [cursor=pointer]:
+              - img [ref=e71]
+              - text: Weekly
+            - button "Monthly" [ref=e73] [cursor=pointer]:
+              - img [ref=e74]
+              - text: Monthly
+            - button "Vision" [ref=e76] [cursor=pointer]:
+              - img [ref=e77]
+              - text: Vision
+          - generic [ref=e80]:
+            - generic [ref=e81]:
+              - button "Mon 1" [ref=e82] [cursor=pointer]:
+                - generic [ref=e83]: Mon
+                - generic [ref=e84]: "1"
+              - button "Tue 2" [ref=e85] [cursor=pointer]:
+                - generic [ref=e86]: Tue
+                - generic [ref=e87]: "2"
+              - button "Wed 3" [ref=e88] [cursor=pointer]:
+                - generic [ref=e89]: Wed
+                - generic [ref=e90]: "3"
+              - button "Thu 4" [ref=e91] [cursor=pointer]:
+                - generic [ref=e92]: Thu
+                - generic [ref=e93]: "4"
+              - button "Fri 5" [ref=e94] [cursor=pointer]:
+                - generic [ref=e95]: Fri
+                - generic [ref=e96]: "5"
+              - button "Sat 6" [ref=e97] [cursor=pointer]:
+                - generic [ref=e98]: Sat
+                - generic [ref=e99]: "6"
+              - button "Sun 7" [ref=e100] [cursor=pointer]:
+                - generic [ref=e101]: Sun
+                - generic [ref=e102]: "7"
+            - generic [ref=e103]:
+              - textbox "Add a new daily goal..." [ref=e104]
+              - button [ref=e105] [cursor=pointer]:
+                - img [ref=e106]
+            - generic [ref=e108]:
+              - img [ref=e109]
+              - paragraph [ref=e113]: No tasks for daily view.
+  - button "Open Next.js Dev Tools" [ref=e119] [cursor=pointer]:
+    - img [ref=e120]
+  - alert [ref=e123]
+```

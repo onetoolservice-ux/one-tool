@@ -1,0 +1,44 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - link "Back to Finance" [ref=e7] [cursor=pointer]:
+          - /url: /?cat=Finance
+          - img [ref=e8]
+        - generic [ref=e11]: Smart Net Worth
+      - generic [ref=e12]:
+        - button "Switch to Dark Mode" [ref=e13] [cursor=pointer]:
+          - img [ref=e14]
+        - button [ref=e20] [cursor=pointer]:
+          - img [ref=e21]
+    - main [ref=e23]:
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - generic [ref=e26]:
+            - generic [ref=e27]: Initial Investment
+            - spinbutton [ref=e29]: "5000"
+            - slider [ref=e30]: "5000"
+          - generic [ref=e31]:
+            - generic [ref=e32]: Expected Return (Annual %)
+            - spinbutton [ref=e34]: "12"
+            - slider [ref=e35]: "12"
+          - generic [ref=e36]:
+            - generic [ref=e37]: Time Period (Years)
+            - spinbutton [ref=e39]: "10"
+            - slider [ref=e40]: "10"
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - paragraph [ref=e44]: Invested
+            - paragraph [ref=e45]: ₹5,000
+          - generic [ref=e46]:
+            - paragraph [ref=e47]: Wealth Gained
+            - paragraph [ref=e48]: +₹11,502
+          - generic [ref=e49]:
+            - paragraph [ref=e50]: Total Value
+            - paragraph [ref=e51]: ₹16,502
+  - button "Open Next.js Dev Tools" [ref=e59] [cursor=pointer]:
+    - img [ref=e60]
+```

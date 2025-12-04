@@ -1,0 +1,62 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - link "Back to Finance" [ref=e7] [cursor=pointer]:
+          - /url: /?cat=Finance
+          - img [ref=e8]
+        - generic [ref=e11]:
+          - link [ref=e12] [cursor=pointer]:
+            - /url: /
+            - img [ref=e13]
+          - generic [ref=e16]: /
+          - link "Finance" [ref=e17] [cursor=pointer]:
+            - /url: /?cat=Finance
+          - generic [ref=e18]: /
+          - generic [ref=e19]: Smart SIP
+      - generic [ref=e21]:
+        - img [ref=e22]
+        - textbox "Jump to tool..." [ref=e25]
+        - generic [ref=e26]:
+          - generic:
+            - img
+            - generic: K
+      - generic [ref=e27]:
+        - button "Switch to Dark Mode" [ref=e31] [cursor=pointer]:
+          - img [ref=e32]
+        - button "Share" [ref=e38] [cursor=pointer]:
+          - img [ref=e39]
+          - text: Share
+        - button [ref=e45] [cursor=pointer]:
+          - img [ref=e46]
+    - main [ref=e48]:
+      - generic [ref=e49]:
+        - generic [ref=e50]:
+          - generic [ref=e51]:
+            - generic [ref=e52]: Monthly Investment
+            - spinbutton [ref=e54]: "5000"
+            - slider [ref=e55]: "5000"
+          - generic [ref=e56]:
+            - generic [ref=e57]: Expected Return (Annual %)
+            - spinbutton [ref=e59]: "12"
+            - slider [ref=e60]: "12"
+          - generic [ref=e61]:
+            - generic [ref=e62]: Time Period (Years)
+            - spinbutton [ref=e64]: "10"
+            - slider [ref=e65]: "10"
+        - generic [ref=e67]:
+          - generic [ref=e68]:
+            - paragraph [ref=e69]: Invested
+            - paragraph [ref=e70]: ₹6,00,000
+          - generic [ref=e71]:
+            - paragraph [ref=e72]: Wealth Gained
+            - paragraph [ref=e73]: +₹5,61,695
+          - generic [ref=e74]:
+            - paragraph [ref=e75]: Total Value
+            - paragraph [ref=e76]: ₹11,61,695
+  - button "Open Next.js Dev Tools" [ref=e84] [cursor=pointer]:
+    - img [ref=e85]
+```

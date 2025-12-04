@@ -1,17 +1,23 @@
 "use client";
 
-import { Search, Command } from "lucide-react";
+import { Search, Mic, Loader2 } from "lucide-react";
 import { useUI } from "@/app/lib/ui-context";
 import { useEffect, useRef } from "react";
+import { useVoiceSearch } from "@/app/hooks/useVoiceSearch";
 
 export default function CommandMenu() {
   const { searchQuery, setSearchQuery } = useUI();
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef(null);
+  const { isListening, transcript, startListening } = useVoiceSearch();
 
-  // Focus on slash key
+  // Sync voice result to search
   useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === "/") {
+    if (transcript) setSearchQuery(transcript);
+  }, [transcript, setSearchQuery]);
+
+  useEffect(() => {
+    const down = (e) => {
+      if (e.key === "/" || (e.key === "k" && (e.metaKey || e.ctrlKey))) {
         e.preventDefault();
         inputRef.current?.focus();
       }
@@ -30,12 +36,20 @@ export default function CommandMenu() {
         <input 
           ref={inputRef}
           type="text" 
-          placeholder="Search for tools (e.g. 'PDF', 'Loan', 'Format')..." 
-          className="w-full h-14 px-4 bg-transparent outline-none text-slate-900 dark:text-white placeholder:text-slate-400 text-lg"
+          placeholder={isListening ? "Listening..." : "Search tools or say 'Open Budget'..."}
+          className="w-full h-12 md:h-14 px-4 bg-transparent outline-none text-slate-900 dark:text-white placeholder:text-slate-400 text-base md:text-lg"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
         <div className="pr-4 flex items-center gap-2">
+           <button 
+             onClick={startListening}
+             className={`p-2 rounded-full transition-all ${isListening ? 'bg-rose-500 text-white animate-pulse' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400'}`}
+             title="Voice Search"
+           >
+             {isListening ? <Loader2 size={18} className="animate-spin"/> : <Mic size={18}/>}
+           </button>
+           
            <div className="hidden md:flex items-center gap-1 px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-500 dark:text-slate-400">
               <span className="text-[10px]">CTRL</span> K
            </div>

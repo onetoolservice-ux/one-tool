@@ -36,7 +36,7 @@ export default function SmartAssistant({ isOpen, onClose }: { isOpen: boolean; o
                     <div className="flex justify-between items-start mb-4">
                         <div>
                             <div className="flex items-center gap-2 mb-1">
-                                <span className={`text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wide border flex items-center gap-1 ${data.status === 'Live' ? 'bg-emerald-50 text-emerald-600 dark:text-emerald-400 border-emerald-100' : 'bg-slate-100 text-muted dark:text-muted dark:text-muted dark:text-muted border-line dark:border-slate-700 dark:border-slate-800'}`}>
+                                <span className={`text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wide border flex items-center gap-1 ${data.status === 'Live' ? 'bg-[#638c80]/10 text-[#4a6b61] dark:text-[#638c80] border-[#638c80]/20' : 'bg-slate-100 text-muted dark:text-muted dark:text-muted dark:text-muted border-line dark:border-slate-700 dark:border-slate-800'}`}>
                                     <FileText size={10} /> {data.status === 'Live' ? 'Verified Manual' : 'Draft Guide'}
                                 </span>
                             </div>

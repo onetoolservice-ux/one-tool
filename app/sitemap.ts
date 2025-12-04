@@ -1,23 +1,37 @@
-import { MetadataRoute } from "next";
-import { ALL_TOOLS } from "@/app/lib/tools-data";
+import { MetadataRoute } from 'next';
+import { ALL_TOOLS } from '@/app/lib/tools-data';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://onetool.co"; // Change this to your real domain later
+  const baseUrl = 'https://onetool.co.in';
 
-  const toolUrls = ALL_TOOLS.map((tool) => ({
-    url: `${baseUrl}${tool.href}`,
+  // 1. Static Pages
+  const staticPages = [
+    '',
+    '/privacy',
+    '/terms',
+  ].map(route => ({
+    url: `${baseUrl}${route}`,
     lastModified: new Date(),
-    changeFrequency: "monthly" as const,
-    priority: 0.8,
+    changeFrequency: 'monthly' as const,
+    priority: route === '' ? 1 : 0.5,
   }));
 
-  return [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 1,
-    },
-    ...toolUrls,
-  ];
+  // 2. Tool Pages (High Priority)
+  const toolPages = ALL_TOOLS.map(tool => ({
+    url: `${baseUrl}${tool.href}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.9, // High priority for tools
+  }));
+
+  // 3. Category Pages
+  const categories = Array.from(new Set(ALL_TOOLS.map(t => t.category.toLowerCase())));
+  const categoryPages = categories.map(cat => ({
+    url: `${baseUrl}/tools/${cat}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
+  return [...staticPages, ...toolPages, ...categoryPages];
 }

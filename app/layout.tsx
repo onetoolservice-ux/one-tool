@@ -1,33 +1,20 @@
-import GlobalCommand from "@/app/components/layout/GlobalCommand";
-import GoogleAnalytics from "@/app/components/analytics/GoogleAnalytics";
-import DynamicBackground from "@/app/components/layout/DynamicBackground";
-import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
-import "./globals.css";
-import { UIProvider } from "@/app/lib/ui-context";
-import Navbar from "@/app/shared/layout/Navbar";
-import Sidebar from "@/app/components/layout/Sidebar";
-import Footer from "@/app/shared/layout/Footer";
-import ThemeEngine from "./components/layout/ThemeEngine"; 
-import UseScrollToTop from "./utils/hooks/useScrollToTop";
-import PageWrapper from "@/app/components/layout/PageWrapper";
+import './globals.css';
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import Script from 'next/script';
+import { DynamicBackground } from '@/app/components/layout/dynamic-background';
+import { ToastProvider } from '@/app/components/ui/toast-provider';
+import { WelcomeToast } from '@/app/components/home/welcome-toast';
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
-const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "One Tool | The Privacy-First Digital Toolkit",
-  description: "A complete toolkit for Finance, Documents, Health, and Developers. 100% Offline.",
-  manifest: "/manifest.json",
-  icons: { icon: "/icon.svg" },
-};
-
-// FIX: Removed 'userScalable: false' (Critical Lighthouse Fix)
-export const viewport: Viewport = {
-  themeColor: "#4F46E5",
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 5, 
+  title: 'OneTool | The Enterprise OS',
+  description: '63+ Professional Tools. Secure, Client-Side, Free.',
+  manifest: '/manifest.json',
+  verification: {
+    google: 'google-site-verification-code-here',
+  },
 };
 
 export default function RootLayout({
@@ -36,20 +23,39 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={`${inter.variable} ${mono.variable} font-sans bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased`}>
-        <GlobalCommand />
-        <DynamicBackground />
-        <UIProvider>
-          <ThemeEngine />
-          <UseScrollToTop />
-          <Navbar />
-          <Sidebar />
-          <PageWrapper>
-            {children}
-          </PageWrapper>
-        </UIProvider>
-        <GoogleAnalytics gaId="G-MEASUREMENT_ID" />
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#0d9488" />
+        
+        {/* GOOGLE ANALYTICS */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-G250LVCNPK"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-G250LVCNPK');
+          `}
+        </Script>
+
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem('theme')==='dark'||(!('theme' in localStorage)&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}else{document.documentElement.classList.remove('dark')}}catch(_){}`,
+          }}
+        />
+      </head>
+      <body className={`${inter.className} min-h-screen bg-slate-50 dark:bg-[#020617] text-slate-900 dark:text-slate-100`}>
+         <ToastProvider>
+            <DynamicBackground />
+            <div className="flex flex-col min-h-screen relative">
+              {children}
+            </div>
+            <WelcomeToast />
+         </ToastProvider>
       </body>
     </html>
   );

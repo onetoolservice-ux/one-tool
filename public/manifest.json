@@ -1,18 +1,16 @@
 {
-  "name": "One Tool Enterprise",
+  "name": "OneTool Enterprise",
   "short_name": "OneTool",
-  "description": "The all-in-one privacy-first utility suite for professionals.",
+  "description": "The Operating System for your daily work.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4f46e5",
-  "orientation": "portrait",
   "icons": [
     {
-      "src": "/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
     }
   ]
 }
