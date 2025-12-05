@@ -21,21 +21,27 @@ body {
   background: transparent;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden; /* Prevent horizontal scroll shift */
 }
 
-/* CLS FIX: Ensure animations don't shift layout */
+/* CLS FIX: Reserve space for grid items before they load */
+.grid-min-h {
+  min-height: 100vh;
+}
+
+/* ANIMATION OPTIMIZATION */
 .animate-in {
-  contain: layout paint;
-  animation-duration: 0.4s;
+  animation-duration: 0.3s;
   animation-fill-mode: both;
+  will-change: opacity, transform; /* Hardware acceleration */
 }
 
-/* SCROLLBAR */
+input, select, textarea {
+  font-size: 16px !important; /* Prevents iOS zoom */
+}
+
+/* CUSTOM SCROLLBAR */
 .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; }
-
-/* CONTRAST FIXES */
-.text-slate-400 { color: #64748b; } /* Darker gray for readability */
-.dark .text-slate-400 { color: #94a3b8; }

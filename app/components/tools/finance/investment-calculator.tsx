@@ -1,115 +1,88 @@
 "use client";
-import React, { useState, useMemo } from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { TrendingUp, DollarSign, Calendar, Percent, Target } from 'lucide-react';
+import React, { useState } from 'react';
+import { TrendingUp, Calculator, DollarSign, Briefcase, Landmark } from 'lucide-react';
 
-export const InvestmentCalculator = ({ mode = 'sip' }: { mode?: 'sip' | 'lumpsum' }) => {
-  const [monthly, setMonthly] = useState(5000);
-  const [rate, setRate] = useState(12);
-  const [years, setYears] = useState(10);
+export const InvestmentCalculator = ({ mode }: { mode: 'sip' | 'loan' | 'net-worth' | 'retirement' }) => {
+  const [p, setP] = useState(mode === 'loan' ? 500000 : 5000);
+  const [r, setR] = useState(mode === 'loan' ? 8.5 : 12);
+  const [t, setT] = useState(mode === 'loan' ? 20 : 10);
+  
+  // For Net Worth
+  const [assets, setAssets] = useState(1000000);
+  const [liabilities, setLiabilities] = useState(200000);
 
-  const result = useMemo(() => {
-    const months = years * 12;
-    const r = rate / 100 / 12;
-    const data = [];
-    let totalInvested = 0;
-    let currentValue = 0;
-
-    for (let i = 0; i <= months; i++) {
-      if (i > 0) {
-        if (mode === 'sip') {
-           currentValue = (currentValue + monthly) * (1 + r);
-           totalInvested += monthly;
-        } else {
-           // Lumpsum logic (monthly just acts as initial)
-           if (i===1) { currentValue = monthly; totalInvested = monthly; }
-           currentValue = currentValue * (1 + r);
-        }
-      }
-      
-      if (i % 12 === 0) { // Only push yearly points for cleaner chart
-        data.push({
-          year: `Year ${i/12}`,
-          Invested: Math.round(totalInvested),
-          Value: Math.round(currentValue)
-        });
-      }
+  const calculate = () => {
+    if (mode === 'net-worth') return assets - liabilities;
+    if (mode === 'loan') {
+      const emi = (p * r * Math.pow(1 + r/1200, t*12)) / (1200 * (Math.pow(1 + r/1200, t*12) - 1));
+      return Math.round(emi || 0);
     }
+    // SIP / Retirement
+    const i = r / 1200;
+    const n = t * 12;
+    return Math.round(p * ((Math.pow(1 + i, n) - 1) / i) * (1 + i));
+  };
 
-    return { 
-      invested: Math.round(totalInvested), 
-      value: Math.round(currentValue), 
-      profit: Math.round(currentValue - totalInvested),
-      data 
-    };
-  }, [monthly, rate, years, mode]);
+  const config = {
+    'sip': { title: 'Smart SIP', icon: TrendingUp, labelP: 'Monthly Investment', labelR: 'Expected Return', labelT: 'Time Period' },
+    'loan': { title: 'Smart Loan', icon: Calculator, labelP: 'Loan Amount', labelR: 'Interest Rate', labelT: 'Loan Tenure' },
+    'retirement': { title: 'Smart Retirement', icon: Briefcase, labelP: 'Monthly Savings', labelR: 'Expected Growth', labelT: 'Years to Retire' },
+    'net-worth': { title: 'Smart Net Worth', icon: Landmark }
+  }[mode];
 
-  const formatINR = (val: number) => val.toLocaleString('en-IN', { maximumFractionDigits: 0, style: 'currency', currency: 'INR' });
+  const Icon = config.icon;
+
+  if (mode === 'net-worth') {
+    return (
+      <div className="max-w-2xl mx-auto p-8 bg-white dark:bg-slate-900 border rounded-3xl shadow-sm">
+         <h2 className="text-2xl font-bold mb-8 flex items-center gap-2"><Icon className="text-teal-600"/> {config.title}</h2>
+         <div className="space-y-6">
+            <div className="p-6 bg-emerald-50 rounded-2xl">
+               <label className="text-xs font-bold text-emerald-700 uppercase">Total Assets (Cash, Property, Gold)</label>
+               <input type="number" value={assets} onChange={e=>setAssets(+e.target.value)} className="w-full bg-transparent text-3xl font-black text-emerald-800 outline-none mt-2"/>
+            </div>
+            <div className="p-6 bg-rose-50 rounded-2xl">
+               <label className="text-xs font-bold text-rose-700 uppercase">Total Liabilities (Loans, Debt)</label>
+               <input type="number" value={liabilities} onChange={e=>setLiabilities(+e.target.value)} className="w-full bg-transparent text-3xl font-black text-rose-800 outline-none mt-2"/>
+            </div>
+            <div className="border-t pt-8 text-center">
+               <p className="text-xs font-bold text-slate-400 uppercase mb-2">Your Net Worth</p>
+               <h1 className="text-5xl font-black text-slate-900 dark:text-white">₹ {(assets - liabilities).toLocaleString()}</h1>
+            </div>
+         </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 h-[calc(100vh-80px)] p-4">
-       {/* LEFT: INPUTS */}
-       <div className="w-full lg:w-1/3 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 space-y-8">
-          <div>
-             <label className="text-xs font-bold text-slate-500 uppercase mb-2 block">{mode === 'sip' ? 'Monthly Investment' : 'Initial Investment'}</label>
-             <div className="relative">
-                <input type="number" value={monthly} onChange={e => setMonthly(Number(e.target.value))} className="w-full text-3xl font-black bg-transparent outline-none text-indigo-600" />
+    <div className="max-w-4xl mx-auto p-6 flex flex-col md:flex-row gap-8">
+       <div className="flex-1 bg-white dark:bg-slate-900 p-8 rounded-3xl border shadow-sm">
+          <h2 className="text-xl font-bold mb-8 flex items-center gap-2"><Icon className="text-indigo-600"/> {config.title}</h2>
+          <div className="space-y-8">
+             <div>
+                <label className="flex justify-between text-xs font-bold text-slate-500 uppercase mb-2"><span>{config.labelP}</span><span>{p.toLocaleString()}</span></label>
+                <input type="range" min="500" max="10000000" step="500" value={p} onChange={e=>setP(+e.target.value)} className="w-full accent-indigo-600"/>
              </div>
-             <input type="range" min="500" max="100000" step="500" value={monthly} onChange={e => setMonthly(Number(e.target.value))} className="w-full h-2 bg-slate-100 rounded-full accent-indigo-600 mt-4" />
-          </div>
-
-          <div>
-             <label className="text-xs font-bold text-slate-500 uppercase mb-2 block">Expected Return (Annual %)</label>
-             <div className="relative">
-                <input type="number" value={rate} onChange={e => setRate(Number(e.target.value))} className="w-full text-3xl font-black bg-transparent outline-none text-[#4a6b61]" />
+             <div>
+                <label className="flex justify-between text-xs font-bold text-slate-500 uppercase mb-2"><span>{config.labelR} (%)</span><span>{r}%</span></label>
+                <input type="range" min="1" max="30" step="0.1" value={r} onChange={e=>setR(+e.target.value)} className="w-full accent-indigo-600"/>
              </div>
-             <input type="range" min="1" max="30" step="0.5" value={rate} onChange={e => setRate(Number(e.target.value))} className="w-full h-2 bg-slate-100 rounded-full accent-emerald-600 mt-4" />
-          </div>
-
-          <div>
-             <label className="text-xs font-bold text-slate-500 uppercase mb-2 block">Time Period (Years)</label>
-             <div className="relative">
-                <input type="number" value={years} onChange={e => setYears(Number(e.target.value))} className="w-full text-3xl font-black bg-transparent outline-none text-slate-800 dark:text-white" />
+             <div>
+                <label className="flex justify-between text-xs font-bold text-slate-500 uppercase mb-2"><span>{config.labelT} (Years)</span><span>{t} Yr</span></label>
+                <input type="range" min="1" max="40" value={t} onChange={e=>setT(+e.target.value)} className="w-full accent-indigo-600"/>
              </div>
-             <input type="range" min="1" max="40" step="1" value={years} onChange={e => setYears(Number(e.target.value))} className="w-full h-2 bg-slate-100 rounded-full accent-slate-800 mt-4" />
           </div>
        </div>
-
-       {/* RIGHT: RESULTS */}
-       <div className="flex-1 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 flex flex-col">
-          <div className="grid grid-cols-3 gap-4 mb-8">
-             <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
-                <p className="text-[10px] font-bold text-slate-400 uppercase">Invested</p>
-                <p className="text-xl font-bold text-slate-700 dark:text-slate-300">{formatINR(result.invested)}</p>
-             </div>
-             <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
-                <p className="text-[10px] font-bold text-slate-400 uppercase">Wealth Gained</p>
-                <p className="text-xl font-bold text-[#638c80]">+{formatINR(result.profit)}</p>
-             </div>
-             <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
-                <p className="text-[10px] font-bold text-slate-400 uppercase">Total Value</p>
-                <p className="text-2xl font-black text-indigo-600">{formatINR(result.value)}</p>
-             </div>
-          </div>
-
-          <div className="flex-1 w-full min-h-[300px]">
-             <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={result.data}>
-                   <defs>
-                      <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                         <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3}/>
-                         <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
-                      </linearGradient>
-                   </defs>
-                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                   <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{fontSize: 12}} />
-                   <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12}} tickFormatter={(val) => `₹${val/1000}k`} />
-                   <Tooltip formatter={(val:number) => formatINR(val)} />
-                   <Area type="monotone" dataKey="Value" stroke="#4f46e5" strokeWidth={3} fill="url(#colorValue)" />
-                   <Area type="monotone" dataKey="Invested" stroke="#94a3b8" strokeWidth={2} fill="transparent" strokeDasharray="5 5" />
-                </AreaChart>
-             </ResponsiveContainer>
-          </div>
+       
+       <div className="w-full md:w-80 bg-indigo-600 text-white p-8 rounded-3xl flex flex-col justify-center items-center text-center shadow-xl shadow-indigo-500/30">
+          <p className="text-indigo-200 font-bold uppercase text-xs mb-2">{mode === 'loan' ? 'Monthly EMI' : 'Future Value'}</p>
+          <h1 className="text-4xl font-black mb-6">₹ {calculate().toLocaleString()}</h1>
+          {mode !== 'loan' && (
+            <div className="text-xs text-indigo-200 space-y-1">
+               <p>Invested: ₹ {(p * 12 * t).toLocaleString()}</p>
+               <p>Profit: ₹ {(calculate() - (p * 12 * t)).toLocaleString()}</p>
+            </div>
+          )}
        </div>
     </div>
   );

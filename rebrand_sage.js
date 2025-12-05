@@ -1,147 +1,271 @@
 const fs = require('fs');
 const path = require('path');
 
-console.log("🔍 UPGRADING TOOL GRID: Enabling Deep Search (Name + Desc + Keywords)...");
+console.log("💎 EXECUTING FINAL POLISH (LCP Fix + Router Lockdown)...");
 
-const gridPath = path.join(process.cwd(), 'app/components/home/tool-grid.tsx');
+function writeFile(filePath, content) {
+    const targetPath = path.join(process.cwd(), filePath);
+    const dir = path.dirname(targetPath);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(targetPath, content, 'utf8');
+    console.log(`✅ Optimized: ${filePath}`);
+}
 
-const gridCode = `"use client";
-import React, { useRef, useState } from 'react';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { ALL_TOOLS } from '@/app/lib/tools-data';
-import { getTheme } from '@/app/lib/theme-config';
-import { ArrowRight, Star, Frown, Search, Zap, History } from 'lucide-react';
-import { useSmartHistory } from '@/app/hooks/useSmartHistory';
+// ==========================================
+// 1. FIX LCP (The Clock) - Instant Render
+// ==========================================
+// We remove the 'useEffect' delay for the initial render time.
+const clockCode = `"use client";
+import React, { useState, useEffect } from 'react';
+import { Clock } from 'lucide-react';
 
-export const ToolGrid = () => {
-  const searchParams = useSearchParams();
-  const activeCategory = searchParams.get('cat') || 'All Tools';
-  const rawQuery = searchParams.get('q') || '';
-  const searchQuery = rawQuery.toLowerCase().trim();
-  
-  const { recentTools, mounted } = useSmartHistory();
+export const LiveClock = () => {
+  // Initialize with current time to prevent layout shift (LCP Fix)
+  const [time, setTime] = useState(new Date());
+  const [mounted, setMounted] = useState(false);
 
-  const handleToolClick = (toolId: string) => {
-    const current = JSON.parse(localStorage.getItem("onetool-recents") || "[]");
-    const updated = [toolId, ...current.filter((id: string) => id !== toolId)].slice(0, 8);
-    localStorage.setItem("onetool-recents", JSON.stringify(updated));
-  };
+  useEffect(() => {
+    setMounted(true);
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
-  // --- DEEP SEARCH ALGORITHM ---
-  const filteredTools = ALL_TOOLS.filter((tool) => {
-    // 1. If searching, ignore categories and check EVERYTHING
-    if (searchQuery) {
-      const matchName = tool.name.toLowerCase().includes(searchQuery);
-      const matchDesc = tool.desc.toLowerCase().includes(searchQuery); // NOW SEARCHES DESCRIPTION
-      const matchKeywords = tool.keywords?.some(k => k.toLowerCase().includes(searchQuery)); // NOW SEARCHES KEYWORDS
-
-      return matchName || matchDesc || matchKeywords;
-    }
-    
-    // 2. If not searching, filter by Category
-    if (activeCategory === 'All Tools') return true;
-    return tool.category === activeCategory;
-  });
-
-  const heroTools = filteredTools.filter(t => t.popular);
-  const otherTools = filteredTools.filter(t => !t.popular);
-
-  const ToolCard = ({ tool, hero = false }: { tool: any, hero?: boolean }) => {
-    const theme = getTheme(tool.category);
-    const Icon = tool.icon;
-    const [opacity, setOpacity] = useState(0);
-    const [position, setPosition] = useState({ x: 0, y: 0 });
-    const divRef = useRef<HTMLDivElement>(null);
-
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!divRef.current) return;
-      const rect = divRef.current.getBoundingClientRect();
-      setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-    };
-    
-    return (
-      <Link key={tool.id} href={tool.href} onClick={() => handleToolClick(tool.id)} className="group relative block h-full">
-        <div 
-          ref={divRef}
-          onMouseMove={handleMouseMove}
-          onMouseEnter={() => setOpacity(1)}
-          onMouseLeave={() => setOpacity(0)}
-          className={\`
-            relative h-full rounded-xl border transition-all duration-200 
-            bg-white dark:bg-slate-900/50 overflow-hidden hover:border-teal-400/50 dark:hover:border-teal-500/50
-            \${hero ? 'border-teal-500/20 dark:border-teal-500/30 shadow-sm' : 'border-slate-200 dark:border-slate-800'}
-            p-3
-          \`}
-        >
-          <div 
-            className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 group-hover:opacity-100"
-            style={{ opacity, background: \`radial-gradient(400px circle at \${position.x}px \${position.y}px, rgba(20, 184, 166, 0.1), transparent 40%)\` }}
-          />
-
-          <div className="relative z-10 flex items-start gap-3">
-            <div className={\`shrink-0 w-10 h-10 flex items-center justify-center rounded-lg transition-colors bg-slate-50 dark:bg-slate-800 group-hover:bg-white dark:group-hover:bg-slate-700 \${theme.primary}\`}>
-              <Icon size={18} />
-            </div>
-            <div className="flex-1 min-w-0">
-               <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white truncate pr-2 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
-                    {tool.name}
-                  </h3>
-                  {tool.status === 'New' && <span className="shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400">NEW</span>}
-               </div>
-               {/* DESCRIPTION IS NOW HIGHLIGHTED IF MATCHED */}
-               <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-tight mt-0.5">
-                 {tool.desc}
-               </p>
-            </div>
-          </div>
-        </div>
-      </Link>
-    );
-  };
-
-  if (filteredTools.length === 0) {
-    return (
-      <div className="text-center py-20 opacity-50">
-        <Frown className="w-12 h-12 mx-auto mb-4 text-slate-300" />
-        <h3 className="text-lg font-bold text-slate-500">No tools found for "{searchQuery}"</h3>
-        <p className="text-xs text-slate-400 mt-2">Try searching for "pdf", "tax", "json", or "image"</p>
-      </div>
-    );
-  }
+  // Safe hydration check
+  if (!mounted) return (
+    <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700">
+      <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+      <span className="font-mono text-xs font-bold text-slate-600 dark:text-slate-300">--:--:--</span>
+    </div>
+  );
 
   return (
-    <div className="space-y-8">
-      {mounted && recentTools.length > 0 && !searchQuery && activeCategory === 'All Tools' && (
-        <div className="animate-in fade-in slide-in-from-top-4 duration-500">
-           <div className="flex items-center gap-2 mb-3 text-slate-400 text-[10px] font-bold uppercase tracking-wider"><History size={12} /> Recent</div>
-           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-             {recentTools.map(tool => <ToolCard key={\`recent-\${tool.id}\`} tool={tool} />)}
-           </div>
-        </div>
-      )}
-
-      {heroTools.length > 0 && (
-        <section className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-           {!searchQuery && <div className="flex items-center gap-2 mb-3 text-teal-600 dark:text-teal-400 text-[10px] font-bold uppercase tracking-wider"><Zap size={12} fill="currentColor" /> Featured</div>}
-           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-             {heroTools.map(tool => <ToolCard key={tool.id} tool={tool} hero={true} />)}
-           </div>
-        </section>
-      )}
-
-      {otherTools.length > 0 && (
-        <section>
-           {(!searchQuery && heroTools.length > 0) && <div className="flex items-center gap-2 mb-3 text-slate-400 text-[10px] font-bold uppercase tracking-wider mt-6">Utilities</div>}
-           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-             {otherTools.map(tool => <ToolCard key={tool.id} tool={tool} />)}
-           </div>
-        </section>
-      )}
+    <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm transition-all hover:border-teal-500/50">
+      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+      <span className="font-mono text-xs font-bold text-slate-600 dark:text-slate-300 tabular-nums">
+        {time.toLocaleTimeString('en-GB', { hour12: false })}
+      </span>
     </div>
   );
 };`;
 
-fs.writeFileSync(gridPath, gridCode, 'utf8');
-console.log("✅ SEARCH ENGINE UPGRADED: Searching Name, Description & Keywords.");
+// ==========================================
+// 2. FIX CASE CONVERTER (Text Transformer UI)
+// ==========================================
+// This was showing "0" (Math Engine) because of a router mismatch.
+const textCode = `"use client";
+import React, { useState } from 'react';
+import { Type, Copy, RefreshCw, AlignLeft, AlignCenter } from 'lucide-react';
+
+export const TextTransformer = ({ toolId, title }: { toolId: string, title: string }) => {
+  const [input, setInput] = useState("");
+  
+  const transform = (type: string) => {
+    switch(type) {
+      case 'upper': return input.toUpperCase();
+      case 'lower': return input.toLowerCase();
+      case 'title': return input.replace(/\\w\\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+      case 'camel': return input.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
+      case 'snake': return input.match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)?.map(x => x.toLowerCase()).join('_') || input;
+      case 'kebab': return input.match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)?.map(x => x.toLowerCase()).join('-') || input;
+      default: return input;
+    }
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto p-6">
+       <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-slate-900 dark:text-white">
+          <Type className="text-teal-600"/> {title}
+       </h2>
+       
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-[60vh]">
+          <div className="flex flex-col">
+             <label className="text-xs font-bold text-slate-400 uppercase mb-2">Input Text</label>
+             <textarea 
+               value={input} 
+               onChange={e => setInput(e.target.value)}
+               className="flex-1 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 resize-none focus:ring-2 ring-teal-500/20 outline-none custom-scrollbar"
+               placeholder="Type or paste your text here..."
+             />
+          </div>
+          
+          <div className="flex flex-col gap-4">
+             <label className="text-xs font-bold text-slate-400 uppercase">Quick Actions</label>
+             <div className="grid grid-cols-2 gap-3">
+                <button onClick={() => setInput(transform('upper'))} className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl font-bold text-sm hover:bg-teal-50 hover:text-teal-600 transition-colors">UPPERCASE</button>
+                <button onClick={() => setInput(transform('lower'))} className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl font-bold text-sm hover:bg-teal-50 hover:text-teal-600 transition-colors">lowercase</button>
+                <button onClick={() => setInput(transform('title'))} className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl font-bold text-sm hover:bg-teal-50 hover:text-teal-600 transition-colors">Title Case</button>
+                <button onClick={() => setInput(transform('camel'))} className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl font-bold text-sm hover:bg-teal-50 hover:text-teal-600 transition-colors">camelCase</button>
+                <button onClick={() => setInput(transform('snake'))} className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl font-bold text-sm hover:bg-teal-50 hover:text-teal-600 transition-colors">snake_case</button>
+                <button onClick={() => setInput(transform('kebab'))} className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl font-bold text-sm hover:bg-teal-50 hover:text-teal-600 transition-colors">kebab-case</button>
+             </div>
+             
+             <div className="mt-auto p-4 bg-slate-900 text-white rounded-2xl flex justify-between items-center">
+                <span className="text-xs font-bold uppercase text-slate-400">{input.length} Characters</span>
+                <button onClick={() => navigator.clipboard.writeText(input)} className="p-2 hover:bg-white/20 rounded-lg transition-colors"><Copy size={16}/></button>
+             </div>
+          </div>
+       </div>
+    </div>
+  );
+};`;
+
+// ==========================================
+// 3. FIX LAYOUT SHIFT (CLS) - Global CSS
+// ==========================================
+const globalsCss = `@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 15, 23, 42;
+  --background-start-rgb: 248, 250, 252;
+  --background-end-rgb: 241, 245, 249;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 2, 6, 23;
+    --background-end-rgb: 2, 6, 23;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: transparent;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden; /* Prevent horizontal scroll shift */
+}
+
+/* CLS FIX: Reserve space for grid items before they load */
+.grid-min-h {
+  min-height: 100vh;
+}
+
+/* ANIMATION OPTIMIZATION */
+.animate-in {
+  animation-duration: 0.3s;
+  animation-fill-mode: both;
+  will-change: opacity, transform; /* Hardware acceleration */
+}
+
+input, select, textarea {
+  font-size: 16px !important; /* Prevents iOS zoom */
+}
+
+/* CUSTOM SCROLLBAR */
+.custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; }
+`;
+
+// ==========================================
+// 4. ROUTER LOCKDOWN (Explicit Links Only)
+// ==========================================
+const routerCode = `"use client";
+import React, { use } from 'react';
+import { notFound } from 'next/navigation';
+import { ALL_TOOLS } from '@/app/lib/tools-data';
+import { ToolShell } from '@/app/components/tools/tool-shell';
+
+// IMPORTS
+import { UniversalConverter } from '@/app/components/tools/documents/universal-converter';
+import { BudgetPlanner } from '@/app/components/tools/finance/budget-planner';
+import { InvestmentCalculator } from '@/app/components/tools/finance/investment-calculator';
+import { UnitConverter } from '@/app/components/tools/converters/unit-converter';
+import { SmartScan } from '@/app/components/tools/documents/smart-scan';
+import { TextTransformer } from '@/app/components/tools/engines/text-transformer';
+import { SmartEditor } from '@/app/components/tools/developer/smart-editor';
+import { StringStudio } from '@/app/components/tools/developer/string-studio';
+import { HealthStation } from '@/app/components/tools/health/health-station';
+import { AiStudio } from '@/app/components/tools/ai/ai-studio';
+import { ColorStudio } from '@/app/components/tools/design/color-studio';
+import { DiffStudio } from '@/app/components/tools/developer/diff-studio';
+
+import { RentReceiptGenerator } from '@/app/components/tools/business/rent-receipt';
+import { SalarySlipGenerator } from '@/app/components/tools/business/salary-slip';
+import { InvoiceGenerator } from '@/app/components/tools/business/invoice-generator';
+import { IdCardMaker } from '@/app/components/tools/business/id-card-maker';
+import { AgreementBuilder } from '@/app/components/tools/business/agreement-builder';
+
+import { PdfWorkbench } from '@/app/components/tools/documents/pdf-workbench';
+import { ImageCompressor } from '@/app/components/tools/documents/image-compressor';
+import { SmartOCR } from '@/app/components/tools/documents/smart-ocr';
+import { ImageConverter } from '@/app/components/tools/documents/image-converter';
+import { PdfSplitter } from '@/app/components/tools/documents/pdf-splitter';
+import { SmartExcel } from '@/app/components/tools/documents/smart-excel';
+import { SmartWord } from '@/app/components/tools/documents/smart-word';
+
+import { LifeOS } from '@/app/components/tools/productivity/life-os';
+import { QrGenerator } from '@/app/components/tools/productivity/qr-generator';
+import { PasswordGenerator } from '@/app/components/tools/productivity/password-generator';
+import { Pomodoro } from '@/app/components/tools/productivity/pomodoro';
+import { ApiPlayground } from '@/app/components/tools/developer/api-playground';
+import { JwtDebugger } from '@/app/components/tools/developer/jwt-debugger';
+import { CronGenerator } from '@/app/components/tools/developer/cron-gen';
+import { GitCheats } from '@/app/components/tools/developer/git-cheats';
+
+import { TextEngine } from '@/app/components/tools/engines/text-engine';
+
+export default function ToolPage(props: { params: Promise<{ category: string; id: string }> }) {
+  const params = use(props.params);
+  const tool = ALL_TOOLS.find((t) => t.id === params.id);
+  if (!tool) return notFound();
+
+  let ToolComponent;
+
+  // --- EXPLICIT ROUTING (No guessing) ---
+  if (tool.id === 'case-convert') ToolComponent = <TextTransformer toolId={tool.id} title={tool.name} />;
+  else if (tool.id === 'smart-budget') ToolComponent = <BudgetPlanner />;
+  else if (tool.id === 'universal-converter' || tool.id === 'json-csv') ToolComponent = <UniversalConverter title={tool.name} subtitle={tool.desc} />;
+  else if (tool.id === 'rent-receipt') ToolComponent = <RentReceiptGenerator />;
+  else if (tool.id === 'salary-slip') ToolComponent = <SalarySlipGenerator />;
+  else if (tool.id === 'invoice-generator') ToolComponent = <InvoiceGenerator />;
+  else if (tool.id === 'id-card') ToolComponent = <IdCardMaker />;
+  else if (tool.id === 'smart-agreement') ToolComponent = <AgreementBuilder />;
+  
+  else if (tool.id === 'smart-loan') ToolComponent = <InvestmentCalculator mode="loan" />;
+  else if (tool.id === 'smart-sip') ToolComponent = <InvestmentCalculator mode="sip" />;
+  else if (tool.id === 'smart-net-worth') ToolComponent = <InvestmentCalculator mode="net-worth" />;
+  else if (tool.id === 'smart-retirement') ToolComponent = <InvestmentCalculator mode="retirement" />;
+  
+  else if (tool.id === 'unit-convert') ToolComponent = <UnitConverter />;
+  else if (tool.id === 'smart-scan') ToolComponent = <SmartScan />;
+  else if (tool.id === 'smart-pdf-merge') ToolComponent = <PdfWorkbench />;
+  else if (tool.id === 'smart-img-compress') ToolComponent = <ImageCompressor />;
+  else if (tool.id === 'smart-ocr') ToolComponent = <SmartOCR />;
+  else if (tool.id === 'smart-img-convert') ToolComponent = <ImageConverter />;
+  else if (tool.id === 'smart-pdf-split') ToolComponent = <PdfSplitter />;
+  
+  else if (['smart-url', 'smart-base64', 'smart-uuid', 'smart-html-entities'].includes(tool.id)) ToolComponent = <StringStudio toolId={tool.id} />;
+  else if (tool.id.includes('json') || tool.id.includes('sql')) ToolComponent = <SmartEditor toolId={tool.id} />;
+  
+  else if (tool.id === 'life-os') ToolComponent = <LifeOS />;
+  else if (tool.id === 'qr-code') ToolComponent = <QrGenerator />;
+  else if (tool.id === 'smart-pass') ToolComponent = <PasswordGenerator />;
+  else if (tool.id === 'pomodoro') ToolComponent = <Pomodoro />;
+  
+  else if (tool.id.includes('bmi') || tool.id.includes('breath') || tool.id.includes('workout')) ToolComponent = <HealthStation toolId={tool.id} />;
+  else if (tool.id.includes('chat') || tool.id.includes('analyze')) ToolComponent = <AiStudio toolId={tool.id} />;
+  
+  else if (tool.id === 'color-picker') ToolComponent = <ColorStudio />;
+  else if (tool.id === 'smart-diff') ToolComponent = <DiffStudio />;
+  else if (tool.id === 'api-playground') ToolComponent = <ApiPlayground />;
+  else if (tool.id === 'smart-jwt') ToolComponent = <JwtDebugger />;
+  else if (tool.id === 'cron-gen') ToolComponent = <CronGenerator />;
+  else if (tool.id === 'git-cheats') ToolComponent = <GitCheats />;
+  
+  // FALLBACK
+  else ToolComponent = <TextEngine toolId={tool.id} title={tool.name} description={tool.desc} />;
+
+  return <ToolShell tool={tool}>{ToolComponent}</ToolShell>;
+}`;
+
+writeFile('app/components/layout/live-clock.tsx', clockCode);
+writeFile('app/components/tools/engines/text-transformer.tsx', textCode);
+writeFile('app/globals.css', globalsCss);
+writeFile('app/tools/[category]/[id]/page.tsx', routerCode);
+
+console.log("✅ FINAL POLISH COMPLETE.");

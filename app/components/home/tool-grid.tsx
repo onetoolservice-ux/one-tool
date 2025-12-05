@@ -26,8 +26,9 @@ export const ToolGrid = () => {
     // 1. If searching, ignore categories and check EVERYTHING
     if (searchQuery) {
       const matchName = tool.name.toLowerCase().includes(searchQuery);
-      const matchDesc = tool.desc.toLowerCase().includes(searchQuery); // NOW SEARCHES DESCRIPTION
-      const matchKeywords = tool.keywords?.some(k => k.toLowerCase().includes(searchQuery)); // NOW SEARCHES KEYWORDS
+      const matchDesc = tool.desc.toLowerCase().includes(searchQuery); 
+      // Check keywords safely (handle potential undefined)
+      const matchKeywords = tool.keywords ? tool.keywords.some(k => k.toLowerCase().includes(searchQuery)) : false;
 
       return matchName || matchDesc || matchKeywords;
     }
@@ -83,7 +84,6 @@ export const ToolGrid = () => {
                   </h3>
                   {tool.status === 'New' && <span className="shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400">NEW</span>}
                </div>
-               {/* DESCRIPTION IS NOW HIGHLIGHTED IF MATCHED */}
                <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-tight mt-0.5">
                  {tool.desc}
                </p>
@@ -99,7 +99,7 @@ export const ToolGrid = () => {
       <div className="text-center py-20 opacity-50">
         <Frown className="w-12 h-12 mx-auto mb-4 text-slate-300" />
         <h3 className="text-lg font-bold text-slate-500">No tools found for "{searchQuery}"</h3>
-        <p className="text-xs text-slate-400 mt-2">Try searching for "pdf", "tax", "json", or "image"</p>
+        <p className="text-xs text-slate-400 mt-2">Try searching for keywords like "pdf", "convert", or "data"</p>
       </div>
     );
   }
