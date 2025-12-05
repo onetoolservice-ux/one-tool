@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef } from 'react';
 import jsPDF from 'jspdf';
-import { Upload, Download, Plus, Layers, X, FileText, Loader2 } from 'lucide-react';
+import { Upload, Download, Plus, Layers, X, Loader2 } from 'lucide-react';
 
 export const SmartScan = () => {
   const [images, setImages] = useState<string[]>([]);
@@ -41,15 +41,15 @@ export const SmartScan = () => {
     <div className="max-w-5xl mx-auto h-[calc(100vh-140px)] flex flex-col p-4">
        <input type="file" multiple accept="image/*" ref={inputRef} onChange={handleUpload} className="hidden" />
        <div className="flex justify-between items-center mb-6">
-          <div><h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2"><Layers size={24} className="text-indigo-600"/> Smart Scan</h2><p className="text-sm text-slate-500">Convert images to Multi-Page PDF</p></div>
+          <div><h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2"><Layers size={24} className="text-teal-600"/> Smart Scan</h2><p className="text-sm text-slate-500">Convert images to Multi-Page PDF</p></div>
           <div className="flex gap-2">
              <button onClick={triggerUpload} className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-2"><Plus size={14}/> Add Pages</button>
-             {images.length > 0 && <button onClick={createPDF} disabled={processing} className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold text-xs flex items-center gap-2 hover:bg-indigo-700">{processing ? <Loader2 className="animate-spin" size={14}/> : <Download size={14}/>} {processing ? "Generating..." : "Download PDF"}</button>}
+             {images.length > 0 && <button onClick={createPDF} disabled={processing} className="bg-teal-600 text-white px-6 py-2 rounded-lg font-bold text-xs flex items-center gap-2 hover:bg-teal-700">{processing ? <Loader2 className="animate-spin" size={14}/> : <Download size={14}/>} {processing ? "Generating..." : "Download PDF"}</button>}
           </div>
        </div>
        {images.length === 0 ? (
           <div className="flex-1 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl flex flex-col items-center justify-center text-slate-400">
-             <button onClick={triggerUpload} className="flex flex-col items-center group"><div className="w-20 h-20 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"><Upload size={40}/></div><p className="font-bold text-slate-700 dark:text-slate-200">Click to Upload Images</p><p className="text-xs mt-2">JPG, PNG supported</p></button>
+             <button onClick={triggerUpload} className="flex flex-col items-center group"><div className="w-20 h-20 bg-teal-50 dark:bg-teal-900/20 text-teal-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"><Upload size={40}/></div><p className="font-bold text-slate-700 dark:text-slate-200">Click to Upload Images</p><p className="text-xs mt-2">JPG, PNG supported</p></button>
           </div>
        ) : (
           <div className="flex-1 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 overflow-y-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 content-start">

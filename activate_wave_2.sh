@@ -1,11 +1,12 @@
+cat > activate_wave_2.sh << 'EOF'
 #!/bin/bash
 
-echo "í¼Š Activating Wave 2: Documents & Media Tools..."
+echo "ðŸŒŠ Activating Wave 2: Documents & Media Tools..."
 
 # =========================================================
 # 1. DOCUMENTS: IMAGE RESIZER
 # =========================================================
-echo "í¶¼ï¸ Activating Image Resizer..."
+echo "ðŸ–¼ï¸ Activating Image Resizer..."
 cat > app/tools/documents/image/resizer/page.tsx << 'TS_END'
 "use client";
 import React, { useState, useRef } from "react";
@@ -185,7 +186,7 @@ TS_END
 # =========================================================
 # 3. HEALTH: SMART WORKOUT
 # =========================================================
-echo "í²ª Activating Smart Workout..."
+echo "ðŸ’ª Activating Smart Workout..."
 cat > app/tools/health/smart-workout/page.tsx << 'TS_END'
 "use client";
 import React, { useState, useEffect } from "react";
@@ -260,7 +261,7 @@ TS_END
 # =========================================================
 # 4. DEVELOPER: LOREM IPSUM
 # =========================================================
-echo "í³ Activating Lorem Ipsum..."
+echo "ðŸ“ Activating Lorem Ipsum..."
 cat > app/tools/developer/smart-lorem/page.tsx << 'TS_END'
 "use client";
 import React, { useState } from "react";
@@ -322,7 +323,7 @@ TS_END
 # =========================================================
 # 5. DEVELOPER: UUID GENERATOR
 # =========================================================
-echo "í¶” Activating UUID Generator..."
+echo "ðŸ†” Activating UUID Generator..."
 cat > app/tools/developer/smart-uuid/page.tsx << 'TS_END'
 "use client";
 import React, { useState } from "react";
@@ -373,3 +374,5 @@ export default function SmartUUID() {
 TS_END
 
 echo "âœ… Wave 2 Installed. Run 'npm run dev' to check!"
+EOF
+chmod +x activate_wave_2.sh && ./activate_wave_2.sh
