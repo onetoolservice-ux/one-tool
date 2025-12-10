@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Search, Command, Share2, Star, Home, X } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
-import { fuzzySearch } from '@/app/lib/search-utils'; // Import the new utility
+import { fuzzySearch } from '@/app/lib/search-utils';
 
-// FULL TOOL LIST FOR SEARCH (Synced with ToolGrid)
+// --- SEARCH DATA ---
 const SEARCH_TOOLS = [
   { id: 'life-os', title: 'Life OS', category: 'productivity' },
   { id: 'pomodoro', title: 'Focus Timer', category: 'productivity' },
@@ -51,7 +51,7 @@ const SEARCH_TOOLS = [
   { id: 'unit-convert', title: 'Unit Converter', category: 'converters' },
 ];
 
-export default function GlobalHeader() {
+function HeaderContent() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -62,12 +62,10 @@ export default function GlobalHeader() {
   const [isFocused, setIsFocused] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
-  // Breadcrumbs
   const pathSegments = pathname.split('/').filter(Boolean);
   const category = pathSegments[1]; 
   const toolName = pathSegments[2]?.replace(/-/g, ' ');
 
-  // Close suggestions on click outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -78,10 +76,8 @@ export default function GlobalHeader() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Update suggestions using Fuzzy Search
   useEffect(() => {
     if (query.length > 0) {
-      // FIX: Use our new fuzzySearch utility
       const matches = fuzzySearch(query, SEARCH_TOOLS).slice(0, 5);
       setSuggestions(matches);
     } else {
@@ -104,7 +100,6 @@ export default function GlobalHeader() {
 
   return (
     <header className="h-16 border-b border-gray-200 dark:border-white/5 flex items-center justify-between px-6 sticky top-0 z-50 transition-colors duration-300 bg-white dark:bg-[#0F111A]">
-      {/* LEFT: LOGO */}
       <div className="flex items-center gap-4 mr-8 min-w-fit">
         {isHome ? (
           <Link href="/" className="flex items-center gap-2 group">
@@ -136,7 +131,6 @@ export default function GlobalHeader() {
         )}
       </div>
 
-      {/* CENTER: SEARCH */}
       <div className="flex-1 max-w-xl hidden md:block relative" ref={searchRef}>
          <div className="relative group">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-emerald-500 transition-colors" />
@@ -156,11 +150,9 @@ export default function GlobalHeader() {
             )}
          </div>
 
-         {/* LIVE SUGGESTIONS */}
          {isFocused && query && suggestions.length > 0 && (
            <div className="absolute top-full mt-2 w-full bg-white dark:bg-[#1C1F2E] border border-gray-200 dark:border-white/10 rounded-xl shadow-xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-100">
              <div className="px-3 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                {/* FIX: Show context if it's a fuzzy match */}
                 {suggestions[0].title.toLowerCase().includes(query.toLowerCase()) ? 'Suggestions' : 'Did you mean?'}
              </div>
              {suggestions.map((tool) => (
@@ -182,7 +174,6 @@ export default function GlobalHeader() {
          )}
       </div>
 
-      {/* RIGHT: ACTIONS */}
       <div className="flex items-center gap-2 ml-4">
          <div className="hidden lg:flex items-center gap-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 px-3 py-1.5 rounded-full border border-emerald-500/20 text-xs font-mono mr-2">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
@@ -194,5 +185,14 @@ export default function GlobalHeader() {
          <button className="p-2 rounded-lg transition-colors text-gray-500 hover:text-yellow-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5"><Star size={18} /></button>
       </div>
     </header>
+  );
+}
+
+// FIX: Wrap component in Suspense for build time safety
+export default function GlobalHeader() {
+  return (
+    <Suspense fallback={<div className="h-16 bg-[#0F111A] border-b border-white/5" />}>
+      <HeaderContent />
+    </Suspense>
   );
 }
