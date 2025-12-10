@@ -5,8 +5,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: '/settings', // Don't index private settings pages
+      disallow: '/private/',
     },
-    sitemap: 'https://onetool.vercel.app/sitemap.xml',
+    sitemap: 'https://onetool.com/sitemap.xml',
   };
 }

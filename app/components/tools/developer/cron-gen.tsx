@@ -1,37 +1,33 @@
 "use client";
 import React, { useState } from 'react';
-import { Clock, RotateCcw } from 'lucide-react';
+import { Clock, Copy } from 'lucide-react';
 
 export const CronGenerator = () => {
-  const [cron, setCron] = useState("0 12 * * 1");
-  const [desc, setDesc] = useState("At 12:00 on Monday");
-
-  const presets = [
-    { l: "Every Minute", c: "* * * * *" },
-    { l: "Every Hour", c: "0 * * * *" },
-    { l: "Every Day at Midnight", c: "0 0 * * *" },
-    { l: "Every Monday", c: "0 0 * * 1" },
-    { l: "Every 1st of Month", c: "0 0 1 * *" },
-  ];
+  const [cron, setCron] = useState({ min: '*', hour: '*', dom: '*', month: '*', dow: '*' });
+  
+  const Grid = ({ label, val, max, set }: any) => (
+    <div className="p-4 border rounded-xl bg-white dark:bg-slate-900">
+       <div className="flex justify-between mb-3"><span className="text-xs font-bold uppercase text-slate-400">{label}</span><button onClick={()=>set('*')} className="text-[10px] text-blue-500">All</button></div>
+       <div className="grid grid-cols-6 gap-1">
+          {Array.from({length: max}).map((_, i) => (
+             <button key={i} onClick={()=>set(val===i.toString()?'*':i.toString())} className={`h-6 rounded text-[10px] font-bold ${val===i.toString()?'bg-blue-600 text-white':'bg-slate-50 hover:bg-slate-100 dark:bg-slate-800'}`}>{i}</button>
+          ))}
+       </div>
+    </div>
+  );
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8 py-8">
-       <div className="bg-slate-900 text-white p-8 rounded-3xl text-center shadow-2xl shadow-indigo-500/20">
-          <div className="inline-block p-3 bg-white/10 rounded-xl mb-4"><Clock size={32}/></div>
-          <div className="text-5xl font-mono font-bold tracking-widest mb-4">{cron}</div>
-          <p className="text-indigo-300 font-medium text-lg">{desc}</p>
+    <div className="max-w-4xl mx-auto p-6">
+       <div className="bg-slate-900 text-white p-10 rounded-3xl text-center mb-8 shadow-xl">
+          <p className="text-slate-400 text-xs font-bold uppercase mb-2">Cron Expression</p>
+          <h1 className="text-6xl font-mono font-black tracking-widest mb-6">{cron.min} {cron.hour} {cron.dom} {cron.month} {cron.dow}</h1>
+          <p className="text-emerald-400 font-bold text-sm">Running every {cron.min==='*'?'minute':`minute ${cron.min}`} {cron.hour==='*'?'of every hour':`past hour ${cron.hour}`}</p>
        </div>
-
-       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          {presets.map(p => (
-             <button 
-               key={p.c} 
-               onClick={()=>{setCron(p.c); setDesc(p.l)}} 
-               className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:border-indigo-500 hover:text-indigo-500 transition-all"
-             >
-                {p.l}
-             </button>
-          ))}
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Grid label="Minute" max={60} val={cron.min} set={v=>setCron({...cron, min: v})} />
+          <Grid label="Hour" max={24} val={cron.hour} set={v=>setCron({...cron, hour: v})} />
+          <Grid label="Day of Month" max={31} val={cron.dom} set={v=>setCron({...cron, dom: v})} />
+          <Grid label="Month" max={12} val={cron.month} set={v=>setCron({...cron, month: v})} />
        </div>
     </div>
   );

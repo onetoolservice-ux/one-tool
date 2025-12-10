@@ -1,43 +1,44 @@
-import './globals.css';
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import Script from 'next/script';
-import { DynamicBackground } from '@/app/components/layout/dynamic-background';
-import { ToastProvider } from '@/app/components/ui/toast-provider';
-import { WelcomeToast } from '@/app/components/home/welcome-toast';
-import { GoogleAnalytics } from '@/app/components/analytics/GoogleAnalytics';
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
 
-const inter = Inter({ subsets: ['latin'], display: 'swap' }); // Font Optimization
+import { GoogleAnalytics } from "@/app/components/analytics/GoogleAnalytics"; 
+import { UIProvider } from "@/app/lib/ui-context";
+import { ToastProvider } from "@/app/components/ui/toast-system";
+import GlobalHeader from "@/app/components/layout/GlobalHeader";
+import ScrollToTop from "@/app/components/layout/ScrollToTop"; // Import the component, not the hook
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'OneTool | The Enterprise OS',
-  description: '63+ Professional Tools. Secure, Client-Side, Free.',
-  manifest: '/manifest.json',
+  title: "One Tool Solutions",
+  description: "Your all-in-one productivity suite",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#0d9488" />
-      </head>
-      <body className={`${inter.className} min-h-screen bg-slate-50 dark:bg-[#020617] text-slate-900 dark:text-slate-100 antialiased selection:bg-teal-100 selection:text-teal-900`}>
-         
-         {/* ANALYTICS: Moved to Component for cleaner control */}
-         <GoogleAnalytics />
-
-         <ToastProvider>
-            <DynamicBackground />
-            <div className="flex flex-col min-h-screen relative">
-              {children}
+      <body className={inter.className}>
+        <UIProvider>
+          <ToastProvider>
+            <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-[#0F111A]">
+               {/* Handles scrolling on route change */}
+               <ScrollToTop />
+               
+               <GlobalHeader />
+               
+               <main className="flex-1 w-full max-w-[1800px] mx-auto">
+                 {children}
+               </main>
             </div>
-            <WelcomeToast />
-         </ToastProvider>
+            {/* Pass a placeholder ID to silence errors if you don't have one yet */}
+            <GoogleAnalytics gaId="G-PLACEHOLDER" /> 
+          </ToastProvider>
+        </UIProvider>
       </body>
     </html>
   );

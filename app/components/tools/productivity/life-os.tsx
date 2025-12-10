@@ -1,248 +1,174 @@
-"use client";
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { 
-  CheckCircle, Circle, Trash2, Plus, 
-  Calendar, CalendarDays, // Fixed Imports
-  BarChart3, Layout, Target, Eye, MoreVertical, Clock, Zap, X 
+  LayoutDashboard, Clock, Calendar, Target, Globe, 
+  Search, Command 
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { format, addDays, startOfWeek, isSameDay } from 'date-fns';
+import ActionCenter from './action-center';
+import FocusSection from './focus-section';
+import { DailyView } from './views/daily-view';
+import { WeeklyView } from './views/weekly-view';
+import { MonthlyView } from './views/monthly-view';
+import { MacroView } from './views/macro-view';
 
 // --- TYPES ---
-type PlannerType = 'daily' | 'weekly' | 'monthly' | 'vision';
-
-interface Task {
-  id: string;
-  title: string;
-  status: 'todo' | 'doing' | 'done';
-  type: PlannerType;
-  date: string; // ISO Date
+export interface Task {
+  id: number;
+  text: string;
+  completed: boolean;
+  type: 'priority' | 'chore';
+  category: string;
+  startTime?: string;
+  endTime?: string;
+  date: string; // YYYY-MM-DD
+  parentWeeklyId?: number;
+  recurrenceGroupId?: string;
+  recurrenceEndDate?: string;
+  subtasks?: { id: number; text: string; completed: boolean }[];
 }
 
-export const LifeOS = () => {
-  // STATE
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [view, setView] = useState<PlannerType>('daily');
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [input, setInput] = useState("");
-  const [focusMode, setFocusMode] = useState(false);
+const LOCAL_STORAGE_KEY = 'lifeos_tasks_v2';
+const CATEGORIES = ["Study/Learning", "Fitness", "Business", "Personal", "Health"];
 
-  // LOAD / SAVE
+// Helper to check time conflicts
+const checkConflict = (tasks: Task[], date: string, start: string, end: string) => {
+    if (!start || !end) return null; 
+    const toMin = (t: string) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+    const nS = toMin(start); const nE = toMin(end);
+
+    return tasks.find(t => {
+        if (t.date === date && t.startTime && t.endTime) {
+            const eS = toMin(t.startTime); const eE = toMin(t.endTime);
+            return (nS < eE) && (nE > eS);
+        }
+        return false;
+    })?.text || null;
+};
+
+export function LifeOS() {
+  const [activeView, setActiveView] = useState('daily');
+  const [mounted, setMounted] = useState(false);
+  const [tasks, setTasks] = useState<Task[]>([]);
+
   useEffect(() => {
-    const saved = localStorage.getItem('onetool-life-os-v2');
-    if (saved) setTasks(JSON.parse(saved));
+    setMounted(true);
+    const savedTasks = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (savedTasks) setTasks(JSON.parse(savedTasks));
+    else {
+       const today = new Date().toISOString().split('T')[0];
+       setTasks([{ id: 1, text: "Welcome to Life OS", completed: false, type: 'priority', category: "Personal", date: today }]);
+    }
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('onetool-life-os-v2', JSON.stringify(tasks));
-  }, [tasks]);
+  useEffect(() => { if(mounted) localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tasks)); }, [tasks, mounted]);
 
-  // ACTIONS
-  const addTask = (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (!input.trim()) return;
-    const newTask: Task = {
-      id: crypto.randomUUID(),
-      title: input,
-      status: 'todo',
-      type: view,
-      date: selectedDate.toISOString()
-    };
-    setTasks([newTask, ...tasks]);
-    setInput("");
+  // --- CRUD HANDLERS ---
+  const addTask = (params: any) => {
+      const { title, date, category, startTime, endTime, isRecurring, recurrenceEndDate, parentWeeklyId } = params;
+
+      const conflict = checkConflict(tasks, date, startTime || '', endTime || '');
+      if (conflict) return { success: false, conflict };
+
+      const baseTask = {
+        text: title,
+        completed: false,
+        type: 'priority' as const,
+        category: category || "General",
+        startTime: startTime || undefined,
+        endTime: endTime || undefined,
+        parentWeeklyId: parentWeeklyId || undefined,
+        recurrenceGroupId: isRecurring ? crypto.randomUUID() : undefined,
+        recurrenceEndDate: recurrenceEndDate || undefined,
+        subtasks: []
+      };
+
+      const newTasksToAdd: Task[] = [];
+      newTasksToAdd.push({ ...baseTask, id: Date.now(), date: date } as Task);
+
+      if (isRecurring && recurrenceEndDate) {
+          const start = new Date(date);
+          const end = new Date(recurrenceEndDate);
+          let current = new Date(start);
+          current.setDate(current.getDate() + 1);
+          
+          let safetyCounter = 0;
+          while (current <= end && safetyCounter < 365) { 
+             newTasksToAdd.push({ ...baseTask, id: Date.now() + safetyCounter + 1, date: current.toISOString().split('T')[0] } as Task);
+             current.setDate(current.getDate() + 1);
+             safetyCounter++;
+          }
+      }
+
+      setTasks(prev => [...newTasksToAdd, ...prev]);
+      return { success: true, count: newTasksToAdd.length };
   };
 
-  const toggleStatus = (id: string) => {
-    setTasks(tasks.map(t => t.id === id ? { ...t, status: t.status === 'done' ? 'todo' : 'done' } : t));
+  const addSubtask = (tid: number, txt: string) => setTasks(p => p.map(t => t.id === tid ? { ...t, subtasks: [...(t.subtasks||[]), {id: Date.now(), text: txt, completed: false}] } : t));
+  const toggleSubtask = (tid: number, sid: number) => setTasks(p => p.map(t => t.id === tid ? { ...t, subtasks: (t.subtasks||[]).map(s => s.id === sid ? {...s, completed: !s.completed} : s) } : t));
+  const toggleTask = (id: number) => setTasks(p => p.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
+  const deleteTask = (id: number) => setTasks(p => p.filter(t => t.id !== id));
+
+  // --- FIX: ADAPTIVE THEME OBJECT ---
+  // Instead of checking 'isDark', we pass strings that contain BOTH light and dark classes.
+  // Tailwind automatically applies the right one based on the parent class.
+  const theme = {
+    bg: 'bg-gray-50 dark:bg-[#0F111A]',
+    sidebarBg: 'bg-white dark:bg-[#0F111A]',
+    text: 'text-gray-900 dark:text-white',
+    textSec: 'text-gray-500 dark:text-gray-400',
+    border: 'border-gray-200 dark:border-white/5',
+    cardBg: 'bg-white dark:bg-[#1C1F2E]',
+    inputBg: 'bg-gray-50 dark:bg-[#151725]',
+    hover: 'hover:bg-gray-100 dark:hover:bg-white/5',
+    isDark: true // Kept true to force dark-style logic in sub-components if they check boolean, but CSS handles visuals
   };
 
-  const deleteTask = (id: string) => {
-    setTasks(tasks.filter(t => t.id !== id));
-  };
+  const commonProps = { tasks, addTask, toggleTask, deleteTask, addSubtask, toggleSubtask, categories: CATEGORIES, theme };
 
-  // FILTERING
-  const filteredTasks = tasks.filter(t => {
-    if (view === 'daily') return isSameDay(new Date(t.date), selectedDate) && t.type === 'daily';
-    return t.type === view;
-  });
-
-  // STATS
-  const progress = filteredTasks.length > 0 
-    ? Math.round((filteredTasks.filter(t => t.status === 'done').length / filteredTasks.length) * 100) 
-    : 0;
-
-  // --- COMPONENTS ---
-
-  // 1. DATE STRIP (Calendar)
-  const DateStrip = () => {
-    const start = startOfWeek(new Date(), { weekStartsOn: 1 }); // Monday start
-    const weekDays = Array.from({ length: 7 }).map((_, i) => addDays(start, i));
-
-    return (
-      <div className="flex justify-between items-center bg-white dark:bg-slate-900/50 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 mb-6 overflow-x-auto no-scrollbar">
-         {weekDays.map((date) => {
-           const isSelected = isSameDay(date, selectedDate);
-           return (
-             <button 
-               key={date.toString()}
-               onClick={() => {setSelectedDate(date); setView('daily');}}
-               className={`
-                 flex flex-col items-center justify-center w-12 h-14 rounded-xl transition-all min-w-[48px]
-                 ${isSelected ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 scale-105' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}
-               `}
-             >
-               <span className="text-[10px] font-bold uppercase">{format(date, 'EEE')}</span>
-               <span className="text-lg font-black">{format(date, 'd')}</span>
-             </button>
-           )
-         })}
-      </div>
-    );
-  };
+  if (!mounted) return <div className="h-full w-full bg-gray-50 dark:bg-[#0F111A]" />;
 
   return (
-    <div className="h-[calc(100vh-64px)] bg-slate-50 dark:bg-[#0B1120] p-4 md:p-8 flex flex-col overflow-hidden relative">
-       
-       {/* FOCUS MODE OVERLAY */}
-       <AnimatePresence>
-         {focusMode && (
-           <motion.div 
-             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-             className="absolute inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-8"
-           >
-              <button onClick={() => setFocusMode(false)} className="absolute top-8 right-8 text-white/50 hover:text-white"><X size={32}/></button>
-              <h2 className="text-white/50 font-bold uppercase tracking-widest mb-8">Current Focus</h2>
-              {filteredTasks.filter(t => t.status !== 'done')[0] ? (
-                <div className="text-center">
-                   <h1 className="text-4xl md:text-6xl font-black text-white mb-8">{filteredTasks.filter(t => t.status !== 'done')[0].title}</h1>
-                   <button 
-                     onClick={() => toggleStatus(filteredTasks.filter(t => t.status !== 'done')[0].id)}
-                     className="bg-[#638c80] text-white px-8 py-4 rounded-full text-xl font-bold hover:scale-105 transition-transform"
-                   >
-                     Mark Complete
-                   </button>
+    <div className={`h-[calc(100vh-4rem)] ${theme.bg} ${theme.text} font-sans overflow-hidden flex flex-col transition-colors duration-300`}>
+      
+      {/* --- TOP TABS --- */}
+      <div className={`px-6 pt-6 pb-2 ${theme.bg} flex items-center gap-2 overflow-x-auto no-scrollbar border-b ${theme.border} flex-shrink-0`}>
+         <TabItem label="Dashboard" active={activeView === 'dashboard'} onClick={() => setActiveView('dashboard')} icon={<LayoutDashboard size={16} />} theme={theme} />
+         <TabItem label="Daily Planner" active={activeView === 'daily'} onClick={() => setActiveView('daily')} icon={<Clock size={16} />} theme={theme} />
+         <TabItem label="Weekly Review" active={activeView === 'weekly'} onClick={() => setActiveView('weekly')} icon={<Calendar size={16} />} theme={theme} />
+         <TabItem label="Monthly Goals" active={activeView === 'monthly'} onClick={() => setActiveView('monthly')} icon={<Target size={16} />} theme={theme} />
+         <TabItem label="Macro Vision" active={activeView === 'macro'} onClick={() => setActiveView('macro')} icon={<Globe size={16} />} theme={theme} />
+      </div>
+
+      {/* MAIN CONTENT */}
+      <main className={`flex-1 overflow-hidden relative ${theme.bg} transition-colors duration-300`}>
+         {activeView === 'dashboard' && (
+            <div className="flex flex-col h-full overflow-y-auto custom-scrollbar">
+                <div className="w-full pt-10">
+                    <ActionCenter onAddTask={(t:string) => addTask({title:t, date: new Date().toISOString().split('T')[0], category:"Personal"})} theme={theme} />
                 </div>
-              ) : (
-                <div className="text-white text-2xl font-bold">No pending tasks! You are free.</div>
-              )}
-           </motion.div>
+                <div className="max-w-6xl mx-auto w-full px-8 pb-12 mt-8">
+                    <FocusSection tasks={tasks.filter(t => t.date === new Date().toISOString().split('T')[0])} onToggle={toggleTask} onDelete={deleteTask} theme={theme} />
+                </div>
+            </div>
          )}
-       </AnimatePresence>
-
-       {/* HEADER */}
-       <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-8 gap-4">
-          <div>
-             <h1 className="text-3xl font-black text-slate-900 dark:text-white flex items-center gap-3">
-               Life OS <span className="text-xs font-bold px-2 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 rounded-lg">v2.0</span>
-             </h1>
-             <p className="text-slate-500 font-medium mt-1">{format(selectedDate, 'MMMM do, yyyy')}</p>
-          </div>
-          
-          <div className="flex items-center gap-3">
-             <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-full shadow-sm">
-                <div className="w-24 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                   <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-500" style={{ width: `${progress}%` }}></div>
-                </div>
-                <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{progress}% Done</span>
-             </div>
-             <button 
-               onClick={() => setFocusMode(true)}
-               className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 hover:scale-105 transition-transform shadow-lg"
-             >
-               <Zap size={14}/> Focus Mode
-             </button>
-          </div>
-       </div>
-
-       {/* MAIN GRID */}
-       <div className="flex-1 flex flex-col lg:flex-row gap-8 overflow-hidden">
-          
-          {/* LEFT: SIDEBAR (Views) */}
-          <div className="w-full lg:w-64 flex flex-row lg:flex-col gap-2 shrink-0 overflow-x-auto lg:overflow-visible">
-             {[
-               { id: 'daily', label: 'Daily', icon: Clock },
-               { id: 'weekly', label: 'Weekly', icon: CalendarDays },
-               { id: 'monthly', label: 'Monthly', icon: Calendar },
-               { id: 'vision', label: 'Vision', icon: Eye }
-             ].map((tab) => (
-               <button
-                 key={tab.id}
-                 onClick={() => setView(tab.id as any)}
-                 className={`
-                   flex items-center gap-3 px-5 py-4 rounded-2xl text-sm font-bold transition-all border
-                   ${view === tab.id 
-                     ? 'bg-white dark:bg-slate-900 border-indigo-500 text-indigo-600 shadow-md lg:translate-x-2' 
-                     : 'bg-transparent border-transparent text-slate-500 hover:bg-white/50 dark:hover:bg-slate-900/50'}
-                 `}
-               >
-                 <tab.icon size={18} /> {tab.label}
-               </button>
-             ))}
-          </div>
-
-          {/* CENTER: TASK BOARD */}
-          <div className="flex-1 flex flex-col bg-white/50 dark:bg-slate-900/30 backdrop-blur-xl border border-white/20 dark:border-slate-800 rounded-3xl p-6 overflow-hidden shadow-2xl">
-             
-             {view === 'daily' && <DateStrip />}
-
-             {/* INPUT */}
-             <form onSubmit={addTask} className="relative mb-6 group">
-                <input 
-                  type="text" 
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder={`Add a new ${view} goal...`}
-                  className="w-full bg-white dark:bg-slate-950 border-2 border-slate-100 dark:border-slate-800 rounded-2xl px-6 py-4 text-lg font-medium outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder:text-slate-400"
-                />
-                <button 
-                  type="submit"
-                  className="absolute right-3 top-3 p-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-transform active:scale-95 shadow-lg shadow-indigo-500/20"
-                >
-                  <Plus size={20} />
-                </button>
-             </form>
-
-             {/* LIST */}
-             <div className="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-2">
-                <AnimatePresence initial={false}>
-                  {filteredTasks.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-slate-400 opacity-50">
-                       <Target size={48} className="mb-4"/>
-                       <p className="font-bold">No tasks for {view} view.</p>
-                    </div>
-                  ) : (
-                    filteredTasks.map((task) => (
-                      <motion.div
-                        key={task.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        className={`
-                          group flex items-center gap-4 p-4 rounded-2xl border transition-all
-                          ${task.status === 'done' 
-                            ? 'bg-slate-100/50 dark:bg-slate-900/30 border-transparent opacity-60' 
-                            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md'}
-                        `}
-                      >
-                         <button onClick={() => toggleStatus(task.id)} className={`shrink-0 transition-colors ${task.status === 'done' ? 'text-[#638c80]' : 'text-slate-300 hover:text-indigo-500'}`}>
-                            {task.status === 'done' ? <CheckCircle size={24} className="fill-[#638c80]/20 dark:fill-emerald-900/30"/> : <Circle size={24}/>}
-                         </button>
-                         
-                         <span className={`flex-1 font-medium text-lg ${task.status === 'done' ? 'line-through text-slate-400' : 'text-slate-700 dark:text-slate-200'}`}>
-                           {task.title}
-                         </span>
-
-                         <button onClick={() => deleteTask(task.id)} className="p-2 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all">
-                            <Trash2 size={18}/>
-                         </button>
-                      </motion.div>
-                    ))
-                  )}
-                </AnimatePresence>
-             </div>
-
-          </div>
-       </div>
+         {activeView === 'daily' && <DailyView {...commonProps} />}
+         {activeView === 'weekly' && <WeeklyView {...commonProps} />}
+         {activeView === 'monthly' && <MonthlyView {...commonProps} />}
+         {activeView === 'macro' && <MacroView theme={theme} />}
+      </main>
     </div>
   );
-};
+}
+
+const TabItem = ({ icon, label, active = false, onClick, theme }: any) => (
+  <button 
+    onClick={onClick} 
+    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap border ${active 
+      ? 'bg-emerald-600 text-white border-emerald-600 shadow-md' 
+      : `${theme.cardBg} ${theme.textSec} ${theme.border} hover:border-emerald-500/50 hover:text-emerald-500`}`}
+  >
+    {icon}
+    {label}
+  </button>
+);

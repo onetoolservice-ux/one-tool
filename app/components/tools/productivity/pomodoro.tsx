@@ -1,85 +1,94 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import { Play, Pause, RotateCcw, CheckCircle, Coffee } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Play, Pause, RotateCcw, Volume2, VolumeX } from 'lucide-react';
 
 export const Pomodoro = () => {
-  const [time, setTime] = useState(25 * 60);
+  const [mode, setMode] = useState<'focus' | 'short' | 'long'>('focus');
+  const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isActive, setIsActive] = useState(false);
-  const [mode, setMode] = useState<'focus' | 'break'>('focus');
+  const [sound, setSound] = useState(true);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    let interval: any;
-    if (isActive && time > 0) {
-      interval = setInterval(() => setTime(t => t - 1), 1000);
-    } else if (time === 0) {
-      setIsActive(false);
-      // Audio cue could go here
-    }
-    return () => clearInterval(interval);
-  }, [isActive, time]);
+  const MODES = {
+    focus: { time: 25 * 60, label: 'Focus Time', color: 'text-rose-500', bg: 'bg-rose-500' },
+    short: { time: 5 * 60, label: 'Short Break', color: 'text-teal-500', bg: 'bg-teal-500' },
+    long: { time: 15 * 60, label: 'Long Break', color: 'text-blue-500', bg: 'bg-blue-500' }
+  };
+
+  const switchMode = (m: 'focus' | 'short' | 'long') => {
+    setMode(m);
+    setTimeLeft(MODES[m].time);
+    setIsActive(false);
+  };
 
   const toggleTimer = () => setIsActive(!isActive);
-  
-  const reset = (newMode: 'focus' | 'break') => {
-    setMode(newMode);
+
+  const resetTimer = () => {
     setIsActive(false);
-    setTime(newMode === 'focus' ? 25 * 60 : 5 * 60);
+    setTimeLeft(MODES[mode].time);
   };
+
+  useEffect(() => {
+    if (isActive && timeLeft > 0) {
+      intervalRef.current = setInterval(() => setTimeLeft((t) => t - 1), 1000);
+    } else if (timeLeft === 0) {
+      setIsActive(false);
+      // Play a simple beep if sound is on
+      if (sound) {
+          const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+          audio.volume = 0.5;
+          audio.play().catch(() => {});
+      }
+    }
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [isActive, timeLeft, sound]);
 
   const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
-  const progress = mode === 'focus' ? ((25*60 - time) / (25*60)) * 100 : ((5*60 - time) / (5*60)) * 100;
+  const progress = ((MODES[mode].time - timeLeft) / MODES[mode].time) * 100;
 
   return (
-    <div className="max-w-lg mx-auto h-[calc(100vh-140px)] flex flex-col items-center justify-center">
-       
-       <div className="bg-white dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800 flex mb-12 shadow-sm">
-          <button onClick={() => reset('focus')} className={`px-6 py-2 rounded-lg text-xs font-bold transition-all ${mode==='focus'?'bg-indigo-600 text-white shadow':'text-slate-500 hover:text-slate-900'}`}>Focus (25m)</button>
-          <button onClick={() => reset('break')} className={`px-6 py-2 rounded-lg text-xs font-bold transition-all ${mode==='break'?'bg-[#638c80] text-white shadow':'text-slate-500 hover:text-slate-900'}`}>Break (5m)</button>
+    <div className="max-w-xl mx-auto mt-10 p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[3rem] shadow-2xl text-center relative overflow-hidden">
+       {/* Background Progress Bar */}
+       <div className="absolute bottom-0 left-0 h-2 bg-slate-100 dark:bg-slate-800 w-full">
+          <div className={`h-full transition-all duration-1000 ${MODES[mode].bg}`} style={{ width: `${progress}%` }}></div>
        </div>
 
-       {/* TIMER RING */}
-       <div className="relative w-72 h-72 flex items-center justify-center mb-12">
-          {/* Background Ring */}
-          <svg className="absolute inset-0 w-full h-full transform -rotate-90">
-             <circle cx="144" cy="144" r="130" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-slate-100 dark:text-slate-800" />
-             <circle 
-               cx="144" cy="144" r="130" 
-               stroke="currentColor" strokeWidth="12" fill="transparent" 
-               strokeDasharray={817} 
-               strokeDashoffset={817 - (817 * progress) / 100} 
-               className={`transition-all duration-1000 ${mode==='focus' ? 'text-indigo-500' : 'text-[#638c80]'}`}
-               strokeLinecap="round"
-             />
-          </svg>
-          
-          <div className="text-center z-10">
-             <div className={`text-7xl font-black tracking-tighter tabular-nums ${mode==='focus'?'text-slate-900 dark:text-white':'text-[#4a6b61]'}`}>
-                {formatTime(time)}
-             </div>
-             <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mt-2">{isActive ? (mode==='focus'?'Focusing...':'Relaxing...') : 'Paused'}</p>
+       <div className="flex justify-center gap-2 mb-10 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full inline-flex">
+          {Object.keys(MODES).map((m) => (
+             <button 
+               key={m} 
+               onClick={() => switchMode(m as any)}
+               className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${mode === m ? 'bg-white dark:bg-slate-700 shadow-md text-slate-900 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
+             >
+                {MODES[m as any].label}
+             </button>
+          ))}
+       </div>
+
+       <div className="relative mb-12">
+          <div className={`text-9xl font-black tabular-nums tracking-tight ${MODES[mode].color}`}>
+             {formatTime(timeLeft)}
           </div>
+          <p className="text-slate-400 font-medium mt-2 uppercase tracking-widest text-xs">Minutes Remaining</p>
        </div>
 
-       <div className="flex items-center gap-4">
-          <button 
-            onClick={toggleTimer}
-            className={`w-16 h-16 rounded-full flex items-center justify-center text-white shadow-xl transition-transform hover:scale-110 active:scale-95 ${isActive ? 'bg-slate-800' : mode==='focus'?'bg-indigo-600':'bg-[#638c80]'}`}
-          >
-             {isActive ? <Pause size={28}/> : <Play size={28} className="ml-1"/>}
+       <div className="flex items-center justify-center gap-6">
+          <button onClick={toggleTimer} className={`w-20 h-20 rounded-full flex items-center justify-center text-white shadow-xl hover:scale-110 transition-transform active:scale-95 ${MODES[mode].bg}`}>
+             {isActive ? <Pause size={32} fill="currentColor"/> : <Play size={32} fill="currentColor" className="ml-1"/>}
           </button>
-          <button 
-            onClick={() => reset(mode)}
-            className="w-12 h-12 rounded-full border-2 border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-400 hover:text-rose-500 hover:border-rose-200 transition-colors"
-          >
+          <button onClick={resetTimer} className="w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
              <RotateCcw size={20}/>
           </button>
        </div>
 
+       <button onClick={() => setSound(!sound)} className="absolute top-8 right-8 p-2 text-slate-300 hover:text-slate-500 transition-colors">
+          {sound ? <Volume2 size={20}/> : <VolumeX size={20}/>}
+       </button>
     </div>
   );
 };

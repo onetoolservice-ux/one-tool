@@ -1,88 +1,66 @@
 "use client";
 import React, { useState } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
-import { Download, Link as LinkIcon, Palette } from 'lucide-react';
+import { QrCode, Download } from 'lucide-react';
 
 export const QrGenerator = () => {
   const [text, setText] = useState("https://onetool.com");
-  const [color, setColor] = useState("#000000");
-  const [bgColor, setBgColor] = useState("#ffffff");
-
-  const downloadQr = () => {
-    const svg = document.getElementById("qr-code-svg");
-    if (!svg) return;
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    const img = new Image();
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx?.drawImage(img, 0, 0);
-      const pngFile = canvas.toDataURL("image/png");
-      const downloadLink = document.createElement("a");
-      downloadLink.download = "onetool-qr.png";
-      downloadLink.href = pngFile;
-      downloadLink.click();
-    };
-    img.src = "data:image/svg+xml;base64," + btoa(svgData);
-  };
+  const [color, setColor] = useState("000000");
+  const [bgColor, setBgColor] = useState("ffffff");
+  
+  // Robust API for customization
+  const url = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(text)}&color=${color.replace('#','')}&bgcolor=${bgColor.replace('#','')}&margin=10`;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto items-center animate-in fade-in duration-500">
+    <div className="max-w-4xl mx-auto h-[calc(100vh-80px)] flex flex-col lg:flex-row gap-12 p-8 items-center bg-white dark:bg-[#0B1120]">
        
-       {/* Controls */}
-       <div className="space-y-6">
-          <div className="space-y-2">
-             <label className="text-xs font-bold text-slate-500 uppercase">Content / URL</label>
-             <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-indigo-500 transition-all">
-                <LinkIcon size={18} className="text-slate-400" />
+       {/* CONTROLS */}
+       <div className="w-full lg:w-1/2 space-y-8">
+          <div>
+             <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-2 flex items-center gap-3"><QrCode className="text-blue-600"/> QR Studio</h1>
+             <p className="text-slate-500">Create custom QR codes for links, text, or Wi-Fi.</p>
+          </div>
+
+          <div className="space-y-4">
+             <div>
+                <label className="text-xs font-bold uppercase text-slate-400 mb-1.5 block">Target Content</label>
                 <input 
-                  type="text" 
                   value={text} 
-                  onChange={(e) => setText(e.target.value)} 
-                  className="bg-transparent outline-none w-full text-sm font-medium"
-                  placeholder="Enter text or URL..."
-                />
+                  onChange={e=>setText(e.target.value)} 
+                  className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl font-medium outline-none focus:ring-2 ring-blue-500/20 text-slate-900 dark:text-white"
+                  placeholder="https://... or plain text"
+               />
              </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
-             <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase flex items-center gap-2"><Palette size={12}/> Color</label>
-                <div className="flex items-center gap-2 h-12 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-2">
-                   <input type="color" value={color} onChange={(e) => setColor(e.target.value)} className="w-8 h-8 rounded cursor-pointer bg-transparent border-none" />
-                   <span className="text-xs font-mono">{color}</span>
+             <div className="grid grid-cols-2 gap-6">
+                <div>
+                   <label className="text-xs font-bold uppercase text-slate-400 mb-2 block">Foreground</label>
+                   <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-800">
+                      <input type="color" value={color} onChange={e=>setColor(e.target.value)} className="w-10 h-10 rounded-lg cursor-pointer border-none bg-transparent"/>
+                      <span className="font-mono text-xs text-slate-500">{color}</span>
+                   </div>
                 </div>
-             </div>
-             <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase flex items-center gap-2"><Palette size={12}/> Background</label>
-                <div className="flex items-center gap-2 h-12 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-2">
-                   <input type="color" value={bgColor} onChange={(e) => setBgColor(e.target.value)} className="w-8 h-8 rounded cursor-pointer bg-transparent border-none" />
-                   <span className="text-xs font-mono">{bgColor}</span>
+                <div>
+                   <label className="text-xs font-bold uppercase text-slate-400 mb-2 block">Background</label>
+                   <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-800">
+                      <input type="color" value={bgColor} onChange={e=>setBgColor(e.target.value)} className="w-10 h-10 rounded-lg cursor-pointer border-none bg-transparent"/>
+                      <span className="font-mono text-xs text-slate-500">{bgColor}</span>
+                   </div>
                 </div>
              </div>
           </div>
        </div>
 
-       {/* Preview Card */}
-       <div className="flex flex-col items-center justify-center p-8 bg-slate-100 dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl">
-          <div className="bg-white p-4 rounded-xl shadow-sm mb-6">
-             <QRCodeSVG 
-               id="qr-code-svg"
-               value={text} 
-               size={200} 
-               fgColor={color} 
-               bgColor={bgColor} 
-               level="H"
-               includeMargin={true}
-             />
+       {/* PREVIEW */}
+       <div className="w-full lg:w-1/2 flex flex-col items-center justify-center bg-slate-100 dark:bg-slate-900/50 rounded-[3rem] p-12 border border-slate-200 dark:border-slate-800">
+          <div className="bg-white p-4 rounded-3xl shadow-2xl mb-8 transform hover:scale-105 transition-transform duration-300">
+             <img src={url} alt="QR Code" className="w-64 h-64 mix-blend-multiply"/>
           </div>
-          <button onClick={downloadQr} className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:opacity-90 transition-opacity">
-             <Download size={16} /> Download PNG
-          </button>
+          <div className="flex gap-3">
+             <a href={url} download="qrcode.png" className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg hover:-translate-y-1 transition-transform">
+                <Download size={18}/> Download PNG
+             </a>
+          </div>
        </div>
-
     </div>
   );
 };

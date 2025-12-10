@@ -1,66 +1,67 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { 
-  Wallet, FileText, Heart, Zap, Palette, 
-  Terminal, Settings, LayoutGrid, ShieldCheck
-} from "lucide-react";
+  LayoutGrid, Zap, Globe, FileText, Settings, 
+  LogOut, User 
+} from 'lucide-react';
 
-const MENU = [
-  { title: "Dashboard", href: "/", icon: <LayoutGrid size={18}/> },
-  { title: "Finance", href: "/tools/finance", icon: <Wallet size={18}/> },
-  { title: "Documents", href: "/tools/documents", icon: <FileText size={18}/> },
-  { title: "Health", href: "/tools/health", icon: <Heart size={18}/> },
-  { title: "Productivity", href: "/tools/productivity", icon: <Zap size={18}/> },
-  { title: "Design", href: "/tools/design", icon: <Palette size={18}/> },
-  { title: "Developer", href: "/tools/developer", icon: <Terminal size={18}/> },
-];
-
-// Sidebar now accepts no children and only renders the navigation part
 export default function Sidebar() {
   const pathname = usePathname();
-  const isHome = pathname === "/";
 
-  // Renders the fixed sidebar for desktop views only (lg:flex)
-  if (isHome) return null;
+  const isActive = (path: string) => pathname === path;
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 h-[calc(100vh-64px)] fixed top-16 left-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-30 shrink-0">
-      
-      {/* Nav Links (Scrollable) */}
-      <div className="flex-1 overflow-y-auto py-6 px-4 space-y-1">
-        <p className="px-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Apps</p>
-        {MENU.map((item) => {
-          const isActive = item.href === "/" 
-            ? pathname === "/" 
-            : pathname.startsWith(item.href);
-          
-          return (
-            <Link 
-              key={item.href} 
-              href={item.href}
-              className={`
-                flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
-                ${isActive 
-                  ? "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 shadow-sm" 
-                  : "text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white"
-                }
-              `}
-            >
-              {item.icon}
-              {item.title}
-            </Link>
-          )
-        })}
+    <aside className="w-64 bg-[#0F111A] border-r border-white/5 flex flex-col h-full z-40 hidden md:flex flex-shrink-0">
+      {/* LOGO AREA */}
+      <div className="h-16 flex items-center px-6 border-b border-white/5">
+        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+          <span className="font-bold text-white text-sm">OT</span>
+        </div>
+        <span className="font-bold text-lg text-white tracking-tight">One Tool</span>
       </div>
 
-      {/* Footer System Links */}
-      <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex-shrink-0 space-y-1">
-        <Link href="/settings" className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">
-           <Settings size={18}/> Settings
-        </Link>
+      {/* NAV TABS */}
+      <div className="flex-1 py-6 px-3 space-y-1 overflow-y-auto">
+        <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4 px-3">
+          Platform
+        </div>
+        
+        <NavItem href="/" icon={<LayoutGrid size={18} />} label="All Tools" active={isActive('/')} />
+        <NavItem href="/productivity" icon={<Globe size={18} />} label="Productivity" active={isActive('/productivity')} />
+        <NavItem href="/utilities" icon={<Zap size={18} />} label="Utilities" active={isActive('/utilities')} />
+        <NavItem href="/documents" icon={<FileText size={18} />} label="Documents" active={isActive('/documents')} />
+      </div>
+
+      {/* FOOTER */}
+      <div className="p-4 border-t border-white/5">
+        <button className="flex items-center gap-3 w-full p-2 rounded-xl hover:bg-white/5 transition-colors group">
+           <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-blue-500 flex items-center justify-center text-white">
+             <User size={14} />
+           </div>
+           <div className="text-left overflow-hidden">
+             <div className="text-sm font-bold text-white truncate">My Workspace</div>
+             <div className="text-xs text-gray-500 truncate">Free Plan</div>
+           </div>
+           <Settings size={14} className="ml-auto text-gray-500 group-hover:text-white transition-colors" />
+        </button>
       </div>
     </aside>
   );
 }
+
+const NavItem = ({ href, icon, label, active }: any) => (
+  <Link 
+    href={href} 
+    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${
+      active 
+        ? 'bg-blue-600/10 text-blue-400' 
+        : 'text-gray-400 hover:bg-white/5 hover:text-white'
+    }`}
+  >
+    {React.cloneElement(icon, { size: 18, className: active ? 'text-blue-400' : 'group-hover:text-white transition-colors' })}
+    <span className="font-medium text-sm">{label}</span>
+  </Link>
+);

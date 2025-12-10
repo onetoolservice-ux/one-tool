@@ -1,56 +1,58 @@
-import { Suspense } from 'react';
-import { SuperNavbar } from "@/app/components/layout/super-navbar";
-import { BentoHero } from "@/app/components/home/bento-hero";
-import { ToolGrid } from "@/app/components/home/tool-grid";
-import { Footer } from "@/app/components/layout/Footer";
-import { DynamicBackground } from "@/app/components/layout/dynamic-background";
-import { Loader2 } from "lucide-react";
+'use client';
 
-type Props = {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-};
+import React, { useState, useEffect, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import CategoryNav from '@/app/components/home/CategoryNav';
+import { ToolGrid } from '@/app/components/home/tool-grid';
 
-export default async function Home(props: Props) {
-  const searchParams = await props.searchParams;
-  const category = searchParams.cat;
-  const query = searchParams.q;
-  const showHero = (!category || category === 'All Tools') && !query;
+// Create a sub-component to handle the Search Params logic
+function HomeContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  
+  // Initialize state from URL param or default to 'all'
+  const initialCategory = searchParams.get('category') || 'all';
+  const [activeCategory, setActiveCategory] = useState(initialCategory);
+
+  // Sync state if URL changes (e.g. Back button pressed)
+  useEffect(() => {
+    const cat = searchParams.get('category') || 'all';
+    setActiveCategory(cat);
+  }, [searchParams]);
+
+  // Update URL without full reload when changing tabs
+  const handleCategoryChange = (id: string) => {
+    setActiveCategory(id);
+    // Push new state to URL so "Back" button works correctly later
+    router.push(`/?category=${id}`, { scroll: false });
+  };
 
   return (
-    <div className="min-h-screen bg-transparent flex flex-col font-sans selection:bg-indigo-100 selection:text-indigo-900 relative overflow-hidden">
-      <DynamicBackground />
+    <div className="flex flex-col h-[calc(100vh-64px)] bg-gray-50 dark:bg-[#0F111A] transition-colors duration-300 overflow-hidden">
       
-      <Suspense fallback={<div className="h-16 border-b bg-white dark:bg-slate-950"></div>}>
-        <SuperNavbar />
-      </Suspense>
+      <CategoryNav active={activeCategory} onChange={handleCategoryChange} />
 
-      <main className="flex-1 flex flex-col h-[calc(100vh-64px)] p-4 max-w-[1600px] mx-auto w-full gap-4">
-        
-        {/* COMPACT HERO (Only ~20% Height now) */}
-        {showHero && (
-           <div className="flex-shrink-0 h-[180px] animate-in fade-in slide-in-from-top-2 duration-500">
-              <BentoHero />
-           </div>
-        )}
+      <main className="flex-1 w-full max-w-[1800px] mx-auto overflow-y-auto custom-scrollbar p-6 md:p-8">
+         <div className="flex items-center justify-between px-1 mb-4">
+           <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+             {activeCategory === 'all' ? 'All Applications' : activeCategory}
+           </h2>
+           <span className="text-[10px] bg-gray-200 dark:bg-white/10 px-2 py-1 rounded text-gray-500 dark:text-gray-400 font-mono">
+             SYSTEM READY
+           </span>
+         </div>
 
-        {/* MAIN GRID (Takes remaining 80%) */}
-        <div className={`flex-1 overflow-y-auto custom-scrollbar rounded-3xl border border-slate-200/50 dark:border-slate-700/50 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm p-5 transition-all duration-500 ${showHero ? '' : 'h-full border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80'}`}>
-           <div className="flex items-center justify-between mb-4 sticky top-0 z-10">
-              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                {showHero ? 'All Utilities' : (
-                  <><span className="text-teal-600 dark:text-teal-400">{category || 'Search'}</span> <span className="opacity-50">/</span> Tools</>
-                )}
-              </h3>
-              <span className="text-[10px] font-mono bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded text-slate-500">63 APPS</span>
-           </div>
-           
-           <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="animate-spin text-slate-300" size={30} /></div>}>
-              <ToolGrid /> 
-           </Suspense>
-           <div className="mt-8"><Footer /></div>
-        </div>
-
+         <ToolGrid category={activeCategory} />
       </main>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    // Suspense boundary needed for useSearchParams in Client Component
+    <Suspense fallback={<div className="min-h-screen bg-[#0F111A]" />}>
+      <HomeContent />
+    </Suspense>
   );
 }

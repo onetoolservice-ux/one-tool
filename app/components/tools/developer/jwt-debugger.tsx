@@ -1,57 +1,49 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Lock, Key, CheckCircle, AlertCircle } from 'lucide-react';
+import { Key, Lock } from 'lucide-react';
 
 export const JwtDebugger = () => {
   const [token, setToken] = useState("");
-  const [header, setHeader] = useState({});
-  const [payload, setPayload] = useState({});
-  const [valid, setValid] = useState(false);
+  const [parts, setParts] = useState<any>({});
 
   useEffect(() => {
-    if (!token) return;
     try {
-      const parts = token.split('.');
-      if (parts.length !== 3) throw new Error("Invalid Token");
-      setHeader(JSON.parse(atob(parts[0])));
-      setPayload(JSON.parse(atob(parts[1])));
-      setValid(true);
-    } catch (e) {
-      setValid(false);
-      setHeader({});
-      setPayload({});
-    }
+       const [h, p, s] = token.split('.');
+       if(h && p) setParts({ 
+          header: JSON.stringify(JSON.parse(atob(h)), null, 2), 
+          payload: JSON.stringify(JSON.parse(atob(p)), null, 2),
+          sig: s 
+       });
+    } catch(e) { setParts({}); }
   }, [token]);
 
   return (
-    <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-       <div className="md:col-span-1 space-y-4">
-          <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
-             <label className="text-xs font-bold text-slate-500 uppercase mb-2 block">Paste JWT Token</label>
-             <textarea 
-               value={token} 
-               onChange={e => setToken(e.target.value)} 
-               className="w-full h-64 p-3 text-xs font-mono bg-slate-50 dark:bg-black/50 border border-slate-200 dark:border-slate-800 rounded-lg outline-none resize-none break-all text-indigo-600 dark:text-indigo-400"
-               placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-             />
+    <div className="max-w-6xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-2 gap-8 h-[calc(100vh-80px)]">
+       <div className="flex flex-col gap-4">
+          <div className="p-4 bg-white dark:bg-slate-900 border rounded-2xl shadow-sm">
+             <h2 className="font-bold flex items-center gap-2 mb-2"><Key className="text-rose-500"/> Encoded Token</h2>
+             <textarea value={token} onChange={e=>setToken(e.target.value)} className="w-full h-40 p-4 bg-slate-50 dark:bg-black rounded-xl font-mono text-xs break-all text-slate-600 outline-none focus:ring-2 ring-rose-500/20" placeholder="Paste JWT..."/>
           </div>
-          {token && (
-             <div className={`p-3 rounded-lg flex items-center gap-2 text-sm font-bold ${valid ? 'bg-[#638c80]/10 text-[#4a6b61]' : 'bg-rose-50 text-rose-600'}`}>
-                {valid ? <CheckCircle size={16}/> : <AlertCircle size={16}/>}
-                {valid ? "Valid Format" : "Invalid Format"}
+          <div className="flex-1 bg-white dark:bg-slate-900 border rounded-2xl p-6 shadow-sm">
+             <h3 className="font-bold text-slate-500 uppercase text-xs mb-4">Algorithm & Type</h3>
+             <div className="space-y-2">
+                <div className="flex justify-between p-3 bg-slate-50 rounded-lg"><span className="text-sm font-bold">Type</span><span className="font-mono text-xs">JWT</span></div>
+                <div className="flex justify-between p-3 bg-slate-50 rounded-lg"><span className="text-sm font-bold">Algorithm</span><span className="font-mono text-xs">HS256</span></div>
              </div>
-          )}
-       </div>
-
-       <div className="md:col-span-2 space-y-6">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-             <div className="bg-slate-50 dark:bg-slate-950 p-2 border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 uppercase px-4">Header</div>
-             <pre className="p-4 text-sm font-mono text-rose-500 bg-white dark:bg-slate-900 overflow-auto">{JSON.stringify(header, null, 2)}</pre>
           </div>
-          
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-             <div className="bg-slate-50 dark:bg-slate-950 p-2 border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 uppercase px-4">Payload</div>
-             <pre className="p-4 text-sm font-mono text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-900 overflow-auto">{JSON.stringify(payload, null, 2)}</pre>
+       </div>
+       <div className="bg-slate-950 rounded-2xl border border-slate-800 flex flex-col overflow-hidden">
+          <div className="flex-1 border-b border-slate-800 p-6 overflow-auto">
+             <p className="text-xs font-bold text-rose-400 uppercase mb-2">Header</p>
+             <pre className="font-mono text-sm text-rose-300">{parts.header || "{}"}</pre>
+          </div>
+          <div className="flex-[2] border-b border-slate-800 p-6 overflow-auto">
+             <p className="text-xs font-bold text-purple-400 uppercase mb-2">Payload</p>
+             <pre className="font-mono text-sm text-purple-300">{parts.payload || "{}"}</pre>
+          </div>
+          <div className="p-6 bg-blue-900/10">
+             <p className="text-xs font-bold text-blue-400 uppercase mb-2">Signature</p>
+             <pre className="font-mono text-xs text-blue-300 break-all">{parts.sig || "..."}</pre>
           </div>
        </div>
     </div>

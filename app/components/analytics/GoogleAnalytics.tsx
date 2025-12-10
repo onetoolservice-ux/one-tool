@@ -1,23 +1,29 @@
-"use client";
-import Script from "next/script";
+'use client';
 
-export const GoogleAnalytics = () => {
+import React from 'react';
+
+// FIX: Added interface to accept 'gaId' prop
+export const GoogleAnalytics = ({ gaId }: { gaId?: string }) => {
+  // If no ID is provided, or during development, we render nothing
+  if (!gaId) return null;
+
   return (
     <>
-      <Script
-        strategy="lazyOnload" 
-        src="https://www.googletagmanager.com/gtag/js?id=G-G250LVCNPK"
+      {/* Placeholder for actual GA Script */}
+      <script
+        async
+        src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
       />
-      <Script id="google-analytics" strategy="lazyOnload">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-G250LVCNPK', {
-            page_path: window.location.pathname,
-          });
-        `}
-      </Script>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${gaId}');
+          `,
+        }}
+      />
     </>
   );
 };

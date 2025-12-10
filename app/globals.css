@@ -21,27 +21,25 @@ body {
   background: transparent;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden; /* Prevent horizontal scroll shift */
+  overflow-x: hidden;
 }
 
-/* CLS FIX: Reserve space for grid items before they load */
-.grid-min-h {
-  min-height: 100vh;
+/* --- UI POLISH: REMOVE NUMBER SPINNERS --- */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
 }
-
-/* ANIMATION OPTIMIZATION */
-.animate-in {
-  animation-duration: 0.3s;
-  animation-fill-mode: both;
-  will-change: opacity, transform; /* Hardware acceleration */
-}
-
-input, select, textarea {
-  font-size: 16px !important; /* Prevents iOS zoom */
+input[type=number] {
+  -moz-appearance: textfield; /* Firefox */
 }
 
 /* CUSTOM SCROLLBAR */
 .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
+.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
+
+/* UTILITIES */
+.animate-in { animation: fadeIn 0.4s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
