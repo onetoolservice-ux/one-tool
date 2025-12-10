@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Search, Command, Share2, Star, Home, X } from 'lucide-react';
+import { Search, Command, Share2, Coffee, Home, X } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { fuzzySearch } from '@/app/lib/search-utils';
 
@@ -181,14 +181,26 @@ function HeaderContent() {
          </div>
          <div className="h-5 w-px mx-1 hidden lg:block bg-gray-200 dark:bg-white/10"></div>
          <ThemeToggle />
-         <button className="p-2 rounded-lg transition-colors text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5"><Share2 size={18} /></button>
-         <button className="p-2 rounded-lg transition-colors text-gray-500 hover:text-yellow-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5"><Star size={18} /></button>
+         
+         <button className="p-2 rounded-lg transition-colors text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5">
+            <Share2 size={18} />
+         </button>
+         
+         {/* DONATION BUTTON */}
+         <a 
+           href="https://buymeacoffee.com/onetool" 
+           target="_blank" 
+           rel="noopener noreferrer"
+           className="p-2 rounded-lg transition-colors text-gray-500 hover:text-yellow-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5"
+           title="Buy me a coffee"
+         >
+            <Coffee size={18} />
+         </a>
       </div>
     </header>
   );
 }
 
-// FIX: Wrap component in Suspense for build time safety
 export default function GlobalHeader() {
   return (
     <Suspense fallback={<div className="h-16 bg-[#0F111A] border-b border-white/5" />}>
