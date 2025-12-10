@@ -6,7 +6,7 @@ import { GoogleAnalytics } from "@/app/components/analytics/GoogleAnalytics";
 import { UIProvider } from "@/app/lib/ui-context";
 import { ToastProvider } from "@/app/components/ui/toast-system";
 import GlobalHeader from "@/app/components/layout/GlobalHeader";
-import ScrollToTop from "@/app/components/layout/ScrollToTop"; // Import the component, not the hook
+import ScrollToTop from "@/app/components/layout/ScrollToTop";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,17 +26,14 @@ export default function RootLayout({
         <UIProvider>
           <ToastProvider>
             <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-[#0F111A]">
-               {/* Handles scrolling on route change */}
                <ScrollToTop />
-               
                <GlobalHeader />
-               
                <main className="flex-1 w-full max-w-[1800px] mx-auto">
                  {children}
                </main>
             </div>
-            {/* Pass a placeholder ID to silence errors if you don't have one yet */}
-            <GoogleAnalytics gaId="G-PLACEHOLDER" /> 
+            {/* FIX: Using your REAL Measurement ID from the screenshot */}
+            <GoogleAnalytics gaId="G-J4B6SYJZQF" /> 
           </ToastProvider>
         </UIProvider>
       </body>

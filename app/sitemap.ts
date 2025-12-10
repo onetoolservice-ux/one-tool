@@ -2,13 +2,13 @@ import { MetadataRoute } from 'next';
 import { ALL_TOOLS } from '@/app/lib/tools-data';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://onetool.com'; // Change to real domain
-  
+  const baseUrl = 'https://onetool.com'; // Change this to your real domain later
+
   const toolUrls = ALL_TOOLS.map((tool) => ({
-    url: `${baseUrl}${tool.href}`,
+    url: `${baseUrl}/tools/${tool.category.toLowerCase()}/${tool.id}`,
     lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: tool.popular ? 0.9 : 0.7,
+    changeFrequency: 'monthly' as const,
+    priority: 0.8,
   }));
 
   return [
