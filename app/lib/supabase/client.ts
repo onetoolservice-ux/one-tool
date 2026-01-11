@@ -14,9 +14,11 @@ export function createClient() {
   if (!supabaseUrl || !supabaseAnonKey) {
     // If we're in a browser and env vars are missing, throw error
     if (typeof window !== 'undefined') {
-      throw new Error(
-        'Missing Supabase environment variables. Please create a .env.local file with NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY'
-      );
+      const isVercel = process.env.NEXT_PUBLIC_VERCEL === '1' || window.location.hostname.includes('vercel.app');
+      const errorMessage = isVercel
+        ? 'Missing Supabase environment variables in Vercel. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel Settings → Environment Variables, then redeploy.'
+        : 'Missing Supabase environment variables. Please create a .env.local file with NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY';
+      throw new Error(errorMessage);
     }
     
     // During SSR/build, return a client with placeholder values
