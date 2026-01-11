@@ -7,6 +7,10 @@ import { getAdminStats, getAllUsers, UserProfile, AdminStats, searchUsers, delet
 import { showToast } from '@/app/shared/Toast';
 import { Shield, Users, Package, UserCheck, Search, Trash2, Mail, Calendar, Crown, Loader2, AlertCircle } from 'lucide-react';
 
+// Force dynamic rendering to prevent prerendering during build
+// This avoids errors when Supabase env vars are missing during build time
+export const dynamic = 'force-dynamic';
+
 export default function AdminPage() {
   const { user, loading: authLoading, isAdmin: isUserAdmin } = useAuth();
   const router = useRouter();
