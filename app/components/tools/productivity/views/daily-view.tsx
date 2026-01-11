@@ -100,7 +100,7 @@ export const DailyView = ({ tasks, addTask, toggleTask, deleteTask, addSubtask, 
            <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
               {isAdding && (
                 <div className={`p-4 rounded-xl border border-blue-500/30 mb-4 animate-in fade-in slide-in-from-top-2 ${t.bg}`}>
-                   <input autoFocus type="text" value={newTaskText} onChange={e=>setNewTaskText(e.target.value)} placeholder="What needs to be done?" className={`w-full ${t.inputBg} rounded-lg p-2 text-sm ${t.text} border ${t.border} mb-3 outline-none focus:border-blue-500`} />
+                   <input autoFocus type="text" value={newTaskText} onChange={e=>setNewTaskText(e.target.value)} placeholder="What needs to be done?" className={`w-full ${t.inputBg} rounded-lg p-2 text-sm ${t.text} border ${t.border} mb-3 outline-none `} />
                    
                    <div className="grid grid-cols-2 gap-2 mb-3">
                       <div><label className="text-[10px] uppercase font-bold opacity-50">Start</label><input type="time" value={startTime} onChange={e=>setStartTime(e.target.value)} className={`w-full ${t.inputBg} rounded p-1 text-xs ${t.text} border ${t.border}`}/></div>

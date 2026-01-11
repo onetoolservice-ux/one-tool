@@ -3,6 +3,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { RefreshCw, UploadCloud, Download, CheckCircle, FileText, Image as ImageIcon, Code, X } from 'lucide-react';
 import { formatFileSize } from '@/app/lib/utils';
 import jsPDF from 'jspdf';
+import { showToast } from '@/app/shared/Toast';
+import { MAX_IMAGE_FILE_SIZE, MAX_PDF_FILE_SIZE, MAX_GENERAL_FILE_SIZE } from '@/app/lib/constants';
+import { logger } from '@/app/lib/utils/logger';
 
 const CONVERSION_DB: any = {
   "Image": { 
@@ -106,9 +109,11 @@ export function UniversalConverter({ defaultCategory = "Image", title = "Univers
         }
         
         setProgress(100);
-    } catch (e) {
-        alert("Conversion failed. Please check the file format.");
-        console.error(e);
+        showToast('Conversion completed successfully', 'success');
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Conversion failed';
+        showToast(message || 'Conversion failed. Please check the file format.', 'error');
+        logger.error('Conversion error:', error);
     }
     
     setConverting(false);
@@ -144,7 +149,7 @@ export function UniversalConverter({ defaultCategory = "Image", title = "Univers
              </div>
           </div>
 
-          <button onClick={convert} disabled={!file || converting} className="w-full bg-teal-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-teal-700 disabled:opacity-50 transition-all mt-auto">
+          <button onClick={convert} disabled={!file || converting} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold shadow-lg disabled:opacity-50 transition-colors mt-auto">
              {converting ? `Processing ${progress}%` : "Start Conversion"}
           </button>
        </div>
@@ -153,7 +158,46 @@ export function UniversalConverter({ defaultCategory = "Image", title = "Univers
        <div className="flex-1 p-8 flex justify-center items-center bg-slate-100 dark:bg-black/20">
           {!resultUrl ? (
              <label className="w-full max-w-lg aspect-square border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:bg-white dark:hover:bg-slate-900 transition-all group relative">
-                <input type="file" onChange={e=>e.target.files && setFile(e.target.files[0])} className="hidden" accept={CONVERSION_DB[category].accept}/>
+                <input type="file" onChange={(e) => {
+                  if (!e.target.files?.[0]) return;
+                  
+                  const uploadedFile = e.target.files[0];
+                  
+                  // Validate file type based on category
+                  if (category === 'Image') {
+                    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/bmp'];
+                    if (!allowedTypes.includes(uploadedFile.type)) {
+                      showToast(`${uploadedFile.name} is not a supported image format`, 'error');
+                      return;
+                    }
+                    if (uploadedFile.size > MAX_IMAGE_FILE_SIZE) {
+                      showToast(`${uploadedFile.name} exceeds 10MB size limit`, 'error');
+                      return;
+                    }
+                  } else if (category === 'Document') {
+                    if (!uploadedFile.type.includes('text') && uploadedFile.name.split('.').pop()?.toLowerCase() !== 'txt') {
+                      showToast('Please upload a text file (.txt)', 'error');
+                      return;
+                    }
+                    if (uploadedFile.size > MAX_GENERAL_FILE_SIZE) {
+                      showToast(`${uploadedFile.name} exceeds 100MB size limit`, 'error');
+                      return;
+                    }
+                  } else if (category === 'Code') {
+                    const ext = uploadedFile.name.split('.').pop()?.toLowerCase();
+                    if (ext !== 'json' && ext !== 'csv') {
+                      showToast('Please upload a JSON or CSV file', 'error');
+                      return;
+                    }
+                    if (uploadedFile.size > MAX_GENERAL_FILE_SIZE) {
+                      showToast(`${uploadedFile.name} exceeds 100MB size limit`, 'error');
+                      return;
+                    }
+                  }
+                  
+                  setFile(uploadedFile);
+                  setResultUrl(null);
+                }} className="hidden" accept={CONVERSION_DB[category].accept}/>
                 {file ? (
                    <div className="text-center animate-in fade-in zoom-in">
                        <FileText size={64} className="text-teal-600 mx-auto mb-4"/>

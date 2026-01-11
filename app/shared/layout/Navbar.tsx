@@ -25,7 +25,7 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -79,7 +79,7 @@ export default function Navbar() {
 
             <button 
               onClick={() => setIsAssistantOpen(true)} 
-              className="p-2 rounded-full text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+              className="p-2 rounded-full text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
               title="Smart Guide"
               aria-label="Open Smart Assistant"
             >
@@ -88,7 +88,7 @@ export default function Navbar() {
 
             <Link 
               href="/settings" 
-              className="p-2 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="p-2 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
               aria-label="Open Settings"
             >
               <Settings size={20} />

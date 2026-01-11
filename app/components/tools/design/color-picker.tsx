@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Copy, Palette, Plus, Trash2, Sliders } from 'lucide-react';
 import { useToast } from '@/app/components/ui/toast-system';
+import { safeLocalStorage } from '@/app/lib/utils/storage';
 
 export const ColorPicker = () => {
   const { toast } = useToast();
@@ -10,8 +11,8 @@ export const ColorPicker = () => {
   const [harmonies, setHarmonies] = useState<string[]>([]);
 
   useEffect(() => {
-    const s = localStorage.getItem('onetool-colors');
-    if (s) setSaved(JSON.parse(s));
+    const savedColors = safeLocalStorage.getItem<string[]>('onetool-colors', []);
+    if (savedColors) setSaved(savedColors);
     generateHarmonies(hex);
   }, []);
 
@@ -23,7 +24,7 @@ export const ColorPicker = () => {
     if (!saved.includes(hex)) {
       const newSaved = [hex, ...saved].slice(0, 10);
       setSaved(newSaved);
-      localStorage.setItem('onetool-colors', JSON.stringify(newSaved));
+      safeLocalStorage.setItem('onetool-colors', newSaved);
       toast("Color saved to palette", "success");
     }
   };
@@ -31,7 +32,7 @@ export const ColorPicker = () => {
   const deleteColor = (c: string) => {
     const newSaved = saved.filter(x => x !== c);
     setSaved(newSaved);
-    localStorage.setItem('onetool-colors', JSON.stringify(newSaved));
+    safeLocalStorage.setItem('onetool-colors', newSaved);
   };
 
   const copy = (txt: string) => {
@@ -91,7 +92,7 @@ export const ColorPicker = () => {
              </div>
           </div>
 
-          <button onClick={saveColor} className="w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-bold flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform">
+          <button onClick={saveColor} className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:scale-[1.02] transition-all">
              <Plus size={18}/> Save to Palette
           </button>
        </div>

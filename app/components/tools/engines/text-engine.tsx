@@ -61,7 +61,7 @@ export const TextEngine = ({ toolId, title, description }: TextEngineProps) => {
           />
           {/* BOTTOM ACTION BAR */}
           <div className="h-14 border-t border-slate-800 bg-[#252526] flex items-center justify-end px-4">
-             <button onClick={process} className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded-lg font-bold text-xs flex items-center gap-2 transition-all shadow-lg shadow-indigo-500/20">
+             <button onClick={process} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold text-xs flex items-center gap-2 transition-colors shadow-lg shadow-blue-500/20">
                <Wand2 size={14}/> Process
              </button>
           </div>

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
+import { safeLocalStorage } from '@/app/lib/utils/storage';
 
 // NAMED EXPORT (Keep this for existing named imports)
 export function ThemeToggle() {
@@ -11,7 +12,10 @@ export function ThemeToggle() {
   useEffect(() => {
     setMounted(true);
     // Check local storage or system preference
-    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    const savedTheme = safeLocalStorage.getItem<string>('theme', null);
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme === 'dark' || (savedTheme === null && prefersDark)) {
       setIsDark(true);
       document.documentElement.classList.add('dark');
     } else {
@@ -23,11 +27,11 @@ export function ThemeToggle() {
   const toggle = () => {
     if (isDark) {
       document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
+      safeLocalStorage.setItem('theme', 'light');
       setIsDark(false);
     } else {
       document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
+      safeLocalStorage.setItem('theme', 'dark');
       setIsDark(true);
     }
   };
@@ -39,8 +43,8 @@ export function ThemeToggle() {
   return (
     <button 
       onClick={toggle} 
-      className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
-      aria-label="Toggle Theme"
+      className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
       {isDark ? <Moon size={20} /> : <Sun size={20} />}
     </button>

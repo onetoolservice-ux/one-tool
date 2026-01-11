@@ -39,17 +39,17 @@ export const MathEngine = ({ toolId }: MathEngineProps) => {
              <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">
                {toolId === 'smart-bmi' ? 'Weight (kg)' : 'Value'}
              </label>
-             <input type="number" value={val1} onChange={e=>setVal1(e.target.value)} className="w-full text-2xl font-bold bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3 outline-none focus:ring-2 focus:ring-indigo-500" placeholder="0" />
+             <input type="number" value={val1} onChange={e=>setVal1(e.target.value)} className="w-full text-2xl font-bold bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-600 rounded-xl p-3 outline-none transition-all" placeholder="0" />
           </div>
 
           {toolId === 'smart-bmi' && (
             <div>
                <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">Height (cm)</label>
-               <input type="number" value={val2} onChange={e=>setVal2(e.target.value)} className="w-full text-2xl font-bold bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3 outline-none focus:ring-2 focus:ring-indigo-500" placeholder="0" />
+               <input type="number" value={val2} onChange={e=>setVal2(e.target.value)} className="w-full text-2xl font-bold bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-600 rounded-xl p-3 outline-none transition-all" placeholder="0" />
             </div>
           )}
 
-          <button onClick={calculate} className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold py-3 rounded-xl hover:opacity-90 transition-opacity flex justify-center items-center gap-2">
+          <button onClick={calculate} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-colors flex justify-center items-center gap-2">
              <Calculator size={18}/> Calculate
           </button>
 

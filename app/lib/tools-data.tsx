@@ -4,7 +4,7 @@ import {
   RefreshCw, Layers, ScanLine, Minimize, Scissors, FileSpreadsheet, FileType, 
   Globe, Key, Braces, Database, Clock, Terminal, Code2, Link, Hash, Binary, 
   Calendar, QrCode, Lock, Timer, ArrowRightLeft, Type, Pipette, Scale, Wind, Dumbbell, Sparkles, BrainCircuit,
-  Image, Table, Percent, Check, Split, Grid, Laptop
+  Image, Table, Percent, Check, Split, Grid, Laptop, FileCode
 } from "lucide-react";
 
 export const ALL_TOOLS = [
@@ -182,5 +182,9 @@ export const ALL_TOOLS = [
   { 
     id: "smart-analyze", name: "Sentiment AI", category: "AI", href: "/tools/ai/smart-analyze", icon: BrainCircuit,
     color: "text-purple-500 bg-purple-50 dark:bg-purple-900/20 dark:text-purple-300"
+  },
+  { 
+    id: "prompt-generator", name: "Prompt Generator", category: "AI", href: "/tools/ai/prompt-generator", icon: FileCode,
+    color: "text-fuchsia-500 bg-fuchsia-50 dark:bg-fuchsia-900/20 dark:text-fuchsia-300", popular: true
   }
 ];

@@ -13,8 +13,8 @@ export const DiffStudio = () => {
           <span className="text-xs bg-slate-100 px-2 py-1 rounded font-bold text-slate-500">Auto-Compare</span>
        </div>
        <div className="flex-1 flex gap-4 overflow-hidden">
-          <textarea value={t1} onChange={e=>setT1(e.target.value)} className="flex-1 p-6 rounded-2xl border bg-white dark:bg-slate-900 resize-none outline-none font-mono text-sm leading-relaxed focus:ring-2 ring-red-500/20" placeholder="Original Text..."/>
-          <textarea value={t2} onChange={e=>setT2(e.target.value)} className="flex-1 p-6 rounded-2xl border bg-white dark:bg-slate-900 resize-none outline-none font-mono text-sm leading-relaxed focus:ring-2 ring-green-500/20" placeholder="Modified Text..."/>
+          <textarea value={t1} onChange={e=>setT1(e.target.value)} className="flex-1 p-6 rounded-2xl border border-blue-300 dark:border-blue-600 bg-white dark:bg-slate-800 resize-none outline-none font-mono text-sm leading-relaxed focus:border-red-500 dark:focus:border-red-400 transition-all" placeholder="Original Text..."/>
+          <textarea value={t2} onChange={e=>setT2(e.target.value)} className="flex-1 p-6 rounded-2xl border border-blue-300 dark:border-blue-600 bg-white dark:bg-slate-800 resize-none outline-none font-mono text-sm leading-relaxed focus:border-green-500 dark:focus:border-green-400 transition-all" placeholder="Modified Text..."/>
        </div>
     </div>
   );

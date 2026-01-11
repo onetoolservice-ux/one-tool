@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
-import { Type, Copy } from 'lucide-react';
+import { Type } from 'lucide-react';
+import { Textarea, Button, CopyButton } from '@/app/components/shared';
 
 export const TextTransformer = ({ toolId, title }: { toolId: string, title: string }) => {
   const [input, setInput] = useState("");
@@ -26,33 +27,83 @@ export const TextTransformer = ({ toolId, title }: { toolId: string, title: stri
        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[65vh]">
           {/* INPUT */}
           <div className="flex flex-col h-full">
-             <label className="text-xs font-bold text-slate-500 uppercase mb-2">Input</label>
-             <textarea 
-               value={input} 
-               onChange={e => setInput(e.target.value)}
-               className="flex-1 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 resize-none focus:ring-2 ring-teal-500/20 outline-none text-sm leading-relaxed shadow-sm"
+             <Textarea
+               label="Input"
+               value={input}
+               onChange={(e) => setInput(e.target.value)}
+               rows={12}
                placeholder="Type or paste your text here..."
+               className="flex-1"
              />
           </div>
           
           {/* CONTROLS */}
           <div className="flex flex-col gap-4">
-             <label className="text-xs font-bold text-slate-500 uppercase">Transforms</label>
+             <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase">Transforms</label>
              <div className="grid grid-cols-2 gap-3">
-                <button onClick={() => setInput(transform('upper'))} className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl font-bold text-sm hover:border-teal-500 hover:text-teal-600 transition-all shadow-sm">UPPERCASE</button>
-                <button onClick={() => setInput(transform('lower'))} className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl font-bold text-sm hover:border-teal-500 hover:text-teal-600 transition-all shadow-sm">lowercase</button>
-                <button onClick={() => setInput(transform('title'))} className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl font-bold text-sm hover:border-teal-500 hover:text-teal-600 transition-all shadow-sm">Title Case</button>
-                <button onClick={() => setInput(transform('camel'))} className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl font-bold text-sm hover:border-teal-500 hover:text-teal-600 transition-all shadow-sm">camelCase</button>
-                <button onClick={() => setInput(transform('snake'))} className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl font-bold text-sm hover:border-teal-500 hover:text-teal-600 transition-all shadow-sm">snake_case</button>
-                <button onClick={() => setInput(transform('kebab'))} className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl font-bold text-sm hover:border-teal-500 hover:text-teal-600 transition-all shadow-sm">kebab-case</button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInput(transform('upper'))}
+                  className="hover:border-teal-500 hover:text-teal-600"
+                >
+                  UPPERCASE
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInput(transform('lower'))}
+                  className="hover:border-teal-500 hover:text-teal-600"
+                >
+                  lowercase
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInput(transform('title'))}
+                  className="hover:border-teal-500 hover:text-teal-600"
+                >
+                  Title Case
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInput(transform('camel'))}
+                  className="hover:border-teal-500 hover:text-teal-600"
+                >
+                  camelCase
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInput(transform('snake'))}
+                  className="hover:border-teal-500 hover:text-teal-600"
+                >
+                  snake_case
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInput(transform('kebab'))}
+                  className="hover:border-teal-500 hover:text-teal-600"
+                >
+                  kebab-case
+                </Button>
              </div>
              
-             <div className="mt-auto p-5 bg-slate-900 text-white rounded-2xl flex justify-between items-center shadow-lg">
+             <div className="mt-auto p-5 bg-slate-900 dark:bg-slate-800 text-white rounded-2xl flex justify-between items-center shadow-lg">
                 <div>
                    <p className="text-xs font-bold uppercase text-slate-400 mb-0.5">Character Count</p>
                    <p className="text-xl font-black">{input.length}</p>
                 </div>
-                <button onClick={() => navigator.clipboard.writeText(input)} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center gap-2 text-sm font-bold"><Copy size={16}/> Copy</button>
+                <CopyButton
+                  text={input}
+                  variant="button"
+                  size="sm"
+                  successMessage="Text copied to clipboard"
+                  disabled={!input}
+                  className="bg-white/10 hover:bg-white/20 text-white border-white/20"
+                />
              </div>
           </div>
        </div>

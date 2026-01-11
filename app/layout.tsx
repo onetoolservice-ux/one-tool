@@ -1,18 +1,41 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
 import { GoogleAnalytics } from "@/app/components/analytics/GoogleAnalytics"; 
 import { UIProvider } from "@/app/lib/ui-context";
 import { ToastProvider } from "@/app/components/ui/toast-system";
+import { AuthProvider } from "@/app/contexts/auth-context";
 import GlobalHeader from "@/app/components/layout/GlobalHeader";
 import ScrollToTop from "@/app/components/layout/ScrollToTop";
+import { ErrorBoundary } from "@/app/components/shared/ErrorBoundary";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ 
+  subsets: ["latin"],
+  display: 'swap',
+  preload: true,
+});
 
 export const metadata: Metadata = {
   title: "One Tool Solutions",
   description: "Your all-in-one productivity suite",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "OneTool",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0F111A" },
+  ],
 };
 
 export default function RootLayout({
@@ -23,19 +46,27 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <UIProvider>
-          <ToastProvider>
-            <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-[#0F111A]">
-               <ScrollToTop />
-               <GlobalHeader />
-               <main className="flex-1 w-full max-w-[1800px] mx-auto">
-                 {children}
-               </main>
-            </div>
-            {/* FIX: Using your REAL Measurement ID from the screenshot */}
-            <GoogleAnalytics gaId="G-J4B6SYJZQF" /> 
-          </ToastProvider>
-        </UIProvider>
+        <ErrorBoundary>
+          <AuthProvider>
+            <UIProvider>
+              <ToastProvider>
+                <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-[#0F111A]">
+                   <ScrollToTop />
+                   <GlobalHeader />
+                   <main className="flex-1 w-full max-w-[1800px] mx-auto">
+                     <ErrorBoundary>
+                       {children}
+                     </ErrorBoundary>
+                   </main>
+                </div>
+                {/* Google Analytics - only loads if NEXT_PUBLIC_ENABLE_ANALYTICS=true and NEXT_PUBLIC_GA_ID is set */}
+                {process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true' && (
+                  <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+                )} 
+              </ToastProvider>
+            </UIProvider>
+          </AuthProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

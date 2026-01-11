@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useRef } from 'react';
 import { User, MapPin, Phone, Download, Upload, CreditCard, Repeat, Palette, Shield } from 'lucide-react';
-import html2canvas from 'html2canvas';
+import { showToast } from '@/app/shared/Toast';
+import { MAX_IMAGE_FILE_SIZE } from '@/app/lib/constants';
 
 export const IdCardMaker = () => {
   const [side, setSide] = useState<'front' | 'back'>('front');
@@ -9,13 +10,31 @@ export const IdCardMaker = () => {
   const [data, setData] = useState({ 
     name: "Sarah Connor", role: "Security Chief", id: "SKY-900", loc: "Los Angeles", 
     phone: "+1 987 654 3210", blood: "O+", emergency: "John (Husband)",
+    address: "123 Innovation Dr, Tech City, Bangalore, India",
     terms: "If found, please return to OneTool HQ." // Added state for terms
   });
   const [photo, setPhoto] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
   const handlePhoto = (e: any) => {
-    if (e.target.files[0]) setPhoto(URL.createObjectURL(e.target.files[0]));
+    if (!e.target.files?.[0]) return;
+    
+    const uploadedFile = e.target.files[0];
+    
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(uploadedFile.type)) {
+      showToast('Please upload a JPG, PNG, WEBP, or GIF image', 'error');
+      return;
+    }
+    
+    // Validate file size (10MB limit)
+    if (uploadedFile.size > MAX_IMAGE_FILE_SIZE) {
+      showToast('Image exceeds 10MB size limit', 'error');
+      return;
+    }
+    
+    setPhoto(URL.createObjectURL(uploadedFile));
   };
 
   const download = async () => {
@@ -23,6 +42,9 @@ export const IdCardMaker = () => {
     const el = cardRef.current;
     const originalTransform = el.style.transform;
     el.style.transform = "none";
+    
+    // Dynamic import to fix Turbopack build issue
+    const html2canvas = (await import('html2canvas')).default;
     const canvas = await html2canvas(el, { scale: 3, backgroundColor: null });
     const link = document.createElement('a');
     link.download = `ID_Card_${side}.png`;
@@ -38,12 +60,12 @@ export const IdCardMaker = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-12 p-8 max-w-6xl mx-auto h-[calc(100vh-80px)] items-center">
+    <div className="flex flex-col lg:flex-row gap-4 p-4 w-full h-[calc(100vh-80px)] overflow-hidden">
        
        {/* LEFT: CONTROLS */}
-       <div className="w-full lg:w-1/3 space-y-6 bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-y-auto max-h-full custom-scrollbar">
+       <div className="w-full lg:w-[360px] space-y-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-y-auto custom-scrollbar flex-shrink-0">
           <div className="flex items-center justify-between mb-2">
-             <h2 className="text-xl font-bold flex items-center gap-2"><CreditCard className="text-teal-600"/> ID Builder</h2>
+             <h2 className="text-xl font-bold flex items-center gap-2"><CreditCard className="text-blue-600"/> ID Builder</h2>
              <div className="flex gap-2">
                 {Object.keys(themes).map(t => (
                    <button key={t} onClick={()=>setTheme(t)} className={`w-6 h-6 rounded-full ${themes[t].split(' ')[0]} border-2 border-white shadow-sm hover:scale-110 transition-transform ring-1 ring-slate-200`}></button>
@@ -52,16 +74,16 @@ export const IdCardMaker = () => {
           </div>
 
           <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl mb-6">
-             <button onClick={()=>setSide('front')} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${side==='front'?'bg-white dark:bg-slate-700 shadow text-teal-600':'text-slate-500'}`}>Front Side</button>
-             <button onClick={()=>setSide('back')} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${side==='back'?'bg-white dark:bg-slate-700 shadow text-teal-600':'text-slate-500'}`}>Back Side</button>
+             <button onClick={()=>setSide('front')} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${side==='front'?'bg-white dark:bg-slate-700 shadow text-blue-600':'text-slate-500'}`}>Front Side</button>
+             <button onClick={()=>setSide('back')} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${side==='back'?'bg-white dark:bg-slate-700 shadow text-blue-600':'text-slate-500'}`}>Back Side</button>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
              {side === 'front' ? (
                 <>
-                   <input value={data.name} onChange={e=>setData({...data, name: e.target.value})} className="w-full p-3 border rounded-xl text-sm font-bold bg-transparent" placeholder="Full Name"/>
-                   <input value={data.role} onChange={e=>setData({...data, role: e.target.value})} className="w-full p-3 border rounded-xl text-sm bg-transparent" placeholder="Role / Title"/>
-                   <input value={data.id} onChange={e=>setData({...data, id: e.target.value})} className="w-full p-3 border rounded-xl text-sm bg-transparent" placeholder="ID Number"/>
+                   <input value={data.name} onChange={e=>setData({...data, name: e.target.value})} className="w-full p-3 border border-blue-300 dark:border-blue-600 rounded-xl text-sm font-bold bg-white dark:bg-slate-800 outline-none transition-all" placeholder="Full Name"/>
+                   <input value={data.role} onChange={e=>setData({...data, role: e.target.value})} className="w-full p-3 border border-blue-300 dark:border-blue-600 rounded-xl text-sm bg-white dark:bg-slate-800 outline-none transition-all" placeholder="Role / Title"/>
+                   <input value={data.id} onChange={e=>setData({...data, id: e.target.value})} className="w-full p-3 border border-blue-300 dark:border-blue-600 rounded-xl text-sm bg-white dark:bg-slate-800 outline-none transition-all" placeholder="ID Number"/>
                    <label className="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                       <div className="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center"><Upload size={16}/></div>
                       <span className="text-sm font-bold text-slate-500">Upload Photo</span>
@@ -70,26 +92,27 @@ export const IdCardMaker = () => {
                 </>
              ) : (
                 <>
-                   <input value={data.blood} onChange={e=>setData({...data, blood: e.target.value})} className="w-full p-3 border rounded-xl text-sm bg-transparent" placeholder="Blood Group"/>
-                   <input value={data.emergency} onChange={e=>setData({...data, emergency: e.target.value})} className="w-full p-3 border rounded-xl text-sm bg-transparent" placeholder="Emergency Contact"/>
-                   <input value={data.phone} onChange={e=>setData({...data, phone: e.target.value})} className="w-full p-3 border rounded-xl text-sm bg-transparent" placeholder="Phone Number"/>
+                   <input value={data.blood} onChange={e=>setData({...data, blood: e.target.value})} className="w-full p-3 border border-blue-300 dark:border-blue-600 rounded-xl text-sm bg-white dark:bg-slate-800 outline-none transition-all" placeholder="Blood Group"/>
+                   <input value={data.emergency} onChange={e=>setData({...data, emergency: e.target.value})} className="w-full p-3 border border-blue-300 dark:border-blue-600 rounded-xl text-sm bg-white dark:bg-slate-800 outline-none transition-all" placeholder="Emergency Contact"/>
+                   <input value={data.phone} onChange={e=>setData({...data, phone: e.target.value})} className="w-full p-3 border border-blue-300 dark:border-blue-600 rounded-xl text-sm bg-white dark:bg-slate-800 outline-none transition-all" placeholder="Phone Number"/>
+                   <input value={data.address} onChange={e=>setData({...data, address: e.target.value})} className="w-full p-3 border border-blue-300 dark:border-blue-600 rounded-xl text-sm bg-white dark:bg-slate-800 outline-none transition-all" placeholder="Address"/>
                    <textarea 
                      value={data.terms} 
                      onChange={e=>setData({...data, terms: e.target.value})}
-                     className="w-full p-3 border rounded-xl text-sm bg-transparent h-24 resize-none" 
+                     className="w-full p-3 border border-blue-300 dark:border-blue-600 rounded-xl text-sm bg-white dark:bg-slate-800 h-24 resize-none outline-none transition-all" 
                      placeholder="Terms & Conditions..."
                    />
                 </>
              )}
           </div>
           
-          <button onClick={download} className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-4 rounded-xl font-bold shadow-lg flex justify-center gap-2 hover:scale-[1.02] transition-transform">
+          <button onClick={download} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold shadow-lg flex justify-center gap-2 hover:scale-[1.02] transition-all">
              <Download size={18}/> Download {side === 'front' ? 'Front' : 'Back'}
           </button>
        </div>
 
        {/* RIGHT: 3D PREVIEW */}
-       <div className="flex-1 flex justify-center perspective-1000">
+       <div className="flex-1 flex justify-center items-center perspective-1000 overflow-hidden p-4">
           <div 
              ref={cardRef}
              className={`
@@ -109,7 +132,7 @@ export const IdCardMaker = () => {
                 
                 <div className="mt-20 text-center px-6">
                    <h1 className="text-3xl font-black text-slate-900">{data.name}</h1>
-                   <p className="text-teal-600 font-bold uppercase tracking-widest text-xs mt-1">{data.role}</p>
+                   <p className="text-blue-600 font-bold uppercase tracking-widest text-xs mt-1">{data.role}</p>
                 </div>
 
                 <div className="mt-10 px-8 space-y-4">
@@ -147,7 +170,7 @@ export const IdCardMaker = () => {
 
                 <div className="mt-auto text-xs text-slate-500 leading-relaxed">
                    <p className="mb-4">{data.terms}</p>
-                   <p>123 Innovation Dr, Tech City, Bangalore, India</p>
+                   <p>{data.address}</p>
                 </div>
              </div>
           </div>

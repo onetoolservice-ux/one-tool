@@ -1,6 +1,7 @@
 "use client"; // Error components must be Client Components
 import { useEffect } from "react";
 import { AlertTriangle, RefreshCw } from "lucide-react";
+import { logger } from "@/app/lib/utils/logger";
 
 export default function Error({
   error,
@@ -10,7 +11,7 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error(error);
+    logger.error('Application error:', error);
   }, [error]);
 
   return (

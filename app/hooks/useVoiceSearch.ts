@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ALL_TOOLS } from "@/app/lib/tools-data";
+import { showToast } from "@/app/shared/Toast";
 
 export function useVoiceSearch() {
   const [isListening, setIsListening] = useState(false);
@@ -10,7 +11,7 @@ export function useVoiceSearch() {
 
   const startListening = useCallback(() => {
     if (!('webkitSpeechRecognition' in window)) {
-      alert("Voice search is not supported in this browser.");
+      showToast("Voice search is not supported in this browser.", "error");
       return;
     }
 

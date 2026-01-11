@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getTheme } from "@/app/lib/theme-config";
 import { Star } from "lucide-react";
 import React, { useState, useEffect } from "react";
+import { safeLocalStorage } from "@/app/lib/utils/storage";
 
 export default function ToolTile({ tool }: { tool: any }) {
   const theme = getTheme(tool.category);
@@ -10,21 +11,27 @@ export default function ToolTile({ tool }: { tool: any }) {
   const [isFav, setIsFav] = useState(false);
 
   useEffect(() => {
-    const favs = JSON.parse(localStorage.getItem("onetool-favorites") || "[]");
+    const favs = safeLocalStorage.getItem<string[]>("onetool-favorites", []);
     setIsFav(favs.includes(tool.id));
   }, [tool.id]);
 
   const toggleFav = (e: React.MouseEvent) => {
-    e.preventDefault(); e.stopPropagation();
-    const favs = JSON.parse(localStorage.getItem("onetool-favorites") || "[]");
-    const newFavs = favs.includes(tool.id) ? favs.filter((id: string) => id !== tool.id) : [...favs, tool.id];
-    localStorage.setItem("onetool-favorites", JSON.stringify(newFavs));
-    setIsFav(!isFav);
-    window.dispatchEvent(new Event("storage")); 
+    e.preventDefault(); 
+    e.stopPropagation();
+    
+    const favs = safeLocalStorage.getItem<string[]>("onetool-favorites", []);
+    const newFavs = favs.includes(tool.id) 
+      ? favs.filter((id: string) => id !== tool.id) 
+      : [...favs, tool.id];
+    
+    if (safeLocalStorage.setItem("onetool-favorites", newFavs)) {
+      setIsFav(!isFav);
+      window.dispatchEvent(new Event("storage"));
+    }
   };
 
   return (
-    <Link href={href} className="group relative block h-full">
+    <Link href={href} className="group relative block h-full" aria-label={`Open ${tool.name} tool`}>
       <article className={`relative h-full p-5 rounded-lg bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-300 flex flex-col hover:-translate-y-1 hover:shadow-xl ${theme.shadow}`}>
         <div className="flex items-start justify-between mb-5">
           <div className={`w-14 h-14 min-w-[56px] min-h-[56px] flex items-center justify-center rounded-2xl text-white shadow-md transform group-hover:scale-110 transition-transform duration-300 ${theme.iconBg}`}>

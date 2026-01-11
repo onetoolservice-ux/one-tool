@@ -97,8 +97,9 @@ export const UnitConverter = () => {
 
   // Init
   useEffect(() => {
-    const saved = localStorage.getItem('unit-history');
-    if (saved) setHistory(JSON.parse(saved));
+    const { safeLocalStorage } = require('@/app/lib/utils/storage');
+    const saved = safeLocalStorage.getItem<string[]>('unit-history', []);
+    if (saved) setHistory(saved);
     initUnits(category);
   }, []);
 
@@ -193,8 +194,9 @@ export const UnitConverter = () => {
      if (result && result !== '---' && result !== 'Invalid HEX') {
         const entry = `${inputVal} ${fromUnit} → ${result} ${toUnit}`;
         setHistory(prev => {
+           const { safeLocalStorage } = require('@/app/lib/utils/storage');
            const n = [entry, ...prev.filter(e => e !== entry)].slice(0, 5);
-           localStorage.setItem('unit-history', JSON.stringify(n));
+           safeLocalStorage.setItem('unit-history', n);
            return n;
         });
      }
@@ -275,7 +277,7 @@ export const UnitConverter = () => {
                               type={category === 'Color' ? 'text' : 'number'} 
                               value={inputVal} 
                               onChange={e=>setInputVal(e.target.value)} 
-                              className="flex-1 bg-slate-50 dark:bg-slate-800 border-none rounded-xl p-3 font-mono text-lg outline-none focus:ring-2 ring-blue-500/20"
+                              className="flex-1 bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-600 rounded-xl p-3 font-mono text-lg outline-none transition-all"
                            />
                         </div>
                      </div>
@@ -333,7 +335,11 @@ export const UnitConverter = () => {
                   <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800">
                      <div className="flex justify-between items-center mb-4">
                         <h3 className="font-bold text-sm">History</h3>
-                        <button onClick={()=>{setHistory([]);localStorage.removeItem('unit-history')}} className="text-[10px] text-rose-500 hover:underline">Clear</button>
+                        <button onClick={()=>{
+                          const { safeLocalStorage } = require('@/app/lib/utils/storage');
+                          setHistory([]);
+                          safeLocalStorage.removeItem('unit-history');
+                        }} className="text-[10px] text-rose-500 hover:underline">Clear</button>
                      </div>
                      <p className="text-xs text-slate-400 mb-4">Recent conversions (auto-saved)</p>
                      <div className="space-y-2">

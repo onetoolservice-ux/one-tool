@@ -1,7 +1,10 @@
 "use client";
 import React, { useState } from 'react';
-import { RefreshCw, ArrowRight, Download, Upload, Check, Image as ImageIcon } from 'lucide-react';
+import { RefreshCw, ArrowRight, Download, Upload, Check, FileText } from 'lucide-react';
 import jsPDF from 'jspdf';
+import { Button } from '@/app/components/shared';
+import { showToast } from '@/app/shared/Toast';
+import { MAX_IMAGE_FILE_SIZE } from '@/app/lib/constants';
 
 export const ImageConverter = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -10,10 +13,25 @@ export const ImageConverter = () => {
   const [loading, setLoading] = useState(false);
 
   const handleUpload = (e: any) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-      setConverted(null);
+    if (!e.target.files?.[0]) return;
+    
+    const uploadedFile = e.target.files[0];
+    
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/bmp'];
+    if (!allowedTypes.includes(uploadedFile.type)) {
+      showToast(`${uploadedFile.name} is not a supported image format`, 'error');
+      return;
     }
+    
+    // Validate file size (10MB limit)
+    if (uploadedFile.size > MAX_IMAGE_FILE_SIZE) {
+      showToast(`${uploadedFile.name} exceeds 10MB size limit`, 'error');
+      return;
+    }
+    
+    setFile(uploadedFile);
+    setConverted(null);
   };
 
   const convert = async () => {
@@ -24,39 +42,58 @@ export const ImageConverter = () => {
     await new Promise(r => setTimeout(r, 500));
 
     if (format === 'application/pdf') {
-       const pdf = new jsPDF();
-       const img = new Image();
-       img.src = URL.createObjectURL(file);
-       img.onload = () => {
-          const width = pdf.internal.pageSize.getWidth();
-          const height = (img.height * width) / img.width;
-          pdf.addImage(img, 'JPEG', 0, 0, width, height);
-          setConverted(pdf.output('bloburl').toString()); // Correct way to get blob URL in modern jsPDF? 
-          // Actually, for blob URL in newer jsPDF, usually pdf.output('bloburi') or we generate blob and create URL.
-          // Let's use a simpler approach for the demo that works consistently:
-          const blob = pdf.output('blob');
-          setConverted(URL.createObjectURL(blob));
-          setLoading(false);
-       };
+       try {
+         const pdf = new jsPDF();
+         const img = new Image();
+         img.src = URL.createObjectURL(file);
+         img.onload = () => {
+            const width = pdf.internal.pageSize.getWidth();
+            const height = (img.height * width) / img.width;
+            pdf.addImage(img, 'JPEG', 0, 0, width, height);
+            const blob = pdf.output('blob');
+            setConverted(URL.createObjectURL(blob));
+            setLoading(false);
+            showToast('Image converted to PDF successfully', 'success');
+         };
+         img.onerror = () => {
+           showToast('Failed to load image. It may be corrupted.', 'error');
+           setLoading(false);
+         };
+       } catch (error) {
+         const message = error instanceof Error ? error.message : 'Failed to convert image';
+         showToast(message || 'Conversion failed. Please try again.', 'error');
+         setLoading(false);
+       }
     } else {
-       const img = new Image();
-       img.src = URL.createObjectURL(file);
-       img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-             // Fill white background for JPEGs (transparency fix)
-             if (format === 'image/jpeg') {
-                ctx.fillStyle = '#FFF';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-             }
-             ctx.drawImage(img, 0, 0);
-             setConverted(canvas.toDataURL(format));
-          }
-          setLoading(false);
-       };
+       try {
+         const img = new Image();
+         img.src = URL.createObjectURL(file);
+         img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+               // Fill white background for JPEGs (transparency fix)
+               if (format === 'image/jpeg') {
+                  ctx.fillStyle = '#FFF';
+                  ctx.fillRect(0, 0, canvas.width, canvas.height);
+               }
+               ctx.drawImage(img, 0, 0);
+               setConverted(canvas.toDataURL(format));
+               showToast(`Image converted to ${format.split('/')[1].toUpperCase()} successfully`, 'success');
+            }
+            setLoading(false);
+         };
+         img.onerror = () => {
+           showToast('Failed to load image. It may be corrupted.', 'error');
+           setLoading(false);
+         };
+       } catch (error) {
+         const message = error instanceof Error ? error.message : 'Failed to convert image';
+         showToast(message || 'Conversion failed. Please try again.', 'error');
+         setLoading(false);
+       }
     }
   };
 
@@ -86,10 +123,16 @@ export const ImageConverter = () => {
                       <option value="application/pdf">PDF</option>
                    </select>
                 </div>
-                <button onClick={convert} disabled={loading} className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-2 rounded-xl font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-opacity">
-                   {loading ? <RefreshCw size={14} className="animate-spin"/> : <ArrowRight size={14}/>}
-                   {loading ? "Converting..." : "Convert Now"}
-                </button>
+                <Button
+                  variant="primary"
+                  size="md"
+                  onClick={convert}
+                  loading={loading}
+                  icon={!loading ? <ArrowRight size={14} /> : undefined}
+                  className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90"
+                >
+                  {loading ? "Converting..." : "Convert Now"}
+                </Button>
              </div>
           )}
        </div>
@@ -113,7 +156,7 @@ export const ImageConverter = () => {
                <div className="flex flex-col items-center h-full justify-center">
                   <div className="relative group max-h-[400px]">
                      <img src={URL.createObjectURL(file)} className="max-h-[300px] object-contain rounded-xl shadow-lg border border-slate-200 dark:border-slate-700"/>
-                     <button onClick={()=>setFile(null)} className="absolute -top-3 -right-3 p-2 bg-slate-900 text-white rounded-full hover:bg-rose-500 transition-colors shadow-md">
+                     <button onClick={()=>setFile(null)} className="absolute -top-3 -right-3 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors shadow-md">
                         <RefreshCw size={14}/>
                      </button>
                   </div>
@@ -146,7 +189,7 @@ export const ImageConverter = () => {
                         <a 
                           href={converted} 
                           download={`converted-image.${format === 'application/pdf' ? 'pdf' : format.split('/')[1]}`} 
-                          className="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-indigo-700 shadow-lg transition-transform hover:-translate-y-1 w-full max-w-xs mx-auto"
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition-all hover:-translate-y-1 w-full max-w-xs mx-auto"
                         >
                            <Download size={16}/> Download {format === 'application/pdf' ? 'PDF' : format.split('/')[1].toUpperCase()}
                         </a>

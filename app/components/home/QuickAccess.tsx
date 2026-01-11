@@ -16,8 +16,8 @@ export default function QuickAccess() {
   return (
     <div className="mb-10">
       <div className="flex items-center gap-2 mb-4 px-1">
-        <Clock size={14} className="text-gray-400" />
-        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Recent</span>
+        <Clock size={14} className="text-gray-500 dark:text-gray-400" />
+        <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Recent</span>
       </div>
       <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-6 px-6 md:mx-0 md:px-0">
         {recentTools.map((tool) => (
@@ -30,7 +30,7 @@ export default function QuickAccess() {
                 <h3 className="font-bold text-sm text-gray-900 dark:text-white truncate pr-2">{tool.title}</h3>
                 {tool.badge && <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-500/20 dark:text-emerald-400 px-1.5 py-0.5 rounded">{tool.badge}</span>}
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 leading-snug line-clamp-2">{tool.desc}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-300 leading-snug line-clamp-2">{tool.desc}</p>
             </div>
           </Link>
         ))}

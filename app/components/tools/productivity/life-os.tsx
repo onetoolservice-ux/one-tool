@@ -53,18 +53,35 @@ export function LifeOS() {
 
   useEffect(() => {
     setMounted(true);
-    const savedTasks = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (savedTasks) setTasks(JSON.parse(savedTasks));
+    const { safeLocalStorage } = require('@/app/lib/utils/storage');
+    const savedTasks = safeLocalStorage.getItem<Task[]>(LOCAL_STORAGE_KEY, []);
+    if (savedTasks && savedTasks.length > 0) setTasks(savedTasks);
     else {
        const today = new Date().toISOString().split('T')[0];
        setTasks([{ id: 1, text: "Welcome to Life OS", completed: false, type: 'priority', category: "Personal", date: today }]);
     }
   }, []);
 
-  useEffect(() => { if(mounted) localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tasks)); }, [tasks, mounted]);
+  useEffect(() => { 
+    if(mounted) {
+      const { safeLocalStorage } = require('@/app/lib/utils/storage');
+      safeLocalStorage.setItem(LOCAL_STORAGE_KEY, tasks);
+    }
+  }, [tasks, mounted]);
 
   // --- CRUD HANDLERS ---
-  const addTask = (params: any) => {
+  interface AddTaskParams {
+    title: string;
+    date: string;
+    category: string;
+    startTime?: string;
+    endTime?: string;
+    isRecurring?: boolean;
+    recurrenceEndDate?: string;
+    parentWeeklyId?: number;
+  }
+
+  const addTask = (params: AddTaskParams) => {
       const { title, date, category, startTime, endTime, isRecurring, recurrenceEndDate, parentWeeklyId } = params;
 
       const conflict = checkConflict(tasks, date, startTime || '', endTime || '');

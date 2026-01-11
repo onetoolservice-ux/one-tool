@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
+import Script from 'next/script';
 import { useSearchParams, useRouter } from 'next/navigation';
 import CategoryNav from '@/app/components/home/CategoryNav';
 import { ToolGrid } from '@/app/components/home/tool-grid';
@@ -37,11 +38,14 @@ function HomeContent() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-64px)] bg-gray-50 dark:bg-[#0F111A] transition-colors duration-300 overflow-hidden">
-      {/* Schema injected here */}
-      <script
+      {/* Schema injected here - Safe JSON-LD injection */}
+      <Script
+        id="home-schema"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+        strategy="afterInteractive"
+      >
+        {JSON.stringify(jsonLd)}
+      </Script>
       
       <CategoryNav active={activeCategory} onChange={handleCategoryChange} />
 

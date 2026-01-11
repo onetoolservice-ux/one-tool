@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
-import { Search, Terminal, Copy } from 'lucide-react';
+import { Search } from 'lucide-react';
+import { Input, CopyButton } from '@/app/components/shared';
 
 export const GitCheats = () => {
   const [search, setSearch] = useState("");
@@ -24,14 +25,14 @@ export const GitCheats = () => {
 
   return (
     <div className="max-w-3xl mx-auto h-[600px] flex flex-col">
-       <div className="relative mb-6">
-          <Search className="absolute left-4 top-3.5 text-slate-400" size={20} />
-          <input 
-            type="text" 
-            placeholder="Search commands (e.g. 'undo', 'branch')..." 
+       <div className="mb-6">
+          <Input
+            type="text"
+            placeholder="Search commands (e.g. 'undo', 'branch')..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-xl pl-12 pr-4 py-3 text-base font-medium outline-none focus:border-indigo-500 transition-colors"
+            icon={<Search size={20} />}
+            className="text-base"
           />
        </div>
        
@@ -42,9 +43,12 @@ export const GitCheats = () => {
                    <code className="text-indigo-600 dark:text-indigo-400 font-bold font-mono text-sm bg-indigo-50 dark:bg-indigo-900/20 px-2 py-1 rounded">{c.cmd}</code>
                    <p className="text-slate-500 text-xs mt-1 font-medium">{c.desc}</p>
                 </div>
-                <button onClick={() => navigator.clipboard.writeText(c.cmd)} className="p-2 text-slate-300 hover:text-[#638c80] transition-colors opacity-0 group-hover:opacity-100">
-                   <Copy size={16}/>
-                </button>
+                <CopyButton
+                  text={c.cmd}
+                  className="opacity-0 group-hover:opacity-100"
+                  variant="ghost"
+                  size="sm"
+                />
              </div>
           ))}
        </div>

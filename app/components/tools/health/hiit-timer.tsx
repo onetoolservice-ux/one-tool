@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, RotateCcw, Plus, X, Dumbbell, Coffee, Volume2, VolumeX } from 'lucide-react';
+import { showToast } from '@/app/shared/Toast';
 
 export const HIITTimer = () => {
   // SETTINGS
@@ -24,12 +25,45 @@ export const HIITTimer = () => {
 
   // --- LOGIC ---
   useEffect(() => {
-    if (active && timeLeft > 0) {
-      timerRef.current = setInterval(() => setTimeLeft((t) => t - 1), 1000);
-    } else if (active && timeLeft === 0) {
+    if (!active) {
+      // Clear interval when timer is paused/stopped
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      return;
+    }
+
+    if (timeLeft > 0) {
+      // Start interval only if not already running
+      if (!timerRef.current) {
+        timerRef.current = setInterval(() => {
+          setTimeLeft((t) => {
+            if (t <= 1) {
+              // Clear interval before phase change
+              if (timerRef.current) {
+                clearInterval(timerRef.current);
+                timerRef.current = null;
+              }
+              // Trigger phase change on next tick
+              setTimeout(() => handlePhaseChange(), 0);
+              return 0;
+            }
+            return t - 1;
+          });
+        }, 1000);
+      }
+    } else if (timeLeft === 0 && active) {
+      // Phase change needed
       handlePhaseChange();
     }
-    return () => clearInterval(timerRef.current!);
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
   }, [active, timeLeft]);
 
   const playBeep = () => {
@@ -54,7 +88,7 @@ export const HIITTimer = () => {
       if (currentExIndex >= exercises.length - 1) {
          if (currentRound >= rounds) {
             setActive(false);
-            alert("WORKOUT COMPLETE! 💪");
+            showToast("WORKOUT COMPLETE! 💪", 'success');
             reset();
             return;
          }
@@ -100,7 +134,7 @@ export const HIITTimer = () => {
              </span>
           </div>
 
-          <div className="text-[10rem] leading-none font-black tabular-nums text-slate-900 dark:text-white mb-4">
+          <div className="text-[10rem] leading-none font-bold tabular-nums text-slate-900 dark:text-white mb-4">
              {timeLeft}
           </div>
 
@@ -109,15 +143,15 @@ export const HIITTimer = () => {
           </div>
 
           <div className="flex gap-4 mb-8">
-             <span className="px-4 py-1 bg-white dark:bg-slate-800 rounded-full text-xs font-bold text-slate-400 border">Round {currentRound}/{rounds}</span>
-             <span className="px-4 py-1 bg-white dark:bg-slate-800 rounded-full text-xs font-bold text-slate-400 border">Ex {currentExIndex + 1}/{exercises.length}</span>
+             <span className="px-4 py-1 bg-white dark:bg-slate-800 rounded-full text-xs font-bold text-slate-600 dark:text-slate-300 border">Round {currentRound}/{rounds}</span>
+             <span className="px-4 py-1 bg-white dark:bg-slate-800 rounded-full text-xs font-bold text-slate-600 dark:text-slate-300 border">Ex {currentExIndex + 1}/{exercises.length}</span>
           </div>
 
           <div className="flex gap-4">
              <button onClick={() => setActive(!active)} className="w-20 h-20 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-xl">
                 {active ? <Pause size={32} fill="currentColor"/> : <Play size={32} fill="currentColor" className="ml-1"/>}
              </button>
-             <button onClick={reset} className="w-20 h-20 bg-white dark:bg-slate-800 text-slate-400 rounded-full flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shadow-md">
+             <button onClick={reset} className="w-20 h-20 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shadow-md">
                 <RotateCcw size={28}/>
              </button>
           </div>
@@ -151,7 +185,7 @@ export const HIITTimer = () => {
              {exercises.map((ex, i) => (
                 <div key={i} className={`p-3 rounded-xl flex justify-between items-center ${i === currentExIndex && active ? 'bg-indigo-600 text-white shadow-md' : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300'}`}>
                    <span className="text-sm font-medium"><span className="opacity-50 mr-3">{i+1}.</span>{ex}</span>
-                   <button onClick={() => removeExercise(i)} className="opacity-50 hover:opacity-100 hover:text-red-400"><X size={14}/></button>
+                   <button onClick={() => removeExercise(i)} className="opacity-50 hover:opacity-100 hover:text-red-400" aria-label={`Remove ${ex}`} title={`Remove ${ex}`}><X size={14}/></button>
                 </div>
              ))}
           </div>
@@ -161,10 +195,10 @@ export const HIITTimer = () => {
                value={newEx} 
                onChange={e=>setNewEx(e.target.value)} 
                onKeyDown={e=>e.key==='Enter'&&addExercise()}
-               className="flex-1 bg-slate-50 dark:bg-slate-800 px-4 py-3 rounded-xl text-sm outline-none border border-transparent focus:border-indigo-500" 
+               className="flex-1 bg-white dark:bg-slate-800 px-4 py-3 rounded-xl text-sm outline-none border border-blue-300 dark:border-blue-600 transition-all" 
                placeholder="Add exercise..."
              />
-             <button onClick={addExercise} className="bg-indigo-600 text-white p-3 rounded-xl hover:bg-indigo-700"><Plus size={20}/></button>
+             <button onClick={addExercise} className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl transition-colors"><Plus size={20}/></button>
           </div>
        </div>
     </div>

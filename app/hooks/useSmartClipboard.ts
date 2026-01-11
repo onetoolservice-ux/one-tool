@@ -82,8 +82,7 @@ export function useSmartClipboard() {
         setSuggestion(match);
       }
     } catch (error) {
-      // Clipboard permission denied or empty
-      console.log("Clipboard access denied or empty");
+      // Clipboard permission denied or empty - silently handle
     }
   }, []);
 
@@ -92,7 +91,7 @@ export function useSmartClipboard() {
     
     // Save data to a temporary "Clipboard Handover" slot in localStorage
     // The target tool will read this when it opens.
-    localStorage.setItem(`onetool_${suggestion.id}_input`, suggestion.data);
+    safeLocalStorage.setItem(`onetool_${suggestion.id}_input`, suggestion.data);
     
     // Navigate
     router.push(suggestion.href);

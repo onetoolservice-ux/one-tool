@@ -1,10 +1,17 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { Plus, X, ArrowRight, ArrowLeft, CheckCircle, Circle, PlayCircle, Trash2, Calendar, Link } from 'lucide-react';
+import { safeLocalStorage } from '@/app/lib/utils/storage';
 
 const STORAGE_KEY = 'lifeos_weekly_kanban';
 
-export const WeeklyView = ({ tasks, addTask, theme }: any) => {
+interface WeeklyViewProps {
+  tasks: any[];
+  addTask: (params: any) => void;
+  theme: any;
+}
+
+export const WeeklyView = ({ tasks, addTask, theme }: WeeklyViewProps) => {
   const t = theme;
   const [mounted, setMounted] = useState(false);
   const [items, setItems] = useState<any[]>([]);
@@ -12,12 +19,14 @@ export const WeeklyView = ({ tasks, addTask, theme }: any) => {
 
   useEffect(() => {
     setMounted(true);
-    const s = localStorage.getItem(STORAGE_KEY);
-    if (s) setItems(JSON.parse(s));
+    const savedItems = safeLocalStorage.getItem<any[]>(STORAGE_KEY, null);
+    if (savedItems) setItems(savedItems);
     else setItems([{ id: 1, text: "Launch MVP", status: 'inprogress' }]);
   }, []);
 
-  useEffect(() => { if(mounted) localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); }, [items, mounted]);
+  useEffect(() => { 
+    if(mounted) safeLocalStorage.setItem(STORAGE_KEY, items); 
+  }, [items, mounted]);
 
   const addItem = (text: string, status: string) => setItems([...items, { id: Date.now(), text, status }]);
   const deleteItem = (id: number) => setItems(items.filter(i => i.id !== id));

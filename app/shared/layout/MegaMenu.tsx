@@ -47,7 +47,7 @@ export default function MegaMenu({ onClose }: { onClose: () => void }) {
 
       {/* Footer Link (Full Width) */}
       <div className="col-span-1 md:col-span-3 pt-4 border-t border-slate-50 flex justify-end">
-        <Link href="/tools" onClick={onClose} className="group inline-flex items-center text-xs font-bold text-muted dark:text-muted dark:text-muted dark:text-muted hover:text-teal-600 dark:text-teal-400 transition-colors">
+        <Link href="/tools" onClick={onClose} aria-label="View all tools" className="group inline-flex items-center text-xs font-bold text-muted dark:text-muted dark:text-muted dark:text-muted hover:text-teal-600 dark:text-teal-400 transition-colors">
           View All Tools <ArrowRight size={14} className="ml-1 group-hover:translate-x-1 transition-transform"/>
         </Link>
       </div>
@@ -58,7 +58,7 @@ export default function MegaMenu({ onClose }: { onClose: () => void }) {
 
 function MenuLink({ href, icon, title, desc, onClose }: any) {
   return (
-    <Link href={href} onClick={onClose} className="flex items-start gap-3 p-3 rounded-xl hover:bg-background dark:bg-surface dark:bg-slate-950 transition-colors group">
+    <Link href={href} onClick={onClose} aria-label={`Open ${title} tool`} className="flex items-start gap-3 p-3 rounded-xl hover:bg-background dark:bg-surface dark:bg-slate-950 transition-colors group">
       <div className="mt-0.5 text-muted/70 group-hover:text-teal-600 dark:text-teal-400 transition-colors">{icon}</div>
       <div>
         <div className="text-sm font-semibold text-main dark:text-slate-300 group-hover:text-main dark:text-slate-50 dark:text-slate-100">{title}</div>

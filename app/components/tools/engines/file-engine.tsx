@@ -2,6 +2,9 @@
 import React, { useState } from 'react';
 import { UploadCloud, Download, Image as ImageIcon, FileText, ScanLine, CheckCircle, RefreshCw, X } from 'lucide-react';
 import jsPDF from 'jspdf';
+import { showToast } from '@/app/shared/Toast';
+import { logger } from '@/app/lib/utils/logger';
+import { MAX_IMAGE_FILE_SIZE, MAX_PDF_FILE_SIZE } from '@/app/lib/constants';
 
 interface FileEngineProps {
   toolId: string;
@@ -15,13 +18,30 @@ export const FileEngine = ({ toolId, title }: FileEngineProps) => {
   const [done, setDone] = useState(false);
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const f = e.target.files[0];
-      console.log("File selected:", f.name); // Debug log
-      setFile(f);
-      setPreview(URL.createObjectURL(f));
-      setDone(false);
+    if (!e.target.files?.[0]) return;
+    
+    const uploadedFile = e.target.files[0];
+    
+    // Validate file type
+    const isImage = uploadedFile.type.startsWith('image/');
+    const isPDF = uploadedFile.type === 'application/pdf';
+    
+    if (!isImage && !isPDF) {
+      showToast(`${uploadedFile.name} is not a supported file format`, 'error');
+      return;
     }
+    
+    // Validate file size
+    const maxSize = isPDF ? MAX_PDF_FILE_SIZE : MAX_IMAGE_FILE_SIZE;
+    if (uploadedFile.size > maxSize) {
+      const maxSizeMB = Math.round(maxSize / (1024 * 1024));
+      showToast(`${uploadedFile.name} exceeds ${maxSizeMB}MB size limit`, 'error');
+      return;
+    }
+    
+    setFile(uploadedFile);
+    setPreview(isImage ? URL.createObjectURL(uploadedFile) : null);
+    setDone(false);
   };
 
   const clearFile = () => {
@@ -51,8 +71,11 @@ export const FileEngine = ({ toolId, title }: FileEngineProps) => {
         link.click();
       }
       setDone(true);
-    } catch (e) {
-      alert("Error processing file");
+      showToast('File processed successfully', 'success');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to process file';
+      showToast(message || 'Error processing file. Please try again.', 'error');
+      logger.error('File processing error:', error);
     } finally {
       setProcessing(false);
     }
@@ -97,7 +120,7 @@ export const FileEngine = ({ toolId, title }: FileEngineProps) => {
            <button 
              onClick={processFile} 
              disabled={processing || done}
-             className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
+             className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors active:scale-95"
            >
               {processing ? <RefreshCw className="animate-spin" size={20}/> : done ? <Download size={20}/> : <CheckCircle size={20}/>}
               {processing ? "Processing..." : done ? "Download Again" : "Start Processing"}

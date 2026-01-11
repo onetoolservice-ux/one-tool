@@ -1,16 +1,22 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Lock, RefreshCw, Copy } from 'lucide-react';
-import { useToast } from '@/app/components/ui/toast-system';
+import { Lock, RefreshCw } from 'lucide-react';
+import { Button, CopyButton } from '@/app/components/shared';
 
 export const PasswordGenerator = () => {
-  const { toast } = useToast();
   const [length, setLength] = useState(16);
   const [options, setOptions] = useState({ upper: true, lower: true, num: true, sym: true });
   const [password, setPassword] = useState("");
   const [strength, setStrength] = useState(0);
 
   const generate = () => {
+    // Validate length
+    if (length < 1 || length > 64) {
+      setPassword("");
+      setStrength(0);
+      return;
+    }
+    
     const sets = {
       upper: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
       lower: "abcdefghijklmnopqrstuvwxyz",
@@ -23,7 +29,11 @@ export const PasswordGenerator = () => {
     if(options.num) chars += sets.num;
     if(options.sym) chars += sets.sym;
 
-    if(!chars) return;
+    if(!chars) {
+      setPassword("");
+      setStrength(0);
+      return;
+    }
 
     let res = "";
     for(let i=0; i<length; i++) res += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -43,27 +53,34 @@ export const PasswordGenerator = () => {
 
   useEffect(generate, []);
 
-  const copy = () => {
-    navigator.clipboard.writeText(password);
-    toast("Password copied to clipboard", "success");
-  };
-
   return (
     <div className="max-w-2xl mx-auto mt-10 p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] shadow-xl">
        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-indigo-50 dark:bg-indigo-900/20 rounded-full flex items-center justify-center mx-auto mb-4 text-indigo-600">
+          <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-600">
              <Lock size={32}/>
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Secure Password Generator</h2>
+          <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">Secure Password Generator</h2>
        </div>
 
        <div className="relative mb-8">
-          <div className="w-full bg-slate-100 dark:bg-black p-6 rounded-2xl font-mono text-xl tracking-wider text-center break-all border-2 border-transparent focus-within:border-indigo-500 transition-colors text-slate-800 dark:text-slate-200">
-             {password}
+          <div className="w-full bg-white dark:bg-slate-800 p-6 rounded-2xl font-mono text-xl tracking-wider text-center break-all border border-blue-300 dark:border-blue-600 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 dark:focus-within:border-blue-400 transition-all text-slate-800 dark:text-slate-200">
+             {password || 'Click Generate to create a password'}
           </div>
           <div className="absolute right-4 top-1/2 -translate-y-1/2 flex gap-2">
-             <button onClick={generate} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg text-slate-500"><RefreshCw size={20}/></button>
-             <button id="copy-btn" onClick={copy} className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700 transition-colors">Copy</button>
+             <Button
+               variant="ghost"
+               size="sm"
+               onClick={generate}
+               icon={<RefreshCw size={18} />}
+               className="text-slate-500 hover:text-slate-700"
+             />
+             <CopyButton
+               text={password}
+               variant="button"
+               size="sm"
+               successMessage="Password copied to clipboard"
+               disabled={!password}
+             />
           </div>
        </div>
 
@@ -77,13 +94,20 @@ export const PasswordGenerator = () => {
        <div className="space-y-6">
           <div>
              <div className="flex justify-between text-sm font-bold text-slate-500 mb-2"><span>Length</span><span>{length}</span></div>
-             <input type="range" min="8" max="64" value={length} onChange={e=>setLength(+e.target.value)} className="w-full accent-indigo-600"/>
+             <input 
+               type="range" 
+               min="8" 
+               max="64" 
+               value={Math.max(8, Math.min(64, length))} 
+               onChange={e=>setLength(Math.max(8, Math.min(64, +e.target.value)))} 
+               className="w-full accent-indigo-600"
+             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
              {Object.keys(options).map(opt => (
                 <label key={opt} className="flex items-center gap-3 p-4 border border-slate-200 dark:border-slate-800 rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                   <input type="checkbox" checked={(options as any)[opt]} onChange={e=>setOptions({...options, [opt]: e.target.checked})} className="w-5 h-5 accent-indigo-600 rounded"/>
+                   <input type="checkbox" checked={(options as any)[opt]} onChange={e=>setOptions({...options, [opt]: e.target.checked})} className="w-5 h-5 accent-blue-600 rounded"/>
                    <span className="text-sm font-bold capitalize text-slate-700 dark:text-slate-300">{opt === 'num' ? 'Numbers' : opt === 'sym' ? 'Symbols' : opt + 'case'}</span>
                 </label>
              ))}

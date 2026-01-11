@@ -23,8 +23,8 @@ export const SmartChat = () => {
           ))}
        </div>
        <div className="flex gap-2">
-          <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()} className="flex-1 p-4 bg-white dark:bg-slate-900 border rounded-xl outline-none shadow-sm" placeholder="Ask anything..."/>
-          <button onClick={send} className="p-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"><Send size={20}/></button>
+          <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()} className="flex-1 p-4 bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-600 rounded-xl outline-none shadow-sm transition-all" placeholder="Ask anything..."/>
+          <button onClick={send} className="p-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors"><Send size={20}/></button>
        </div>
     </div>
   );

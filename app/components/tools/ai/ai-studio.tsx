@@ -11,6 +11,6 @@ export const AiStudio = ({ toolId }: { toolId: string }) => (
       {toolId === 'smart-chat' ? 'Local AI Chat' : 'Sentiment Analysis'}
     </h2>
     <p className="text-slate-500 mb-8">AI models are initializing in your browser...</p>
-    <button className="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold hover:scale-105 transition-transform">Start Session</button>
+    <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold hover:scale-105 transition-all">Start Session</button>
   </div>
 );

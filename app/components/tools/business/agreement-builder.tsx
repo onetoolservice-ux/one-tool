@@ -6,13 +6,19 @@ import jsPDF from 'jspdf';
 export const AgreementBuilder = () => {
   const [template, setTemplate] = useState('NDA');
   
+  // Consistent date formatting function
+  const formatDate = (date: Date): string => {
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  };
+  
   const [data, setData] = useState({
-    date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+    date: formatDate(new Date()),
     partyA: "TechCorp Solutions",
     partyB: "John Doe",
     location: "Bangalore, India",
     amount: "50,000",
     service: "Software Development",
+    role: "Senior Consultant",
     duration: "12 Months"
   });
 
@@ -23,7 +29,7 @@ export const AgreementBuilder = () => {
     },
     Offer: {
       title: "EMPLOYMENT OFFER LETTER",
-      content: `Date: ${data.date}\n\nTo,\n${data.partyB}\n\nDear ${data.partyB.split(' ')[0]},\n\nWe are pleased to offer you the position of "Senior Consultant" at ${data.partyA}.\n\nCOMPENSATION\nYour annual Cost to Company (CTC) will be INR ${data.amount} per annum.\n\nPROBATION\nYou will be on a probation period of 3 months from your date of joining.\n\nWe look forward to welcoming you to the team.\n\nSincerely,\nHR Manager\n${data.partyA}`
+      content: `Date: ${data.date}\n\nTo,\n${data.partyB}\n\nDear ${data.partyB.split(' ')[0]},\n\nWe are pleased to offer you the position of "${data.role || 'Senior Consultant'}" at ${data.partyA}.\n\nCOMPENSATION\nYour annual Cost to Company (CTC) will be INR ${data.amount} per annum.\n\nPROBATION\nYou will be on a probation period of 3 months from your date of joining.\n\nWe look forward to welcoming you to the team.\n\nSincerely,\nHR Manager\n${data.partyA}`
     },
     Freelance: {
       title: "FREELANCE SERVICE AGREEMENT",
@@ -49,15 +55,42 @@ export const AgreementBuilder = () => {
     doc.save(`${template}_Contract.pdf`);
   };
 
-  const Input = ({ label, k, placeholder }: any) => (
+  const Input = ({ label, k, placeholder, type = "text" }: any) => (
     <div className="space-y-1">
        <label className="text-[10px] font-bold text-slate-400 uppercase">{label}</label>
-       <input 
-         value={(data as any)[k]} 
-         onChange={e=>setData({...data, [k]: e.target.value})} 
-         className="w-full p-2.5 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-teal-500 transition-all font-medium"
-         placeholder={placeholder}
-       />
+       {type === "date" ? (
+         <input 
+           type="date"
+           value={(() => {
+             // Convert formatted date back to YYYY-MM-DD for date input
+             try {
+               const d = new Date((data as any)[k]);
+               if (!isNaN(d.getTime())) {
+                 return d.toISOString().split('T')[0];
+               }
+               return '';
+             } catch {
+               return '';
+             }
+           })()}
+           onChange={e=>{
+             const dateValue = e.target.value;
+             if (dateValue) {
+               const date = new Date(dateValue);
+               setData({...data, [k]: formatDate(date)});
+             }
+           }} 
+           className="w-full p-2.5 text-sm bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-600 rounded-lg outline-none transition-all font-medium"
+         />
+       ) : (
+         <input 
+           type={type}
+           value={(data as any)[k]} 
+           onChange={e=>setData({...data, [k]: e.target.value})} 
+           className="w-full p-2.5 text-sm bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-600 rounded-lg outline-none transition-all font-medium"
+           placeholder={placeholder}
+         />
+       )}
     </div>
   );
 
@@ -65,9 +98,9 @@ export const AgreementBuilder = () => {
     <div className="flex h-[calc(100vh-64px)] w-full overflow-hidden bg-slate-50 dark:bg-[#0B1120]">
       
       {/* LEFT: EDITOR */}
-      <div className="w-[400px] flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 z-10 shadow-xl flex-shrink-0">
-         <div className="p-5 border-b border-slate-100 dark:border-slate-800">
-            <h2 className="text-sm font-bold flex items-center gap-2 mb-4"><FileText className="text-teal-600" size={16}/> Contract Settings</h2>
+      <div className="w-[360px] flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 z-10 shadow-xl flex-shrink-0">
+         <div className="p-4 border-b border-slate-100 dark:border-slate-800">
+            <h2 className="text-sm font-bold flex items-center gap-2 mb-3"><FileText className="text-blue-600" size={16}/> Contract Settings</h2>
             <div className="relative">
                <select value={template} onChange={e=>setTemplate(e.target.value)} className="w-full appearance-none p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm outline-none cursor-pointer">
                   <option value="NDA">Non-Disclosure Agreement</option>
@@ -78,8 +111,8 @@ export const AgreementBuilder = () => {
             </div>
          </div>
 
-         <div className="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar">
-            <Input label="Date" k="date" />
+         <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+            <Input label="Date" k="date" type="date" />
             <div className="grid grid-cols-2 gap-3">
                <Input label="Party A (Company)" k="partyA" />
                <Input label="Party B (Person)" k="partyB" />
@@ -98,21 +131,21 @@ export const AgreementBuilder = () => {
          </div>
 
          <div className="p-4 border-t bg-white dark:bg-slate-900">
-            <button onClick={handleDownload} className="w-full bg-slate-900 text-white h-10 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-black transition-all shadow-lg">
+            <button onClick={handleDownload} className="w-full bg-blue-600 hover:bg-blue-700 text-white h-10 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-lg">
                <Download size={14}/> Download PDF
             </button>
          </div>
       </div>
 
       {/* RIGHT: PREVIEW */}
-      <div className="flex-1 bg-slate-100 dark:bg-black/50 p-8 flex justify-center overflow-y-auto">
-         <div className="bg-white text-slate-900 w-[700px] min-h-[900px] p-16 shadow-2xl relative">
-            <h1 className="text-2xl font-bold text-center mb-12 uppercase tracking-wide border-b-2 border-slate-900 pb-4">{templates[template].title}</h1>
+      <div className="flex-1 bg-slate-100 dark:bg-black/50 p-4 flex justify-center overflow-y-auto custom-scrollbar">
+         <div className="bg-white text-slate-900 w-[700px] min-h-[900px] p-10 shadow-2xl relative my-4">
+            <h1 className="text-xl font-bold text-center mb-8 uppercase tracking-wide border-b-2 border-slate-900 pb-3">{templates[template].title}</h1>
             <div className="font-serif text-[15px] leading-8 whitespace-pre-wrap text-justify">
                {templates[template].content}
             </div>
             
-            <div className="mt-24 flex justify-between pt-8 border-t border-slate-200">
+            <div className="mt-16 flex justify-between pt-6 border-t border-slate-200">
                <div className="text-center">
                   <div className="h-12 w-40 border-b border-black mb-2"></div>
                   <p className="font-bold text-sm">{data.partyA}</p>

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
 
-type ToastType = "success" | "error" | "info";
+type ToastType = "success" | "error" | "info" | "warning";
 
 let globalShow: ((msg: string, type?: ToastType) => void) | null = null;
 
@@ -26,13 +26,15 @@ export default function Toast() {
   const styles = {
     success: "bg-[#638c80] text-white",
     error: "bg-rose-600 text-white",
-    info: "bg-slate-800 text-white"
+    info: "bg-slate-800 text-white",
+    warning: "bg-amber-600 text-white"
   };
 
   const icons = {
     success: <CheckCircle2 size={18} />,
     error: <AlertCircle size={18} />,
-    info: <Info size={18} />
+    info: <Info size={18} />,
+    warning: <AlertCircle size={18} />
   };
 
   return (

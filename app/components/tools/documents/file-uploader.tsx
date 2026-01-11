@@ -1,7 +1,8 @@
 "use client";
 import React, { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { UploadCloud, File, ShieldCheck } from 'lucide-react';
+import { UploadCloud, ShieldCheck } from 'lucide-react';
+import { Button } from '@/app/components/shared';
 
 interface FileUploaderProps {
   onFilesSelected: (files: File[]) => void;
@@ -51,12 +52,16 @@ export function FileUploader({
         <h3 className="mb-2 text-2xl font-bold text-slate-900 dark:text-white">
           {isDragActive ? 'Drop files here...' : title}
         </h3>
-        <p className="mb-8 text-center text-slate-500 max-w-md">
+        <p className="mb-8 text-center text-slate-500 dark:text-slate-400 max-w-md">
           {description}
         </p>
-        <button className="px-8 py-3 text-sm font-bold text-white transition-colors rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 shadow-lg">
+        <Button
+          variant="primary"
+          size="lg"
+          className="bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
+        >
           Select Documents
-        </button>
+        </Button>
       </div>
 
       <div className="flex items-center justify-center gap-2 mt-8 text-xs font-bold text-[#4a6b61] bg-[#638c80]/10 dark:bg-emerald-900/20 border border-[#638c80]/20 dark:border-emerald-900 px-4 py-2 rounded-full w-fit mx-auto">

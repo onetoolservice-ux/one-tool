@@ -1,13 +1,14 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, DollarSign, Percent, Calendar } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { Input } from '@/app/components/shared';
+import { formatCurrency } from '@/app/lib/utils/tool-helpers';
 
 export const SipCalculator = () => {
   const [p, setP] = useState(5000);
   const [r, setR] = useState(12);
   const [t, setT] = useState(10);
-  const [inflation, setInflation] = useState(false);
   const [data, setData] = useState<any[]>([]);
 
   const invested = p * 12 * t;
@@ -44,21 +45,69 @@ export const SipCalculator = () => {
           
           <div className="space-y-8">
              <div>
-                <label className="text-xs font-bold text-slate-500 uppercase mb-2 block">Monthly Investment</label>
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 block">Monthly Investment</label>
                 <input type="range" min="500" max="100000" step="500" value={p} onChange={e=>setP(+e.target.value)} className="w-full accent-emerald-500 mb-2"/>
-                <input type="number" value={p} onChange={e=>setP(+e.target.value)} className="w-full p-2 border rounded-lg font-bold bg-slate-50"/>
+                <Input
+                  type="number"
+                  value={p.toString()}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value) || 0;
+                    if (val < 0) {
+                      showToast('Monthly investment cannot be negative', 'error');
+                      return;
+                    }
+                    if (val === 0) {
+                      showToast('Monthly investment must be greater than 0', 'error');
+                      return;
+                    }
+                    if (val > 10000000) {
+                      showToast('Monthly investment cannot exceed ₹1 crore', 'error');
+                      return;
+                    }
+                    setP(val);
+                  }}
+                  className="font-bold"
+                />
              </div>
 
              <div>
-                <label className="text-xs font-bold text-slate-500 uppercase mb-2 block">Expected Return (%)</label>
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 block">Expected Return (%)</label>
                 <input type="range" min="1" max="30" step="0.5" value={r} onChange={e=>setR(+e.target.value)} className="w-full accent-emerald-500 mb-2"/>
-                <input type="number" value={r} onChange={e=>setR(+e.target.value)} className="w-full p-2 border rounded-lg font-bold bg-slate-50"/>
+                <Input
+                  type="number"
+                  value={r.toString()}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value) || 0;
+                    if (val >= 0 && val <= 100) setR(val);
+                  }}
+                  className="font-bold"
+                />
              </div>
 
              <div>
-                <label className="text-xs font-bold text-slate-500 uppercase mb-2 block">Time Period (Years)</label>
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 block">Time Period (Years)</label>
                 <input type="range" min="1" max="40" value={t} onChange={e=>setT(+e.target.value)} className="w-full accent-emerald-500 mb-2"/>
-                <input type="number" value={t} onChange={e=>setT(+e.target.value)} className="w-full p-2 border rounded-lg font-bold bg-slate-50"/>
+                <Input
+                  type="number"
+                  value={t.toString()}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value) || 0;
+                    if (val < 0) {
+                      showToast('Time period cannot be negative', 'error');
+                      return;
+                    }
+                    if (val === 0) {
+                      showToast('Time period must be greater than 0', 'error');
+                      return;
+                    }
+                    if (val > 50) {
+                      showToast('Time period cannot exceed 50 years', 'error');
+                      return;
+                    }
+                    setT(val);
+                  }}
+                  className="font-bold"
+                />
              </div>
           </div>
        </div>
@@ -66,17 +115,17 @@ export const SipCalculator = () => {
        {/* RIGHT: WEALTH CHART */}
        <div className="flex-1 p-8 flex flex-col">
           <div className="grid grid-cols-3 gap-4 mb-8">
-             <div className="bg-white p-6 rounded-2xl border shadow-sm">
+             <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                 <p className="text-xs uppercase font-bold text-slate-400">Invested</p>
-                <h3 className="text-2xl font-black text-slate-900">₹ {invested.toLocaleString()}</h3>
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white">{formatCurrency(invested)}</h3>
              </div>
-             <div className="bg-white p-6 rounded-2xl border shadow-sm">
+             <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                 <p className="text-xs uppercase font-bold text-emerald-500">Total Profit</p>
-                <h3 className="text-2xl font-black text-emerald-600">+ ₹ {profit.toLocaleString()}</h3>
+                <h3 className="text-2xl font-black text-emerald-600">+ {formatCurrency(profit)}</h3>
              </div>
              <div className="bg-emerald-600 p-6 rounded-2xl border shadow-lg text-white">
                 <p className="text-xs uppercase font-bold text-emerald-200">Future Value</p>
-                <h3 className="text-3xl font-black">₹ {wealth.toLocaleString()}</h3>
+                <h3 className="text-3xl font-black">{formatCurrency(wealth)}</h3>
              </div>
           </div>
 

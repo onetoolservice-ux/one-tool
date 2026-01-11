@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { logger } from '@/app/lib/utils/logger';
 
 export const usePdfThumbnail = (file: File) => {
   const [thumbnail, setThumbnail] = useState<string | null>(null);
@@ -33,8 +34,10 @@ export const usePdfThumbnail = (file: File) => {
           if (isActive) setThumbnail(canvas.toDataURL());
         }
       } catch (err) {
-        console.error("Thumbnail generation error:", err);
-        // Fail silently - UI will show default icon
+        // Log error for debugging
+        logger.error('PDF thumbnail generation failed:', err);
+        // UI will show default icon - this is acceptable for thumbnails
+        // No user toast needed as it's a non-critical feature
       } finally {
         if (isActive) setLoading(false);
       }

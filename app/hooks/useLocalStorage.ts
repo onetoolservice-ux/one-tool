@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { logger } from "@/app/lib/utils/logger";
 
 export function useLocalStorage<T>(key: string, initialValue: T) {
   // 1. Always initialize with the default value first (SSR Safe)
@@ -13,7 +14,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
         setStoredValue(JSON.parse(item));
       }
     } catch (error) {
-      console.error("Error reading localStorage key:", key, error);
+      logger.error("Error reading localStorage key:", key, error);
     }
   }, [key]);
 
@@ -31,7 +32,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
         window.localStorage.setItem(key, JSON.stringify(valueToStore));
       }
     } catch (error) {
-      console.error("Error setting localStorage key:", key, error);
+      logger.error("Error setting localStorage key:", key, error);
     }
   };
 

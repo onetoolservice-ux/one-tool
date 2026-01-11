@@ -7,8 +7,10 @@ export default function ScrollToTop() {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Scroll to top whenever route changes
-    window.scrollTo(0, 0);
+    // Use requestAnimationFrame for non-blocking scroll
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    });
   }, [pathname]);
 
   return null; // This component renders nothing visually

@@ -1,16 +1,26 @@
 "use client";
 import React, { useState, useRef } from 'react';
-import { FileText, Plus, Trash2, Download, Settings, Upload, PenTool } from 'lucide-react';
+import { FileText, Plus, Trash2, Download, Settings, Upload, PenTool, X } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { showToast } from '@/app/shared/Toast';
+import { getErrorMessage } from '@/app/lib/errors/error-handler';
 
 // Helper Component (Defined inside to ensure self-containment for this fix)
-const CompactInput = ({ label, value, onChange, type="text", width="w-full" }: any) => (
+interface CompactInputProps {
+  label: string;
+  value: string | number;
+  onChange: (value: string) => void;
+  type?: 'text' | 'number' | 'date';
+  width?: string;
+}
+
+const CompactInput = ({ label, value, onChange, type="text", width="w-full" }: CompactInputProps) => (
   <div className={width}>
     <label className="block text-[9px] font-bold text-slate-400 uppercase mb-1">{label}</label>
     <input 
       type={type} value={value} onChange={e => onChange(e.target.value)} 
-      className="w-full h-8 text-xs px-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:border-blue-500 outline-none font-medium"
+      className="w-full h-8 text-xs px-2 bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-600 rounded-lg outline-none font-medium transition-all"
     />
   </div>
 );
@@ -31,6 +41,16 @@ export const InvoiceGenerator = () => {
   const [to, setTo] = useState({ name: "Acme Corp", email: "accounts@acme.com", address: "San Francisco, CA" });
   const [items, setItems] = useState([{ id: 1, name: "Service", qty: 1, rate: 10000 }]);
 
+  const clearAllData = () => {
+    setMeta({ number: "", date: new Date().toISOString().split('T')[0], due: "" });
+    setFrom({ name: "", email: "", address: "" });
+    setTo({ name: "", email: "", address: "" });
+    setItems([{ id: 1, name: "", qty: 1, rate: 0 }]);
+    setLogo(null);
+    setSignature(null);
+    showToast('All data cleared', 'success');
+  };
+
   const previewRef = useRef<HTMLDivElement>(null);
 
   const subtotal = items.reduce((s, i) => s + (Number(i.qty) * Number(i.rate)), 0);
@@ -38,15 +58,49 @@ export const InvoiceGenerator = () => {
   const taxAmt = ((subtotal - discountAmt) * taxRate) / 100;
   const total = subtotal - discountAmt + taxAmt + Number(shipping);
 
-  const handleImage = (e: any, type: 'logo' | 'sign') => {
-    if (e.target.files[0]) {
-      const url = URL.createObjectURL(e.target.files[0]);
-      if (type === 'logo') setLogo(url); else setSignature(url);
+  const handleImage = (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'sign') => {
+    if (!e.target.files?.[0]) return;
+    
+    const uploadedFile = e.target.files[0];
+    
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(uploadedFile.type)) {
+      showToast('Please upload a JPG, PNG, WEBP, or GIF image', 'error');
+      return;
     }
+    
+    // Validate file size (5MB limit for logos/signatures)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (uploadedFile.size > maxSize) {
+      showToast(`${type === 'logo' ? 'Logo' : 'Signature'} image exceeds 5MB size limit`, 'error');
+      return;
+    }
+    
+    const url = URL.createObjectURL(uploadedFile);
+    if (type === 'logo') setLogo(url); else setSignature(url);
   };
 
   const downloadPDF = async () => {
     if (!previewRef.current) return;
+    
+    // Validate items
+    if (items.length === 0) {
+      showToast('Please add at least one item to the invoice', 'error');
+      return;
+    }
+    
+    const invalidItems = items.filter(item => 
+      !item.name || item.name.trim() === '' || 
+      Number(item.qty) <= 0 || 
+      Number(item.rate) < 0
+    );
+    
+    if (invalidItems.length > 0) {
+      showToast('Please ensure all items have a name, quantity > 0, and rate >= 0', 'error');
+      return;
+    }
+    
     setLoading(true);
     try {
       const canvas = await html2canvas(previewRef.current, { scale: 2 });
@@ -55,19 +109,34 @@ export const InvoiceGenerator = () => {
       const h = (canvas.height * w) / canvas.width;
       pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, w, h);
       pdf.save(`Invoice_${meta.number}.pdf`);
-    } catch (e) {}
-    setLoading(false);
+      showToast('PDF generated successfully', 'success');
+    } catch (error) {
+      const message = getErrorMessage(error);
+      showToast(message || 'Failed to generate PDF. Please try again.', 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="flex h-[calc(100vh-64px)] overflow-hidden bg-slate-50 dark:bg-[#0B1120]">
+    <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)] overflow-hidden bg-slate-50 dark:bg-[#0B1120]">
       {/* EDITOR */}
-      <div className="w-[450px] border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 z-10 flex flex-col">
+      <div className="w-full lg:w-[380px] border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 z-10 flex flex-col">
          <div className="h-14 px-5 border-b flex items-center justify-between">
-            <h2 className="font-bold text-sm flex gap-2"><Settings size={16} className="text-blue-600"/> Settings</h2>
+            <div className="flex justify-between items-center">
+               <h2 className="font-bold text-sm flex gap-2"><Settings size={16} className="text-blue-600"/> Settings</h2>
+               <button 
+                  onClick={clearAllData} 
+                  className="text-xs text-slate-500 hover:text-red-600 dark:hover:text-red-400 flex items-center gap-1 transition-colors px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
+                  aria-label="Clear all data"
+                  title="Clear all data"
+               >
+                  <X size={14}/> Clear
+               </button>
+            </div>
             <div className="flex gap-2">
                <input type="color" value={brandColor} onChange={e=>setBrandColor(e.target.value)} className="w-6 h-6 rounded cursor-pointer border-none"/>
-               <button onClick={()=>setCurrency(currency==="₹"?"$":"₹")} className="text-xs font-bold border px-2 rounded">{currency}</button>
+               <button onClick={()=>setCurrency(currency==="₹"?"$":"₹")} className="text-xs font-bold border px-3 py-2 rounded">{currency}</button>
             </div>
          </div>
          <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar">
@@ -88,26 +157,26 @@ export const InvoiceGenerator = () => {
             <div className="space-y-4">
                <div className="p-3 border rounded-xl bg-slate-50 dark:bg-slate-800/50 space-y-2">
                   <p className="text-[10px] font-black uppercase text-slate-400">From</p>
-                  <input value={from.name} onChange={e=>setFrom({...from, name: e.target.value})} className="w-full text-xs font-bold bg-transparent border-b outline-none" placeholder="Company"/>
-                  <input value={from.email} onChange={e=>setFrom({...from, email: e.target.value})} className="w-full text-xs bg-transparent border-b outline-none" placeholder="Email"/>
-                  <input value={from.address} onChange={e=>setFrom({...from, address: e.target.value})} className="w-full text-xs bg-transparent border-b outline-none" placeholder="Address"/>
+                  <input value={from.name} onChange={e=>setFrom({...from, name: e.target.value})} className="w-full text-xs font-bold bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-600 rounded px-2 py-1 outline-none transition-all" placeholder="Company"/>
+                  <input value={from.email} onChange={e=>setFrom({...from, email: e.target.value})} className="w-full text-xs bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-600 rounded px-2 py-1 outline-none transition-all" placeholder="Email"/>
+                  <input value={from.address} onChange={e=>setFrom({...from, address: e.target.value})} className="w-full text-xs bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-600 rounded px-2 py-1 outline-none transition-all" placeholder="Address"/>
                </div>
                <div className="p-3 border rounded-xl bg-slate-50 dark:bg-slate-800/50 space-y-2">
                   <p className="text-[10px] font-black uppercase text-slate-400">To</p>
-                  <input value={to.name} onChange={e=>setTo({...to, name: e.target.value})} className="w-full text-xs font-bold bg-transparent border-b outline-none" placeholder="Client"/>
-                  <input value={to.email} onChange={e=>setTo({...to, email: e.target.value})} className="w-full text-xs bg-transparent border-b outline-none" placeholder="Email"/>
-                  <input value={to.address} onChange={e=>setTo({...to, address: e.target.value})} className="w-full text-xs bg-transparent border-b outline-none" placeholder="Address"/>
+                  <input value={to.name} onChange={e=>setTo({...to, name: e.target.value})} className="w-full text-xs font-bold bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-600 rounded px-2 py-1 outline-none transition-all" placeholder="Client"/>
+                  <input value={to.email} onChange={e=>setTo({...to, email: e.target.value})} className="w-full text-xs bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-600 rounded px-2 py-1 outline-none transition-all" placeholder="Email"/>
+                  <input value={to.address} onChange={e=>setTo({...to, address: e.target.value})} className="w-full text-xs bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-600 rounded px-2 py-1 outline-none transition-all" placeholder="Address"/>
                </div>
             </div>
             <div>
-               <div className="flex justify-between items-center mb-2"><label className="text-[10px] font-bold uppercase text-slate-400">Items</label><button onClick={()=>setItems([...items, {id:Date.now(), name:'', qty:1, rate:0}])} className="text-[10px] font-bold text-blue-600">+ Add</button></div>
+               <div className="flex justify-between items-center mb-2"><label className="text-[10px] font-bold uppercase text-slate-400">Items</label><button onClick={()=>setItems([...items, {id:Date.now(), name:'', qty:1, rate:0}])} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-[10px] font-bold transition-colors shadow-sm">+ Add</button></div>
                <div className="space-y-2">
                   {items.map((item, i) => (
                      <div key={item.id} className="flex gap-2 items-center">
-                        <input value={item.name} onChange={e=>{const n=[...items];n[i].name=e.target.value;setItems(n)}} className="flex-1 text-xs border rounded p-1" placeholder="Item"/>
-                        <input type="number" value={item.qty} onChange={e=>{const n=[...items];n[i].qty=Number(e.target.value);setItems(n)}} className="w-10 text-xs border rounded p-1 text-center"/>
-                        <input type="number" value={item.rate} onChange={e=>{const n=[...items];n[i].rate=Number(e.target.value);setItems(n)}} className="w-14 text-xs border rounded p-1 text-right"/>
-                        <button onClick={()=>setItems(items.filter(x=>x.id!==item.id))}><Trash2 size={12} className="text-slate-300 hover:text-red-500"/></button>
+                        <input value={item.name} onChange={e=>{const n=[...items];n[i].name=e.target.value;setItems(n)}} className="flex-1 text-xs border border-blue-300 dark:border-blue-600 rounded-lg px-2 py-1 bg-white dark:bg-slate-800 outline-none transition-all" placeholder="Item"/>
+                        <input type="text" inputMode="numeric" pattern="[0-9]*" value={item.qty} onChange={e=>{const val = Number(e.target.value.replace(/[^0-9.]/g, '')) || 0; const n=[...items];n[i].qty=val;setItems(n)}} className="w-10 text-xs border border-blue-300 dark:border-blue-600 rounded-lg px-1 py-1 text-center bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none transition-all"/>
+                        <input type="text" inputMode="numeric" pattern="[0-9.]*" value={item.rate} onChange={e=>{const val = Number(e.target.value.replace(/[^0-9.]/g, '')) || 0; const n=[...items];n[i].rate=val;setItems(n)}} className="w-14 text-xs border border-blue-300 dark:border-blue-600 rounded-lg px-1 py-1 text-right bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none transition-all"/>
+                        <button onClick={()=>setItems(items.filter(x=>x.id!==item.id))} aria-label={`Remove ${item.name || 'item'}`} title={`Remove ${item.name || 'item'}`} className="p-1.5"><Trash2 size={14} className="text-slate-300 hover:text-red-500"/></button>
                      </div>
                   ))}
                </div>
@@ -116,29 +185,29 @@ export const InvoiceGenerator = () => {
                <div className="flex justify-between items-center"><span className="text-xs text-slate-500">Subtotal</span><span className="text-xs font-bold">{currency} {subtotal}</span></div>
                <div className="flex items-center gap-2">
                   <span className="text-[10px] font-bold text-slate-400 w-16">Discount %</span>
-                  <input type="number" value={discountRate} onChange={e=>setDiscountRate(Number(e.target.value))} className="w-12 h-6 text-xs text-center border rounded"/>
+                  <input type="text" inputMode="numeric" pattern="[0-9.]*" value={discountRate} onChange={e=>setDiscountRate(Number(e.target.value.replace(/[^0-9.]/g, '')) || 0)} className="w-12 h-6 text-xs text-center border rounded text-slate-900 dark:text-white"/>
                   <span className="ml-auto text-xs text-orange-500">-{currency} {discountAmt}</span>
                </div>
                <div className="flex items-center gap-2">
                   <span className="text-[10px] font-bold text-slate-400 w-16">Tax %</span>
-                  <input type="number" value={taxRate} onChange={e=>setTaxRate(Number(e.target.value))} className="w-12 h-6 text-xs text-center border rounded"/>
+                  <input type="text" inputMode="numeric" pattern="[0-9.]*" value={taxRate} onChange={e=>setTaxRate(Number(e.target.value.replace(/[^0-9.]/g, '')) || 0)} className="w-12 h-6 text-xs text-center border rounded text-slate-900 dark:text-white"/>
                   <span className="ml-auto text-xs text-blue-500">+{currency} {taxAmt}</span>
                </div>
                <div className="flex justify-between border-t pt-2"><span className="font-bold text-sm">Total</span><span className="font-black text-lg" style={{color: brandColor}}>{currency} {total}</span></div>
             </div>
          </div>
-         <div className="p-4 border-t"><button onClick={downloadPDF} disabled={loading} className="w-full bg-slate-900 text-white h-10 rounded-xl font-bold text-xs flex justify-center items-center gap-2">{loading ? "Generating..." : <><Download size={14}/> Download PDF</>}</button></div>
+         <div className="p-4 border-t"><button onClick={downloadPDF} disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white h-10 rounded-xl font-bold text-xs flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" title={loading ? "Generating PDF..." : "Download invoice as PDF"}>{loading ? "Generating..." : <><Download size={14}/> Download PDF</>}</button></div>
       </div>
       
       {/* PREVIEW */}
-      <div className="flex-1 bg-slate-200/50 dark:bg-black/50 p-8 flex justify-center overflow-y-auto">
-         <div className="origin-top scale-[0.85] shadow-2xl">
-            <div ref={previewRef} className="bg-white text-slate-900 w-[794px] min-h-[1123px] p-12 relative flex flex-col">
-               <div className="flex justify-between items-start mb-10 pb-6 border-b-2" style={{borderColor: brandColor}}>
-                  <div>{logo && <img src={logo} className="h-16 w-auto object-contain mb-2"/>}<h2 className="font-bold text-xl">{from.name}</h2><p className="text-sm text-slate-500">{from.address}</p></div>
-                  <div className="text-right"><h1 className="text-5xl font-black mb-2" style={{color: brandColor}}>INVOICE</h1><p className="font-bold text-slate-400">#{meta.number}</p></div>
+      <div className="flex-1 bg-slate-200/50 dark:bg-black/50 p-4 flex justify-center overflow-y-auto custom-scrollbar">
+         <div className="shadow-2xl my-4">
+            <div ref={previewRef} className="bg-white text-slate-900 w-[794px] min-h-[1123px] p-10 relative flex flex-col">
+               <div className="flex justify-between items-start mb-6 pb-4 border-b-2" style={{borderColor: brandColor}}>
+                  <div>{logo && <img src={logo} className="h-12 w-auto object-contain mb-1"/>}<h2 className="font-bold text-lg">{from.name}</h2><p className="text-xs text-slate-500">{from.address}</p></div>
+                  <div className="text-right"><h1 className="text-4xl font-bold mb-1" style={{color: brandColor}}>INVOICE</h1><p className="font-semibold text-sm text-slate-400">#{meta.number}</p></div>
                </div>
-               <div className="flex justify-between mb-12">
+               <div className="flex justify-between mb-8">
                   <div><p className="text-xs font-bold text-slate-400 uppercase">Bill To</p><h3 className="font-bold text-lg">{to.name}</h3><p className="text-sm text-slate-500">{to.address}</p></div>
                   <div className="text-right"><p className="text-xs font-bold text-slate-400 uppercase">Date</p><p className="font-bold">{meta.date}</p></div>
                </div>

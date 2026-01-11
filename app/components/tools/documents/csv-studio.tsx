@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
-import { Table, Download, Trash2, FileJson, Database, Plus, Grid, FileText } from 'lucide-react';
+import { Trash2, FileJson, Plus, Grid, FileText, X } from 'lucide-react';
+import { Button } from '@/app/components/shared';
 
 export const CsvStudio = () => {
   // Initial Data
@@ -38,6 +39,11 @@ export const CsvStudio = () => {
     setData(clean);
   };
 
+  const clearAllData = () => {
+    setHeaders(["Column 1", "Column 2", "Column 3"]);
+    setData([Array(3).fill("")]);
+  };
+
   const exportFile = (type: 'json' | 'csv') => {
     let content = "";
     let mime = "";
@@ -70,19 +76,64 @@ export const CsvStudio = () => {
              <Grid className="text-teal-600"/> Data Studio 
              <span className="text-xs bg-teal-100 text-teal-700 px-2 py-1 rounded ml-2">CSV / JSON Editor</span>
           </h1>
-          <div className="flex gap-2">
-             <button onClick={addRow} className="px-4 py-2 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl text-xs font-bold hover:bg-slate-50 flex items-center gap-2 shadow-sm transition-transform active:scale-95">
-                <Plus size={14}/> Add Row
-             </button>
-             <button onClick={addCol} className="px-4 py-2 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl text-xs font-bold hover:bg-slate-50 flex items-center gap-2 shadow-sm transition-transform active:scale-95">
-                <Plus size={14}/> Add Col
-             </button>
-             <button onClick={removeEmpty} className="px-4 py-2 bg-rose-50 text-rose-600 border border-rose-100 rounded-xl text-xs font-bold hover:bg-rose-100 flex items-center gap-2 transition-transform active:scale-95">
-                <Trash2 size={14}/> Clean Rows
-             </button>
+          <div className="flex gap-2 flex-wrap">
+             <Button
+               variant="outline"
+               size="sm"
+               onClick={addRow}
+               icon={<Plus size={14} />}
+               className="text-xs"
+             >
+               Add Row
+             </Button>
+             <Button
+               variant="outline"
+               size="sm"
+               onClick={addCol}
+               icon={<Plus size={14} />}
+               className="text-xs"
+             >
+               Add Col
+             </Button>
+             <Button
+               variant="outline"
+               size="sm"
+               onClick={removeEmpty}
+               icon={<Trash2 size={14} />}
+               className="bg-rose-50 hover:bg-rose-100 dark:bg-rose-900/20 dark:hover:bg-rose-900/30 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-800 text-xs"
+             >
+               Clean Rows
+             </Button>
+             <Button
+               variant="outline"
+               size="sm"
+               onClick={clearAllData}
+               icon={<X size={14} />}
+               className="bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 text-xs"
+               aria-label="Clear all data"
+               title="Clear all data"
+             >
+               Clear All
+             </Button>
              <div className="h-8 w-px bg-slate-300 dark:bg-slate-700 mx-2"></div>
-             <button onClick={()=>exportFile('csv')} className="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold flex items-center gap-2 hover:bg-slate-300"><FileText size={14}/> CSV</button>
-             <button onClick={()=>exportFile('json')} className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-xs font-bold flex items-center gap-2 hover:opacity-90 shadow-lg"><FileJson size={14}/> JSON</button>
+             <Button
+               variant="outline"
+               size="sm"
+               onClick={() => exportFile('csv')}
+               icon={<FileText size={14} />}
+               className="text-xs"
+             >
+               CSV
+             </Button>
+             <Button
+               variant="primary"
+               size="sm"
+               onClick={() => exportFile('json')}
+               icon={<FileJson size={14} />}
+               className="bg-blue-600 hover:bg-blue-700 text-white text-xs transition-colors"
+             >
+               JSON
+             </Button>
           </div>
        </div>
 

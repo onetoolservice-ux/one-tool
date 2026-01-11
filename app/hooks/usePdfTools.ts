@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { PDFDocument } from 'pdf-lib';
 import download from 'downloadjs';
+import { showToast } from '@/app/shared/Toast';
+import { logger } from '@/app/lib/utils/logger';
 
 export const usePdfTools = () => {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const mergePdfs = async (files: File[]) => {
     if (files.length < 2) {
-      alert("Please select at least 2 PDF files to merge.");
+      showToast("Please select at least 2 PDF files to merge.", "error");
       return;
     }
 
@@ -28,10 +30,11 @@ export const usePdfTools = () => {
       // 3. Save and Download
       const pdfBytes = await mergedPdf.save();
       download(pdfBytes, "onetool-merged.pdf", "application/pdf");
+      showToast("PDFs merged successfully!", "success");
       
     } catch (err) {
-      console.error(err);
-      alert("Error merging PDFs. Please ensure files are valid.");
+      logger.error("PDF merge error:", err);
+      showToast("Error merging PDFs. Please ensure files are valid.", "error");
     } finally {
       setIsProcessing(false);
     }

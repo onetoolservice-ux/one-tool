@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
-import { Terminal, Hash, Link, Binary, Code2, Split, Braces, Copy, Check } from 'lucide-react';
-import { useToast } from '@/app/components/ui/toast-system';
+import { Terminal, Hash, Link, Binary, Code2, Split, Braces, Copy, Check, X } from 'lucide-react';
+import { showToast } from '@/app/shared/Toast';
 
 const TOOLS = [
   { id: 'json', name: 'JSON Formatter', icon: Braces },
@@ -13,8 +13,7 @@ const TOOLS = [
   { id: 'regex', name: 'Regex Tester', icon: Terminal },
 ];
 
-export const DevStation = ({ initialTool = "json" }: { initialTool?: string }) => {
-  const { toast } = useToast();
+const DevStation = ({ initialTool = "json" }: { initialTool?: string }) => {
   // Map incoming ID (e.g. 'smart-uuid') to internal ID ('uuid')
   const mapId = (id: string) => {
      if(id.includes('uuid')) return 'uuid';
@@ -31,6 +30,13 @@ export const DevStation = ({ initialTool = "json" }: { initialTool?: string }) =
   const [output, setOutput] = useState('');
   const [mode, setMode] = useState('encode');
 
+  // Clear input/output when switching tools
+  const handleToolSwitch = (toolId: string) => {
+    setActive(toolId);
+    setInput('');
+    setOutput('');
+  };
+
   const process = () => {
     try {
       if (active === 'json') setOutput(JSON.stringify(JSON.parse(input), null, 2));
@@ -40,16 +46,16 @@ export const DevStation = ({ initialTool = "json" }: { initialTool?: string }) =
       if (active === 'html') setOutput(mode==='encode' ? input.replace(/[<>&"']/g, c=>'&#'+c.charCodeAt(0)+';') : input.replace(/&#(d+);/g, (m,d)=>String.fromCharCode(d)));
       if (active === 'diff') setOutput("Diff view requires 2 inputs. Use specific tool.");
       if (active === 'regex') setOutput("Matches: " + (input.match(/test/g) || []).length);
-      toast("Processed successfully", "success");
+      showToast("Processed successfully", "success");
     } catch(e) { 
       setOutput("Error: Invalid Input");
-      toast("Invalid Input", "error");
+      showToast("Invalid Input", "error");
     }
   };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(output);
-    toast("Copied to clipboard", "success");
+    showToast("Copied to clipboard", "success");
   };
 
   const Icon = TOOLS.find(t=>t.id===active)?.icon || Terminal;
@@ -60,7 +66,7 @@ export const DevStation = ({ initialTool = "json" }: { initialTool?: string }) =
          <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 px-2">Dev Tools</h2>
          <div className="space-y-1">
             {TOOLS.map(t => (
-               <button key={t.id} onClick={()=>setActive(t.id)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold transition-all ${active===t.id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+               <button key={t.id} onClick={()=>handleToolSwitch(t.id)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold transition-all ${active===t.id ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
                   <t.icon size={16}/> {t.name}
                </button>
             ))}
@@ -72,16 +78,27 @@ export const DevStation = ({ initialTool = "json" }: { initialTool?: string }) =
             <h1 className="text-2xl font-bold flex items-center gap-2 text-slate-900 dark:text-white"><Icon className="text-indigo-600"/> {TOOLS.find(t=>t.id===active)?.name}</h1>
             {['base64','url','html'].includes(active) && (
                <div className="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-lg">
-                  <button onClick={()=>setMode('encode')} className={`px-4 py-1 rounded-md text-xs font-bold transition-all ${mode==='encode'?'bg-white dark:bg-slate-600 shadow text-indigo-600':'text-slate-500'}`}>Encode</button>
-                  <button onClick={()=>setMode('decode')} className={`px-4 py-1 rounded-md text-xs font-bold transition-all ${mode==='decode'?'bg-white dark:bg-slate-600 shadow text-indigo-600':'text-slate-500'}`}>Decode</button>
+                  <button onClick={()=>setMode('encode')} className={`px-4 py-1 rounded-md text-xs font-bold transition-all ${mode==='encode'?'bg-white dark:bg-slate-600 shadow text-blue-600':'text-slate-500'}`}>Encode</button>
+                  <button onClick={()=>setMode('decode')} className={`px-4 py-1 rounded-md text-xs font-bold transition-all ${mode==='decode'?'bg-white dark:bg-slate-600 shadow text-blue-600':'text-slate-500'}`}>Decode</button>
                </div>
             )}
          </div>
 
          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 min-h-0">
             <div className="flex flex-col">
-               <label className="text-xs font-bold text-slate-400 uppercase mb-2">Input</label>
-               <textarea value={input} onChange={e=>setInput(e.target.value)} className="flex-1 p-4 rounded-xl border bg-white dark:bg-slate-900 font-mono text-sm resize-none outline-none focus:ring-2 ring-indigo-500/20" placeholder={active==='uuid'?'Click Process to Generate UUID...':'Paste content here...'}/>
+               <div className="flex justify-between items-center mb-2">
+                  <label className="text-xs font-bold text-slate-400 uppercase">Input</label>
+                  {input && (
+                     <button 
+                        onClick={() => { setInput(''); setOutput(''); }} 
+                        className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 flex items-center gap-1 transition-colors"
+                        aria-label="Clear input"
+                     >
+                        <X size={12}/> Clear
+                     </button>
+                  )}
+               </div>
+               <textarea value={input} onChange={e=>setInput(e.target.value)} className="flex-1 p-4 rounded-xl border border-blue-300 dark:border-blue-600 bg-white dark:bg-slate-800 font-mono text-sm resize-none outline-none transition-all focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" placeholder={active==='uuid'?'Click Process to Generate UUID...':'Paste content here...'}/>
             </div>
             <div className="flex flex-col">
                <label className="text-xs font-bold text-slate-400 uppercase mb-2">Output</label>
@@ -91,8 +108,11 @@ export const DevStation = ({ initialTool = "json" }: { initialTool?: string }) =
                </div>
             </div>
          </div>
-         <button onClick={process} className="mt-6 w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-3 rounded-xl font-bold hover:opacity-90 transition-opacity">Run Process</button>
+         <button onClick={process} className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold transition-colors">Run Process</button>
       </div>
     </div>
   );
 };
+
+export { DevStation };
+export default DevStation;

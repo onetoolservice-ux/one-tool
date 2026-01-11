@@ -36,7 +36,7 @@ export default function TimeCard() {
         
         <h1 className="text-7xl font-bold tracking-tighter mb-2 font-mono">{timeStr}</h1>
         
-        <div className="flex items-center gap-2 text-gray-400">
+        <div className="flex items-center gap-2 text-gray-300">
           <span className="text-lg font-medium">{dateStr}</span>
         </div>
       </div>

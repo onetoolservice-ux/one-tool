@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Play, Pause, RotateCcw, Save } from 'lucide-react';
+import { safeEvaluate } from '@/app/lib/utils/safe-math-evaluator';
 
 // --- POMODORO TIMER ---
 export const TimerWidget = () => {
@@ -67,9 +68,15 @@ export const CalculatorWidget = () => {
 
   const calculate = () => {
     try {
-      // safe eval replacement
-      // eslint-disable-next-line no-new-func
-      setResult(new Function('return ' + input)());
+      if (!input.trim()) {
+        setResult('0');
+        return;
+      }
+
+      // Use safe math evaluator (no eval, no Function constructor)
+      const result = safeEvaluate(input);
+      
+      setResult(result.toString());
     } catch (e) {
       setResult('Error');
     }

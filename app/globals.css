@@ -21,10 +21,37 @@ body {
   background: transparent;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 }
 
-/* --- UI POLISH: REMOVE NUMBER SPINNERS --- */
+/* Mobile Performance Optimizations */
+@media (max-width: 768px) {
+  /* Ensure minimum font size for readability (prevents zoom on iOS) */
+  body {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+  }
+  
+  /* Optimize touch scrolling */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* --- UI POLISH: REMOVE NUMBER SPINNERS & PREVENT SCROLL BEHAVIOR --- */
 input[type=number]::-webkit-inner-spin-button, 
 input[type=number]::-webkit-outer-spin-button { 
   -webkit-appearance: none; 
@@ -32,6 +59,20 @@ input[type=number]::-webkit-outer-spin-button {
 }
 input[type=number] {
   -moz-appearance: textfield; /* Firefox */
+}
+
+/* Prevent scroll from changing numeric text input values */
+input[type="text"][inputmode="numeric"],
+input[type="text"][inputmode="decimal"] {
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+}
+
+/* Ensure numeric text inputs don't have green text */
+input[type="text"][inputmode="numeric"],
+input[type="text"][inputmode="decimal"],
+input[type="number"] {
+  color: inherit;
 }
 
 /* CUSTOM SCROLLBAR */
@@ -43,3 +84,36 @@ input[type=number] {
 /* UTILITIES */
 .animate-in { animation: fadeIn 0.4s ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Global Focus States for Accessibility */
+@layer base {
+  /* Ensure all interactive elements have focus indicators (keyboard navigation only) */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 2px solid theme('colors.blue.500');
+    outline-offset: 2px;
+  }
+
+  /* Remove default outline for mouse users, keep for keyboard */
+  button:focus:not(:focus-visible),
+  a:focus:not(:focus-visible),
+  input:focus:not(:focus-visible),
+  textarea:focus:not(:focus-visible),
+  select:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Mobile Touch Target Optimization - Minimum 44x44px for accessibility */
+  @media (max-width: 768px) {
+    button,
+    a[role="button"],
+    input[type="button"],
+    input[type="submit"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+}

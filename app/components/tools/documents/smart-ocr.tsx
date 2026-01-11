@@ -1,7 +1,10 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import { FileText, Upload, Copy, Check, RefreshCw, Loader2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { FileText, Upload, RefreshCw } from 'lucide-react';
 import { createWorker } from 'tesseract.js';
+import { Button, Textarea, CopyButton } from '@/app/components/shared';
+import { showToast } from '@/app/shared/Toast';
+import { MAX_IMAGE_FILE_SIZE } from '@/app/lib/constants';
 
 export const SmartOCR = () => {
   const [image, setImage] = useState<string | null>(null);
@@ -11,11 +14,26 @@ export const SmartOCR = () => {
   const [copied, setCopied] = useState(false);
 
   const handleUpload = (e: any) => {
-    if (e.target.files && e.target.files[0]) {
-       setImage(URL.createObjectURL(e.target.files[0]));
-       setText("");
-       setProgress(0);
+    if (!e.target.files?.[0]) return;
+    
+    const uploadedFile = e.target.files[0];
+    
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/bmp'];
+    if (!allowedTypes.includes(uploadedFile.type)) {
+      showToast(`${uploadedFile.name} is not a supported image format`, 'error');
+      return;
     }
+    
+    // Validate file size (10MB limit)
+    if (uploadedFile.size > MAX_IMAGE_FILE_SIZE) {
+      showToast(`${uploadedFile.name} exceeds 10MB size limit`, 'error');
+      return;
+    }
+    
+    setImage(URL.createObjectURL(uploadedFile));
+    setText("");
+    setProgress(0);
   };
 
   const runOCR = async () => {
@@ -24,22 +42,19 @@ export const SmartOCR = () => {
     setText("");
     
     try {
-      const worker = await createWorker({
-        logger: m => {
-          if (m.status === 'recognizing text') {
-            setProgress(Math.round(m.progress * 100));
-          }
-        }
-      });
+      const worker = await createWorker();
       
       const ret = await worker.recognize(image);
       setText(ret.data.text);
       await worker.terminate();
+      showToast('Text extracted successfully', 'success');
     } catch (err) {
-      setText("Error: Could not extract text. Please try a clearer image.");
+      const message = err instanceof Error ? err.message : 'Could not extract text';
+      showToast(message || 'Error: Could not extract text. Please try a clearer image.', 'error');
+      setText("");
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   const copy = () => {
@@ -56,11 +71,23 @@ export const SmartOCR = () => {
             <div className="relative w-full h-full flex flex-col items-center">
                 <img src={image} className="max-w-full max-h-[80%] object-contain rounded-lg shadow-md border"/>
                 <div className="mt-8 flex gap-4">
-                   <button onClick={()=>setImage(null)} className="px-6 py-3 rounded-xl border font-bold text-sm hover:bg-slate-50 transition-colors">Change Image</button>
-                   <button onClick={runOCR} disabled={loading} className="px-8 py-3 rounded-xl bg-teal-600 text-white font-bold text-sm hover:bg-teal-700 shadow-lg flex items-center gap-2">
-                      {loading ? <Loader2 size={16} className="animate-spin"/> : <RefreshCw size={16}/>} 
-                      {loading ? `Scanning ${progress}%` : "Extract Text"}
-                   </button>
+                   <Button
+                     variant="outline"
+                     size="md"
+                     onClick={() => setImage(null)}
+                   >
+                     Change Image
+                   </Button>
+                   <Button
+                     variant="secondary"
+                     size="md"
+                     onClick={runOCR}
+                     loading={loading}
+                     icon={!loading ? <RefreshCw size={16} /> : undefined}
+                     className="bg-blue-600 hover:bg-blue-700"
+                   >
+                     {loading ? `Scanning ${progress}%` : "Extract Text"}
+                   </Button>
                 </div>
             </div>
           ) : (
@@ -77,15 +104,13 @@ export const SmartOCR = () => {
        <div className="w-full lg:w-[500px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 flex flex-col shadow-xl">
           <div className="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-800 pb-4">
              <h3 className="font-bold flex items-center gap-2 text-slate-900 dark:text-white"><FileText size={18} className="text-teal-600"/> Extracted Content</h3>
-             <button onClick={copy} disabled={!text} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500 transition-colors">
-                {copied ? <Check size={18} className="text-emerald-500"/> : <Copy size={18}/>}
-             </button>
+             {text && <CopyButton text={text} />}
           </div>
-          <textarea 
-             className="flex-1 w-full p-4 bg-slate-50 dark:bg-black/20 rounded-xl resize-none outline-none border border-slate-100 dark:border-slate-800 font-mono text-sm leading-relaxed custom-scrollbar" 
+          <Textarea
              readOnly
              value={text}
              placeholder={loading ? "Analyzing pixels..." : "Text results will appear here after scanning."}
+             className="flex-1 font-mono text-sm leading-relaxed"
           />
        </div>
     </div>

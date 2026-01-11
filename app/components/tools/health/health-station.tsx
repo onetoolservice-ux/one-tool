@@ -25,8 +25,8 @@ export const HealthStation = ({ toolId }: { toolId: string }) => {
        <Activity size={40} className="mx-auto text-rose-500 mb-4"/>
        <h2 className="text-2xl font-bold mb-6 text-slate-900 dark:text-white">BMI Calculator</h2>
        <div className="grid grid-cols-2 gap-4 mb-6">
-          <input type="number" placeholder="Height (cm)" value={val.h} onChange={e=>setVal({...val, h: +e.target.value})} className="p-4 border rounded-xl bg-slate-50 dark:bg-slate-950 text-center font-bold outline-none focus:border-rose-500"/>
-          <input type="number" placeholder="Weight (kg)" value={val.w} onChange={e=>setVal({...val, w: +e.target.value})} className="p-4 border rounded-xl bg-slate-50 dark:bg-slate-950 text-center font-bold outline-none focus:border-rose-500"/>
+          <input type="number" placeholder="Height (cm)" value={val.h} onChange={e=>setVal({...val, h: +e.target.value})} className="p-4 border border-blue-300 dark:border-blue-600 rounded-xl bg-white dark:bg-slate-800 text-center font-bold outline-none  transition-all"/>
+          <input type="number" placeholder="Weight (kg)" value={val.w} onChange={e=>setVal({...val, w: +e.target.value})} className="p-4 border border-blue-300 dark:border-blue-600 rounded-xl bg-white dark:bg-slate-800 text-center font-bold outline-none  transition-all"/>
        </div>
        <div className="p-8 bg-slate-900 text-white rounded-2xl">
           <div className="text-6xl font-black mb-2">{bmi}</div>

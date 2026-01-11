@@ -3,53 +3,94 @@
 import React, { useState, useRef, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Search, Command, Share2, Coffee, Home, X } from 'lucide-react';
+import { Search, Command, Share2, Coffee, Home, X, User, LogOut, LogIn, Shield } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { fuzzySearch } from '@/app/lib/search-utils';
+import { useAuth } from '@/app/contexts/auth-context';
+import { ALL_TOOLS } from '@/app/lib/tools-data';
 
-// --- SEARCH DATA ---
-const SEARCH_TOOLS = [
-  { id: 'life-os', title: 'Life OS', category: 'productivity' },
-  { id: 'pomodoro', title: 'Focus Timer', category: 'productivity' },
-  { id: 'qr-code', title: 'QR Generator', category: 'productivity' },
-  { id: 'smart-pass', title: 'Password Generator', category: 'productivity' },
-  { id: 'invoice-generator', title: 'Invoice Maker', category: 'business' },
-  { id: 'salary-slip', title: 'Salary Slip', category: 'business' },
-  { id: 'rent-receipt', title: 'Rent Receipt', category: 'business' },
-  { id: 'id-card', title: 'ID Card Maker', category: 'business' },
-  { id: 'smart-agreement', title: 'Agreement Builder', category: 'business' },
-  { id: 'smart-scan', title: 'Smart Scan', category: 'documents' },
-  { id: 'smart-ocr', title: 'Smart OCR', category: 'documents' },
-  { id: 'pdf-workbench', title: 'PDF Workbench', category: 'documents' },
-  { id: 'pdf-splitter', title: 'PDF Splitter', category: 'documents' },
-  { id: 'image-compressor', title: 'Image Compressor', category: 'documents' },
-  { id: 'image-converter', title: 'Image Converter', category: 'documents' },
-  { id: 'csv-studio', title: 'CSV Studio', category: 'documents' },
-  { id: 'markdown-studio', title: 'Markdown Studio', category: 'documents' },
-  { id: 'universal-converter', title: 'File Converter', category: 'documents' },
-  { id: 'api-playground', title: 'API Playground', category: 'developer' },
-  { id: 'dev-station', title: 'Dev Station', category: 'developer' },
-  { id: 'git-cheats', title: 'Git Cheatsheet', category: 'developer' },
-  { id: 'cron-gen', title: 'Cron Generator', category: 'developer' },
-  { id: 'jwt-debugger', title: 'JWT Debugger', category: 'developer' },
-  { id: 'diff-studio', title: 'Diff Studio', category: 'developer' },
-  { id: 'string-studio', title: 'String Tools', category: 'developer' },
-  { id: 'json-editor', title: 'JSON Editor', category: 'developer' },
-  { id: 'sql-editor', title: 'SQL Editor', category: 'developer' },
-  { id: 'budget-planner', title: 'Budget Planner', category: 'finance' },
-  { id: 'net-worth', title: 'Net Worth', category: 'finance' },
-  { id: 'investment', title: 'Investment Calculator', category: 'finance' },
-  { id: 'loan-calc', title: 'Loan Calculator', category: 'finance' },
-  { id: 'gst-calc', title: 'GST Calculator', category: 'finance' },
-  { id: 'retirement', title: 'Retirement Planner', category: 'finance' },
-  { id: 'smart-bmi', title: 'BMI Calculator', category: 'health' },
-  { id: 'box-breathing', title: 'Box Breathing', category: 'health' },
-  { id: 'hiit-timer', title: 'HIIT Timer', category: 'health' },
-  { id: 'smart-chat', title: 'AI Assistant', category: 'ai' },
-  { id: 'smart-analyze', title: 'Sentiment AI', category: 'ai' },
-  { id: 'color-picker', title: 'Color Studio', category: 'design' },
-  { id: 'unit-convert', title: 'Unit Converter', category: 'converters' },
-];
+// --- SEARCH DATA --- (Derived from ALL_TOOLS - no hardcoding needed)
+const SEARCH_TOOLS = ALL_TOOLS.map(tool => ({
+  id: tool.id,
+  title: tool.name,
+  category: tool.category.toLowerCase(),
+}));
+
+// Auth Buttons Component
+function AuthButtons() {
+  const { user, signOut, loading, isAdmin } = useAuth();
+  const [showMenu, setShowMenu] = useState(false);
+
+  if (loading) {
+    return (
+      <div className="w-9 h-9 rounded-full bg-gray-200 dark:bg-white/10 animate-pulse"></div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <Link 
+        href="/auth/login"
+        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold transition-colors"
+      >
+        <LogIn size={16} />
+        <span className="hidden sm:inline">Sign In</span>
+      </Link>
+    );
+  }
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setShowMenu(!showMenu)}
+        className="flex items-center gap-2 p-2 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-white/5 min-w-[44px] min-h-[44px]"
+        aria-label="User menu"
+        aria-expanded={showMenu}
+        aria-haspopup="true"
+      >
+        <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold">
+          {user.email?.charAt(0).toUpperCase() || <User size={16} />}
+        </div>
+      </button>
+
+      {showMenu && (
+        <>
+          <div 
+            className="fixed inset-0 z-40" 
+            onClick={() => setShowMenu(false)}
+          />
+          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-xl z-50 overflow-hidden">
+            <div className="p-3 border-b border-gray-200 dark:border-slate-700">
+              <p className="text-sm font-bold text-gray-900 dark:text-white truncate">
+                {user.email}
+              </p>
+            </div>
+            {isAdmin && (
+              <Link
+                href="/admin"
+                onClick={() => setShowMenu(false)}
+                className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm text-indigo-600 dark:text-indigo-400 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors border-b border-gray-200 dark:border-slate-700"
+              >
+                <Shield size={16} />
+                Admin Panel
+              </Link>
+            )}
+            <button
+              onClick={async () => {
+                await signOut();
+                setShowMenu(false);
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
+            >
+              <LogOut size={16} />
+              Sign Out
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 function HeaderContent() {
   const pathname = usePathname();
@@ -73,7 +114,9 @@ function HeaderContent() {
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   useEffect(() => {
@@ -87,7 +130,9 @@ function HeaderContent() {
 
   const handleSearchEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      router.push(`/?search=${encodeURIComponent(query)}`);
+      // Sanitize query before navigation
+      const sanitizedQuery = query.trim().replace(/[<>"']/g, '');
+      router.push(`/?search=${encodeURIComponent(sanitizedQuery)}`);
       setIsFocused(false);
     }
   };
@@ -136,7 +181,7 @@ function HeaderContent() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-emerald-500 transition-colors" />
             <input 
                type="text" 
-               placeholder="Search tools (e.g. 'pdf' or 'invice')..."
+               placeholder="Search tools (e.g. 'pdf' or 'invoice')..."
                value={query}
                onChange={(e) => setQuery(e.target.value)}
                onFocus={() => setIsFocused(true)}
@@ -144,7 +189,11 @@ function HeaderContent() {
                className="w-full rounded-lg py-2 pl-10 pr-12 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500/50 transition-all bg-gray-50 dark:bg-[#1C1F2E] text-gray-900 dark:text-white border-transparent focus:bg-white dark:focus:bg-[#0F111A] border border-transparent focus:border-emerald-500/20"
             />
             {query && (
-              <button onClick={() => { setQuery(''); router.push('/'); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <button 
+                onClick={() => { setQuery(''); router.push('/'); }} 
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                aria-label="Clear search"
+              >
                 <X size={14} />
               </button>
             )}
@@ -182,7 +231,10 @@ function HeaderContent() {
          <div className="h-5 w-px mx-1 hidden lg:block bg-gray-200 dark:bg-white/10"></div>
          <ThemeToggle />
          
-         <button className="p-2 rounded-lg transition-colors text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5">
+         <button 
+           className="p-2 rounded-lg transition-colors text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5 min-w-[44px] min-h-[44px] flex items-center justify-center"
+           aria-label="Share"
+         >
             <Share2 size={18} />
          </button>
          
@@ -191,11 +243,14 @@ function HeaderContent() {
            href="https://buymeacoffee.com/onetool" 
            target="_blank" 
            rel="noopener noreferrer"
-           className="p-2 rounded-lg transition-colors text-gray-500 hover:text-yellow-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5"
-           title="Buy me a coffee"
+           className="p-2 rounded-lg transition-colors text-gray-500 hover:text-yellow-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5 min-w-[44px] min-h-[44px] flex items-center justify-center"
+           aria-label="Buy me a coffee"
          >
             <Coffee size={18} />
          </a>
+
+         {/* AUTH BUTTONS */}
+         <AuthButtons />
       </div>
     </header>
   );

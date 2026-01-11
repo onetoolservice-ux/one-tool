@@ -1,7 +1,10 @@
 "use client";
 import React, { useState } from 'react';
-import { Briefcase, Calendar, TrendingUp, Target } from 'lucide-react';
+import { Briefcase } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { Input } from '@/app/components/shared';
+import { formatCurrency } from '@/app/lib/utils/tool-helpers';
+import { showToast } from '@/app/shared/Toast';
 
 export const RetirementPlanner = () => {
   const [currentAge, setCurrentAge] = useState(30);
@@ -59,10 +62,78 @@ export const RetirementPlanner = () => {
              </div>
              
              <div className="grid grid-cols-1 gap-4">
-                <div><label className="text-[10px] font-bold uppercase text-slate-400">Current Savings</label><input type="number" value={currentSavings} onChange={e=>setCurrentSavings(+e.target.value)} className="w-full p-3 border rounded-xl font-bold"/></div>
-                <div><label className="text-[10px] font-bold uppercase text-slate-400">Monthly Investment</label><input type="number" value={monthlySavings} onChange={e=>setMonthlySavings(+e.target.value)} className="w-full p-3 border rounded-xl font-bold"/></div>
-                <div><label className="text-[10px] font-bold uppercase text-slate-400">Monthly Expense (Today)</label><input type="number" value={expense} onChange={e=>setExpense(+e.target.value)} className="w-full p-3 border rounded-xl font-bold"/></div>
-                <div><label className="text-[10px] font-bold uppercase text-slate-400">Exp. Return (%)</label><input type="number" value={rate} onChange={e=>setRate(+e.target.value)} className="w-full p-3 border rounded-xl font-bold"/></div>
+                <Input
+                  label="Current Savings"
+                  type="number"
+                  value={currentSavings.toString()}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value) || 0;
+                    if (val < 0) {
+                      showToast('Current savings cannot be negative', 'error');
+                      return;
+                    }
+                    if (val > 10000000000) {
+                      showToast('Current savings cannot exceed ₹10,000 crores', 'error');
+                      return;
+                    }
+                    setCurrentSavings(val);
+                  }}
+                  className="font-bold"
+                />
+                <Input
+                  label="Monthly Investment"
+                  type="number"
+                  value={monthlySavings.toString()}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value) || 0;
+                    if (val < 0) {
+                      showToast('Monthly investment cannot be negative', 'error');
+                      return;
+                    }
+                    if (val > 10000000) {
+                      showToast('Monthly investment cannot exceed ₹1 crore', 'error');
+                      return;
+                    }
+                    setMonthlySavings(val);
+                  }}
+                  className="font-bold"
+                />
+                <Input
+                  label="Monthly Expense (Today)"
+                  type="number"
+                  value={expense.toString()}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value) || 0;
+                    if (val < 0) {
+                      showToast('Monthly expense cannot be negative', 'error');
+                      return;
+                    }
+                    if (val > 10000000) {
+                      showToast('Monthly expense cannot exceed ₹1 crore', 'error');
+                      return;
+                    }
+                    setExpense(val);
+                  }}
+                  className="font-bold"
+                />
+                <Input
+                  label="Exp. Return (%)"
+                  type="number"
+                  value={rate.toString()}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value) || 0;
+                    if (val < 0) {
+                      showToast('Expected return cannot be negative', 'error');
+                      return;
+                    }
+                    if (val > 100) {
+                      showToast('Expected return cannot exceed 100%', 'error');
+                      return;
+                    }
+                    setRate(val);
+                  }}
+                  className="font-bold"
+                />
              </div>
           </div>
        </div>
@@ -70,18 +141,18 @@ export const RetirementPlanner = () => {
        {/* RIGHT: PROJECTION */}
        <div className="flex-1 bg-slate-50 dark:bg-black/20 p-8 rounded-3xl border border-slate-200 dark:border-slate-800 flex flex-col">
           <div className="grid grid-cols-2 gap-4 mb-8">
-             <div className="p-6 bg-white dark:bg-slate-900 rounded-2xl border shadow-sm">
+             <div className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                 <p className="text-xs font-bold text-slate-400 uppercase mb-1">Projected Corpus</p>
-                <h2 className="text-3xl font-black text-emerald-600">₹ {(totalCorpus/10000000).toFixed(2)} Cr</h2>
+                <h2 className="text-3xl font-black text-emerald-600">{formatCurrency(totalCorpus / 10000000)} Cr</h2>
              </div>
-             <div className="p-6 bg-white dark:bg-slate-900 rounded-2xl border shadow-sm">
+             <div className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                 <p className="text-xs font-bold text-slate-400 uppercase mb-1">Required for Lifestyle</p>
-                <h2 className="text-3xl font-black text-slate-800 dark:text-white">₹ {(requiredCorpus/10000000).toFixed(2)} Cr</h2>
+                <h2 className="text-3xl font-black text-slate-800 dark:text-white">{formatCurrency(requiredCorpus / 10000000)} Cr</h2>
              </div>
           </div>
 
-          <div className={`p-4 rounded-xl text-center text-sm font-bold mb-6 ${gap >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
-             {gap >= 0 ? "🎉 You are on track to retire comfortably!" : `⚠️ You need ₹ ${Math.abs(gap/100000).toFixed(0)} Lakhs more. Increase SIP.`}
+          <div className={`p-4 rounded-xl text-center text-sm font-bold mb-6 ${gap >= 0 ? 'bg-emerald-100 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300' : 'bg-rose-100 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300'}`}>
+             {gap >= 0 ? "🎉 You are on track to retire comfortably!" : `⚠️ You need ${formatCurrency(Math.abs(gap/100000))} Lakhs more. Increase SIP.`}
           </div>
 
           <div className="flex-1 bg-white dark:bg-slate-900 rounded-2xl p-4 border relative">

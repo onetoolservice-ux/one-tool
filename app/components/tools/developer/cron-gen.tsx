@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
-import { Clock, Copy } from 'lucide-react';
+import { Clock } from 'lucide-react';
+import { Button } from '@/app/components/shared';
 
 export const CronGenerator = () => {
   const [cron, setCron] = useState({ min: '*', hour: '*', dom: '*', month: '*', dow: '*' });

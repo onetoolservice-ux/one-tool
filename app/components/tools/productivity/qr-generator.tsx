@@ -7,16 +7,28 @@ export const QrGenerator = () => {
   const [color, setColor] = useState("000000");
   const [bgColor, setBgColor] = useState("ffffff");
   
+  // Normalize color to hex format (remove #, ensure 6 chars)
+  const normalizeColor = (col: string): string => {
+    let normalized = col.replace('#', '').toUpperCase();
+    // Validate hex color (6 hex digits)
+    if (!/^[0-9A-F]{6}$/i.test(normalized)) {
+      return '000000'; // Default to black if invalid
+    }
+    return normalized;
+  };
+  
   // Robust API for customization
-  const url = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(text)}&color=${color.replace('#','')}&bgcolor=${bgColor.replace('#','')}&margin=10`;
+  const normalizedColor = normalizeColor(color);
+  const normalizedBgColor = normalizeColor(bgColor);
+  const url = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(text)}&color=${normalizedColor}&bgcolor=${normalizedBgColor}&margin=10`;
 
   return (
     <div className="max-w-4xl mx-auto h-[calc(100vh-80px)] flex flex-col lg:flex-row gap-12 p-8 items-center bg-white dark:bg-[#0B1120]">
        
        {/* CONTROLS */}
-       <div className="w-full lg:w-1/2 space-y-8">
+       <div className="w-full lg:w-1/2 space-y-6">
           <div>
-             <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-2 flex items-center gap-3"><QrCode className="text-blue-600"/> QR Studio</h1>
+             <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-3"><QrCode className="text-blue-600"/> QR Studio</h1>
              <p className="text-slate-500">Create custom QR codes for links, text, or Wi-Fi.</p>
           </div>
 
@@ -26,7 +38,7 @@ export const QrGenerator = () => {
                 <input 
                   value={text} 
                   onChange={e=>setText(e.target.value)} 
-                  className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl font-medium outline-none focus:ring-2 ring-blue-500/20 text-slate-900 dark:text-white"
+                  className="w-full p-4 bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-600 rounded-xl font-medium outline-none text-slate-900 dark:text-white transition-all"
                   placeholder="https://... or plain text"
                />
              </div>
@@ -42,8 +54,8 @@ export const QrGenerator = () => {
                 <div>
                    <label className="text-xs font-bold uppercase text-slate-400 mb-2 block">Background</label>
                    <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-800">
-                      <input type="color" value={bgColor} onChange={e=>setBgColor(e.target.value)} className="w-10 h-10 rounded-lg cursor-pointer border-none bg-transparent"/>
-                      <span className="font-mono text-xs text-slate-500">{bgColor}</span>
+                      <input type="color" value={`#${normalizedBgColor}`} onChange={e=>setBgColor(e.target.value.replace('#',''))} className="w-10 h-10 rounded-lg cursor-pointer border-none bg-transparent"/>
+                      <span className="font-mono text-xs text-slate-500">#{normalizedBgColor}</span>
                    </div>
                 </div>
              </div>
@@ -56,7 +68,7 @@ export const QrGenerator = () => {
              <img src={url} alt="QR Code" className="w-64 h-64 mix-blend-multiply"/>
           </div>
           <div className="flex gap-3">
-             <a href={url} download="qrcode.png" className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg hover:-translate-y-1 transition-transform">
+             <a href={url} download="qrcode.png" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg hover:-translate-y-1 transition-all">
                 <Download size={18}/> Download PNG
              </a>
           </div>

@@ -2,6 +2,9 @@
 import React, { useState } from 'react';
 import { ScanLine, Upload, X, Download, FileText, Plus } from 'lucide-react';
 import jsPDF from 'jspdf';
+import { showToast } from '@/app/shared/Toast';
+import { MAX_IMAGE_FILE_SIZE } from '@/app/lib/constants';
+import { getErrorMessage } from '@/app/lib/errors/error-handler';
 
 export const SmartScan = () => {
   const [images, setImages] = useState<string[]>([]);
@@ -14,17 +17,29 @@ export const SmartScan = () => {
     }
   };
 
-  const createPDF = () => {
+  const createPDF = async () => {
+    if (images.length === 0) {
+      showToast('Please add at least one image', 'error');
+      return;
+    }
+    
     setProcessing(true);
-    const pdf = new jsPDF();
-    images.forEach((img, i) => {
-       if (i > 0) pdf.addPage();
-       const width = pdf.internal.pageSize.getWidth();
-       const height = pdf.internal.pageSize.getHeight();
-       pdf.addImage(img, 'JPEG', 0, 0, width, height);
-    });
-    pdf.save('Scanned_Doc.pdf');
-    setProcessing(false);
+    try {
+      const pdf = new jsPDF();
+      images.forEach((img, i) => {
+         if (i > 0) pdf.addPage();
+         const width = pdf.internal.pageSize.getWidth();
+         const height = pdf.internal.pageSize.getHeight();
+         pdf.addImage(img, 'JPEG', 0, 0, width, height);
+      });
+      pdf.save('Scanned_Doc.pdf');
+      showToast('PDF created successfully', 'success');
+    } catch (error) {
+      const message = getErrorMessage(error);
+      showToast(message || 'Failed to create PDF. Please try again.', 'error');
+    } finally {
+      setProcessing(false);
+    }
   };
 
   return (
@@ -39,7 +54,7 @@ export const SmartScan = () => {
                 <Plus size={16}/> Add Pages
                 <input type="file" multiple accept="image/*" className="hidden" onChange={handleUpload}/>
              </label>
-             <button onClick={createPDF} disabled={images.length===0} className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:opacity-90 disabled:opacity-50">
+             <button onClick={createPDF} disabled={images.length===0} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 disabled:opacity-50 transition-colors">
                 {processing ? "Generating..." : <><Download size={16}/> Save as PDF</>}
              </button>
           </div>

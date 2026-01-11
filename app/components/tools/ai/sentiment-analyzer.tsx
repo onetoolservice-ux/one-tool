@@ -25,12 +25,12 @@ export const SentimentAI = () => {
        <div className="flex-1 flex flex-col">
           <h1 className="text-2xl font-bold mb-4 flex items-center gap-2"><Brain className="text-purple-600"/> Sentiment AI</h1>
           <textarea 
-             className="flex-1 p-6 bg-slate-50 dark:bg-slate-900 border rounded-2xl resize-none outline-none focus:ring-2 ring-purple-500/20 text-sm leading-relaxed"
+             className="flex-1 p-6 bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-600 rounded-2xl resize-none outline-none text-sm leading-relaxed transition-all"
              placeholder="Paste review, email, or feedback here to analyze emotional tone..."
              value={text}
              onChange={e=>setText(e.target.value)}
           />
-          <button onClick={analyze} className="mt-4 w-full bg-purple-600 text-white py-3 rounded-xl font-bold hover:bg-purple-700 transition-colors">Analyze Text</button>
+          <button onClick={analyze} className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold transition-colors">Analyze Text</button>
        </div>
 
        <div className="w-full lg:w-80">

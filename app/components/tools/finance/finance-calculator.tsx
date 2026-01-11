@@ -154,14 +154,14 @@ export const FinanceCalculator = () => {
                  { id: 'home', label: 'Home' }, { id: 'car', label: 'Car' }, { id: 'personal', label: 'Personal' },
                  { id: 'edu', label: 'Education' }, { id: 'gold', label: 'Gold' }, { id: 'ev', label: 'EV' }
                ].map(f => (
-                  <button key={f.id} onClick={() => setPreset(f.id)} className="px-3 py-1 text-xs font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-full hover:border-indigo-500 transition-colors whitespace-nowrap">
+                  <button key={f.id} onClick={() => setPreset(f.id)} className="px-3 py-1 text-xs font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-full hover:border-blue-500 transition-colors whitespace-nowrap">
                     {f.label}
                   </button>
                ))}
             </div>
             
             <div className="flex items-center gap-2">
-               <button onClick={() => setView('table')} className={`px-4 py-2 text-sm font-bold rounded-lg flex items-center gap-2 ${view==='table'?'bg-indigo-600 text-white shadow-md':'bg-white dark:bg-slate-900 text-slate-600 border border-slate-200 dark:border-slate-700'}`}>
+               <button onClick={() => setView('table')} className={`px-4 py-2 text-sm font-bold rounded-lg flex items-center gap-2 transition-colors ${view==='table'?'bg-blue-600 hover:bg-blue-700 text-white shadow-md':'bg-white dark:bg-slate-900 text-slate-600 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
                  <TableIcon size={16} /> Schedule
                </button>
                <button onClick={exportToCSV} className="px-4 py-2 text-sm font-bold bg-white dark:bg-slate-900 text-slate-600 border border-slate-200 dark:border-slate-700 rounded-lg flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-800">
@@ -183,7 +183,7 @@ export const FinanceCalculator = () => {
                     type="number" 
                     value={amount} 
                     onChange={(e) => setAmount(Number(e.target.value))}
-                    className="w-full pl-10 pr-4 h-11 text-lg font-bold bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:border-indigo-500 outline-none transition-all"
+                    className="w-full pl-10 pr-4 h-11 text-lg font-bold bg-white dark:bg-slate-900 border border-blue-300 dark:border-blue-600 rounded-xl outline-none transition-all"
                   />
                </div>
             </div>
@@ -194,7 +194,7 @@ export const FinanceCalculator = () => {
                   <Percent className="absolute left-3 top-2.5 text-slate-400 w-5 h-5" />
                   <input 
                     type="number" step="0.1" value={rate} onChange={(e) => setRate(Number(e.target.value))}
-                    className="w-full pl-10 pr-4 h-11 text-lg font-bold bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:border-indigo-500 outline-none transition-all"
+                    className="w-full pl-10 pr-4 h-11 text-lg font-bold bg-white dark:bg-slate-900 border border-blue-300 dark:border-blue-600 rounded-xl outline-none transition-all"
                   />
                </div>
             </div>
@@ -205,7 +205,7 @@ export const FinanceCalculator = () => {
                   <Calendar className="absolute left-3 top-2.5 text-slate-400 w-5 h-5" />
                   <input 
                     type="number" value={years} onChange={(e) => setYears(Number(e.target.value))}
-                    className="w-full pl-10 pr-4 h-11 text-lg font-bold bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:border-indigo-500 outline-none transition-all"
+                    className="w-full pl-10 pr-4 h-11 text-lg font-bold bg-white dark:bg-slate-900 border border-blue-300 dark:border-blue-600 rounded-xl outline-none transition-all"
                   />
                </div>
             </div>

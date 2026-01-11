@@ -1,6 +1,8 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Key, Lock } from 'lucide-react';
+import { Key } from 'lucide-react';
+import { Textarea } from '@/app/components/shared';
+import { showToast } from '@/app/shared/Toast';
 
 export const JwtDebugger = () => {
   const [token, setToken] = useState("");
@@ -14,7 +16,10 @@ export const JwtDebugger = () => {
           payload: JSON.stringify(JSON.parse(atob(p)), null, 2),
           sig: s 
        });
-    } catch(e) { setParts({}); }
+    } catch(e) { 
+      setParts({});
+      showToast('Invalid JWT token format', 'error');
+    }
   }, [token]);
 
   return (
@@ -22,7 +27,12 @@ export const JwtDebugger = () => {
        <div className="flex flex-col gap-4">
           <div className="p-4 bg-white dark:bg-slate-900 border rounded-2xl shadow-sm">
              <h2 className="font-bold flex items-center gap-2 mb-2"><Key className="text-rose-500"/> Encoded Token</h2>
-             <textarea value={token} onChange={e=>setToken(e.target.value)} className="w-full h-40 p-4 bg-slate-50 dark:bg-black rounded-xl font-mono text-xs break-all text-slate-600 outline-none focus:ring-2 ring-rose-500/20" placeholder="Paste JWT..."/>
+             <Textarea 
+               value={token} 
+               onChange={e=>setToken(e.target.value)} 
+               className="h-40 font-mono text-xs break-all" 
+               placeholder="Paste JWT..."
+             />
           </div>
           <div className="flex-1 bg-white dark:bg-slate-900 border rounded-2xl p-6 shadow-sm">
              <h3 className="font-bold text-slate-500 uppercase text-xs mb-4">Algorithm & Type</h3>

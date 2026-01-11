@@ -154,7 +154,7 @@ export const HealthStation = ({ toolId }: HealthProps) => {
             {/* Controls */}
             <div className="flex justify-center gap-4">
                {workoutState === 'idle' ? (
-                 <button onClick={() => {setWorkoutState('work'); setTimeLeft(30);}} className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-3 rounded-full font-bold flex items-center gap-2 hover:scale-105 transition-transform">
+                 <button onClick={() => {setWorkoutState('work'); setTimeLeft(30);}} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-bold flex items-center gap-2 hover:scale-105 transition-all">
                     <Play size={18}/> Start Workout
                  </button>
                ) : (
