@@ -14,10 +14,19 @@ export function createClient() {
   if (!supabaseUrl || !supabaseAnonKey) {
     // If we're in a browser and env vars are missing, throw error
     if (typeof window !== 'undefined') {
-      const isVercel = process.env.NEXT_PUBLIC_VERCEL === '1' || window.location.hostname.includes('vercel.app');
+      const hostname = window.location.hostname;
+      const isVercel = hostname.includes('vercel.app') || hostname.includes('vercel.com');
+      
+      // Debug info for troubleshooting
+      console.error('🔴 Supabase Environment Variables Missing');
+      console.error('Hostname:', hostname);
+      console.error('Is Vercel:', isVercel);
+      console.error('NEXT_PUBLIC_SUPABASE_URL:', supabaseUrl || 'undefined');
+      console.error('NEXT_PUBLIC_SUPABASE_ANON_KEY:', supabaseAnonKey ? 'exists but empty' : 'undefined');
+      
       const errorMessage = isVercel
-        ? 'Missing Supabase environment variables in Vercel. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel Settings → Environment Variables, then redeploy.'
-        : 'Missing Supabase environment variables. Please create a .env.local file with NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY';
+        ? 'Missing Supabase environment variables in Vercel. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel Settings → Environment Variables, then redeploy. (Check browser console for details)'
+        : 'Missing Supabase environment variables. Please create a .env.local file with NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY. (Check browser console for details)';
       throw new Error(errorMessage);
     }
     
