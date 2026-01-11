@@ -10,7 +10,6 @@ import { Shield, Users, Package, UserCheck, Search, Trash2, Mail, Calendar, Crow
 // Force dynamic rendering to prevent prerendering during build
 // This avoids errors when Supabase env vars are missing during build time
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 export default function AdminPage() {
   const { user, loading: authLoading, isAdmin: isUserAdmin } = useAuth();

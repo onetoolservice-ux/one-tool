@@ -11,7 +11,6 @@ import { validateEmail, validatePassword, validateLength } from '@/app/lib/valid
 // Force dynamic rendering to prevent prerendering during build
 // This avoids errors when Supabase env vars are missing during build time
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');

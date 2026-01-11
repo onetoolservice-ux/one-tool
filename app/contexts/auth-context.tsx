@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useRef } from 'react';
+import { createContext, useContext, useEffect, useState, useRef, useMemo } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { createClient } from '@/app/lib/supabase/client';
 import { useRouter } from 'next/navigation';
@@ -28,9 +28,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const supabase = createClient();
+  // Lazy-load Supabase client only in browser to prevent build-time errors
+  const supabase = useMemo(() => {
+    if (typeof window === 'undefined') {
+      // During SSR/build, return a placeholder - won't be used anyway
+      return null as any;
+    }
+    return createClient();
+  }, []);
 
   useEffect(() => {
+    // Only run in browser - skip during SSR/build
+    if (!supabase || typeof window === 'undefined') {
+      setLoading(false);
+      return;
+    }
+
     let refreshTimer: NodeJS.Timeout | null = null;
     
     // Get initial session
@@ -98,7 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         clearTimeout(refreshTimer);
       }
     };
-  }, [supabase.auth]);
+  }, [supabase]);
 
   // Track fetch state with ref to persist across renders (prevents duplicate calls)
   const isFetchingRef = useRef(false);
@@ -158,6 +171,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user?.id, loading]); // Use user.id instead of user object to prevent unnecessary re-runs
 
   const signIn = async (email: string, password: string) => {
+    if (!supabase) {
+      return { error: new Error('Supabase client not initialized') };
+    }
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
@@ -176,6 +192,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signUp = async (email: string, password: string, fullName?: string) => {
+    if (!supabase) {
+      return { error: new Error('Supabase client not initialized') };
+    }
     try {
       const { error } = await supabase.auth.signUp({
         email,
@@ -198,13 +217,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
     clearUserProfileCache(); // Clear cache on logout
     setUserProfile(null); // Clear profile from state
     router.refresh();
   };
 
   const signInWithOAuth = async (provider: 'google' | 'github') => {
+    if (!supabase) {
+      throw new Error('Supabase client not initialized');
+    }
     try {
       // Validate redirect URL to prevent OAuth token hijacking
       const { getOAuthRedirectURL } = await import('@/app/lib/utils/oauth-redirect');
