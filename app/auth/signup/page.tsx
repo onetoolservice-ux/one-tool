@@ -8,6 +8,10 @@ import { UserPlus, Mail, Lock, User, Github } from 'lucide-react';
 import { showToast } from '@/app/shared/Toast';
 import { validateEmail, validatePassword, validateLength } from '@/app/lib/validation/validators';
 
+// Force dynamic rendering to prevent prerendering during build
+// This avoids errors when Supabase env vars are missing during build time
+export const dynamic = 'force-dynamic';
+
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
