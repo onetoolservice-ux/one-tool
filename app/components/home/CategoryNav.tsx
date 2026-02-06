@@ -1,46 +1,63 @@
 'use client';
 
 import React from 'react';
-import { LayoutGrid, Briefcase, DollarSign, FileText, Code, Zap, Heart, Sparkles, PenTool, RefreshCw } from 'lucide-react';
+import { CATEGORY_ORDER } from '@/app/lib/tools-data';
 
-export default function CategoryNav({ active, onChange }: { active: string, onChange: (id: string) => void }) {
-  const categories = [
-    { id: 'all', label: 'All Tools' },
-    { id: 'business', label: 'Business' },
-    { id: 'finance', label: 'Finance' },
-    { id: 'documents', label: 'Documents' },
-    { id: 'developer', label: 'Developer' },
-    { id: 'productivity', label: 'Productivity' },
-    { id: 'health', label: 'Health' },
-    { id: 'ai', label: 'AI' },
-    { id: 'design', label: 'Design' },
-    { id: 'converters', label: 'Converters' },
-  ];
+interface CategoryNavProps {
+  active: string;
+  onChange: (category: string) => void;
+}
+
+// Generate categories from CATEGORY_ORDER (Analytics first)
+const CATEGORIES = [
+  { id: 'all', label: 'All' },
+  ...CATEGORY_ORDER.map(cat => ({ id: cat.toLowerCase(), label: cat }))
+];
+
+export default function CategoryNav({ active, onChange }: CategoryNavProps) {
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
+  const [showLeftShadow, setShowLeftShadow] = React.useState(false);
+  const [showRightShadow, setShowRightShadow] = React.useState(false);
+
+  // Handle overflow shadows
+  const updateShadows = () => {
+    const el = containerRef.current;
+    if (!el) return;
+    setShowLeftShadow(el.scrollLeft > 4);
+    setShowRightShadow(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  };
+
+  React.useEffect(() => {
+    updateShadows();
+    const el = containerRef.current;
+    if (!el) return;
+    el.addEventListener('scroll', updateShadows, { passive: true });
+    window.addEventListener('resize', updateShadows);
+    return () => {
+      el.removeEventListener('scroll', updateShadows);
+      window.removeEventListener('resize', updateShadows);
+    };
+  }, []);
 
   return (
-    // FIX: Removed 'sticky', 'top-16', 'z-40'. Now it's a solid block that sits under the header.
-    <div className="w-full border-b border-gray-200 dark:border-white/5 bg-white dark:bg-[#0F111A] transition-colors duration-300 flex-shrink-0">
-      <div className="max-w-[1800px] mx-auto px-6 overflow-x-auto no-scrollbar">
-        <div className="flex items-center gap-8 h-12">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => onChange(cat.id)}
-              className={`text-sm font-medium transition-all relative h-12 px-1 flex items-center whitespace-nowrap ${
-                active === cat.id
-                  ? 'text-emerald-600 dark:text-emerald-400'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              {cat.id === 'all' && <LayoutGrid size={14} className="inline mr-2" />}
-              {cat.label}
-              {active === cat.id && (
-                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-emerald-500 rounded-t-full"></div>
-              )}
-            </button>
-          ))}
-        </div>
+    <div className="relative">
+      {showLeftShadow && <div className="absolute left-0 top-0 bottom-0 w-6 pointer-events-none bg-gradient-to-r from-black/6 dark:from-white/6 z-40" />}
+      <div ref={containerRef} className="flex items-center gap-1 overflow-x-auto pb-2 px-6 border-b border-gray-200 dark:border-white/5 bg-white dark:bg-[#0F111A] sticky top-0 z-40 no-scrollbar">
+        {CATEGORIES.map((category) => (
+          <button
+            key={category.id}
+            onClick={() => onChange(category.id)}
+            className={`px-4 py-2 text-sm font-medium whitespace-nowrap rounded-lg transition-all ${
+              active === category.id
+                ? 'bg-emerald-500 text-white dark:bg-emerald-600'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
+            }`}
+          >
+            {category.label}
+          </button>
+        ))}
       </div>
+      {showRightShadow && <div className="absolute right-0 top-0 bottom-0 w-6 pointer-events-none bg-gradient-to-l from-black/6 dark:from-white/6 z-40" />}
     </div>
   );
 }
