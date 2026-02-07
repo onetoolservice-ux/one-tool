@@ -3,7 +3,6 @@
 import React, { useMemo, memo } from 'react';
 import { ALL_TOOLS } from '@/app/lib/tools-data';
 import { fuzzySearch } from '@/app/lib/search-utils';
-import { getIconNameFromComponent } from '@/app/lib/utils/tools-helper';
 import { Search } from 'lucide-react';
 import { ToolCard } from './ToolCard';
 
@@ -28,7 +27,7 @@ const transformTool = (tool: any): Tool => {
     description: tool.desc || tool.description,
     category: tool.category,
     href: tool.href,
-    icon_name: getIconNameFromComponent(tool.icon) || undefined,
+    icon_name: typeof tool.icon === 'string' ? tool.icon : undefined,
     color: tool.color,
     popular: tool.popular || false,
     status: 'Active',
@@ -95,7 +94,7 @@ export const ToolGrid = memo(({ category, searchQuery }: { category: string, sea
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
       {filteredTools.map((tool) => (
         <ToolCard key={tool.id} tool={tool} />
       ))}

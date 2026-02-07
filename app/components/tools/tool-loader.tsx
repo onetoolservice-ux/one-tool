@@ -3,16 +3,20 @@ import dynamic from 'next/dynamic';
 import type { ComponentType } from 'react';
 import { ErrorBoundary } from '@/app/components/shared/ErrorBoundary';
 import { LoadingSpinner } from '@/app/components/shared/LoadingSpinner';
+import { trackEvent } from '@/app/lib/telemetry';
 
 // Tool component mapping
-const toolComponents: Record<string, () => Promise<{ default: ComponentType<any> }>> = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ToolComponentLoader = () => Promise<{ default: ComponentType<any> }>;
+const toolComponents: Record<string, ToolComponentLoader> = {
   'dev-station': () => import('@/app/components/tools/developer/dev-station'),
   'smart-excel': () => import('@/app/components/tools/documents/csv-studio').then(mod => ({ default: mod.CsvStudio })),
   'smart-word': () => import('@/app/components/tools/documents/markdown-studio').then(mod => ({ default: mod.MarkdownStudio })),
   'universal-converter': () => import('@/app/components/tools/documents/universal-converter').then(mod => ({ default: mod.UniversalConverter })),
   'smart-budget': () => import('@/app/components/tools/finance/budget-planner').then(mod => ({ default: mod.BudgetPlanner })),
-  'smart-loan': () => import('@/app/components/tools/finance/investment-calculator').then(mod => ({ default: mod.InvestmentCalculator })),
-  'smart-sip': () => import('@/app/components/tools/finance/investment-calculator').then(mod => ({ default: mod.InvestmentCalculator })),
+
+  'smart-loan': () => import('@/app/components/tools/finance/smart-loan-enhanced').then(mod => ({ default: mod.SmartLoanEnhanced })),
+  'smart-sip': () => import('@/app/components/tools/finance/sip-calculator').then(mod => ({ default: mod.SipCalculator })),
   'gst-calculator': () => import('@/app/components/tools/finance/gst-calculator').then(mod => ({ default: mod.GstCalculator })),
   'smart-net-worth': () => import('@/app/components/tools/finance/net-worth').then(mod => ({ default: mod.NetWorthTracker })),
   'smart-retirement': () => import('@/app/components/tools/finance/retirement-planner').then(mod => ({ default: mod.RetirementPlanner })),
@@ -51,33 +55,42 @@ const toolComponents: Record<string, () => Promise<{ default: ComponentType<any>
   'smart-jwt': () => import('@/app/components/tools/developer/jwt-debugger').then(mod => ({ default: mod.JwtDebugger })),
   'cron-gen': () => import('@/app/components/tools/developer/cron-gen').then(mod => ({ default: mod.CronGenerator })),
   'git-cheats': () => import('@/app/components/tools/developer/git-cheats').then(mod => ({ default: mod.GitCheats })),
+  'audio-transcription': () => import('@/app/components/tools/creator/audio-transcription').then(mod => ({ default: mod.AudioTranscription })),
+  'analyticsreport': () => import('@/app/components/tools/analytics/self-serve-analytics').then(mod => ({ default: mod.AnalyticsReport })),
+  'self-serve-analytics': () => import('@/app/components/tools/analytics/self-serve-analytics').then(mod => ({ default: mod.SelfServeAnalytics })),
+  'managetransaction': () => import('@/app/components/tools/analytics/manage-transactions').then(mod => ({ default: mod.ManageTransactions })),
+  'expenses': () => import('@/app/components/tools/analytics/expenses').then(mod => ({ default: mod.ExpensesTool })),
+  'credits': () => import('@/app/components/tools/analytics/credits').then(mod => ({ default: mod.CreditsTool })),
 };
 
 interface ToolLoaderProps {
   toolId: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export function ToolLoader({ toolId, ...props }: ToolLoaderProps) {
   const loader = toolComponents[toolId];
   
   if (!loader) {
+    trackEvent('tool_not_found', { toolId });
     return <div className="p-8 text-center">Tool component not found for {toolId}</div>;
   }
 
+  // Telemetry: tool opened
+  trackEvent('tool_opened', { toolId });
+
   const DynamicComponent = dynamic(loader, {
-    loading: () => <div className="p-8 text-center">Loading tool...</div>,
+    loading: () => (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <LoadingSpinner size="lg" text="Loading tool..." />
+      </div>
+    ),
+    ssr: false, // Disable SSR for tools to ensure proper code splitting
   });
 
   // Wrap component with Error Boundary
   const WrappedComponent = () => {
     // Handle special cases with props
-    if (toolId === 'smart-loan') {
-      return <DynamicComponent mode="loan" {...props} />;
-    }
-    if (toolId === 'smart-sip') {
-      return <DynamicComponent mode="sip" {...props} />;
-    }
     if (toolId === 'smart-json') {
       return <DynamicComponent toolId="json" title="JSON Editor" {...props} />;
     }

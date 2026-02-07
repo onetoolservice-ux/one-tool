@@ -1,4 +1,4 @@
-export type ToolCategory = 'finance' | 'developer' | 'health' | 'documents' | 'converters' | 'ai' | 'design' | 'productivity' | 'writing' | 'default';
+export type ToolCategory = 'analytics' | 'finance' | 'business' | 'developer' | 'health' | 'documents' | 'converters' | 'ai' | 'design' | 'productivity' | 'creator' | 'writing' | 'default';
 
 export const THEME_CONFIG: Record<ToolCategory, {
   primary: string;
@@ -8,6 +8,14 @@ export const THEME_CONFIG: Record<ToolCategory, {
   border: string;
   shadow: string;
 }> = {
+  analytics: {
+    primary: "text-blue-600",
+    gradient: "from-blue-600 to-cyan-500",
+    bgGradient: "from-blue-50/50 via-white to-cyan-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950",
+    iconBg: "bg-gradient-to-br from-blue-600 to-cyan-500",
+    border: "group-hover:border-blue-500/50 dark:group-hover:border-blue-400/50",
+    shadow: "group-hover:shadow-blue-500/20 dark:group-hover:shadow-blue-500/10"
+  },
   finance: {
     primary: "text-[#4a6b61]",
     gradient: "from-emerald-600 to-teal-500",
@@ -15,6 +23,14 @@ export const THEME_CONFIG: Record<ToolCategory, {
     iconBg: "bg-gradient-to-br from-emerald-500 to-teal-500",
     border: "group-hover:border-[#638c80]/50 dark:group-hover:border-emerald-400/50",
     shadow: "group-hover:shadow-emerald-500/20 dark:group-hover:shadow-emerald-500/10"
+  },
+  business: {
+    primary: "text-indigo-600",
+    gradient: "from-indigo-600 to-violet-500",
+    bgGradient: "from-indigo-50/50 via-white to-violet-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950",
+    iconBg: "bg-gradient-to-br from-indigo-500 to-violet-500",
+    border: "group-hover:border-indigo-500/50 dark:group-hover:border-indigo-400/50",
+    shadow: "group-hover:shadow-indigo-500/20 dark:group-hover:shadow-indigo-500/10"
   },
   developer: {
     primary: "text-violet-600",
@@ -71,6 +87,14 @@ export const THEME_CONFIG: Record<ToolCategory, {
     iconBg: "bg-gradient-to-br from-sky-500 to-blue-500",
     border: "group-hover:border-sky-500/50 dark:group-hover:border-sky-400/50",
     shadow: "group-hover:shadow-sky-500/20 dark:group-hover:shadow-sky-500/10"
+  },
+  creator: {
+    primary: "text-rose-600",
+    gradient: "from-rose-500 to-orange-500",
+    bgGradient: "from-rose-50/50 via-white to-orange-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950",
+    iconBg: "bg-gradient-to-br from-rose-500 to-orange-500",
+    border: "group-hover:border-rose-500/50 dark:group-hover:border-rose-400/50",
+    shadow: "group-hover:shadow-rose-500/20 dark:group-hover:shadow-rose-500/10"
   },
   writing: {
     primary: "text-gray-600",
