@@ -4,6 +4,7 @@ import { getTheme } from "@/app/lib/theme-config";
 import { Star } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { safeLocalStorage } from "@/app/lib/utils/storage";
+import { getIconComponent, type IconName } from "@/app/lib/utils/icon-mapper";
 
 export default function ToolTile({ tool }: { tool: any }) {
   const theme = getTheme(tool.category);
@@ -12,14 +13,14 @@ export default function ToolTile({ tool }: { tool: any }) {
 
   useEffect(() => {
     const favs = safeLocalStorage.getItem<string[]>("onetool-favorites", []);
-    setIsFav(favs.includes(tool.id));
+    setIsFav((favs || []).includes(tool.id));
   }, [tool.id]);
 
   const toggleFav = (e: React.MouseEvent) => {
     e.preventDefault(); 
     e.stopPropagation();
     
-    const favs = safeLocalStorage.getItem<string[]>("onetool-favorites", []);
+    const favs = safeLocalStorage.getItem<string[]>("onetool-favorites", []) || [];
     const newFavs = favs.includes(tool.id) 
       ? favs.filter((id: string) => id !== tool.id) 
       : [...favs, tool.id];
@@ -30,12 +31,20 @@ export default function ToolTile({ tool }: { tool: any }) {
     }
   };
 
+  // Handle icon formats: string key, component function, or already-instantiated React element
+  const isElementIcon = React.isValidElement(tool.icon);
+  const IconComponent = typeof tool.icon === 'string'
+    ? getIconComponent(tool.icon as IconName)
+    : (typeof tool.icon === 'function' ? (tool.icon as React.ComponentType<any>) : undefined);
+
   return (
     <Link href={href} className="group relative block h-full" aria-label={`Open ${tool.name} tool`}>
       <article className={`relative h-full p-5 rounded-lg bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-300 flex flex-col hover:-translate-y-1 hover:shadow-xl ${theme.shadow}`}>
         <div className="flex items-start justify-between mb-5">
           <div className={`w-14 h-14 min-w-[56px] min-h-[56px] flex items-center justify-center rounded-2xl text-white shadow-md transform group-hover:scale-110 transition-transform duration-300 ${theme.iconBg}`}>
-            {tool.icon}
+            {isElementIcon
+              ? React.cloneElement(tool.icon as React.ReactElement<any>, { size: 20 } as any)
+              : (IconComponent ? <IconComponent size={20} /> : null)}
           </div>
           <div className="flex items-center gap-2">
              {tool.status === "New" && <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-slate-100 border border-slate-200 text-slate-500">New</span>}

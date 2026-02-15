@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, RotateCcw, Plus, X, Dumbbell, Coffee, Volume2, VolumeX } from 'lucide-react';
-import { showToast } from '@/app/shared/Toast';
+import { Play, Pause, RotateCcw, Plus, X, Volume2, VolumeX } from 'lucide-react';
 
 export const HIITTimer = () => {
   // SETTINGS
@@ -20,7 +19,8 @@ export const HIITTimer = () => {
   const [currentExIndex, setCurrentExIndex] = useState(0);
   const [currentRound, setCurrentRound] = useState(1);
   const [sound, setSound] = useState(true);
-  
+  const [completionMsg, setCompletionMsg] = useState("");
+
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // --- LOGIC ---
@@ -88,7 +88,8 @@ export const HIITTimer = () => {
       if (currentExIndex >= exercises.length - 1) {
          if (currentRound >= rounds) {
             setActive(false);
-            showToast("WORKOUT COMPLETE! 💪", 'success');
+            setCompletionMsg("WORKOUT COMPLETE! 💪");
+            setTimeout(() => setCompletionMsg(""), 4000);
             reset();
             return;
          }
@@ -146,6 +147,12 @@ export const HIITTimer = () => {
              <span className="px-4 py-1 bg-white dark:bg-slate-800 rounded-full text-xs font-bold text-slate-600 dark:text-slate-300 border">Round {currentRound}/{rounds}</span>
              <span className="px-4 py-1 bg-white dark:bg-slate-800 rounded-full text-xs font-bold text-slate-600 dark:text-slate-300 border">Ex {currentExIndex + 1}/{exercises.length}</span>
           </div>
+
+          {completionMsg && (
+            <div className="px-6 py-3 bg-emerald-500 text-white rounded-2xl font-black text-lg shadow-xl animate-bounce mb-2">
+              {completionMsg}
+            </div>
+          )}
 
           <div className="flex gap-4">
              <button onClick={() => setActive(!active)} className="w-20 h-20 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-xl">

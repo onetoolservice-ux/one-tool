@@ -37,6 +37,7 @@ const toolComponents: Record<string, ToolComponentLoader> = {
   'smart-analyze': () => import('@/app/components/tools/ai/sentiment-analyzer').then(mod => ({ default: mod.SentimentAI })),
   'prompt-generator': () => import('@/app/components/tools/ai/prompt-generator').then(mod => ({ default: mod.PromptGenerator })),
   'color-picker': () => import('@/app/components/tools/design/color-picker').then(mod => ({ default: mod.ColorPicker })),
+  'color-studio': () => import('@/app/components/tools/design/color-studio').then(mod => ({ default: mod.ColorStudio })),
   'rent-receipt': () => import('@/app/components/tools/business/rent-receipt').then(mod => ({ default: mod.RentReceiptGenerator })),
   'salary-slip': () => import('@/app/components/tools/business/salary-slip').then(mod => ({ default: mod.SalarySlipGenerator })),
   'invoice-generator': () => import('@/app/components/tools/business/invoice-generator').then(mod => ({ default: mod.InvoiceGenerator })),
@@ -55,12 +56,17 @@ const toolComponents: Record<string, ToolComponentLoader> = {
   'smart-jwt': () => import('@/app/components/tools/developer/jwt-debugger').then(mod => ({ default: mod.JwtDebugger })),
   'cron-gen': () => import('@/app/components/tools/developer/cron-gen').then(mod => ({ default: mod.CronGenerator })),
   'git-cheats': () => import('@/app/components/tools/developer/git-cheats').then(mod => ({ default: mod.GitCheats })),
+  'regex-tester': () => import('@/app/components/tools/developer/regex-tester').then(mod => ({ default: mod.RegexTester })),
+  'hash-gen': () => import('@/app/components/tools/developer/hash-gen').then(mod => ({ default: mod.HashGenerator })),
+  'num-convert': () => import('@/app/components/tools/developer/num-convert').then(mod => ({ default: mod.NumConverter })),
+  'timestamp-tool': () => import('@/app/components/tools/developer/timestamp-tool').then(mod => ({ default: mod.TimestampTool })),
   'audio-transcription': () => import('@/app/components/tools/creator/audio-transcription').then(mod => ({ default: mod.AudioTranscription })),
   'analyticsreport': () => import('@/app/components/tools/analytics/self-serve-analytics').then(mod => ({ default: mod.AnalyticsReport })),
   'self-serve-analytics': () => import('@/app/components/tools/analytics/self-serve-analytics').then(mod => ({ default: mod.SelfServeAnalytics })),
   'managetransaction': () => import('@/app/components/tools/analytics/manage-transactions').then(mod => ({ default: mod.ManageTransactions })),
   'expenses': () => import('@/app/components/tools/analytics/expenses').then(mod => ({ default: mod.ExpensesTool })),
   'credits': () => import('@/app/components/tools/analytics/credits').then(mod => ({ default: mod.CreditsTool })),
+  'autonomous-financial-analyst': () => import('@/app/components/tools/analytics/autonomous-financial-analyst').then(mod => ({ default: mod.AutonomousFinancialAnalyst })),
 };
 
 interface ToolLoaderProps {

@@ -31,6 +31,14 @@ export interface Task {
 const LOCAL_STORAGE_KEY = 'lifeos_tasks_v2';
 const CATEGORIES = ["Study/Learning", "Fitness", "Business", "Personal", "Health"];
 
+// ── safe localStorage helpers ────────────────────────────────────────────────
+function lsGet<T>(key: string, fallback: T): T {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch { return fallback; }
+}
+function lsSet(key: string, value: unknown) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+}
+
 // Helper to check time conflicts
 const checkConflict = (tasks: Task[], date: string, start: string, end: string) => {
     if (!start || !end) return null; 
@@ -53,8 +61,7 @@ export function LifeOS() {
 
   useEffect(() => {
     setMounted(true);
-    const { safeLocalStorage } = require('@/app/lib/utils/storage');
-    const savedTasks = safeLocalStorage.getItem<Task[]>(LOCAL_STORAGE_KEY, []);
+    const savedTasks = lsGet<Task[]>(LOCAL_STORAGE_KEY, []);
     if (savedTasks && savedTasks.length > 0) setTasks(savedTasks);
     else {
        const today = new Date().toISOString().split('T')[0];
@@ -62,11 +69,8 @@ export function LifeOS() {
     }
   }, []);
 
-  useEffect(() => { 
-    if(mounted) {
-      const { safeLocalStorage } = require('@/app/lib/utils/storage');
-      safeLocalStorage.setItem(LOCAL_STORAGE_KEY, tasks);
-    }
+  useEffect(() => {
+    if(mounted) lsSet(LOCAL_STORAGE_KEY, tasks);
   }, [tasks, mounted]);
 
   // --- CRUD HANDLERS ---

@@ -6,7 +6,6 @@ import { fuzzySearch } from '@/app/lib/search-utils';
 import { Search } from 'lucide-react';
 import { ToolCard } from './ToolCard';
 
-// Transform ALL_TOOLS to match Tool interface format
 interface Tool {
   id: string;
   name: string;
@@ -19,62 +18,36 @@ interface Tool {
   status?: string;
 }
 
-// Transform tools data to include icon_name for compatibility
-const transformTool = (tool: any): Tool => {
-  return {
-    id: tool.id,
-    name: tool.name,
-    description: tool.desc || tool.description,
-    category: tool.category,
-    href: tool.href,
-    icon_name: typeof tool.icon === 'string' ? tool.icon : undefined,
-    color: tool.color,
-    popular: tool.popular || false,
-    status: 'Active',
-  };
-};
+const transformTool = (tool: any): Tool => ({
+  id: tool.id,
+  name: tool.name,
+  description: tool.desc || tool.description,
+  category: tool.category,
+  href: tool.href,
+  icon_name: typeof tool.icon === 'string' ? tool.icon : undefined,
+  color: tool.color,
+  popular: tool.popular || false,
+  status: 'Active',
+});
+
+const ALL_TRANSFORMED = ALL_TOOLS.map(transformTool);
 
 export const ToolGrid = memo(({ category, searchQuery }: { category: string, searchQuery?: string }) => {
-  // Use static frontend data - no database calls needed for static tool catalog
   const tools = useMemo(() => {
-    const allTools = ALL_TOOLS.map(transformTool);
-    
-    if (category === 'all') {
-      return allTools;
-    }
-    
-    // Normalize category name
+    if (category === 'all') return ALL_TRANSFORMED;
     const categoryMap: Record<string, string> = {
-      'analytics': 'Analytics',
-      'finance': 'Finance',
-      'business': 'Business',
-      'documents': 'Documents',
-      'developer': 'Developer',
-      'productivity': 'Productivity',
-      'converters': 'Converters',
-      'design': 'Design',
-      'health': 'Health',
-      'ai': 'AI',
-      'creator': 'Creator',
+      'analytics': 'Analytics', 'finance': 'Finance', 'business': 'Business',
+      'documents': 'Documents', 'developer': 'Developer', 'productivity': 'Productivity',
+      'converters': 'Converters', 'design': 'Design', 'health': 'Health',
+      'ai': 'AI', 'creator': 'Creator',
     };
-    
     const normalizedCategory = categoryMap[category] || category;
-    return allTools.filter(tool => tool.category === normalizedCategory);
+    return ALL_TRANSFORMED.filter(tool => tool.category === normalizedCategory);
   }, [category]);
 
-  // Memoize filtered tools using enhanced fuzzy search with synonyms
   const filteredTools = useMemo(() => {
-    if (!searchQuery || searchQuery.trim() === '') {
-      return tools;
-    }
-    // Use fuzzy search with synonym expansion for better results
-    // This handles mismatched keywords like "money" finding "budget" tools
-    const searchableTools = tools.map(t => ({
-      ...t,
-      id: t.id,
-      title: t.name,
-      category: t.category,
-    }));
+    if (!searchQuery || searchQuery.trim() === '') return tools;
+    const searchableTools = tools.map(t => ({ ...t, title: t.name }));
     const results = fuzzySearch(searchableTools, searchQuery, ['title', 'category']);
     return results.map(r => tools.find(t => t.id === r.id)!).filter(Boolean);
   }, [tools, searchQuery]);

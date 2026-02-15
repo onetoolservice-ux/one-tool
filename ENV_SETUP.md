@@ -29,3 +29,23 @@ After creating the file and restarting, the error should disappear.
 - `.env.local` is already in `.gitignore` (won't be committed to git)
 - These are public keys (safe to use in client-side code)
 - Never commit secret keys to git
+
+---
+
+## Running the dev server with Turbopack disabled (Windows)
+
+If Turbopack causes a panic, start Next with Turbopack disabled for faster iteration on client-heavy UI work:
+
+- CMD / Windows (recommended for quick testing):
+
+  ```cmd
+  set NEXT_DISABLE_TURBOPACK=1 && npm run dev
+  ```
+
+- PowerShell:
+
+  ```powershell
+  $env:NEXT_DISABLE_TURBOPACK='1'; npm run dev
+  ```
+
+This is temporary — keep Turbopack diagnosis as a non-blocking task for later.

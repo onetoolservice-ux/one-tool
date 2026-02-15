@@ -69,6 +69,25 @@ export const ALL_TOOLS: Tool[] = [
     color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400",
     desc: "Monitor income and credits with detailed breakdowns, source analysis, and growth tracking."
   },
+  {
+    id: "self-serve-analytics",
+    name: "Self-Serve Analytics",
+    category: "Analytics",
+    href: "/tools/analytics/self-serve-analytics",
+    icon: "BarChart3",
+    color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400",
+    desc: "Paste CSV data and instantly visualize with customizable charts, statistics, and trend analysis."
+  },
+  {
+    id: "autonomous-financial-analyst",
+    name: "AI Financial Analyst",
+    category: "Analytics",
+    href: "/tools/analytics/autonomous-financial-analyst",
+    icon: "Brain",
+    popular: true,
+    color: "text-purple-600 bg-purple-50 dark:bg-purple-900/20 dark:text-purple-400",
+    desc: "AI-powered financial insights with anomaly detection, predictions, and automated recommendations."
+  },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // FINANCE (Emerald/Green) - Financial calculators and planners
@@ -354,6 +373,43 @@ export const ALL_TOOLS: Tool[] = [
     color: "text-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400",
     desc: "Compare two texts side-by-side with highlighted differences and merge suggestions."
   },
+  {
+    id: "regex-tester",
+    name: "Regex Tester",
+    category: "Developer",
+    href: "/tools/developer/regex-tester",
+    icon: "SearchCode",
+    popular: true,
+    color: "text-amber-600 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-400",
+    desc: "Test regular expressions live with match highlighting, group capture, and replace mode."
+  },
+  {
+    id: "hash-gen",
+    name: "Hash Generator",
+    category: "Developer",
+    href: "/tools/developer/hash-gen",
+    icon: "Hash",
+    color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400",
+    desc: "Generate SHA-1, SHA-256, SHA-384, and SHA-512 hashes for text or files."
+  },
+  {
+    id: "num-convert",
+    name: "Number Converter",
+    category: "Developer",
+    href: "/tools/developer/num-convert",
+    icon: "Binary",
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400",
+    desc: "Convert between Binary, Octal, Decimal, and Hexadecimal with bitwise operations."
+  },
+  {
+    id: "timestamp-tool",
+    name: "Timestamp Converter",
+    category: "Developer",
+    href: "/tools/developer/timestamp-tool",
+    icon: "Timer",
+    color: "text-cyan-600 bg-cyan-50 dark:bg-cyan-900/20 dark:text-cyan-400",
+    desc: "Convert Unix timestamps to human dates and vice versa with multi-timezone support."
+  },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // PRODUCTIVITY (Rose/Slate) - Daily productivity tools
@@ -431,6 +487,16 @@ export const ALL_TOOLS: Tool[] = [
     popular: true,
     color: "text-pink-500 bg-pink-50 dark:bg-pink-900/20 dark:text-pink-300",
     desc: "Pick colors with HEX, RGB, HSL support, generate palettes, and check contrast ratios."
+  },
+  {
+    id: "color-studio",
+    name: "Gradient Studio",
+    category: "Design",
+    href: "/tools/design/color-studio",
+    icon: "Layers",
+    popular: false,
+    color: "text-violet-500 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-300",
+    desc: "Create beautiful linear, radial, and conic gradients with live preview, presets, and CSS export."
   },
 
   // ═══════════════════════════════════════════════════════════════════════════

@@ -3,10 +3,11 @@
 import React, { useState, useRef, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Search, Command, Share2, Coffee, Home, X, User, LogOut, LogIn, Shield } from 'lucide-react';
+import { Search, Command, Share2, Coffee, Home, X } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
+import LanguageSwitcher from './LanguageSwitcher';
+import BrandLogo from '@/app/components/BrandLogo';
 import { fuzzySearch } from '@/app/lib/search-utils';
-import { useAuth } from '@/app/contexts/auth-context';
 import { ALL_TOOLS } from '@/app/lib/tools-data';
 
 // --- SEARCH DATA --- (Derived from ALL_TOOLS - no hardcoding needed)
@@ -15,82 +16,6 @@ const SEARCH_TOOLS = ALL_TOOLS.map(tool => ({
   title: tool.name,
   category: tool.category.toLowerCase(),
 }));
-
-// Auth Buttons Component
-function AuthButtons() {
-  const { user, signOut, loading, isAdmin } = useAuth();
-  const [showMenu, setShowMenu] = useState(false);
-
-  if (loading) {
-    return (
-      <div className="w-9 h-9 rounded-full bg-gray-200 dark:bg-white/10 animate-pulse"></div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <Link 
-        href="/auth/login"
-        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold transition-colors"
-      >
-        <LogIn size={16} />
-        <span className="hidden sm:inline">Sign In</span>
-      </Link>
-    );
-  }
-
-  return (
-    <div className="relative">
-      <button
-        onClick={() => setShowMenu(!showMenu)}
-        className="flex items-center gap-2 p-2 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-white/5 min-w-[44px] min-h-[44px]"
-        aria-label="User menu"
-        aria-expanded={showMenu}
-        aria-haspopup="true"
-      >
-        <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold">
-          {user.email?.charAt(0).toUpperCase() || <User size={16} />}
-        </div>
-      </button>
-
-      {showMenu && (
-        <>
-          <div 
-            className="fixed inset-0 z-40" 
-            onClick={() => setShowMenu(false)}
-          />
-          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-xl z-50 overflow-hidden">
-            <div className="p-3 border-b border-gray-200 dark:border-slate-700">
-              <p className="text-sm font-bold text-gray-900 dark:text-white truncate">
-                {user.email}
-              </p>
-            </div>
-            {isAdmin && (
-              <Link
-                href="/admin"
-                onClick={() => setShowMenu(false)}
-                className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm text-indigo-600 dark:text-indigo-400 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors border-b border-gray-200 dark:border-slate-700"
-              >
-                <Shield size={16} />
-                Admin Panel
-              </Link>
-            )}
-            <button
-              onClick={async () => {
-                await signOut();
-                setShowMenu(false);
-              }}
-              className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
-            >
-              <LogOut size={16} />
-              Sign Out
-            </button>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
 
 function HeaderContent() {
   const pathname = usePathname();
@@ -102,6 +27,40 @@ function HeaderContent() {
   const [suggestions, setSuggestions] = useState<typeof SEARCH_TOOLS>([]);
   const [isFocused, setIsFocused] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+
+  // New: ref for the input and header shrink state
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const [isShrunk, setIsShrunk] = useState(false);
+
+  // Shrink header on scroll to save vertical real estate
+  useEffect(() => {
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        setIsShrunk(window.scrollY > 30);
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  // Keyboard shortcut: Ctrl/Cmd+K focuses the global search
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const isK = e.key.toLowerCase() === 'k';
+      if ((e.ctrlKey || e.metaKey) && isK) {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        setIsFocused(true);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   const pathSegments = pathname.split('/').filter(Boolean);
   const category = pathSegments[1]; 
@@ -121,7 +80,7 @@ function HeaderContent() {
 
   useEffect(() => {
     if (query.length > 0) {
-      const matches = fuzzySearch(query, SEARCH_TOOLS).slice(0, 5);
+      const matches = fuzzySearch(SEARCH_TOOLS, query).slice(0, 5);
       setSuggestions(matches);
     } else {
       setSuggestions([]);
@@ -144,13 +103,11 @@ function HeaderContent() {
   };
 
   return (
-    <header className="h-16 border-b border-gray-200 dark:border-white/5 flex items-center justify-between px-6 sticky top-0 z-50 transition-colors duration-300 bg-white dark:bg-[#0F111A]">
+    <header className={`${isShrunk ? 'h-12' : 'h-16'} border-b border-gray-200 dark:border-white/5 flex items-center justify-between px-6 sticky top-0 z-50 transition-all duration-300 bg-white dark:bg-[#0F111A]` }>
       <div className="flex items-center gap-4 mr-8 min-w-fit">
         {isHome ? (
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white">
-              <div className="w-4 h-4 border-2 border-white rounded-full"></div>
-            </div>
+            <BrandLogo size={36} className="rounded-lg" />
             <span className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">OneTool<span className="text-emerald-500">.</span></span>
           </Link>
         ) : (
@@ -180,8 +137,10 @@ function HeaderContent() {
          <div className="relative group">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-emerald-500 transition-colors" />
             <input 
+               id="global-search-input"
+               ref={searchInputRef}
                type="text" 
-               placeholder="Search tools (e.g. 'pdf' or 'invoice')..."
+               placeholder="Search tools (e.g. 'pdf' or 'invoice') — Ctrl/Cmd+K"
                value={query}
                onChange={(e) => setQuery(e.target.value)}
                onFocus={() => setIsFocused(true)}
@@ -229,6 +188,7 @@ function HeaderContent() {
             <span>Live</span>
          </div>
          <div className="h-5 w-px mx-1 hidden lg:block bg-gray-200 dark:bg-white/10"></div>
+         <LanguageSwitcher />
          <ThemeToggle />
          
          <button 
@@ -239,18 +199,15 @@ function HeaderContent() {
          </button>
          
          {/* DONATION BUTTON */}
-         <a 
-           href="https://buymeacoffee.com/onetool" 
-           target="_blank" 
+         <a
+           href="https://buymeacoffee.com/onetool"
+           target="_blank"
            rel="noopener noreferrer"
            className="p-2 rounded-lg transition-colors text-gray-500 hover:text-yellow-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5 min-w-[44px] min-h-[44px] flex items-center justify-center"
            aria-label="Buy me a coffee"
          >
             <Coffee size={18} />
          </a>
-
-         {/* AUTH BUTTONS */}
-         <AuthButtons />
       </div>
     </header>
   );

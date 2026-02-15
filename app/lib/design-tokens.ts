@@ -27,12 +27,13 @@ export const borderRadius = {
 export const colors = {
   // Primary brand colors
   primary: {
-    DEFAULT: 'indigo-600',
-    light: 'indigo-50',
-    dark: 'indigo-900',
-    hover: 'indigo-700',
-    text: 'indigo-600',
-    bg: 'indigo-50',
+    // Using SAP-like Fiori primary
+    DEFAULT: '#0a6ed1',
+    light: '#e9f2ff',
+    dark: '#083b78',
+    hover: '#085fc0',
+    text: '#0a6ed1',
+    bg: '#e9f2ff',
   },
   // Secondary/accent colors
   secondary: {
@@ -161,9 +162,10 @@ export const tokens = {
   },
   // Focus ring utilities (for accessibility)
   focus: {
-    ring: 'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2',
-    ringSubtle: 'focus:outline-none focus:ring-2 focus:ring-indigo-500/20',
-    border: 'focus:border-indigo-500',
+    // Use Fiori primary for focus rings (arbitrary value to match HEX)
+    ring: 'focus:outline-none focus:ring-2 focus:ring-[#0a6ed1] focus:ring-offset-2',
+    ringSubtle: 'focus:outline-none focus:ring-2 focus:ring-[#0a6ed1]/20',
+    border: 'focus:border-[#0a6ed1]',
   },
 } as const;
 

@@ -1,19 +1,29 @@
 /**
- * Icon Mapper
+ * Icon Mapper Utility
  * 
- * Maps icon names (stored in database) to React icon components
+ * Maps icon string identifiers to React components
+ * This allows icons to be serialized in server components
  */
 
 import React from "react";
-import { 
-  FileText, Shield, User, Home, Wallet, Calculator, TrendingUp, Landmark, Briefcase, 
-  RefreshCw, Layers, ScanLine, Minimize, Scissors, FileSpreadsheet, FileType, 
-  Globe, Key, Braces, Database, Clock, Terminal, Code2, Link, Hash, Binary, 
+import {
+  FileText, Shield, User, Home, Wallet, Calculator, TrendingUp, TrendingDown, Landmark, Briefcase,
+  RefreshCw, Layers, ScanLine, Minimize, Scissors, FileSpreadsheet, FileType,
+  Globe, Key, Braces, Database, Clock, Terminal, Code2, Link, Hash, Binary,
   Calendar, QrCode, Lock, Timer, ArrowRightLeft, Type, Pipette, Scale, Wind, Dumbbell, Sparkles, BrainCircuit,
-  Image, Table, Percent, Check, Split, Grid, Laptop, FileCode
+  Image, Table, Percent, Check, Split, Grid, Laptop, FileCode, Mic, Upload,
+  BarChart3, Brain, SearchCode
 } from "lucide-react";
 
-const iconMap: Record<string, React.ComponentType<any>> = {
+export type IconName =
+  | 'FileText' | 'Shield' | 'User' | 'Home' | 'Wallet' | 'Calculator' | 'TrendingUp' | 'TrendingDown' | 'Landmark' | 'Briefcase'
+  | 'RefreshCw' | 'Layers' | 'ScanLine' | 'Minimize' | 'Scissors' | 'FileSpreadsheet' | 'FileType'
+  | 'Globe' | 'Key' | 'Braces' | 'Database' | 'Clock' | 'Terminal' | 'Code2' | 'Link' | 'Hash' | 'Binary'
+  | 'Calendar' | 'QrCode' | 'Lock' | 'Timer' | 'ArrowRightLeft' | 'Type' | 'Pipette' | 'Scale' | 'Wind' | 'Dumbbell' | 'Sparkles' | 'BrainCircuit'
+  | 'Image' | 'Table' | 'Percent' | 'Check' | 'Split' | 'Grid' | 'Laptop' | 'FileCode' | 'Mic' | 'Upload'
+  | 'BarChart3' | 'Brain' | 'SearchCode';
+
+const ICON_MAP: Record<IconName, React.ComponentType<{ size?: number; className?: string }>> = {
   FileText,
   Shield,
   User,
@@ -21,6 +31,7 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   Wallet,
   Calculator,
   TrendingUp,
+  TrendingDown,
   Landmark,
   Briefcase,
   RefreshCw,
@@ -60,20 +71,28 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   Grid,
   Laptop,
   FileCode,
+  Mic,
+  Upload,
+  BarChart3,
+  Brain,
+  SearchCode,
 };
 
 /**
- * Get icon component from icon name
+ * Get icon component by name
  */
-export function getIconComponent(iconName: string | null | undefined): React.ComponentType<any> {
-  if (!iconName) return FileText; // Default icon
-  return iconMap[iconName] || FileText;
+export function getIcon(iconName: IconName, size: number = 20): React.ReactElement {
+  const IconComponent = ICON_MAP[iconName];
+  if (!IconComponent) {
+    // Fallback to a default icon if not found
+    return <FileText size={size} />;
+  }
+  return <IconComponent size={size} />;
 }
 
 /**
- * Get icon JSX element from icon name
+ * Get icon component (for direct rendering)
  */
-export function getIcon(iconName: string | null | undefined, size: number = 24): React.ReactElement {
-  const IconComponent = getIconComponent(iconName);
-  return React.createElement(IconComponent, { size });
+export function getIconComponent(iconName: IconName): React.ComponentType<{ size?: number; className?: string }> {
+  return ICON_MAP[iconName] || FileText;
 }

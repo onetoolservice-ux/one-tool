@@ -212,7 +212,7 @@ export const DailyView = ({ tasks, addTask, toggleTask, deleteTask, addSubtask, 
                      </button>
                    </div>
                    <div className="ml-8 mt-2 space-y-1">
-                      {task.subtasks?.map((s) => (
+                      {task.subtasks?.map((s: { id: string | number; text: string; completed: boolean }) => (
                         <div 
                           key={s.id} 
                           onClick={()=>toggleSubtask(task.id,s.id)} 

@@ -1,235 +1,404 @@
 "use client";
-import React, { useState, useRef } from 'react';
-import { FileText, Plus, Trash2, Download, Settings, Upload, PenTool, X } from 'lucide-react';
+import React, { useState, useRef, useMemo } from 'react';
+import { FileText, Plus, Trash2, Download, Upload, PenTool, X, Settings2, RotateCcw } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { showToast } from '@/app/shared/Toast';
 import { getErrorMessage } from '@/app/lib/errors/error-handler';
 
-// Helper Component (Defined inside to ensure self-containment for this fix)
-interface CompactInputProps {
-  label: string;
-  value: string | number;
-  onChange: (value: string) => void;
-  type?: 'text' | 'number' | 'date';
-  width?: string;
-}
+const CURRENCIES = ['₹', '$', '€', '£', '¥'];
+const GST_SLABS = [0, 5, 12, 18, 28];
+type TaxMode = 'none' | 'inclusive' | 'exclusive';
+type TaxType = 'gst' | 'vat';
 
-const CompactInput = ({ label, value, onChange, type="text", width="w-full" }: CompactInputProps) => (
-  <div className={width}>
-    <label className="block text-[9px] font-bold text-slate-400 uppercase mb-1">{label}</label>
-    <input 
-      type={type} value={value} onChange={e => onChange(e.target.value)} 
-      className="w-full h-8 text-xs px-2 bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-600 rounded-lg outline-none font-medium transition-all"
-    />
-  </div>
-);
+interface LineItem { id: number; name: string; qty: number; rate: number; gstRate: number; }
+
+function Field({ label, value, onChange, type = 'text', placeholder = '' }: {
+  label: string; value: string | number; onChange: (v: string) => void;
+  type?: string; placeholder?: string;
+}) {
+  return (
+    <div>
+      <label className="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">{label}</label>
+      <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
+        className="w-full h-8 text-xs px-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-blue-400 transition-all font-medium text-slate-800 dark:text-white"/>
+    </div>
+  );
+}
 
 export const InvoiceGenerator = () => {
   const [loading, setLoading] = useState(false);
-  const [currency, setCurrency] = useState("₹");
-  const [brandColor, setBrandColor] = useState("#2563eb");
-  const [taxRate, setTaxRate] = useState(18);
+  const [currency, setCurrency] = useState('₹');
+  const [brandColor, setBrandColor] = useState('#2563eb');
+  const [taxMode, setTaxMode] = useState<TaxMode>('exclusive');
+  const [taxType, setTaxType] = useState<TaxType>('gst');
+  const [gstType, setGstType] = useState<'intra' | 'inter'>('intra');
   const [discountRate, setDiscountRate] = useState(0);
   const [shipping, setShipping] = useState(0);
-
   const [logo, setLogo] = useState<string | null>(null);
   const [signature, setSignature] = useState<string | null>(null);
-
-  const [meta, setMeta] = useState({ number: "INV-001", date: new Date().toISOString().split('T')[0], due: "" });
-  const [from, setFrom] = useState({ name: "OneTool Inc.", email: "billing@onetool.com", address: "Bangalore, India" });
-  const [to, setTo] = useState({ name: "Acme Corp", email: "accounts@acme.com", address: "San Francisco, CA" });
-  const [items, setItems] = useState([{ id: 1, name: "Service", qty: 1, rate: 10000 }]);
-
-  const clearAllData = () => {
-    setMeta({ number: "", date: new Date().toISOString().split('T')[0], due: "" });
-    setFrom({ name: "", email: "", address: "" });
-    setTo({ name: "", email: "", address: "" });
-    setItems([{ id: 1, name: "", qty: 1, rate: 0 }]);
-    setLogo(null);
-    setSignature(null);
-    showToast('All data cleared', 'success');
-  };
-
+  const [notes, setNotes] = useState('Thank you for your business!');
+  const [terms, setTerms] = useState('Payment due within 30 days.');
   const previewRef = useRef<HTMLDivElement>(null);
 
-  const subtotal = items.reduce((s, i) => s + (Number(i.qty) * Number(i.rate)), 0);
-  const discountAmt = (subtotal * discountRate) / 100;
-  const taxAmt = ((subtotal - discountAmt) * taxRate) / 100;
-  const total = subtotal - discountAmt + taxAmt + Number(shipping);
+  const [meta, setMeta] = useState({
+    number: 'INV-001',
+    date: new Date().toISOString().split('T')[0],
+    due: '',
+    po: '',
+  });
+  const [from, setFrom] = useState({ name: 'OneTool Inc.', gstin: '', email: 'billing@onetool.com', address: 'Bangalore, Karnataka - 560001', phone: '' });
+  const [to, setTo] = useState({ name: 'Acme Corp', gstin: '', email: 'accounts@acme.com', address: 'Mumbai, Maharashtra - 400001', phone: '' });
+  const [items, setItems] = useState<LineItem[]>([{ id: 1, name: 'Professional Services', qty: 1, rate: 50000, gstRate: 18 }]);
+
+  const { subtotal, discountAmt, taxableAmt, cgst, sgst, igst, totalTax, grandTotal } = useMemo(() => {
+    const subtotal = items.reduce((s, i) => s + i.qty * i.rate, 0);
+    const discountAmt = (subtotal * discountRate) / 100;
+    const taxableAmt = subtotal - discountAmt;
+    const totalTax = taxMode === 'none' ? 0 : items.reduce((s, i) => {
+      const lineAmt = i.qty * i.rate * (1 - discountRate / 100);
+      return s + lineAmt * i.gstRate / 100;
+    }, 0);
+    const cgst = gstType === 'intra' ? totalTax / 2 : 0;
+    const sgst = gstType === 'intra' ? totalTax / 2 : 0;
+    const igst = gstType === 'inter' ? totalTax : 0;
+    const grandTotal = taxableAmt + totalTax + Number(shipping);
+    return { subtotal, discountAmt, taxableAmt, cgst, sgst, igst, totalTax, grandTotal };
+  }, [items, discountRate, shipping, taxMode, gstType]);
 
   const handleImage = (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'sign') => {
-    if (!e.target.files?.[0]) return;
-    
-    const uploadedFile = e.target.files[0];
-    
-    // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    if (!allowedTypes.includes(uploadedFile.type)) {
-      showToast('Please upload a JPG, PNG, WEBP, or GIF image', 'error');
-      return;
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      showToast('Upload JPG, PNG or WebP', 'error'); return;
     }
-    
-    // Validate file size (5MB limit for logos/signatures)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (uploadedFile.size > maxSize) {
-      showToast(`${type === 'logo' ? 'Logo' : 'Signature'} image exceeds 5MB size limit`, 'error');
-      return;
-    }
-    
-    const url = URL.createObjectURL(uploadedFile);
+    if (file.size > 5 * 1024 * 1024) { showToast('Image must be under 5MB', 'error'); return; }
+    const url = URL.createObjectURL(file);
     if (type === 'logo') setLogo(url); else setSignature(url);
   };
 
   const downloadPDF = async () => {
     if (!previewRef.current) return;
-    
-    // Validate items
-    if (items.length === 0) {
-      showToast('Please add at least one item to the invoice', 'error');
-      return;
+    if (!items.some(i => i.name && i.qty > 0)) {
+      showToast('Add at least one valid line item', 'error'); return;
     }
-    
-    const invalidItems = items.filter(item => 
-      !item.name || item.name.trim() === '' || 
-      Number(item.qty) <= 0 || 
-      Number(item.rate) < 0
-    );
-    
-    if (invalidItems.length > 0) {
-      showToast('Please ensure all items have a name, quantity > 0, and rate >= 0', 'error');
-      return;
-    }
-    
     setLoading(true);
     try {
-      const canvas = await html2canvas(previewRef.current, { scale: 2 });
+      const canvas = await html2canvas(previewRef.current, { scale: 2, useCORS: true });
       const pdf = new jsPDF('p', 'mm', 'a4');
       const w = pdf.internal.pageSize.getWidth();
       const h = (canvas.height * w) / canvas.width;
       pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, w, h);
       pdf.save(`Invoice_${meta.number}.pdf`);
-      showToast('PDF generated successfully', 'success');
-    } catch (error) {
-      const message = getErrorMessage(error);
-      showToast(message || 'Failed to generate PDF. Please try again.', 'error');
-    } finally {
-      setLoading(false);
-    }
+      showToast('PDF downloaded', 'success');
+    } catch (err) {
+      showToast(getErrorMessage(err) || 'PDF generation failed', 'error');
+    } finally { setLoading(false); }
   };
 
+  const clearAll = () => {
+    setItems([{ id: 1, name: '', qty: 1, rate: 0, gstRate: 18 }]);
+    setLogo(null); setSignature(null);
+    setMeta({ number: 'INV-001', date: new Date().toISOString().split('T')[0], due: '', po: '' });
+    setFrom({ name: '', gstin: '', email: '', address: '', phone: '' });
+    setTo({ name: '', gstin: '', email: '', address: '', phone: '' });
+    showToast('Cleared', 'success');
+  };
+
+  const fmt = (n: number) => `${currency} ${n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
   return (
-    <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)] overflow-hidden bg-slate-50 dark:bg-[#0B1120]">
-      {/* EDITOR */}
-      <div className="w-full lg:w-[380px] border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 z-10 flex flex-col">
-         <div className="h-14 px-5 border-b flex items-center justify-between">
-            <div className="flex justify-between items-center">
-               <h2 className="font-bold text-sm flex gap-2"><Settings size={16} className="text-blue-600"/> Settings</h2>
-               <button 
-                  onClick={clearAllData} 
-                  className="text-xs text-slate-500 hover:text-red-600 dark:hover:text-red-400 flex items-center gap-1 transition-colors px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
-                  aria-label="Clear all data"
-                  title="Clear all data"
-               >
-                  <X size={14}/> Clear
-               </button>
+    <div className="flex h-[calc(100vh-64px)] overflow-hidden bg-slate-50 dark:bg-[#0B1120]">
+      {/* ── LEFT: EDITOR ──────────────────────────────────────────────────── */}
+      <div className="w-[360px] flex-shrink-0 flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-lg">
+        {/* Header */}
+        <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
+          <div className="p-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg"><FileText size={15} className="text-blue-600"/></div>
+          <div className="flex-1">
+            <h2 className="text-xs font-bold text-slate-900 dark:text-white">Invoice Studio Pro</h2>
+            <p className="text-[10px] text-slate-400">GST · CGST/SGST · PDF Export</p>
+          </div>
+          <input type="color" value={brandColor} onChange={e => setBrandColor(e.target.value)} className="w-6 h-6 rounded cursor-pointer border-none" title="Brand color"/>
+          <button onClick={clearAll} className="p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-900/20 text-slate-400 hover:text-rose-500 transition-colors"><RotateCcw size={13}/></button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {/* Branding */}
+          <div className="grid grid-cols-2 gap-3">
+            <label className="h-20 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+              {logo ? <img src={logo} className="h-full object-contain p-1 rounded-xl"/> : <><Upload size={14} className="text-slate-400"/><span className="text-[10px] text-slate-400 mt-1">Upload Logo</span></>}
+              <input type="file" className="hidden" accept="image/*" onChange={e => handleImage(e, 'logo')}/>
+            </label>
+            <label className="h-20 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+              {signature ? <img src={signature} className="h-full object-contain p-1 rounded-xl"/> : <><PenTool size={14} className="text-slate-400"/><span className="text-[10px] text-slate-400 mt-1">Signature</span></>}
+              <input type="file" className="hidden" accept="image/*" onChange={e => handleImage(e, 'sign')}/>
+            </label>
+          </div>
+
+          {/* Invoice meta */}
+          <div className="grid grid-cols-2 gap-2">
+            <Field label="Invoice #" value={meta.number} onChange={v => setMeta(p => ({ ...p, number: v }))}/>
+            <Field label="Date" type="date" value={meta.date} onChange={v => setMeta(p => ({ ...p, date: v }))}/>
+            <Field label="Due Date" type="date" value={meta.due} onChange={v => setMeta(p => ({ ...p, due: v }))}/>
+            <Field label="PO Number" value={meta.po} onChange={v => setMeta(p => ({ ...p, po: v }))} placeholder="Optional"/>
+          </div>
+
+          {/* Currency */}
+          <div className="flex gap-1">
+            {CURRENCIES.map(c => (
+              <button key={c} onClick={() => setCurrency(c)}
+                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${currency === c ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200'}`}>{c}</button>
+            ))}
+          </div>
+
+          {/* From / To */}
+          <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800 space-y-2">
+            <p className="text-[10px] font-black text-blue-500 uppercase">From (Seller)</p>
+            <Field label="Company Name" value={from.name} onChange={v => setFrom(p => ({ ...p, name: v }))}/>
+            <div className="grid grid-cols-2 gap-2">
+              <Field label="GSTIN" value={from.gstin} onChange={v => setFrom(p => ({ ...p, gstin: v }))} placeholder="15-digit GSTIN"/>
+              <Field label="Phone" value={from.phone} onChange={v => setFrom(p => ({ ...p, phone: v }))}/>
             </div>
-            <div className="flex gap-2">
-               <input type="color" value={brandColor} onChange={e=>setBrandColor(e.target.value)} className="w-6 h-6 rounded cursor-pointer border-none"/>
-               <button onClick={()=>setCurrency(currency==="₹"?"$":"₹")} className="text-xs font-bold border px-3 py-2 rounded">{currency}</button>
+            <Field label="Email" value={from.email} onChange={v => setFrom(p => ({ ...p, email: v }))}/>
+            <Field label="Address" value={from.address} onChange={v => setFrom(p => ({ ...p, address: v }))}/>
+          </div>
+          <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800 space-y-2">
+            <p className="text-[10px] font-black text-emerald-500 uppercase">Bill To (Buyer)</p>
+            <Field label="Company / Client Name" value={to.name} onChange={v => setTo(p => ({ ...p, name: v }))}/>
+            <div className="grid grid-cols-2 gap-2">
+              <Field label="GSTIN" value={to.gstin} onChange={v => setTo(p => ({ ...p, gstin: v }))} placeholder="Optional"/>
+              <Field label="Phone" value={to.phone} onChange={v => setTo(p => ({ ...p, phone: v }))}/>
             </div>
-         </div>
-         <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar">
-            <div className="grid grid-cols-2 gap-4">
-               <label className="h-20 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50">
-                  {logo ? <img src={logo} className="h-full object-contain p-1"/> : <><Upload size={16} className="text-slate-400"/><span className="text-[10px] text-slate-400 font-bold mt-1">Logo</span></>}
-                  <input type="file" className="hidden" onChange={e=>handleImage(e,'logo')}/>
-               </label>
-               <label className="h-20 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50">
-                  {signature ? <img src={signature} className="h-full object-contain p-1"/> : <><PenTool size={16} className="text-slate-400"/><span className="text-[10px] text-slate-400 font-bold mt-1">Sign</span></>}
-                  <input type="file" className="hidden" onChange={e=>handleImage(e,'sign')}/>
-               </label>
+            <Field label="Email" value={to.email} onChange={v => setTo(p => ({ ...p, email: v }))}/>
+            <Field label="Address" value={to.address} onChange={v => setTo(p => ({ ...p, address: v }))}/>
+          </div>
+
+          {/* Tax settings */}
+          <div className="space-y-2">
+            <p className="text-[10px] font-bold text-slate-400 uppercase">Tax Settings</p>
+            <div className="flex gap-1">
+              {(['none', 'exclusive', 'inclusive'] as TaxMode[]).map(m => (
+                <button key={m} onClick={() => setTaxMode(m)}
+                  className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg capitalize transition-all ${taxMode === m ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>{m === 'none' ? 'No Tax' : m}</button>
+              ))}
             </div>
-            <div className="flex gap-2">
-               <CompactInput label="Invoice #" value={meta.number} onChange={(v) => setMeta({...meta, number: v})} width="w-1/2"/>
-               <CompactInput label="Date" type="date" value={meta.date} onChange={(v) => setMeta({...meta, date: v})} width="w-1/2"/>
+            {taxMode !== 'none' && (
+              <div className="flex gap-1">
+                <button onClick={() => setGstType('intra')}
+                  className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg transition-all ${gstType === 'intra' ? 'bg-orange-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>Intra (CGST+SGST)</button>
+                <button onClick={() => setGstType('inter')}
+                  className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg transition-all ${gstType === 'inter' ? 'bg-orange-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>Inter (IGST)</button>
+              </div>
+            )}
+          </div>
+
+          {/* Line items */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[10px] font-bold text-slate-400 uppercase">Line Items</p>
+              <button onClick={() => setItems(p => [...p, { id: Date.now(), name: '', qty: 1, rate: 0, gstRate: 18 }])}
+                className="flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors">
+                <Plus size={10}/> Add
+              </button>
             </div>
-            <div className="space-y-4">
-               <div className="p-3 border rounded-xl bg-slate-50 dark:bg-slate-800/50 space-y-2">
-                  <p className="text-[10px] font-black uppercase text-slate-400">From</p>
-                  <input value={from.name} onChange={e=>setFrom({...from, name: e.target.value})} className="w-full text-xs font-bold bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-600 rounded px-2 py-1 outline-none transition-all" placeholder="Company"/>
-                  <input value={from.email} onChange={e=>setFrom({...from, email: e.target.value})} className="w-full text-xs bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-600 rounded px-2 py-1 outline-none transition-all" placeholder="Email"/>
-                  <input value={from.address} onChange={e=>setFrom({...from, address: e.target.value})} className="w-full text-xs bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-600 rounded px-2 py-1 outline-none transition-all" placeholder="Address"/>
-               </div>
-               <div className="p-3 border rounded-xl bg-slate-50 dark:bg-slate-800/50 space-y-2">
-                  <p className="text-[10px] font-black uppercase text-slate-400">To</p>
-                  <input value={to.name} onChange={e=>setTo({...to, name: e.target.value})} className="w-full text-xs font-bold bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-600 rounded px-2 py-1 outline-none transition-all" placeholder="Client"/>
-                  <input value={to.email} onChange={e=>setTo({...to, email: e.target.value})} className="w-full text-xs bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-600 rounded px-2 py-1 outline-none transition-all" placeholder="Email"/>
-                  <input value={to.address} onChange={e=>setTo({...to, address: e.target.value})} className="w-full text-xs bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-600 rounded px-2 py-1 outline-none transition-all" placeholder="Address"/>
-               </div>
+            <div className="space-y-1.5">
+              {items.map((item, i) => (
+                <div key={item.id} className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-2 border border-slate-100 dark:border-slate-800">
+                  <div className="flex gap-1.5 items-center mb-1.5">
+                    <input value={item.name} onChange={e => setItems(p => p.map(x => x.id === item.id ? { ...x, name: e.target.value } : x))}
+                      className="flex-1 h-7 text-xs px-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg outline-none focus:border-blue-400 font-semibold text-slate-800 dark:text-white" placeholder="Item / Service"/>
+                    <button onClick={() => { if (items.length > 1) setItems(p => p.filter(x => x.id !== item.id)); }}
+                      className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-rose-50 dark:hover:bg-rose-900/20 text-slate-300 hover:text-rose-500 transition-colors">
+                      <Trash2 size={11}/>
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    <div>
+                      <span className="text-[9px] text-slate-400 font-bold">QTY</span>
+                      <input type="number" value={item.qty} min={0}
+                        onChange={e => setItems(p => p.map(x => x.id === item.id ? { ...x, qty: Number(e.target.value) } : x))}
+                        className="w-full h-7 text-xs text-right px-1.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg outline-none focus:border-blue-400 text-slate-800 dark:text-white"/>
+                    </div>
+                    <div>
+                      <span className="text-[9px] text-slate-400 font-bold">RATE ({currency})</span>
+                      <input type="number" value={item.rate} min={0}
+                        onChange={e => setItems(p => p.map(x => x.id === item.id ? { ...x, rate: Number(e.target.value) } : x))}
+                        className="w-full h-7 text-xs text-right px-1.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg outline-none focus:border-blue-400 text-slate-800 dark:text-white"/>
+                    </div>
+                    <div>
+                      <span className="text-[9px] text-slate-400 font-bold">GST %</span>
+                      <select value={item.gstRate}
+                        onChange={e => setItems(p => p.map(x => x.id === item.id ? { ...x, gstRate: Number(e.target.value) } : x))}
+                        className="w-full h-7 text-xs px-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg outline-none text-slate-800 dark:text-white">
+                        {GST_SLABS.map(s => <option key={s} value={s}>{s}%</option>)}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Other charges */}
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="text-[9px] font-bold text-slate-400 uppercase block mb-0.5">Discount %</label>
+              <input type="number" value={discountRate} min={0} max={100}
+                onChange={e => setDiscountRate(Number(e.target.value))}
+                className="w-full h-8 text-xs text-right px-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-blue-400 text-slate-800 dark:text-white"/>
             </div>
             <div>
-               <div className="flex justify-between items-center mb-2"><label className="text-[10px] font-bold uppercase text-slate-400">Items</label><button onClick={()=>setItems([...items, {id:Date.now(), name:'', qty:1, rate:0}])} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-[10px] font-bold transition-colors shadow-sm">+ Add</button></div>
-               <div className="space-y-2">
-                  {items.map((item, i) => (
-                     <div key={item.id} className="flex gap-2 items-center">
-                        <input value={item.name} onChange={e=>{const n=[...items];n[i].name=e.target.value;setItems(n)}} className="flex-1 text-xs border border-blue-300 dark:border-blue-600 rounded-lg px-2 py-1 bg-white dark:bg-slate-800 outline-none transition-all" placeholder="Item"/>
-                        <input type="text" inputMode="numeric" pattern="[0-9]*" value={item.qty} onChange={e=>{const val = Number(e.target.value.replace(/[^0-9.]/g, '')) || 0; const n=[...items];n[i].qty=val;setItems(n)}} className="w-10 text-xs border border-blue-300 dark:border-blue-600 rounded-lg px-1 py-1 text-center bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none transition-all"/>
-                        <input type="text" inputMode="numeric" pattern="[0-9.]*" value={item.rate} onChange={e=>{const val = Number(e.target.value.replace(/[^0-9.]/g, '')) || 0; const n=[...items];n[i].rate=val;setItems(n)}} className="w-14 text-xs border border-blue-300 dark:border-blue-600 rounded-lg px-1 py-1 text-right bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none transition-all"/>
-                        <button onClick={()=>setItems(items.filter(x=>x.id!==item.id))} aria-label={`Remove ${item.name || 'item'}`} title={`Remove ${item.name || 'item'}`} className="p-1.5"><Trash2 size={14} className="text-slate-300 hover:text-red-500"/></button>
-                     </div>
-                  ))}
-               </div>
+              <label className="text-[9px] font-bold text-slate-400 uppercase block mb-0.5">Shipping ({currency})</label>
+              <input type="number" value={shipping} min={0}
+                onChange={e => setShipping(Number(e.target.value))}
+                className="w-full h-8 text-xs text-right px-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-blue-400 text-slate-800 dark:text-white"/>
             </div>
-            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl space-y-3">
-               <div className="flex justify-between items-center"><span className="text-xs text-slate-500">Subtotal</span><span className="text-xs font-bold">{currency} {subtotal}</span></div>
-               <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold text-slate-400 w-16">Discount %</span>
-                  <input type="text" inputMode="numeric" pattern="[0-9.]*" value={discountRate} onChange={e=>setDiscountRate(Number(e.target.value.replace(/[^0-9.]/g, '')) || 0)} className="w-12 h-6 text-xs text-center border rounded text-slate-900 dark:text-white"/>
-                  <span className="ml-auto text-xs text-orange-500">-{currency} {discountAmt}</span>
-               </div>
-               <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold text-slate-400 w-16">Tax %</span>
-                  <input type="text" inputMode="numeric" pattern="[0-9.]*" value={taxRate} onChange={e=>setTaxRate(Number(e.target.value.replace(/[^0-9.]/g, '')) || 0)} className="w-12 h-6 text-xs text-center border rounded text-slate-900 dark:text-white"/>
-                  <span className="ml-auto text-xs text-blue-500">+{currency} {taxAmt}</span>
-               </div>
-               <div className="flex justify-between border-t pt-2"><span className="font-bold text-sm">Total</span><span className="font-black text-lg" style={{color: brandColor}}>{currency} {total}</span></div>
-            </div>
-         </div>
-         <div className="p-4 border-t"><button onClick={downloadPDF} disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white h-10 rounded-xl font-bold text-xs flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" title={loading ? "Generating PDF..." : "Download invoice as PDF"}>{loading ? "Generating..." : <><Download size={14}/> Download PDF</>}</button></div>
+          </div>
+
+          {/* Notes */}
+          <div>
+            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-0.5">Notes</label>
+            <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2}
+              className="w-full text-xs px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none resize-none text-slate-700 dark:text-slate-200"/>
+          </div>
+          <div>
+            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-0.5">Terms & Conditions</label>
+            <textarea value={terms} onChange={e => setTerms(e.target.value)} rows={2}
+              className="w-full text-xs px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none resize-none text-slate-700 dark:text-slate-200"/>
+          </div>
+        </div>
+
+        {/* Download button */}
+        <div className="p-4 border-t border-slate-100 dark:border-slate-800">
+          <button onClick={downloadPDF} disabled={loading}
+            className="w-full h-10 rounded-xl font-bold text-xs flex justify-center items-center gap-2 text-white transition-colors disabled:opacity-50"
+            style={{ backgroundColor: brandColor }}>
+            {loading ? 'Generating...' : <><Download size={14}/> Download PDF</>}
+          </button>
+        </div>
       </div>
-      
-      {/* PREVIEW */}
-      <div className="flex-1 bg-slate-200/50 dark:bg-black/50 p-4 flex justify-center overflow-y-auto custom-scrollbar">
-         <div className="shadow-2xl my-4">
-            <div ref={previewRef} className="bg-white text-slate-900 w-[794px] min-h-[1123px] p-10 relative flex flex-col">
-               <div className="flex justify-between items-start mb-6 pb-4 border-b-2" style={{borderColor: brandColor}}>
-                  <div>{logo && <img src={logo} className="h-12 w-auto object-contain mb-1"/>}<h2 className="font-bold text-lg">{from.name}</h2><p className="text-xs text-slate-500">{from.address}</p></div>
-                  <div className="text-right"><h1 className="text-4xl font-bold mb-1" style={{color: brandColor}}>INVOICE</h1><p className="font-semibold text-sm text-slate-400">#{meta.number}</p></div>
-               </div>
-               <div className="flex justify-between mb-8">
-                  <div><p className="text-xs font-bold text-slate-400 uppercase">Bill To</p><h3 className="font-bold text-lg">{to.name}</h3><p className="text-sm text-slate-500">{to.address}</p></div>
-                  <div className="text-right"><p className="text-xs font-bold text-slate-400 uppercase">Date</p><p className="font-bold">{meta.date}</p></div>
-               </div>
-               <table className="w-full mb-8">
-                  <thead><tr className="border-b-2 border-slate-100"><th className="text-left py-2">Item</th><th className="text-center py-2">Qty</th><th className="text-right py-2">Rate</th><th className="text-right py-2">Amount</th></tr></thead>
-                  <tbody>{items.map((item, i) => (
-                     <tr key={i} className="border-b border-slate-50 text-sm">
-                        <td className="py-4 font-bold">{item.name}</td><td className="text-center">{item.qty}</td><td className="text-right">{currency} {item.rate}</td><td className="text-right font-bold">{currency} {item.qty * item.rate}</td>
-                     </tr>
-                  ))}</tbody>
-               </table>
-               <div className="flex justify-end mt-auto">
-                  <div className="w-64 space-y-2 text-right">
-                     <div className="flex justify-between"><span>Subtotal</span><span>{currency} {subtotal}</span></div>
-                     <div className="flex justify-between text-orange-500"><span>Discount</span><span>-{currency} {discountAmt}</span></div>
-                     <div className="flex justify-between text-blue-600"><span>Tax</span><span>+{currency} {taxAmt}</span></div>
-                     <div className="flex justify-between font-black text-2xl border-t pt-2" style={{color: brandColor}}><span>Total</span><span>{currency} {total}</span></div>
-                     {signature && <img src={signature} className="h-12 w-auto object-contain ml-auto mt-4"/>}
-                  </div>
-               </div>
+
+      {/* ── RIGHT: PREVIEW ──────────────────────────────────────────────────── */}
+      <div className="flex-1 bg-slate-200/60 dark:bg-black/40 p-6 flex justify-center overflow-y-auto">
+        <div className="shadow-2xl my-2">
+          <div ref={previewRef} className="bg-white text-slate-900 w-[794px] min-h-[1123px] p-10 flex flex-col text-sm">
+            {/* Header */}
+            <div className="flex justify-between items-start mb-8 pb-5 border-b-2" style={{ borderColor: brandColor }}>
+              <div>
+                {logo && <img src={logo} className="h-14 w-auto object-contain mb-2"/>}
+                <h2 className="font-bold text-lg text-slate-900">{from.name}</h2>
+                {from.gstin && <p className="text-xs text-slate-500">GSTIN: {from.gstin}</p>}
+                <p className="text-xs text-slate-500 mt-1">{from.address}</p>
+                {from.email && <p className="text-xs text-slate-500">{from.email}</p>}
+                {from.phone && <p className="text-xs text-slate-500">{from.phone}</p>}
+              </div>
+              <div className="text-right">
+                <h1 className="text-5xl font-black tracking-wider" style={{ color: brandColor }}>INVOICE</h1>
+                <p className="text-slate-400 font-semibold mt-1">#{meta.number}</p>
+                <div className="mt-3 text-xs text-slate-500 space-y-0.5">
+                  <p>Date: <strong className="text-slate-700">{meta.date}</strong></p>
+                  {meta.due && <p>Due: <strong className="text-slate-700">{meta.due}</strong></p>}
+                  {meta.po && <p>PO#: <strong className="text-slate-700">{meta.po}</strong></p>}
+                </div>
+              </div>
             </div>
-         </div>
+
+            {/* Bill To */}
+            <div className="flex justify-between mb-8">
+              <div>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Bill To</p>
+                <h3 className="font-bold text-base text-slate-900">{to.name}</h3>
+                {to.gstin && <p className="text-xs text-slate-500">GSTIN: {to.gstin}</p>}
+                <p className="text-xs text-slate-500">{to.address}</p>
+                {to.email && <p className="text-xs text-slate-500">{to.email}</p>}
+              </div>
+              {taxMode !== 'none' && (
+                <div className="text-right">
+                  <span className="inline-block text-xs font-bold px-3 py-1 rounded-full" style={{ backgroundColor: `${brandColor}15`, color: brandColor }}>
+                    {gstType === 'intra' ? 'CGST + SGST (Intra-State)' : 'IGST (Inter-State)'}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Items Table */}
+            <table className="w-full mb-6">
+              <thead>
+                <tr className="text-left border-b-2" style={{ borderColor: brandColor }}>
+                  <th className="py-2 text-xs font-black text-slate-500 uppercase w-8">#</th>
+                  <th className="py-2 text-xs font-black text-slate-500 uppercase">Description</th>
+                  <th className="py-2 text-xs font-black text-slate-500 uppercase text-right w-16">Qty</th>
+                  <th className="py-2 text-xs font-black text-slate-500 uppercase text-right w-28">Rate</th>
+                  {taxMode !== 'none' && <th className="py-2 text-xs font-black text-slate-500 uppercase text-right w-16">GST</th>}
+                  <th className="py-2 text-xs font-black text-slate-500 uppercase text-right w-28">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item, i) => {
+                  const lineTotal = item.qty * item.rate;
+                  return (
+                    <tr key={item.id} className="border-b border-slate-50">
+                      <td className="py-3 text-slate-400 text-sm">{i + 1}</td>
+                      <td className="py-3 font-semibold">{item.name}</td>
+                      <td className="py-3 text-right text-slate-600">{item.qty}</td>
+                      <td className="py-3 text-right text-slate-600">{fmt(item.rate)}</td>
+                      {taxMode !== 'none' && <td className="py-3 text-right text-orange-500 text-xs">{item.gstRate}%</td>}
+                      <td className="py-3 text-right font-bold">{fmt(lineTotal)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+
+            {/* Totals */}
+            <div className="flex justify-end mt-auto">
+              <div className="w-72 space-y-2">
+                <div className="flex justify-between text-sm text-slate-600">
+                  <span>Subtotal</span><span className="font-mono">{fmt(subtotal)}</span>
+                </div>
+                {discountRate > 0 && (
+                  <div className="flex justify-between text-sm text-orange-500">
+                    <span>Discount ({discountRate}%)</span><span className="font-mono">−{fmt(discountAmt)}</span>
+                  </div>
+                )}
+                {taxMode !== 'none' && gstType === 'intra' && (
+                  <>
+                    <div className="flex justify-between text-sm text-blue-600">
+                      <span>CGST</span><span className="font-mono">{fmt(cgst)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-blue-600">
+                      <span>SGST</span><span className="font-mono">{fmt(sgst)}</span>
+                    </div>
+                  </>
+                )}
+                {taxMode !== 'none' && gstType === 'inter' && (
+                  <div className="flex justify-between text-sm text-blue-600">
+                    <span>IGST</span><span className="font-mono">{fmt(igst)}</span>
+                  </div>
+                )}
+                {Number(shipping) > 0 && (
+                  <div className="flex justify-between text-sm text-slate-600">
+                    <span>Shipping</span><span className="font-mono">{fmt(Number(shipping))}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-xl font-black border-t-2 pt-3" style={{ borderColor: brandColor, color: brandColor }}>
+                  <span>TOTAL</span><span className="font-mono">{fmt(grandTotal)}</span>
+                </div>
+                {signature && <img src={signature} className="h-12 w-auto object-contain ml-auto mt-4"/>}
+              </div>
+            </div>
+
+            {/* Notes & Terms */}
+            {(notes || terms) && (
+              <div className="mt-10 pt-4 border-t border-slate-100 grid grid-cols-2 gap-6">
+                {notes && <div><p className="text-[10px] font-black text-slate-400 uppercase mb-1">Notes</p><p className="text-xs text-slate-500">{notes}</p></div>}
+                {terms && <div><p className="text-[10px] font-black text-slate-400 uppercase mb-1">Terms & Conditions</p><p className="text-xs text-slate-500">{terms}</p></div>}
+              </div>
+            )}
+
+            <p className="mt-auto pt-4 text-center text-[10px] text-slate-300 border-t border-slate-50">Generated by OneTool · Invoice #{meta.number}</p>
+          </div>
+        </div>
       </div>
     </div>
   );

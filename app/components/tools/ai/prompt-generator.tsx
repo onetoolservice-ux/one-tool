@@ -1,8 +1,6 @@
 "use client";
 import React, { useState } from 'react';
 import { Sparkles, Copy, Wand2, Check } from 'lucide-react';
-import { showToast } from '@/app/shared/Toast';
-
 // Interface for analyzing user input
 interface InputAnalysis {
   domain: string;
@@ -192,12 +190,14 @@ export const PromptGenerator = () => {
   const [input, setInput] = useState("");
   const [generatedPrompt, setGeneratedPrompt] = useState("");
   const [copied, setCopied] = useState(false);
-  
+  const [error, setError] = useState("");
+
   const handleGenerate = () => {
     if (!input.trim()) {
-      showToast("Please enter a goal or problem statement", "error");
+      setError("Please enter a goal or problem statement");
       return;
     }
+    setError("");
     
     // Analyze input
     const analysis = analyzeInput(input);
@@ -214,10 +214,9 @@ export const PromptGenerator = () => {
     try {
       await navigator.clipboard.writeText(generatedPrompt);
       setCopied(true);
-      showToast("Prompt copied to clipboard!", "success");
       setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      showToast("Failed to copy prompt", "error");
+    } catch {
+      // silent fail — button stays in default state
     }
   };
   
@@ -250,6 +249,7 @@ export const PromptGenerator = () => {
             placeholder="Describe what you want to achieve or the problem you need to solve. For example: 'Create a REST API for user authentication' or 'Analyze sales data to identify trends' or 'Write a blog post about sustainable energy'..."
             className="flex-1 p-6 bg-white dark:bg-slate-900 border border-blue-300 dark:border-blue-600 rounded-2xl resize-none outline-none text-sm leading-relaxed placeholder:text-slate-400 dark:placeholder:text-slate-600 transition-all"
           />
+          {error && <p className="text-xs text-rose-500 font-medium">{error}</p>}
           <button
             onClick={handleGenerate}
             className="w-full bg-fuchsia-600 hover:bg-fuchsia-700 text-white py-3 px-6 rounded-xl font-bold transition-colors flex items-center justify-center gap-2"

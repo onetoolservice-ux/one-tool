@@ -5,21 +5,24 @@ import { safeLocalStorage } from '@/app/lib/utils/storage';
 
 const STORAGE_KEY = 'lifeos_weekly_kanban';
 
+interface Task { id: number | string; text: string; completed?: boolean; parentWeeklyId?: number; date?: string; [key: string]: any }
+interface KanbanItem { id: number; text: string; status: string; }
+
 interface WeeklyViewProps {
-  tasks: any[];
-  addTask: (params: any) => void;
-  theme: any;
+  tasks: Task[];
+  addTask: (params: Partial<Task>) => void;
+  theme: Record<string, string | boolean>;
 }
 
 export const WeeklyView = ({ tasks, addTask, theme }: WeeklyViewProps) => {
   const t = theme;
   const [mounted, setMounted] = useState(false);
-  const [items, setItems] = useState<any[]>([]);
-  const [activeCard, setActiveCard] = useState<any>(null);
+  const [items, setItems] = useState<KanbanItem[]>([]);
+  const [activeCard, setActiveCard] = useState<KanbanItem | null>(null);
 
   useEffect(() => {
     setMounted(true);
-    const savedItems = safeLocalStorage.getItem<any[]>(STORAGE_KEY, null);
+    const savedItems = safeLocalStorage.getItem<KanbanItem[]>(STORAGE_KEY, null);
     if (savedItems) setItems(savedItems);
     else setItems([{ id: 1, text: "Launch MVP", status: 'inprogress' }]);
   }, []);
@@ -47,13 +50,19 @@ export const WeeklyView = ({ tasks, addTask, theme }: WeeklyViewProps) => {
            <div className={`${t.cardBg} w-full max-w-2xl h-[85vh] rounded-2xl shadow-2xl flex flex-col border ${t.border} overflow-hidden animate-in zoom-in-95`}>
               <div className={`p-6 border-b ${t.border} flex justify-between items-start ${t.isDark?'bg-white/5':'bg-gray-50'}`}>
                  <div><div className="text-xs font-bold text-blue-500 uppercase mb-1">Project Hub</div><h2 className={`text-2xl font-bold ${t.text}`}>{activeCard.text}</h2></div>
-                 <button onClick={() => setActiveCard(null)} className={`p-2 rounded-lg ${t.hover} ${t.textSec}`}><X size={20}/></button>
+                 <button 
+                   onClick={() => setActiveCard(null)} 
+                   className={`p-2 rounded-lg ${t.hover} ${t.textSec} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                   aria-label="Close project hub"
+                 >
+                   <X size={20}/>
+                 </button>
               </div>
               <div className="flex-1 overflow-y-auto p-6">
                  <div className="mb-6">
                     <h3 className={`text-sm font-bold uppercase mb-3 flex items-center gap-2 ${t.textSec}`}><Link size={14}/> Linked Daily Tasks</h3>
                     <div className="space-y-2">
-                       {tasks.filter((x:any) => x.parentWeeklyId === activeCard.id).map((task:any) => (
+                       {tasks.filter((x) => x.parentWeeklyId === activeCard.id).map((task) => (
                           <div key={task.id} className={`p-3 rounded-lg border ${t.border} flex items-center gap-3 ${t.bg}`}>
                              <div className={`w-2 h-2 rounded-full ${task.completed?'bg-emerald-500':'bg-blue-500'}`}></div>
                              <div className="flex-1"><div className={`text-sm ${t.text} ${task.completed?'line-through opacity-50':''}`}>{task.text}</div><div className={`text-[10px] ${t.textSec}`}>{task.date}</div></div>
@@ -74,7 +83,13 @@ export const WeeklyView = ({ tasks, addTask, theme }: WeeklyViewProps) => {
   );
 };
 
-const AddLinkedTaskForm = ({ addTask, parentId, t }: any) => {
+interface AddLinkedTaskFormProps {
+  addTask: (params: Partial<Task>) => void;
+  parentId: number;
+  t: Record<string, string | boolean>;
+}
+
+const AddLinkedTaskForm = ({ addTask, parentId, t }: AddLinkedTaskFormProps) => {
   const [txt, setTxt] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [rec, setRec] = useState(false);
@@ -99,10 +114,22 @@ const AddLinkedTaskForm = ({ addTask, parentId, t }: any) => {
   );
 };
 
-const Col = ({ title, status, items, color, icon, onAdd, onDelete, setActive, t }: any) => {
+interface ColProps {
+  title: string;
+  status: 'todo' | 'inprogress' | 'done';
+  items: KanbanItem[];
+  color: string;
+  icon: React.ReactElement;
+  onAdd: (text: string, status: string) => void;
+  onDelete: (id: number) => void;
+  setActive: (item: KanbanItem) => void;
+  t: Record<string, string | boolean>;
+}
+
+const Col = ({ title, status, items, color, icon, onAdd, onDelete, setActive, t }: ColProps) => {
   const [isAdding, setIsAdding] = useState(false);
   const [txt, setTxt] = useState('');
-  const filtered = items.filter((i:any) => i.status === status);
+  const filtered = items.filter((i) => i.status === status);
 
   return (
     <div className={`${t.cardBg} border ${t.border} rounded-2xl flex flex-col h-full overflow-hidden`}>
@@ -121,7 +148,15 @@ const Col = ({ title, status, items, color, icon, onAdd, onDelete, setActive, t 
        <div className={`p-3 border-t ${t.border} ${t.bg}`}>
           {isAdding ? (
              <div className="flex gap-2"><input autoFocus className={`flex-1 ${t.inputBg} rounded px-2 text-sm ${t.text}`} value={txt} onChange={e=>setTxt(e.target.value)} /><button onClick={()=>{onAdd(txt, status); setTxt(''); setIsAdding(false)}} className="text-blue-500 text-xs font-bold">Add</button></div>
-          ) : <button onClick={()=>setIsAdding(true)} className={`w-full py-2 border border-dashed ${t.border} rounded text-xs ${t.textSec} hover:bg-white/5`}><Plus size={12} className="inline"/> Add</button>}
+          ) : (
+            <button 
+              onClick={()=>setIsAdding(true)} 
+              className={`w-full py-2 border border-dashed ${t.border} rounded text-xs ${t.textSec} hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              aria-label={`Add item to ${title}`}
+            >
+              <Plus size={12} className="inline"/> Add
+            </button>
+          )}
        </div>
     </div>
   );

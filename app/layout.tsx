@@ -17,9 +17,26 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "One Tool Solutions",
-  description: "Your all-in-one productivity suite",
+  title: {
+    default: "OneTool — Free Online Tools for Finance, Developer & Productivity",
+    template: "%s | OneTool",
+  },
+  description: "OneTool gives you 60+ free online tools — expense tracker, invoice generator, PDF tools, developer utilities, unit converters, and more. No signup. Works in your browser.",
+  keywords: "free online tools, expense tracker, invoice generator, PDF merge, developer tools, unit converter, GST calculator, budget planner, QR code generator, JSON formatter, password generator, onetool",
   manifest: "/manifest.json",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://onetool.co.in"),
+  openGraph: {
+    type: "website",
+    siteName: "OneTool",
+    title: "OneTool — Free Online Tools for Finance, Developer & Productivity",
+    description: "60+ free browser-based tools: expense tracker, invoice generator, PDF tools, developer utilities & more. No signup required.",
+    url: process.env.NEXT_PUBLIC_BASE_URL || "https://onetool.co.in",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "OneTool — Free Online Tools",
+    description: "60+ free browser-based tools — expense tracker, invoice, PDF, developer tools & more. No signup.",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

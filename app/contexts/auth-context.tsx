@@ -29,12 +29,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   // Lazy-load Supabase client only in browser to prevent build-time errors
+  // If env vars are missing, gracefully run in guest-only mode (no auth)
   const supabase = useMemo(() => {
     if (typeof window === 'undefined') {
-      // During SSR/build, return a placeholder - won't be used anyway
       return null as any;
     }
-    return createClient();
+    try {
+      return createClient();
+    } catch {
+      // Supabase env vars missing — run without auth
+      return null;
+    }
   }, []);
 
   useEffect(() => {

@@ -1,9 +1,16 @@
 'use client';
 import React from 'react';
 
-export const MonthlyView = ({ tasks, theme }: any) => {
+interface Task { id: string | number; text: string; completed?: boolean; recurrenceEndDate?: string; [key: string]: any }
+
+interface MonthlyViewProps {
+  tasks: Task[];
+  theme: Record<string, string | boolean>;
+}
+
+export const MonthlyView = ({ tasks, theme }: MonthlyViewProps) => {
   const t = theme;
-  const roadmapItems = tasks.filter((x:any) => x.recurrenceEndDate);
+  const roadmapItems = tasks.filter((x) => x.recurrenceEndDate);
 
   return (
     <div className="h-full p-8 flex flex-col overflow-hidden">
@@ -14,7 +21,7 @@ export const MonthlyView = ({ tasks, theme }: any) => {
             <h3 className={`text-sm font-bold uppercase mb-4 ${t.textSec}`}>Active Recurring Series</h3>
             <div className="space-y-3 flex-1 overflow-y-auto">
                {roadmapItems.length === 0 && <div className={`text-center py-10 ${t.textSec}`}>No recurring series found. Add one in Daily Planner!</div>}
-               {roadmapItems.map((task:any) => (
+               {roadmapItems.map((task) => (
                   <div key={task.id} className={`p-4 rounded-xl border ${t.border} ${t.bg} flex justify-between items-center`}>
                      <div>
                         <div className={`font-bold ${t.text}`}>{task.text}</div>
@@ -31,7 +38,7 @@ export const MonthlyView = ({ tasks, theme }: any) => {
             <div className={`text-4xl font-bold ${t.text} mb-1`}>{tasks.length}</div>
             <div className={`text-xs ${t.textSec} mb-6`}>Total Tasks Logged</div>
             
-            <div className={`text-4xl font-bold text-emerald-500 mb-1`}>{tasks.filter((t:any)=>t.completed).length}</div>
+            <div className={`text-4xl font-bold text-emerald-500 mb-1`}>{tasks.filter((t)=>t.completed).length}</div>
             <div className={`text-xs ${t.textSec}`}>Completed</div>
          </div>
       </div>

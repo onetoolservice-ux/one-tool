@@ -9,7 +9,7 @@ import { ToolGrid } from '@/app/components/home/tool-grid';
 function HomeContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  
+
   const initialCategory = searchParams.get('category') || 'all';
   const searchQuery = searchParams.get('search') || '';
   const [activeCategory, setActiveCategory] = useState(initialCategory);
@@ -23,43 +23,35 @@ function HomeContent() {
     router.push(`/?category=${id}`, { scroll: false });
   };
 
-  // FIX: Home Page Schema
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'One Tool Solutions',
-    url: 'https://onetool.com',
+    url: 'https://onetool.co.in',
     potentialAction: {
       '@type': 'SearchAction',
-      target: 'https://onetool.com/?search={search_term_string}',
+      target: 'https://onetool.co.in/?search={search_term_string}',
       'query-input': 'required name=search_term_string'
     }
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] bg-gray-50 dark:bg-[#0F111A] transition-colors duration-300 overflow-hidden">
-      {/* Schema injected here - Safe JSON-LD injection */}
-      <Script
-        id="home-schema"
-        type="application/ld+json"
-        strategy="afterInteractive"
-      >
+    <div className="flex flex-col flex-1 bg-gray-50 dark:bg-[#0F111A] transition-colors duration-300 overflow-hidden">
+      <Script id="home-schema" type="application/ld+json" strategy="afterInteractive">
         {JSON.stringify(jsonLd)}
       </Script>
-      
-      <CategoryNav active={activeCategory} onChange={handleCategoryChange} />
 
-      <main className="flex-1 w-full max-w-[1800px] mx-auto overflow-y-auto custom-scrollbar p-6 md:p-8">
-         <div className="flex items-center justify-between px-1 mb-4">
-           <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-             {searchQuery ? `Results for "${searchQuery}"` : (activeCategory === 'all' ? 'All Applications' : activeCategory)}
-           </h2>
-           <span className="text-[10px] bg-gray-200 dark:bg-white/10 px-2 py-1 rounded text-gray-500 dark:text-gray-400 font-mono">
-             {searchQuery ? 'SEARCH' : 'SYSTEM READY'}
-           </span>
-         </div>
-
-         <ToolGrid category={activeCategory} searchQuery={searchQuery} />
+      <main className="flex-1 w-full max-w-[1800px] mx-auto overflow-y-auto custom-scrollbar p-4 md:p-6">
+        <CategoryNav active={activeCategory} onChange={handleCategoryChange} />
+        <div className="flex items-center justify-between px-1 mb-4">
+          <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+            {searchQuery ? `Results for "${searchQuery}"` : (activeCategory === 'all' ? 'All Applications' : activeCategory)}
+          </h2>
+          <span className="text-[10px] bg-gray-200 dark:bg-white/10 px-2 py-1 rounded text-gray-500 dark:text-gray-400 font-mono">
+            {searchQuery ? 'SEARCH' : 'SYSTEM READY'}
+          </span>
+        </div>
+        <ToolGrid category={activeCategory} searchQuery={searchQuery} />
       </main>
     </div>
   );

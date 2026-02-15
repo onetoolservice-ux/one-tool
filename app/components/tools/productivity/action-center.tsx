@@ -4,7 +4,12 @@ import { Zap, ArrowRight, Clock, Calculator, StickyNote } from 'lucide-react';
 import { ModalWrapper } from './modal-wrapper';
 import { TimerWidget, CalculatorWidget, NoteWidget } from './tool-widgets';
 
-export default function ActionCenter({ onAddTask, theme }: any) {
+interface ActionCenterProps {
+  onAddTask: (task: string) => void;
+  theme?: Record<string, string | boolean>;
+}
+
+export default function ActionCenter({ onAddTask, theme }: ActionCenterProps) {
   const [focused, setFocused] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [mounted, setMounted] = useState(false);
@@ -26,13 +31,25 @@ export default function ActionCenter({ onAddTask, theme }: any) {
           <div className={`relative ${t.cardBg} border transition-all duration-300 rounded-2xl p-2 flex items-center shadow-xl ${focused ? 'border-blue-500 ring-2 ring-blue-500/20' : t.border}`}>
             <div className={`pl-4 pr-4 border-r ${t.border} text-gray-400`}><Zap className={focused ? 'text-blue-500' : 'text-gray-500'} size={24} /></div>
             <input 
-              type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)}
+              type="text" 
+              value={inputValue} 
+              onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter' && inputValue.trim()) { onAddTask(inputValue); setInputValue(''); } }}
               placeholder="What needs to be done?" 
-              className={`flex-1 bg-transparent text-xl ${t.text} placeholder-gray-500 px-4 py-4 focus:outline-none`}
-              onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} autoFocus
+              className={`flex-1 bg-transparent text-xl ${t.text} placeholder-gray-500 px-4 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              onFocus={() => setFocused(true)} 
+              onBlur={() => setFocused(false)} 
+              autoFocus
+              aria-label="Task input"
             />
-            <button onClick={() => { if(inputValue.trim()) { onAddTask(inputValue); setInputValue(''); } }} className="bg-blue-600 hover:bg-blue-500 text-white p-3 rounded-xl transition-colors"><ArrowRight size={20} /></button>
+            <button 
+              onClick={() => { if(inputValue.trim()) { onAddTask(inputValue); setInputValue(''); } }} 
+              className="bg-blue-600 hover:bg-blue-500 text-white p-3 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              aria-label="Add task"
+              disabled={!inputValue.trim()}
+            >
+              <ArrowRight size={20} />
+            </button>
           </div>
         </div>
 
@@ -49,9 +66,22 @@ export default function ActionCenter({ onAddTask, theme }: any) {
   );
 }
 
-const QuickTool = ({ icon, label, onClick, theme }: any) => (
-  <button onClick={onClick} className="flex flex-col items-center gap-3 group">
-    <div className={`w-14 h-14 rounded-2xl ${theme.cardBg} border ${theme.border} flex items-center justify-center text-gray-500 group-hover:text-blue-500 group-hover:scale-110 transition-all shadow-sm`}>{React.cloneElement(icon, { size: 24 })}</div>
+interface QuickToolProps {
+  icon: React.ReactElement<{ size?: number; className?: string }>;
+  label: string;
+  onClick: () => void;
+  theme: Record<string, string | boolean>;
+}
+
+const QuickTool = ({ icon, label, onClick, theme }: QuickToolProps) => (
+  <button 
+    onClick={onClick} 
+    className="flex flex-col items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg"
+    aria-label={`Open ${label} tool`}
+  >
+    <div className={`w-14 h-14 rounded-2xl ${theme.cardBg} border ${theme.border} flex items-center justify-center text-gray-500 group-hover:text-blue-500 group-hover:scale-110 transition-all shadow-sm`}>
+      {React.cloneElement(icon, { size: 24 } as React.HTMLAttributes<HTMLElement>)}
+    </div>
     <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">{label}</span>
   </button>
 );
