@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 import { GoogleAnalytics } from "@/app/components/analytics/GoogleAnalytics"; 
@@ -9,6 +10,7 @@ import { ToastProvider } from "@/app/components/ui/toast-system";
 import GlobalHeader from "@/app/components/layout/GlobalHeader";
 import ScrollToTop from "@/app/components/layout/ScrollToTop";
 import { ErrorBoundary } from "@/app/components/shared/ErrorBoundary";
+import Toast from "@/app/shared/Toast";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -62,6 +64,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* AdSense — only loads when NEXT_PUBLIC_ADSENSE_ID is configured */}
+        {process.env.NEXT_PUBLIC_ADSENSE_ID && (
+          <Script
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_ID}`}
+            strategy="lazyOnload"
+            crossOrigin="anonymous"
+          />
+        )}
+      </head>
       <body className={inter.className}>
         <ErrorBoundary>
           <UIProvider>
@@ -75,6 +87,7 @@ export default function RootLayout({
                    </ErrorBoundary>
                  </main>
               </div>
+              <Toast />
               {/* Google Analytics - only loads if NEXT_PUBLIC_ENABLE_ANALYTICS=true and NEXT_PUBLIC_GA_ID is set */}
               {process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true' && (
                 <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />

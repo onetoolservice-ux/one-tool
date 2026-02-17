@@ -34,11 +34,12 @@ export interface SAPHeaderProps {
   kpis?: KPICard[];
   actions?: ReactNode;
   compact?: boolean;
+  sticky?: boolean;
 }
 
-export function SAPHeader({ title, subtitle, modes, kpis, actions, compact = false }: SAPHeaderProps) {
+export function SAPHeader({ title, subtitle, modes, kpis, actions, compact = false, sticky = false }: SAPHeaderProps) {
   return (
-    <div className={`bg-gradient-to-r from-[#0070F3] via-[#005DD1] to-[#0053B8] rounded-2xl shadow-lg overflow-hidden ${compact ? 'rounded-xl' : 'rounded-2xl'}`}>
+    <div className={`bg-gradient-to-r from-[#0070F3] via-[#005DD1] to-[#0053B8] rounded-2xl shadow-lg overflow-hidden ${compact ? 'rounded-xl' : 'rounded-2xl'} ${sticky ? 'sticky top-0 z-10' : ''}`}>
       {/* Header Content */}
       <div className={compact ? 'px-4 py-3' : 'px-6 py-5'}>
         {/* Title Section */}

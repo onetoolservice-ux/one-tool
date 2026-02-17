@@ -2,8 +2,9 @@
  * Analytics Shared Data Store
  *
  * Single source of truth for all analytics tools.
- * Only ManageTransactions can write; all other tools read.
- * Data persists in localStorage across sessions.
+ * Data is stored per upload batch (not per month).
+ * Users can upload any file at any time; dates are auto-detected.
+ * Persists in localStorage across sessions.
  */
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -16,6 +17,7 @@ export interface Transaction {
   type: 'credit' | 'debit';
   category: string;
   rawData: Record<string, string>;
+  batchId?: string;        // which upload batch this belongs to
 }
 
 export interface DetectedColumns {
@@ -28,14 +30,32 @@ export interface DetectedColumns {
   balance: string | null;
 }
 
-export interface MonthlyData {
-  monthKey: string;        // "2024-01"
-  monthLabel: string;      // "January 2024"
+/** A single upload batch — replaces the old MonthlyData */
+export interface UploadBatch {
+  batchId: string;         // unique ID (timestamp-based)
   fileName: string;
   uploadedAt: string;
   transactions: Transaction[];
   detectedColumns: DetectedColumns;
-  rawHeaders?: string[];   // original column headers from uploaded file (for re-mapping)
+  rawHeaders?: string[];
+  dateRange: { from: string; to: string } | null;  // auto-detected
+  summary: {
+    totalCredits: number;
+    totalDebits: number;
+    netFlow: number;
+    transactionCount: number;
+  };
+}
+
+// ── Legacy type kept for backward compatibility during migration ──────────
+export interface MonthlyData {
+  monthKey: string;
+  monthLabel: string;
+  fileName: string;
+  uploadedAt: string;
+  transactions: Transaction[];
+  detectedColumns: DetectedColumns;
+  rawHeaders?: string[];
   summary: {
     totalCredits: number;
     totalDebits: number;
@@ -45,7 +65,8 @@ export interface MonthlyData {
 }
 
 export interface AnalyticsStoreData {
-  months: Record<string, MonthlyData>;
+  months: Record<string, MonthlyData>;   // legacy (kept for migration)
+  batches?: Record<string, UploadBatch>; // new format
 }
 
 // ── Storage Operations ────────────────────────────────────────────────────────
@@ -57,51 +78,236 @@ export function loadStore(): AnalyticsStoreData {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw);
   } catch { /* ignore */ }
-  return { months: {} };
+  return { months: {}, batches: {} };
 }
 
 export function saveStore(data: AnalyticsStoreData): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-export function getMonthData(monthKey: string): MonthlyData | null {
-  return loadStore().months[monthKey] || null;
-}
-
-export function saveMonthData(data: MonthlyData): void {
-  const store = loadStore();
-  store.months[data.monthKey] = data;
-  saveStore(store);
+function dispatchUpdate() {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('analytics-store-updated'));
   }
+}
+
+// ── Migration: convert old month-based data to batches on first load ──────
+
+export function migrateIfNeeded(): void {
+  const store = loadStore();
+  if (!store.batches) store.batches = {};
+
+  const monthKeys = Object.keys(store.months || {});
+  if (monthKeys.length === 0) return;
+
+  // Already migrated? Check if batches already exist
+  const batchKeys = Object.keys(store.batches);
+  if (batchKeys.length > 0) return; // already have batch data
+
+  for (const mk of monthKeys) {
+    const md = store.months[mk];
+    if (!md || md.transactions.length === 0) continue;
+    const batchId = `migrated-${mk}`;
+    const txns = md.transactions.map(t => ({ ...t, batchId }));
+    const dates = txns.map(t => t.date).filter(Boolean).sort();
+    store.batches[batchId] = {
+      batchId,
+      fileName: md.fileName || `${mk} data`,
+      uploadedAt: md.uploadedAt || new Date().toISOString(),
+      transactions: txns,
+      detectedColumns: md.detectedColumns,
+      rawHeaders: md.rawHeaders,
+      dateRange: dates.length > 0 ? { from: dates[0], to: dates[dates.length - 1] } : null,
+      summary: md.summary,
+    };
+  }
+  // Clean up legacy month data after migration so it doesn't resurrect on re-migration
+  store.months = {};
+  saveStore(store);
+}
+
+// ── Batch Operations ──────────────────────────────────────────────────────────
+
+export function saveBatch(batch: UploadBatch): void {
+  const store = loadStore();
+  if (!store.batches) store.batches = {};
+  store.batches[batch.batchId] = batch;
+  saveStore(store);
+  dispatchUpdate();
+}
+
+export function getBatch(batchId: string): UploadBatch | null {
+  const store = loadStore();
+  return store.batches?.[batchId] || null;
+}
+
+export function deleteBatch(batchId: string): void {
+  const store = loadStore();
+  if (store.batches) delete store.batches[batchId];
+  // Also clean up legacy month data if this was a migrated batch
+  if (batchId.startsWith('migrated-') && store.months) {
+    const monthKey = batchId.replace('migrated-', '');
+    delete store.months[monthKey];
+  }
+  saveStore(store);
+  dispatchUpdate();
+}
+
+export function getAllBatches(): UploadBatch[] {
+  const store = loadStore();
+  if (!store.batches) return [];
+  return Object.values(store.batches).sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt));
+}
+
+export function getAllBatchIds(): string[] {
+  return getAllBatches().map(b => b.batchId);
+}
+
+// ── Transaction Access (unified across all batches) ───────────────────────────
+
+export function getAllTransactions(type?: 'credit' | 'debit'): Transaction[] {
+  const store = loadStore();
+  const batches = store.batches ? Object.values(store.batches) : [];
+  const all = batches.flatMap(b => b.transactions);
+  if (type) return all.filter(t => t.type === type);
+  return all;
+}
+
+export function getTransactionsByBatch(batchId: string, type?: 'credit' | 'debit'): Transaction[] {
+  const batch = getBatch(batchId);
+  if (!batch) return [];
+  if (type) return batch.transactions.filter(t => t.type === type);
+  return batch.transactions;
+}
+
+/** Get detected columns from any batch (first one with data) */
+export function getDetectedColumns(): DetectedColumns | null {
+  const batches = getAllBatches();
+  for (const b of batches) {
+    if (b.detectedColumns) return b.detectedColumns;
+  }
+  return null;
+}
+
+// ── Legacy compatibility functions ────────────────────────────────────────────
+// These bridge old code that uses month-based API to the new batch-based store.
+
+export function getMonthData(monthKey: string): MonthlyData | null {
+  // First check legacy months
+  const store = loadStore();
+  if (store.months?.[monthKey]) return store.months[monthKey];
+  // Then check batches that were migrated from this month
+  const batch = store.batches?.[`migrated-${monthKey}`];
+  if (batch) {
+    return {
+      monthKey,
+      monthLabel: monthKeyToLabel(monthKey),
+      fileName: batch.fileName,
+      uploadedAt: batch.uploadedAt,
+      transactions: batch.transactions,
+      detectedColumns: batch.detectedColumns,
+      rawHeaders: batch.rawHeaders,
+      summary: batch.summary,
+    };
+  }
+  return null;
+}
+
+export function saveMonthData(data: MonthlyData): void {
+  // Save as a batch instead
+  const batchId = `migrated-${data.monthKey}`;
+  const txns = data.transactions.map(t => ({ ...t, batchId }));
+  const dates = txns.map(t => t.date).filter(Boolean).sort();
+  saveBatch({
+    batchId,
+    fileName: data.fileName,
+    uploadedAt: data.uploadedAt,
+    transactions: txns,
+    detectedColumns: data.detectedColumns,
+    rawHeaders: data.rawHeaders,
+    dateRange: dates.length > 0 ? { from: dates[0], to: dates[dates.length - 1] } : null,
+    summary: data.summary,
+  });
 }
 
 export function deleteMonthData(monthKey: string): void {
   const store = loadStore();
+  // Remove legacy month data
   delete store.months[monthKey];
-  saveStore(store);
-  if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('analytics-store-updated'));
+  // Remove migrated batch for this month
+  if (store.batches) delete store.batches[`migrated-${monthKey}`];
+  // Remove transactions matching this month from ALL batches
+  if (store.batches) {
+    for (const [batchId, batch] of Object.entries(store.batches)) {
+      batch.transactions = batch.transactions.filter(
+        t => !(t.date && t.date.startsWith(monthKey))
+      );
+      if (batch.transactions.length === 0) {
+        delete store.batches[batchId];
+      } else {
+        batch.summary = calculateSummary(batch.transactions);
+        const dates = batch.transactions.map(t => t.date).filter(Boolean).sort();
+        batch.dateRange = dates.length > 0 ? { from: dates[0], to: dates[dates.length - 1] } : null;
+      }
+    }
   }
+  saveStore(store);
+  dispatchUpdate();
 }
 
 export function getAllMonthKeys(): string[] {
-  return Object.keys(loadStore().months).sort().reverse();
+  // Derive month keys from all transaction dates across all batches
+  const txns = getAllTransactions();
+  const months = new Set<string>();
+  txns.forEach(t => {
+    if (t.date && t.date.length >= 7) {
+      months.add(t.date.substring(0, 7));
+    }
+  });
+  return Array.from(months).sort().reverse();
 }
 
-// Batch-update transaction categories for a given month.
-// updates = { [transactionId]: newCategory }
+export function getTransactions(monthKey: string, type?: 'credit' | 'debit'): Transaction[] {
+  const all = getAllTransactions(type);
+  return all.filter(t => t.date && t.date.startsWith(monthKey));
+}
+
+// Batch-update transaction categories
 export function updateTransactionCategories(
   monthKey: string,
   updates: Record<string, string>
 ): void {
-  const data = getMonthData(monthKey);
-  if (!data) return;
-  const transactions = data.transactions.map(t =>
+  const store = loadStore();
+  if (!store.batches) return;
+  // Search all batches for matching transaction IDs
+  for (const batch of Object.values(store.batches)) {
+    let changed = false;
+    batch.transactions = batch.transactions.map(t => {
+      if (updates[t.id]) {
+        changed = true;
+        return { ...t, category: updates[t.id] };
+      }
+      return t;
+    });
+    if (changed) {
+      batch.summary = calculateSummary(batch.transactions);
+    }
+  }
+  saveStore(store);
+  dispatchUpdate();
+}
+
+export function updateBatchTransactionCategories(
+  batchId: string,
+  updates: Record<string, string>
+): void {
+  const batch = getBatch(batchId);
+  if (!batch) return;
+  batch.transactions = batch.transactions.map(t =>
     updates[t.id] ? { ...t, category: updates[t.id] } : t
   );
-  saveMonthData({ ...data, transactions, summary: calculateSummary(transactions) });
+  batch.summary = calculateSummary(batch.transactions);
+  saveBatch(batch);
 }
 
 export const ALL_CATEGORIES = [
@@ -111,20 +317,6 @@ export const ALL_CATEGORIES = [
   'Insurance', 'Investment', 'Loan/EMI', 'Transfer', 'Cash',
   'Subscription', 'Gifts', 'Tax', 'Other',
 ];
-
-export function getTransactions(monthKey: string, type?: 'credit' | 'debit'): Transaction[] {
-  const data = getMonthData(monthKey);
-  if (!data) return [];
-  if (type) return data.transactions.filter(t => t.type === type);
-  return data.transactions;
-}
-
-export function getAllTransactions(type?: 'credit' | 'debit'): Transaction[] {
-  const store = loadStore();
-  const all = Object.values(store.months).flatMap(m => m.transactions);
-  if (type) return all.filter(t => t.type === type);
-  return all;
-}
 
 // ── Month Helpers ─────────────────────────────────────────────────────────────
 
@@ -228,15 +420,14 @@ export function detectColumns(headers: string[], rows: string[][]): DetectedColu
 
   const sampleRows = rows.slice(0, Math.min(20, rows.length));
 
-  // First pass: find the primary date column (prefer "Date"/"Tran Date" over "Value Date")
+  // First pass: find the primary date column
   const primaryDatePat = /\btransaction\s*date\b|\btran\s*date\b|\bposting\s*date\b|\bvalue\s*date\b|\bdate\b|\bdt\b/i;
-  const valueDatePat = /^value\s*d(ate)?$/i; // "Value D" or "Value Date" = secondary date
+  const valueDatePat = /^value\s*d(ate)?$/i;
   for (const [header] of headers.map((h, i) => [h, i] as [string, number])) {
     const h = header.toLowerCase().trim();
     if (primaryDatePat.test(h) && !valueDatePat.test(h)) { result.date = header; break; }
   }
   if (!result.date) {
-    // Accept "Value Date" as date if nothing better found
     for (const header of headers) {
       if (valueDatePat.test(header)) { result.date = header; break; }
     }
@@ -246,79 +437,59 @@ export function detectColumns(headers: string[], rows: string[][]): DetectedColu
     const h = header.toLowerCase().trim();
     const values = sampleRows.map(r => (r[idx] || '').toString().trim()).filter(Boolean);
 
-    // Date (data-based detection as fallback — skip already-mapped)
     if (!result.date) {
       if (values.length > 0 && values.filter(v => isDateLike(v)).length > values.length * 0.5) {
         result.date = header;
         return;
       }
     }
-    // Skip headers already assigned as date
     if (header === result.date) return;
 
-    // Credit/Deposit
     if (!result.creditAmount && /\bcredit\b|\bdeposit\b|\bcr\b|\bincome\b|\binward\b/i.test(h)) {
       result.creditAmount = header;
       return;
     }
-
-    // Debit/Withdrawal
     if (!result.debitAmount && /\bdebit\b|\bwithdraw(al)?\b|\bdr\b|\bexpense\b|\boutward\b/i.test(h)) {
       result.debitAmount = header;
       return;
     }
-
-    // Balance
     if (!result.balance && /\bbalance\b|\bclosing\b|\brunning\b|\bavailable\b/i.test(h)) {
       result.balance = header;
       return;
     }
-
-    // Single amount column (value only if not a date column)
     if (!result.amount && /\bamount\b|\bprice\b|\btotal\b|\bsum\b/i.test(h)) {
       result.amount = header;
       return;
     }
-    // "Value" without "date" context → amount
     if (!result.amount && /^value$/i.test(h)) {
       result.amount = header;
       return;
     }
-
-    // Description — prioritize narration/name/payee, exclude transaction-type columns
     if (!result.description) {
       if (/\bnarration\b|\bparticular\b|\bremark\b|\bdescription\b|\bdesc\b|\bdetail\b|\bmemo\b|\bnote\b|\bpayee\b|\bbeneficiary\b/i.test(h)) {
         result.description = header;
         return;
       }
-      // "Name" column is usually the merchant/payee name in bank statements
       if (/^name$/i.test(h)) {
         result.description = header;
         return;
       }
-      // "Transaction Remarks", "Transaction Details" → description; plain "Transaction" → category
       if (/\btransaction\s+(desc|detail|remark|narration|ref|particulars)/i.test(h)) {
         result.description = header;
         return;
       }
     }
-
-    // Category / Transaction Type (must check AFTER description to avoid "Transaction" matching desc)
     if (!result.category) {
-      // Data-based: column with only "Debit/Credit/DR/CR" values → it's a type/category column
       const uniqueVals = new Set(values.map(v => v.toLowerCase()));
       const isTypeCol = values.length > 0 && uniqueVals.size <= 5 &&
         [...uniqueVals].every(v => /^(debit|credit|dr|cr|purchase|transfer|withdrawal|deposit)$/.test(v.trim()));
-
       if (isTypeCol) { result.category = header; return; }
-
       if (/\bcategor\b|\btransaction\s*type\b|\btrans\s*type\b|\btype\b|\bclass\b|\bgroup\b|\btag\b|\bhead\b/i.test(h)) {
         result.category = header;
         return;
       }
     }
   });
-
 
   // Fallback: find description column as the one with most diverse text
   if (!result.description) {
@@ -357,19 +528,14 @@ export function detectColumns(headers: string[], rows: string[][]): DetectedColu
 // ── Auto-Categorization ───────────────────────────────────────────────────────
 
 const CATEGORY_RULES: { pattern: RegExp; category: string }[] = [
-  // Income patterns (must be first to catch credits properly)
   { pattern: /\bsalary\b|\bwages\b|\bpayroll\b|\bstipend\b|\bearn.*salary\b/i, category: 'Salary' },
   { pattern: /\bfreelance\b|\bconsult\b|\bproject\s*fee\b|\bcontract.*payment\b/i, category: 'Freelance' },
   { pattern: /\bdividend\b|\binterest\s*(earned|received|credit)\b|\breturn\b|\byield\b/i, category: 'Returns' },
   { pattern: /\brefund\b|\bcashback\b|\breversal\b|\bchargeback\b/i, category: 'Refund' },
-
-  // Expense patterns - Specific merchants/services first (more specific patterns)
   { pattern: /\bzomato\b|\bswiggy\b|\bdunzo\b|\bzepto\b|\binstamart\b/i, category: 'Dining' },
   { pattern: /\bamazon\b|\bflipkart\b|\bmyntra\b|\bajio\b|\bnykaa\b|\bmeesho\b/i, category: 'Shopping' },
   { pattern: /\buber\b|\bola\b|\brapido\b|\bbounce\b|\byulu\b/i, category: 'Transport' },
   { pattern: /\bnetflix\b|\bspotify\b|\bprime\b|\bhotstar\b|\byoutube\s*premium\b|\bdisney\b/i, category: 'Entertainment' },
-
-  // General expense categories
   { pattern: /\brent\b|\bmortgage\b|\blease\b|\bmaintenance\s*(charge|fee)\b|\bhousing\s*society\b/i, category: 'Housing' },
   { pattern: /\bgrocery\b|\bgrocer\b|\bsupermarket\b|\bvegetable\b|\bkirana\b|\bmart\b|\bbigbasket\b|\bblinkit\b|\bfreshworks\b/i, category: 'Groceries' },
   { pattern: /\brestaurant\b|\bfood\b|\bcafe\b|\bcafeteria\b|\bpizza\b|\bburger\b|\bdining\b|\btiffin\b|\bmess\b|\bcanteen\b/i, category: 'Dining' },
@@ -387,8 +553,6 @@ const CATEGORY_RULES: { pattern: RegExp; category: string }[] = [
   { pattern: /\bsubscription\b|\bsaas\b|\bcloud\b|\bmembership\b/i, category: 'Subscription' },
   { pattern: /\bgift\b|\bdonation\b|\bcharity\b/i, category: 'Gifts' },
   { pattern: /\btax\b|\bgst\b|\btds\b|\bincome\s*tax\b/i, category: 'Tax' },
-
-  // Bank-specific patterns (generic transaction types - lower priority)
   { pattern: /\btransfer\b|\bneft\b|\brtgs\b|\bimps\b|\bpayment\b/i, category: 'Transfer' },
 ];
 
@@ -414,51 +578,39 @@ export function parseAmount(value: unknown): number {
 export function buildTransactions(
   headers: string[],
   rows: string[][],
-  columns: DetectedColumns
+  columns: DetectedColumns,
+  batchId?: string
 ): Transaction[] {
   return rows
     .map((row, idx) => {
       const rawData: Record<string, string> = {};
       headers.forEach((h, i) => { rawData[h] = (row[i] || '').toString(); });
 
-      // Get description
       const descIdx = columns.description ? headers.indexOf(columns.description) : -1;
       const description = descIdx >= 0 ? (row[descIdx] || '').toString().trim() : `Row ${idx + 1}`;
 
-      // Get date
       const dateIdx = columns.date ? headers.indexOf(columns.date) : -1;
       const date = dateIdx >= 0 ? parseDate(row[dateIdx]) || '' : '';
 
-      // Determine amount and type
       let amount = 0;
       let type: 'credit' | 'debit' = 'debit';
 
       if (columns.creditAmount && columns.debitAmount) {
-        // Separate credit/debit columns
         const crIdx = headers.indexOf(columns.creditAmount);
         const drIdx = headers.indexOf(columns.debitAmount);
         const crAmt = crIdx >= 0 ? parseAmount(row[crIdx]) : 0;
         const drAmt = drIdx >= 0 ? parseAmount(row[drIdx]) : 0;
-
-        if (crAmt > 0) {
-          amount = crAmt;
-          type = 'credit';
-        } else if (drAmt > 0) {
-          amount = Math.abs(drAmt);
-          type = 'debit';
-        }
+        if (crAmt > 0) { amount = crAmt; type = 'credit'; }
+        else if (drAmt > 0) { amount = Math.abs(drAmt); type = 'debit'; }
       } else if (columns.amount) {
-        // Single amount column
         const amtIdx = headers.indexOf(columns.amount);
         const rawAmt = amtIdx >= 0 ? parseAmount(row[amtIdx]) : 0;
         amount = Math.abs(rawAmt);
         type = rawAmt >= 0 ? 'credit' : 'debit';
       }
 
-      // Skip rows with zero amount
       if (amount === 0) return null;
 
-      // Get category
       const catIdx = columns.category ? headers.indexOf(columns.category) : -1;
       const category = catIdx >= 0 && row[catIdx]
         ? row[catIdx].toString().trim()
@@ -472,6 +624,7 @@ export function buildTransactions(
         type,
         category,
         rawData,
+        batchId,
       };
     })
     .filter((t): t is Transaction => t !== null);
@@ -540,10 +693,6 @@ export interface DimensionOption {
   group: 'standard' | 'time' | 'raw';
 }
 
-/**
- * Group transactions by any dimension: standard fields, derived time fields,
- * or raw Excel columns (raw:ColumnName).
- */
 export function groupByAny(transactions: Transaction[], dimension: string): GroupedData[] {
   const map: Record<string, Transaction[]> = {};
   const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -574,11 +723,6 @@ export function groupByAny(transactions: Transaction[], dimension: string): Grou
     .sort((a, b) => b.totalAmount - a.totalAmount);
 }
 
-/**
- * Discover available grouping dimensions from the actual data.
- * Includes standard fields, time derivations, and raw Excel columns
- * that are not already mapped (text-only, with sufficient variety).
- */
 export function getAvailableDimensions(
   transactions: Transaction[],
   detectedColumns?: DetectedColumns | null
@@ -593,25 +737,22 @@ export function getAvailableDimensions(
 
   if (transactions.length === 0) return dims;
 
-  // Collect already-mapped column names so we don't double-expose them
   const mappedCols = new Set<string>(
     Object.values(detectedColumns || {}).filter(Boolean) as string[]
   );
 
-  // Scan raw keys from first 100 transactions
   const rawKeys = new Set<string>();
   transactions.slice(0, 100).forEach(t => {
     Object.keys(t.rawData || {}).forEach(k => rawKeys.add(k));
   });
 
   rawKeys.forEach(key => {
-    if (mappedCols.has(key)) return; // already mapped to a standard field
+    if (mappedCols.has(key)) return;
     const values = transactions.slice(0, 100)
       .map(t => (t.rawData?.[key] || '').trim()).filter(Boolean);
     if (values.length === 0) return;
     const unique = new Set(values).size;
     const isNumeric = values.every(v => !isNaN(Number(v.replace(/[,₹$€£\s]/g, ''))));
-    // Only include text columns with 2+ distinct values and not too many unique values
     if (!isNumeric && unique >= 2 && unique <= Math.max(values.length * 0.9, 2)) {
       dims.push({ value: `raw:${key}`, label: key, group: 'raw' });
     }

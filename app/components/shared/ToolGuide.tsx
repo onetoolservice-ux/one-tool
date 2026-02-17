@@ -20,7 +20,7 @@ interface ToolGuideConfig {
 // ─── Guide Content per tool ───────────────────────────────────────────────────
 const GUIDES: Record<string, ToolGuideConfig> = {
   managetransaction: {
-    title: 'Manage Monthly Transactions',
+    title: 'Manage Transactions',
     subtitle: 'Import once, analyze everywhere.',
     steps: [
       {
@@ -56,7 +56,7 @@ const GUIDES: Record<string, ToolGuideConfig> = {
     steps: [
       {
         title: 'Load your transactions first',
-        body: 'The Expense Tracker works with data you\'ve imported in "Manage Monthly Transactions". If you haven\'t uploaded a bank statement yet, do that first.',
+        body: 'The Expense Tracker works with data you\'ve imported in "Manage Transactions". If you haven\'t uploaded a bank statement yet, do that first.',
       },
       {
         title: 'Pick a month',
@@ -88,7 +88,7 @@ const GUIDES: Record<string, ToolGuideConfig> = {
     steps: [
       {
         title: 'Load your transactions',
-        body: 'Make sure you\'ve imported your bank statement in "Manage Monthly Transactions" first.',
+        body: 'Make sure you\'ve imported your bank statement in "Manage Transactions" first.',
       },
       {
         title: 'Select a month',
@@ -115,7 +115,7 @@ const GUIDES: Record<string, ToolGuideConfig> = {
     steps: [
       {
         title: 'Upload or use existing data',
-        body: 'Upload a CSV directly here, or if you\'ve already loaded transactions via Manage Monthly Transactions, they\'re auto-available.',
+        body: 'Upload a CSV directly here, or if you\'ve already loaded transactions via Manage Transactions, they\'re auto-available.',
       },
       {
         title: 'Choose chart types',

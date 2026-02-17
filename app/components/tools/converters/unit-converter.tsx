@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useMemo, useCallback } from 'react';
 import { ArrowLeftRight, Copy, Check, Trash2 } from 'lucide-react';
+import { readUrlParams, buildShareUrl } from '@/app/hooks/useUrlPreset';
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 type CategoryKey = keyof typeof CATS;
@@ -93,10 +94,11 @@ let _hid = 0;
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export const UnitConverter = () => {
-  const [cat, setCat]       = useState<CategoryKey>('Length');
-  const [fromU, setFromU]   = useState('m');
-  const [toU, setToU]       = useState('km');
-  const [inp, setInp]       = useState('1');
+  const _p = readUrlParams();
+  const [cat, setCat]       = useState<CategoryKey>((_p.get('cat') as CategoryKey) || 'Length');
+  const [fromU, setFromU]   = useState(_p.get('from') || 'm');
+  const [toU, setToU]       = useState(_p.get('to') || 'km');
+  const [inp, setInp]       = useState(_p.get('v') || '1');
   const [baseSize, setBase] = useState(16);
   const [history, setHist]  = useState<HistEntry[]>([]);
   const [copiedId, setCopied] = useState<number | null>(null);
@@ -266,6 +268,19 @@ export const UnitConverter = () => {
             {cat === 'Currency' && (
               <p className="text-[9px] text-slate-400 italic">* Rates are static approximations. Use a live API for real-time data.</p>
             )}
+
+            <button
+              onClick={() => {
+                const url = buildShareUrl({ cat, from: fromU, to: toU, v: inp });
+                navigator.clipboard.writeText(url).then(() => {
+                  setCopied(-99);
+                  setTimeout(() => setCopied(null), 2000);
+                });
+              }}
+              className="w-full text-[10px] text-center py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-emerald-500 transition-colors"
+            >
+              {copiedId === -99 ? 'Link copied!' : 'Copy shareable link'}
+            </button>
           </div>
 
           {/* Right — All-units table + history */}

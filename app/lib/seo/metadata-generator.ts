@@ -9,7 +9,8 @@ function cleanName(name: string): string {
 }
 
 export function generateSEOTitle(tool: Tool): string {
-  return `${tool.name} - Free Online Tool | OneTool`;
+  // Layout template appends " | OneTool" — don't duplicate it here
+  return `${tool.name} - Free Online Tool`;
 }
 
 export function generateSEODescription(tool: Tool): string {
@@ -391,7 +392,7 @@ export function generateKeywords(tool: Tool): string[] {
 
 export function generateOpenGraph(tool: Tool, baseUrl: string) {
   return {
-    title: generateSEOTitle(tool),
+    title: `${tool.name} - Free Online Tool | OneTool`, // OG title is standalone, not affected by template
     description: generateSEODescription(tool),
     url: `${baseUrl}${tool.href}`,
     siteName: 'OneTool',
@@ -402,7 +403,7 @@ export function generateOpenGraph(tool: Tool, baseUrl: string) {
 export function generateTwitterCard(tool: Tool, baseUrl: string) {
   return {
     card: 'summary_large_image' as const,
-    title: generateSEOTitle(tool),
+    title: `${tool.name} - Free Online Tool | OneTool`, // Twitter title is standalone
     description: generateSEODescription(tool),
   };
 }

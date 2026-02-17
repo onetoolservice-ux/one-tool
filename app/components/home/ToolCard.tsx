@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { getTheme } from '@/app/lib/theme-config';
 import { getIconComponent, type IconName } from '@/app/lib/utils/icon-mapper';
+import { Star } from 'lucide-react';
 
 // Per-tool unique icon gradients — overrides the category-wide default
 const TOOL_ICON_BG: Record<string, string> = {
@@ -74,6 +75,21 @@ const TOOL_ICON_BG: Record<string, string> = {
   'audio-transcription': 'bg-gradient-to-br from-rose-500 to-orange-500',
 };
 
+/* Category → colored top-edge accent for the card */
+const CATEGORY_TOP_EDGE: Record<string, string> = {
+  Analytics:    'from-blue-500 to-cyan-400',
+  Finance:      'from-emerald-500 to-teal-400',
+  Business:     'from-violet-500 to-indigo-400',
+  Documents:    'from-amber-500 to-orange-400',
+  Developer:    'from-purple-500 to-violet-400',
+  Productivity: 'from-rose-500 to-pink-400',
+  Converters:   'from-cyan-500 to-sky-400',
+  Design:       'from-pink-500 to-fuchsia-400',
+  Health:       'from-teal-500 to-emerald-400',
+  AI:           'from-fuchsia-500 to-purple-400',
+  Creator:      'from-orange-500 to-amber-400',
+};
+
 interface Tool {
   id: string;
   name: string;
@@ -92,16 +108,39 @@ export function ToolCard({ tool }: { tool: Tool }) {
   const IconComponent = tool.icon_name
     ? getIconComponent(tool.icon_name as IconName)
     : null;
+  const topEdge = CATEGORY_TOP_EDGE[tool.category] || 'from-slate-400 to-slate-300';
 
   return (
     <Link href={href} className="group relative block" aria-label={`Open ${tool.name} tool`}>
-      <article className={`relative p-3.5 rounded-xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200 flex items-center gap-3.5 hover:shadow-lg ${theme.shadow}`}>
-        <div className={`w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-white shadow-sm transform group-hover:scale-105 transition-transform duration-200 ${TOOL_ICON_BG[tool.id] ?? theme.iconBg}`}>
-          {IconComponent ? <IconComponent size={20} /> : null}
+      <article className="relative h-full rounded-xl bg-white dark:bg-[#151827] border border-slate-200/80 dark:border-white/[0.06] hover:border-slate-300 dark:hover:border-white/[0.12] transition-all duration-200 hover:shadow-lg hover:shadow-black/[0.04] dark:hover:shadow-black/25 flex flex-row overflow-hidden">
+        {/* Colored left edge */}
+        <div className={`w-[3px] min-h-full bg-gradient-to-b ${topEdge} opacity-70 group-hover:opacity-100 transition-opacity flex-shrink-0`} />
+
+        <div className="px-3.5 pt-3 pb-3 flex flex-col gap-2 flex-1 min-w-0">
+          {/* Top row: icon + popular badge */}
+          <div className="flex items-start justify-between">
+            <div className={`w-10 h-10 min-w-[40px] flex items-center justify-center rounded-xl text-white shadow-sm transform group-hover:scale-110 group-hover:shadow-md transition-all duration-200 ${TOOL_ICON_BG[tool.id] ?? theme.iconBg}`}>
+              {IconComponent ? <IconComponent size={18} /> : null}
+            </div>
+            {tool.popular && (
+              <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                <Star size={10} fill="currentColor" />
+              </span>
+            )}
+          </div>
+
+          {/* Name */}
+          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 group-hover:text-slate-900 dark:group-hover:text-white transition-colors leading-tight">
+            {tool.name}
+          </h3>
+
+          {/* Description */}
+          {tool.description && (
+            <p className="text-[11px] leading-relaxed text-slate-500 dark:text-slate-400 line-clamp-2">
+              {tool.description}
+            </p>
+          )}
         </div>
-        <h3 className="text-sm font-bold text-slate-800 dark:text-white tracking-tight group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-colors truncate">
-          {tool.name}
-        </h3>
       </article>
     </Link>
   );

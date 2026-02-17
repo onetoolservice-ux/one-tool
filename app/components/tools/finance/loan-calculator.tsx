@@ -5,11 +5,13 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'rec
 import { Input } from '@/app/components/shared';
 import { formatCurrency } from '@/app/lib/utils/tool-helpers';
 import { showToast } from '@/app/shared/Toast';
+import { readUrlParams, buildShareUrl } from '@/app/hooks/useUrlPreset';
 
 export const LoanCalculator = () => {
-  const [p, setP] = useState(5000000); // Principal
-  const [r, setR] = useState(8.5);     // Rate
-  const [n, setN] = useState(20);      // Years
+  const params = readUrlParams();
+  const [p, setP] = useState(Number(params.get('p')) || 5000000);
+  const [r, setR] = useState(Number(params.get('r')) || 8.5);
+  const [n, setN] = useState(Number(params.get('n')) || 20);
 
   const [emi, setEmi] = useState(0);
   const [totalInterest, setTotalInterest] = useState(0);
@@ -183,6 +185,15 @@ export const LoanCalculator = () => {
              <p className="text-xs font-bold text-rose-100 uppercase mb-1">Monthly EMI</p>
              <h1 className="text-4xl font-black">{formatCurrency(emi)}</h1>
           </div>
+          <button
+            onClick={() => {
+              const url = buildShareUrl({ p, r, n });
+              navigator.clipboard.writeText(url).then(() => showToast('Share link copied!', 'success'));
+            }}
+            className="mt-3 w-full text-xs text-center py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+          >
+            Copy shareable link
+          </button>
        </div>
 
        {/* VISUALS */}

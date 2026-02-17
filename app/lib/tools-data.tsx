@@ -32,18 +32,8 @@ export const ALL_TOOLS: Tool[] = [
   // ANALYTICS (Featured - Blue/Emerald) - Data analysis and visualization
   // ═══════════════════════════════════════════════════════════════════════════
   {
-    id: "analyticsreport",
-    name: "Analytics Report",
-    category: "Analytics",
-    href: "/tools/analytics/analyticsreport",
-    icon: "Table",
-    popular: true,
-    color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400",
-    desc: "Build shareable analytics reports with drag-and-drop metrics, KPIs, pivot tables, and exportable charts."
-  },
-  {
     id: "managetransaction",
-    name: "Manage Monthly Transactions",
+    name: "Manage Transactions",
     category: "Analytics",
     href: "/tools/analytics/managetransaction",
     icon: "Upload",
@@ -87,6 +77,16 @@ export const ALL_TOOLS: Tool[] = [
     popular: true,
     color: "text-purple-600 bg-purple-50 dark:bg-purple-900/20 dark:text-purple-400",
     desc: "AI-powered financial insights with anomaly detection, predictions, and automated recommendations."
+  },
+  {
+    id: "analyticsreport",
+    name: "Analytics Report",
+    category: "Analytics",
+    href: "/tools/analytics/analyticsreport",
+    icon: "Table",
+    popular: true,
+    color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400",
+    desc: "Build shareable analytics reports with drag-and-drop metrics, KPIs, pivot tables, and exportable charts."
   },
 
   // ═══════════════════════════════════════════════════════════════════════════

@@ -1,9 +1,11 @@
 "use client";
 import dynamic from 'next/dynamic';
 import type { ComponentType } from 'react';
+import { useEffect, useMemo } from 'react';
 import { ErrorBoundary } from '@/app/components/shared/ErrorBoundary';
 import { LoadingSpinner } from '@/app/components/shared/LoadingSpinner';
-import { trackEvent } from '@/app/lib/telemetry';
+import { trackToolOpened, trackEvent } from '@/app/lib/telemetry';
+import { recordToolUse } from '@/app/hooks/useRecentTools';
 
 // Tool component mapping
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -76,43 +78,46 @@ interface ToolLoaderProps {
 
 export function ToolLoader({ toolId, ...props }: ToolLoaderProps) {
   const loader = toolComponents[toolId];
-  
-  if (!loader) {
-    trackEvent('tool_not_found', { toolId });
+
+  // Track tool open & record for "Recently Used" (fires once per mount)
+  const hasLoader = !!loader;
+  useEffect(() => {
+    if (hasLoader) {
+      trackToolOpened(toolId);
+      recordToolUse(toolId);
+    } else {
+      trackEvent('tool_not_found', { tool_id: toolId });
+    }
+  }, [toolId, hasLoader]);
+
+  // Memoize dynamic component so it doesn't remount on re-renders
+  const DynamicComponent = useMemo(() => {
+    if (!loader) return null;
+    return dynamic(loader, {
+      loading: () => (
+        <div className="flex items-center justify-center min-h-[400px]">
+          <LoadingSpinner size="lg" text="Loading tool..." />
+        </div>
+      ),
+      ssr: false,
+    });
+  }, [loader]);
+
+  if (!DynamicComponent) {
     return <div className="p-8 text-center">Tool component not found for {toolId}</div>;
   }
 
-  // Telemetry: tool opened
-  trackEvent('tool_opened', { toolId });
-
-  const DynamicComponent = dynamic(loader, {
-    loading: () => (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <LoadingSpinner size="lg" text="Loading tool..." />
-      </div>
-    ),
-    ssr: false, // Disable SSR for tools to ensure proper code splitting
-  });
-
-  // Wrap component with Error Boundary
-  const WrappedComponent = () => {
-    // Handle special cases with props
-    if (toolId === 'smart-json') {
-      return <DynamicComponent toolId="json" title="JSON Editor" {...props} />;
-    }
-    if (toolId === 'smart-sql') {
-      return <DynamicComponent toolId="sql" title="SQL Formatter" {...props} />;
-    }
-    if (toolId === 'case-convert') {
-      return <DynamicComponent toolId="case" title="Case Converter" {...props} />;
-    }
-
-    return <DynamicComponent {...props} />;
+  // Handle special cases with props
+  const getToolProps = () => {
+    if (toolId === 'smart-json') return { toolId: "json", title: "JSON Editor", ...props };
+    if (toolId === 'smart-sql') return { toolId: "sql", title: "SQL Formatter", ...props };
+    if (toolId === 'case-convert') return { toolId: "case", title: "Case Converter", ...props };
+    return props;
   };
 
   return (
     <ErrorBoundary>
-      <WrappedComponent />
+      <DynamicComponent {...getToolProps()} />
     </ErrorBoundary>
   );
 }

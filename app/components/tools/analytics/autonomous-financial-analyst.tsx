@@ -87,7 +87,7 @@ export function AutonomousFinancialAnalyst() {
         <Brain size={52} strokeWidth={1.2} />
         <p className="text-base font-semibold">No financial data available</p>
         <p className="text-sm text-center max-w-md">
-          Upload your bank statements in <span className="font-bold text-blue-500">Manage Monthly Transactions</span> first.
+          Upload your bank statements in <span className="font-bold text-blue-500">Manage Transactions</span> first.
           Your autonomous financial analyst will automatically analyze your data.
         </p>
       </div>

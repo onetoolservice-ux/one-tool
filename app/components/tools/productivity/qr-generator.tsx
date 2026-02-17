@@ -2,6 +2,7 @@
 import React, { useState, useRef, useMemo, useCallback } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Download, Copy, Clock, Wifi, Mail, MessageSquare, Phone, Link, Type, Trash2 } from 'lucide-react';
+import { readUrlParams, buildShareUrl } from '@/app/hooks/useUrlPreset';
 
 type QRType = 'url' | 'text' | 'wifi' | 'vcard' | 'email' | 'sms' | 'phone';
 type ErrorLevel = 'L' | 'M' | 'Q' | 'H';
@@ -83,10 +84,19 @@ function getLabel(type: QRType, f: FormData): string {
 let _id = 0;
 
 export const QrGenerator = () => {
-  const [type, setType]         = useState<QRType>('url');
-  const [form, setForm]         = useState<FormData>(DEFAULTS);
-  const [fgColor, setFgColor]   = useState('#000000');
-  const [bgColor, setBgColor]   = useState('#ffffff');
+  const _p = readUrlParams();
+  const initType = (_p.get('type') as QRType) || 'url';
+  const initForm = { ...DEFAULTS };
+  // Hydrate form from URL params
+  if (_p.get('url')) initForm.url = _p.get('url')!;
+  if (_p.get('text')) initForm.text = _p.get('text')!;
+  if (_p.get('ssid')) { initForm.wifi_ssid = _p.get('ssid')!; initForm.wifi_pass = _p.get('pass') || ''; }
+  if (_p.get('phone')) initForm.phone = _p.get('phone')!;
+
+  const [type, setType]         = useState<QRType>(initType);
+  const [form, setForm]         = useState<FormData>(initForm);
+  const [fgColor, setFgColor]   = useState(_p.get('fg') || '#000000');
+  const [bgColor, setBgColor]   = useState(_p.get('bg') || '#ffffff');
   const [size, setSize]         = useState(256);
   const [ec, setEc]             = useState<ErrorLevel>('M');
   const [history, setHistory]   = useState<HistoryItem[]>([]);
@@ -363,7 +373,25 @@ export const QrGenerator = () => {
               <Download size={15} /> PNG
             </button>
           </div>
-          <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">Click download to also save to history</p>
+          <div className="flex items-center gap-3">
+            <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">Click download to also save to history</p>
+            <button
+              onClick={() => {
+                const p: Record<string, string> = { type };
+                if (type === 'url') p.url = form.url;
+                else if (type === 'text') p.text = form.text;
+                else if (type === 'wifi') { p.ssid = form.wifi_ssid; p.pass = form.wifi_pass; }
+                else if (type === 'phone') p.phone = form.phone;
+                if (fgColor !== '#000000') p.fg = fgColor;
+                if (bgColor !== '#ffffff') p.bg = bgColor;
+                const url = buildShareUrl(p);
+                navigator.clipboard.writeText(url);
+              }}
+              className="text-[10px] text-slate-400 hover:text-emerald-500 underline whitespace-nowrap transition-colors"
+            >
+              Copy share link
+            </button>
+          </div>
         </div>
 
         {/* Right — History */}

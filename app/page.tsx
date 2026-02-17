@@ -1,27 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { Suspense } from 'react';
 import Script from 'next/script';
-import { useSearchParams, useRouter } from 'next/navigation';
-import CategoryNav from '@/app/components/home/CategoryNav';
+import { useSearchParams } from 'next/navigation';
 import { ToolGrid } from '@/app/components/home/tool-grid';
 
 function HomeContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
-
-  const initialCategory = searchParams.get('category') || 'all';
   const searchQuery = searchParams.get('search') || '';
-  const [activeCategory, setActiveCategory] = useState(initialCategory);
-
-  useEffect(() => {
-    setActiveCategory(searchParams.get('category') || 'all');
-  }, [searchParams]);
-
-  const handleCategoryChange = (id: string) => {
-    setActiveCategory(id);
-    router.push(`/?category=${id}`, { scroll: false });
-  };
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -36,22 +22,13 @@ function HomeContent() {
   };
 
   return (
-    <div className="flex flex-col flex-1 bg-gray-50 dark:bg-[#0F111A] transition-colors duration-300 overflow-hidden">
+    <div className="flex-1 bg-gray-50 dark:bg-[#0F111A] transition-colors duration-300">
       <Script id="home-schema" type="application/ld+json" strategy="afterInteractive">
         {JSON.stringify(jsonLd)}
       </Script>
 
-      <main className="flex-1 w-full max-w-[1800px] mx-auto overflow-y-auto custom-scrollbar p-4 md:p-6">
-        <CategoryNav active={activeCategory} onChange={handleCategoryChange} />
-        <div className="flex items-center justify-between px-1 mb-4">
-          <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-            {searchQuery ? `Results for "${searchQuery}"` : (activeCategory === 'all' ? 'All Applications' : activeCategory)}
-          </h2>
-          <span className="text-[10px] bg-gray-200 dark:bg-white/10 px-2 py-1 rounded text-gray-500 dark:text-gray-400 font-mono">
-            {searchQuery ? 'SEARCH' : 'SYSTEM READY'}
-          </span>
-        </div>
-        <ToolGrid category={activeCategory} searchQuery={searchQuery} />
+      <main className="overflow-y-auto custom-scrollbar px-4 md:px-6 lg:px-8 pt-2 pb-8">
+        <ToolGrid searchQuery={searchQuery} />
       </main>
     </div>
   );

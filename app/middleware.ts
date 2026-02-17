@@ -68,14 +68,25 @@ export function middleware(request: NextRequest) {
     ? "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com"
     : "script-src 'self' 'unsafe-inline'";
   
+  // Allow GA event tracking when analytics is enabled
+  const connectSrc = process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true'
+    ? "connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co wss://*.supabase.in https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com"
+    : "connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co wss://*.supabase.in";
+
+  // Allow AdSense when configured
+  const hasAdsense = !!process.env.NEXT_PUBLIC_ADSENSE_ID;
+  const adScriptSrc = hasAdsense ? ' https://pagead2.googlesyndication.com' : '';
+  const adFrameSrc = hasAdsense ? ' https://googleads.g.doubleclick.net https://tpc.googlesyndication.com' : '';
+  const adConnectSrc = hasAdsense ? ' https://pagead2.googlesyndication.com' : '';
+
   const csp = [
     "default-src 'self'",
-    scriptSrc,
+    scriptSrc + adScriptSrc,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com data:",
     "img-src 'self' data: blob: https:",
-    "connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co wss://*.supabase.in",
-    "frame-src 'self'",
+    connectSrc + adConnectSrc,
+    "frame-src 'self'" + adFrameSrc,
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
@@ -85,13 +96,16 @@ export function middleware(request: NextRequest) {
   ].join('; ');
 
   response.headers.set('Content-Security-Policy', csp);
-  
+
   // Security headers
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-XSS-Protection', '1; mode=block');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+
+  // Allow microphone on audio-transcription page (Web Speech API needs it)
+  const needsMic = path.includes('/tools/creator/audio-transcription');
+  response.headers.set('Permissions-Policy', `camera=(), microphone=${needsMic ? '(self)' : '()'}, geolocation=()`);
 
   // HSTS (always set, but with longer max-age in production)
   const hstsMaxAge = process.env.NODE_ENV === 'production' 

@@ -8,15 +8,15 @@ import {
 import {
   TrendingDown, FileDown, AlertCircle, BarChart3, Table as TableIcon,
   TrendingUp, Calendar, Filter, X, Lightbulb, ChevronRight, Settings,
-  Search, RotateCcw, Save, Layers
+  Search, RotateCcw, Save, Layers, SlidersHorizontal
 } from 'lucide-react';
 import { showToast } from '@/app/shared/Toast';
 import { formatCurrency, downloadFile } from '@/app/lib/utils/tool-helpers';
 import type { PieLabelRenderProps } from 'recharts';
 import {
-  getTransactions, getAllMonthKeys, getMonthData,
+  getTransactions, getAllMonthKeys, getDetectedColumns,
   monthKeyToLabel, groupByAny, getAvailableDimensions, type Transaction,
-  updateTransactionCategories, ALL_CATEGORIES,
+  updateTransactionCategories, ALL_CATEGORIES, getAllTransactions,
 } from './analytics-store';
 import { SAPHeader, type KPICard, type ModeToggle } from './shared/SAPHeader';
 import { SAPChartGrid, type ChartConfig } from './shared/SAPChartGrid';
@@ -50,12 +50,13 @@ export function ExpensesTool() {
   const [groupByDimension, setGroupByDimension] = useState('category');
   const [sortBy, setSortBy] = useState<'total' | 'count' | 'avg' | 'max'>('total');
   const [topN, setTopN] = useState(20);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     const months = getAllMonthKeys();
     setSavedMonths(months);
-    if (months.length > 0) setSelectedMonths([months[0]]);
+    if (months.length > 0) setSelectedMonths(months);
   }, []);
 
   useEffect(() => {
@@ -75,11 +76,10 @@ export function ExpensesTool() {
     return all;
   }, [selectedMonths]);
 
-  // Detected columns from the first selected month (for raw-column discovery)
+  // Detected columns (from any batch with data)
   const detectedCols = useMemo(() => {
-    if (selectedMonths.length === 0) return null;
-    return getMonthData(selectedMonths[0])?.detectedColumns ?? null;
-  }, [selectedMonths]);
+    return getDetectedColumns();
+  }, [expenses]);
 
   // Dynamic dimension options based on actual uploaded data
   const availableDimensions = useMemo(() =>
@@ -229,18 +229,7 @@ export function ExpensesTool() {
 
   const saveCategoryEdits = () => {
     if (Object.keys(pendingCategoryEdits).length === 0) return;
-    const byMonth: Record<string, Record<string, string>> = {};
-    Object.entries(pendingCategoryEdits).forEach(([txnId, category]) => {
-      for (const monthKey of selectedMonths) {
-        const data = getMonthData(monthKey);
-        if (data?.transactions.find(t => t.id === txnId)) {
-          if (!byMonth[monthKey]) byMonth[monthKey] = {};
-          byMonth[monthKey][txnId] = category;
-          break;
-        }
-      }
-    });
-    Object.entries(byMonth).forEach(([monthKey, edits]) => updateTransactionCategories(monthKey, edits));
+    updateTransactionCategories('', pendingCategoryEdits);
     setPendingCategoryEdits({});
     showToast(`Saved ${Object.keys(pendingCategoryEdits).length} category changes`, 'success');
   };
@@ -267,12 +256,52 @@ export function ExpensesTool() {
 
   if (savedMonths.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-80px)] text-slate-400 dark:text-slate-500 gap-3 p-6">
-        <AlertCircle size={48} strokeWidth={1.2} />
-        <p className="text-base font-semibold">No transaction data available</p>
-        <p className="text-sm text-center max-w-md">
-          Upload your bank statement in <span className="font-bold text-blue-500">Manage Monthly Transactions</span> first.
-        </p>
+      <div className="flex flex-col items-center justify-center h-[calc(100vh-80px)] p-6">
+        <div className="max-w-lg w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-lg p-8">
+          <div className="flex flex-col items-center text-center mb-6">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 flex items-center justify-center mb-4 shadow-lg">
+              <TrendingDown size={28} className="text-white" />
+            </div>
+            <h2 className="text-xl font-bold text-slate-800 dark:text-white">Expense Analytics</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Track where your money goes with smart categorization and charts</p>
+          </div>
+
+          <div className="space-y-3 mb-6">
+            <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+              <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">1</span>
+              <div>
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Upload your bank statement</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Go to Manage Transactions and upload a CSV or Excel file from your bank</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+              <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</span>
+              <div>
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Map your columns</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Tell us which column is Date, Amount, and Description — we auto-categorize the rest</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+              <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</span>
+              <div>
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Analyze expenses</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Get charts, insights, drill-downs, and export reports — all from your browser</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <a href="/tools/analytics/managetransaction" className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-colors">
+              <Calendar size={15} /> Upload Statement
+            </a>
+            <button
+              onClick={() => { import('@/app/lib/sample-data').then(m => { m.loadSampleData(); window.location.reload(); }); }}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-blue-400 text-slate-700 dark:text-slate-200 transition-colors"
+            >
+              <Lightbulb size={15} /> Try Sample Data
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -281,7 +310,7 @@ export function ExpensesTool() {
     { label: 'Total Expenses', value: formatCurrency(totalExpenses), color: 'error', icon: TrendingDown, subtitle: `${filtered.length} transactions` },
     { label: 'Avg per Transaction', value: formatCurrency(avgExpense), color: 'neutral', subtitle: 'per transaction' },
     { label: `Top ${dimLabel}`, value: topGroup?.key || '—', color: 'warning', subtitle: topGroup ? formatCurrency(topGroup.totalAmount) : '' },
-    { label: `${dimLabel} Groups`, value: grouped.length, color: 'primary', subtitle: selectedMonths.length === 1 ? monthKeyToLabel(selectedMonths[0]) : `${selectedMonths.length} months` },
+    { label: `${dimLabel} Groups`, value: grouped.length, color: 'primary', subtitle: `${selectedMonths.length} month${selectedMonths.length !== 1 ? 's' : ''}` },
   ];
 
   const modes: { label: string; value: string; onChange: (v: string) => void; options: ModeToggle[] }[] = [
@@ -489,10 +518,11 @@ export function ExpensesTool() {
   return (
     <div className="flex flex-col gap-3 p-3">
       {/* KPI Header */}
-      <SAPHeader title="Expense Analytics" subtitle={`${filtered.length} transactions • ${formatCurrency(totalExpenses)}`} modes={modes} kpis={kpis} compact={true} />
+      <SAPHeader title="Expense Analytics" subtitle={`${filtered.length} transactions • ${formatCurrency(totalExpenses)}`} modes={modes} kpis={kpis} compact={true} sticky={true} />
 
       {/* ── TOP TOOLBAR ─────────────────────────────────────────────────── */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm flex-shrink-0">
+        {/* ── Primary Row ──────────────────────────────────────────────── */}
         <div className="flex flex-wrap items-center gap-2 px-4 py-2.5">
 
           {/* Month selector */}
@@ -530,18 +560,6 @@ export function ExpensesTool() {
             />
           </div>
 
-          {/* Category filter */}
-          <select
-            value={selectedCategory}
-            onChange={e => { setSelectedCategory(e.target.value); setDrillDownKey(null); }}
-            className="px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500/30 outline-none"
-          >
-            <option value="">All Categories</option>
-            {allCategories.map(cat => (
-              <option key={cat} value={cat}>{cat} ({expenses.filter(t => t.category === cat).length})</option>
-            ))}
-          </select>
-
           {/* Active drilldown badge */}
           {drillDownKey && (
             <span className="flex items-center gap-1 px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg text-xs font-semibold">
@@ -558,73 +576,6 @@ export function ExpensesTool() {
 
           <div className="flex-1" />
 
-          {/* ── Analyze By ─────────────────────────────────────────────── */}
-          <div className="flex items-center gap-1.5">
-            <Layers size={13} className="text-slate-400 flex-shrink-0" />
-            <span className="text-xs text-slate-500 font-semibold whitespace-nowrap">Analyze by</span>
-            <select
-              value={groupByDimension}
-              onChange={e => { setGroupByDimension(e.target.value); setDrillDownKey(null); }}
-              className="px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-blue-300 dark:border-blue-700 rounded-lg focus:ring-2 focus:ring-blue-500/30 outline-none font-semibold text-blue-700 dark:text-blue-300"
-            >
-              <optgroup label="Standard">
-                {availableDimensions.filter(d => d.group === 'standard').map(d => (
-                  <option key={d.value} value={d.value}>{d.label}</option>
-                ))}
-              </optgroup>
-              <optgroup label="Time">
-                {availableDimensions.filter(d => d.group === 'time').map(d => (
-                  <option key={d.value} value={d.value}>{d.label}</option>
-                ))}
-              </optgroup>
-              {availableDimensions.some(d => d.group === 'raw') && (
-                <optgroup label="Your Data Columns">
-                  {availableDimensions.filter(d => d.group === 'raw').map(d => (
-                    <option key={d.value} value={d.value}>{d.label}</option>
-                  ))}
-                </optgroup>
-              )}
-            </select>
-          </div>
-
-          {/* Measure / Sort */}
-          <select
-            value={sortBy}
-            onChange={e => setSortBy(e.target.value as 'total' | 'count' | 'avg' | 'max')}
-            className="px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500/30 outline-none"
-          >
-            <option value="total">By Total</option>
-            <option value="count">By Count</option>
-            <option value="avg">By Average</option>
-            <option value="max">By Maximum</option>
-          </select>
-
-          {/* Top N */}
-          <select
-            value={topN}
-            onChange={e => setTopN(Number(e.target.value))}
-            className="px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500/30 outline-none"
-          >
-            <option value={10}>Top 10</option>
-            <option value={20}>Top 20</option>
-            <option value={50}>Top 50</option>
-            <option value={9999}>All</option>
-          </select>
-
-          {/* Insights toggle */}
-          {insights.length > 0 && (
-            <button
-              onClick={() => setShowInsights(v => !v)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
-                showInsights
-                  ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-300'
-                  : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
-              }`}
-            >
-              <Lightbulb size={13} /> Insights {showInsights ? 'on' : 'off'}
-            </button>
-          )}
-
           {/* Save category edits */}
           {Object.keys(pendingCategoryEdits).length > 0 && (
             <button
@@ -635,6 +586,18 @@ export function ExpensesTool() {
             </button>
           )}
 
+          {/* Advanced toggle */}
+          <button
+            onClick={() => setShowAdvanced(v => !v)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+              showAdvanced
+                ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300'
+                : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+            }`}
+          >
+            <SlidersHorizontal size={13} /> Advanced
+          </button>
+
           {/* Export */}
           <button
             onClick={handleExport}
@@ -643,6 +606,91 @@ export function ExpensesTool() {
             <FileDown size={13} /> Export
           </button>
         </div>
+
+        {/* ── Advanced Row (collapsible) ───────────────────────────────── */}
+        {showAdvanced && (
+          <div className="border-t border-slate-100 dark:border-slate-800 px-4 py-2.5 flex flex-wrap items-center gap-3">
+
+            {/* Category filter */}
+            <select
+              value={selectedCategory}
+              onChange={e => { setSelectedCategory(e.target.value); setDrillDownKey(null); }}
+              className="px-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500/30 outline-none"
+            >
+              <option value="">All Categories</option>
+              {allCategories.map(cat => (
+                <option key={cat} value={cat}>{cat} ({expenses.filter(t => t.category === cat).length})</option>
+              ))}
+            </select>
+
+            {/* Analyze By */}
+            <div className="flex items-center gap-1.5">
+              <Layers size={13} className="text-slate-400 flex-shrink-0" />
+              <span className="text-xs text-slate-500 font-semibold whitespace-nowrap">Analyze by</span>
+              <select
+                value={groupByDimension}
+                onChange={e => { setGroupByDimension(e.target.value); setDrillDownKey(null); }}
+                className="px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-blue-300 dark:border-blue-700 rounded-lg focus:ring-2 focus:ring-blue-500/30 outline-none font-semibold text-blue-700 dark:text-blue-300"
+              >
+                <optgroup label="Standard">
+                  {availableDimensions.filter(d => d.group === 'standard').map(d => (
+                    <option key={d.value} value={d.value}>{d.label}</option>
+                  ))}
+                </optgroup>
+                <optgroup label="Time">
+                  {availableDimensions.filter(d => d.group === 'time').map(d => (
+                    <option key={d.value} value={d.value}>{d.label}</option>
+                  ))}
+                </optgroup>
+                {availableDimensions.some(d => d.group === 'raw') && (
+                  <optgroup label="Your Data Columns">
+                    {availableDimensions.filter(d => d.group === 'raw').map(d => (
+                      <option key={d.value} value={d.value}>{d.label}</option>
+                    ))}
+                  </optgroup>
+                )}
+              </select>
+            </div>
+
+            {/* Measure / Sort */}
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value as 'total' | 'count' | 'avg' | 'max')}
+              className="px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500/30 outline-none"
+            >
+              <option value="total">By Total</option>
+              <option value="count">By Count</option>
+              <option value="avg">By Average</option>
+              <option value="max">By Maximum</option>
+            </select>
+
+            {/* Top N */}
+            <select
+              value={topN}
+              onChange={e => setTopN(Number(e.target.value))}
+              className="px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500/30 outline-none"
+            >
+              <option value={10}>Top 10</option>
+              <option value={20}>Top 20</option>
+              <option value={50}>Top 50</option>
+              <option value={9999}>All</option>
+            </select>
+
+            {/* Insights toggle */}
+            {insights.length > 0 && (
+              <button
+                onClick={() => setShowInsights(v => !v)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+                  showInsights
+                    ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-300'
+                    : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                }`}
+              >
+                <Lightbulb size={13} /> Insights {showInsights ? 'on' : 'off'}
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Insights strip */}
         {showInsights && insights.length > 0 && viewMode === 'dashboard' && (
@@ -689,7 +737,7 @@ export function ExpensesTool() {
                 Sample: &ldquo;{expenses.filter(t => t.category === 'Other')[0]?.description}&rdquo;
               </p>
               <p className="text-xs text-slate-500 mt-1">
-                Go to <strong>Manage Monthly Transactions</strong> → Column Mapping → set <strong>Description</strong> to &ldquo;Narration&rdquo; or &ldquo;Remarks&rdquo; column
+                Go to <strong>Manage Transactions</strong> → Column Mapping → set <strong>Description</strong> to &ldquo;Narration&rdquo; or &ldquo;Remarks&rdquo; column
               </p>
             </div>
             <a href="/tools/analytics/manage-transactions" className="flex items-center gap-1 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold flex-shrink-0">

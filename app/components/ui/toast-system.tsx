@@ -16,11 +16,13 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
+let toastCounter = 0;
+
 export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const toast = useCallback((message: string, type: ToastType = 'success') => {
-    const id = Date.now().toString();
+    const id = `${Date.now()}-${++toastCounter}`;
     setToasts(prev => [...prev, { id, message, type }]);
     
     // Auto dismiss

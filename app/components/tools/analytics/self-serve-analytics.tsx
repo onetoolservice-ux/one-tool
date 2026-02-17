@@ -551,13 +551,23 @@ export function AnalyticsReport() {
 
   if (savedMonths.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-80px)] text-slate-400 dark:text-slate-500 gap-3 p-6">
+      <div className="flex flex-col items-center justify-center h-[calc(100vh-80px)] text-slate-400 dark:text-slate-500 gap-4 p-6">
         <Activity size={48} strokeWidth={1.2} />
         <p className="text-base font-semibold">No transaction data available</p>
         <p className="text-sm text-center max-w-md">
-          Upload your bank statements in <span className="font-bold text-blue-500">Manage Monthly Transactions</span> first.
-          Your consolidated report will automatically appear here.
+          Upload your bank statements in <a href="/tools/analytics/managetransaction" className="font-bold text-blue-500 hover:underline">Manage Transactions</a> first, or try sample data to explore.
         </p>
+        <div className="flex gap-3 mt-2">
+          <a href="/tools/analytics/managetransaction" className="px-4 py-2 text-sm font-medium rounded-xl bg-blue-600 hover:bg-blue-500 text-white transition-colors">
+            Upload Statement
+          </a>
+          <button
+            onClick={() => { import('@/app/lib/sample-data').then(m => { m.loadSampleData(); window.location.reload(); }); }}
+            className="px-4 py-2 text-sm font-medium rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-emerald-400 text-slate-700 dark:text-slate-200 transition-colors"
+          >
+            Try Sample Data
+          </button>
+        </div>
       </div>
     );
   }
