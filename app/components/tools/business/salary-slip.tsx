@@ -222,7 +222,7 @@ export const SalarySlipGenerator = () => {
         </div>
 
         <div className="ml-auto flex items-center gap-2">
-          <button onClick={clearAll} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-500 hover:text-rose-600 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all">
+          <button onClick={clearAll} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-500 hover:text-rose-600 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all">
             <RefreshCw size={13} /> Reset
           </button>
           <button onClick={downloadPDF} disabled={loading}

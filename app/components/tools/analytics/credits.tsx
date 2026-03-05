@@ -304,7 +304,7 @@ export function CreditsTool() {
             </a>
             <button
               onClick={() => { import('@/app/lib/sample-data').then(m => { m.loadSampleData(); window.location.reload(); }); }}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-emerald-400 text-slate-700 dark:text-slate-200 transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:border-emerald-400 text-slate-700 dark:text-slate-200 transition-colors"
             >
               <Lightbulb size={15} /> Try Sample Data
             </button>
@@ -491,7 +491,7 @@ export function CreditsTool() {
           <div className="relative">
             <button
               onClick={() => setShowMonthPicker(v => !v)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-300 hover:border-emerald-400 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-300 hover:border-emerald-400 transition-colors"
             >
               <Calendar size={14} className="text-emerald-500" />
               {selectedMonths.length === 1 ? monthKeyToLabel(selectedMonths[0]) : `${selectedMonths.length} months`}
@@ -518,7 +518,7 @@ export function CreditsTool() {
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search credits..."
-              className="w-full pl-8 pr-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-emerald-500/30 outline-none"
+              className="w-full pl-8 pr-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500/30 outline-none"
             />
           </div>
 
@@ -554,7 +554,7 @@ export function CreditsTool() {
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
               showAdvanced
                 ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300'
-                : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                : 'bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-400'
             }`}
           >
             <SlidersHorizontal size={13} /> Advanced
@@ -577,7 +577,7 @@ export function CreditsTool() {
             <select
               value={selectedCategory}
               onChange={e => { setSelectedCategory(e.target.value); setDrillDownKey(null); }}
-              className="px-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-emerald-500/30 outline-none"
+              className="px-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500/30 outline-none"
             >
               <option value="">All Sources</option>
               {allCategories.map(cat => (
@@ -618,7 +618,7 @@ export function CreditsTool() {
             <select
               value={sortBy}
               onChange={e => setSortBy(e.target.value as 'total' | 'count' | 'avg' | 'max')}
-              className="px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-emerald-500/30 outline-none"
+              className="px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500/30 outline-none"
             >
               <option value="total">By Total</option>
               <option value="count">By Count</option>
@@ -630,7 +630,7 @@ export function CreditsTool() {
             <select
               value={topN}
               onChange={e => setTopN(Number(e.target.value))}
-              className="px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-emerald-500/30 outline-none"
+              className="px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500/30 outline-none"
             >
               <option value={10}>Top 10</option>
               <option value={20}>Top 20</option>
@@ -645,7 +645,7 @@ export function CreditsTool() {
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
                   showInsights
                     ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300'
-                    : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                    : 'bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-400'
                 }`}
               >
                 <Lightbulb size={13} /> Insights {showInsights ? 'on' : 'off'}

@@ -43,7 +43,7 @@ export const SuperNavbar = () => {
     router.push('/');
   };
 
-  const CATEGORIES = ['All Tools', 'Business', 'Finance', 'Documents', 'Developer', 'Productivity', 'Health', 'AI', 'Design', 'Converters'];
+  const CATEGORIES = ['All Tools', 'Personal Finance', 'Business', 'Finance', 'Documents', 'Developer', 'Productivity', 'Health', 'AI', 'Design', 'Converters'];
   const activeCat = searchParams.get('cat') || 'All Tools';
 
   return (

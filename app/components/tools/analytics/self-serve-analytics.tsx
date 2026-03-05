@@ -241,7 +241,7 @@ export function SelfServeAnalytics() {
                 onChange={e => setXAxis(e.target.value)}
                 className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-blue-500/30"
               >
-                {headers.map(h => <option key={h} value={h}>{h}</option>)}
+                {headers.map((h, i) => <option key={i} value={h}>{h}</option>)}
               </select>
             </div>
 
@@ -253,7 +253,7 @@ export function SelfServeAnalytics() {
                 onChange={e => setYAxis(e.target.value)}
                 className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-blue-500/30"
               >
-                {numericColumns.map(h => <option key={h} value={h}>{h}</option>)}
+                {numericColumns.map((h, i) => <option key={i} value={h}>{h}</option>)}
               </select>
             </div>
 
@@ -410,7 +410,7 @@ export function SelfServeAnalytics() {
                       <tr className="bg-slate-50 dark:bg-slate-800">
                         {headers.map((h, i) => (
                           <th
-                            key={h}
+                            key={i}
                             onClick={() => handleSort(i)}
                             className="px-3 py-2.5 text-left font-bold text-slate-600 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors select-none"
                           >

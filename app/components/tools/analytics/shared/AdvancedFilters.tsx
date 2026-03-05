@@ -204,7 +204,7 @@ export function AdvancedFilters({ transactions, onFilterChange, type = 'expenses
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by description, category, or amount..."
-              className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
             />
           </div>
 
@@ -221,7 +221,7 @@ export function AdvancedFilters({ transactions, onFilterChange, type = 'expenses
             </label>
             <button
               onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-              className="w-full flex items-center justify-between px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="w-full flex items-center justify-between px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               <span className="text-slate-600 dark:text-slate-400">
                 {selectedCategories.size === 0
@@ -303,7 +303,7 @@ export function AdvancedFilters({ transactions, onFilterChange, type = 'expenses
                           max: amountRange?.max ?? amountBounds.max,
                         })
                       }
-                      className="w-full px-2 py-1.5 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                      className="w-full px-2 py-1.5 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 outline-none"
                       min={amountBounds.min}
                       max={amountBounds.max}
                     />
@@ -319,7 +319,7 @@ export function AdvancedFilters({ transactions, onFilterChange, type = 'expenses
                           max: Number(e.target.value),
                         })
                       }
-                      className="w-full px-2 py-1.5 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                      className="w-full px-2 py-1.5 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 outline-none"
                       min={amountBounds.min}
                       max={amountBounds.max}
                     />
@@ -364,7 +364,7 @@ export function AdvancedFilters({ transactions, onFilterChange, type = 'expenses
                           end: dateRange?.end ?? dateBounds.end,
                         })
                       }
-                      className="w-full px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                      className="w-full px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 outline-none"
                     />
                   </div>
                   <div>
@@ -378,7 +378,7 @@ export function AdvancedFilters({ transactions, onFilterChange, type = 'expenses
                           end: e.target.value,
                         })
                       }
-                      className="w-full px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                      className="w-full px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 outline-none"
                     />
                   </div>
                 </div>

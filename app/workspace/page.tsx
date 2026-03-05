@@ -4,8 +4,16 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import {
   HardDrive, Download, Upload, Trash2, Clock, Star,
-  FileText, BarChart3, ChevronRight, AlertTriangle, CheckCircle2
+  FileText, BarChart3, ChevronRight, AlertTriangle, CheckCircle2, Palette
 } from 'lucide-react';
+import {
+  AccentSwatches,
+  loadThemeSettings, saveThemeSettings,
+  NAVBAR_BG_PRESETS, FONT_OPTIONS,
+  getContrastColor, resolveNavbarTextColor,
+  DEFAULTS,
+  type ThemeSettings,
+} from '@/app/components/ui/AccentColorPicker';
 import { safeLocalStorage } from '@/app/lib/utils/storage';
 import { ALL_TOOLS } from '@/app/lib/tools-data';
 import { getIconComponent, type IconName } from '@/app/lib/utils/icon-mapper';
@@ -82,11 +90,19 @@ export default function WorkspacePage() {
   const [mounted, setMounted] = useState(false);
   const [items, setItems] = useState<StoredItem[]>([]);
   const [importStatus, setImportStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [theme, setTheme] = useState<ThemeSettings>({ ...DEFAULTS });
 
   useEffect(() => {
     setMounted(true);
     setItems(scanStorage());
+    setTheme(loadThemeSettings());
   }, []);
+
+  const updateTheme = (patch: Partial<ThemeSettings>) => {
+    const next = { ...theme, ...patch };
+    setTheme(next);
+    saveThemeSettings(next);
+  };
 
   const usage = useMemo(() => {
     if (!mounted) return { used: 0, available: 5 * 1024 * 1024, percentage: 0 };
@@ -153,7 +169,7 @@ export default function WorkspacePage() {
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-gray-50 dark:bg-[#0F111A] text-gray-900 dark:text-white p-4 md:p-8">
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="w-full space-y-8">
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -262,6 +278,184 @@ export default function WorkspacePage() {
               })}
             </div>
           )}
+        </div>
+
+        {/* Personalization */}
+        <div className="bg-white dark:bg-slate-900/90 rounded-xl border border-slate-200 dark:border-slate-800 p-5 space-y-5">
+          <div className="flex items-center gap-3">
+            <Palette size={18} className="text-slate-400" />
+            <div>
+              <h2 className="text-sm font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                Personalization
+              </h2>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                Customize the look of the app — saved to your browser.
+              </p>
+            </div>
+          </div>
+
+          {/* Navbar Background */}
+          <div>
+            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-2">Navbar Background</p>
+            <div className="flex flex-wrap gap-2 items-center">
+              {NAVBAR_BG_PRESETS.map(p => {
+                const active = theme.navbar === p.value;
+                return (
+                  <button
+                    key={p.value}
+                    title={p.name}
+                    onClick={() => updateTheme({ navbar: p.value })}
+                    className="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-105 border border-black/5 dark:border-white/10"
+                    style={{
+                      backgroundColor: p.value,
+                      outline: active ? `3px solid ${p.value}` : '3px solid transparent',
+                      outlineOffset: '2px',
+                    }}
+                  />
+                );
+              })}
+              {/* Free color input */}
+              <label
+                title="Any color"
+                className="w-9 h-9 rounded-xl cursor-pointer overflow-hidden relative flex-shrink-0"
+                style={{ background: 'conic-gradient(#f43f5e, #f97316, #f59e0b, #10b981, #3b82f6, #8b5cf6, #f43f5e)' }}
+              >
+                <input
+                  type="color"
+                  value={theme.navbar === 'auto' ? '#ffffff' : theme.navbar}
+                  onChange={e => updateTheme({ navbar: e.target.value })}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                />
+              </label>
+              {theme.navbar !== 'auto' && (
+                <button
+                  onClick={() => updateTheme({ navbar: 'auto', navbarText: 'auto' })}
+                  className="px-3 h-9 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 text-xs text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  Auto
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Navbar Text Color */}
+          <div>
+            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-2">Navbar Text Color</p>
+            <div className="flex gap-2 items-center">
+              <button
+                onClick={() => updateTheme({ navbarText: 'auto' })}
+                className={`px-3 h-9 rounded-xl text-xs font-semibold border transition-all ${
+                  theme.navbarText === 'auto'
+                    ? 'border-[var(--ot-accent)] bg-[var(--ot-accent)]/10 text-[var(--ot-accent)]'
+                    : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'
+                }`}
+              >
+                Auto ✨
+              </button>
+              <button
+                title="Light text"
+                onClick={() => updateTheme({ navbarText: '#f8fafc' })}
+                className="w-9 h-9 rounded-xl flex items-center justify-center border-2 transition-all hover:scale-105"
+                style={{
+                  backgroundColor: '#f8fafc',
+                  borderColor: theme.navbarText === '#f8fafc' ? 'var(--ot-accent)' : '#e2e8f0',
+                }}
+              >
+                <span className="text-xs font-black text-slate-700">A</span>
+              </button>
+              <button
+                title="Dark text"
+                onClick={() => updateTheme({ navbarText: '#1e293b' })}
+                className="w-9 h-9 rounded-xl flex items-center justify-center border-2 transition-all hover:scale-105"
+                style={{
+                  backgroundColor: '#1e293b',
+                  borderColor: theme.navbarText === '#1e293b' ? 'var(--ot-accent)' : 'transparent',
+                }}
+              >
+                <span className="text-xs font-black text-white">A</span>
+              </button>
+              <label
+                title="Any color"
+                className="w-9 h-9 rounded-xl cursor-pointer overflow-hidden relative flex-shrink-0"
+                style={{ background: 'conic-gradient(#f43f5e, #f97316, #f59e0b, #10b981, #3b82f6, #8b5cf6, #f43f5e)' }}
+              >
+                <input
+                  type="color"
+                  value={resolveNavbarTextColor(theme) ?? '#f8fafc'}
+                  onChange={e => updateTheme({ navbarText: e.target.value })}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                />
+              </label>
+              {resolveNavbarTextColor(theme) && (
+                <p className="text-[11px] text-slate-400 font-mono">
+                  → {resolveNavbarTextColor(theme)!.toUpperCase()}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Font */}
+          <div>
+            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-2">Text Font</p>
+            <div className="flex flex-wrap gap-2">
+              {FONT_OPTIONS.map(f => (
+                <button
+                  key={f.id}
+                  onClick={() => updateTheme({ font: f.id })}
+                  className={`px-4 py-2 rounded-xl text-sm border transition-all ${
+                    theme.font === f.id
+                      ? 'border-[var(--ot-accent)] bg-[var(--ot-accent)]/10 text-[var(--ot-accent)] font-semibold'
+                      : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600'
+                  }`}
+                  style={{ fontFamily: f.stack }}
+                >
+                  {f.label}
+                </button>
+              ))}
+              {theme.font !== DEFAULTS.font && (
+                <button
+                  onClick={() => updateTheme({ font: DEFAULTS.font })}
+                  className="px-4 py-2 rounded-xl text-sm border border-dashed border-slate-300 dark:border-slate-600 text-slate-400 hover:text-slate-600 transition-all"
+                >
+                  Auto
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Logo Color */}
+          <div>
+            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-2">Logo Color</p>
+            <AccentSwatches value={theme.logo} onChange={c => updateTheme({ logo: c })} />
+            <div className="flex items-center justify-between mt-2">
+              <p className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">{theme.logo.toUpperCase()}</p>
+              {theme.logo !== DEFAULTS.logo && (
+                <button
+                  onClick={() => updateTheme({ logo: DEFAULTS.logo })}
+                  className="text-[11px] text-slate-400 hover:text-slate-600 border border-dashed border-slate-300 dark:border-slate-600 px-2 py-0.5 rounded-lg transition-colors"
+                >
+                  Auto
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Accent Color */}
+          <div>
+            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-2">Accent Color</p>
+            <AccentSwatches value={theme.accent} onChange={c => updateTheme({ accent: c })} />
+            <div className="flex items-center justify-between mt-2">
+              <p className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">{theme.accent.toUpperCase()}</p>
+              {theme.accent !== DEFAULTS.accent && (
+                <button
+                  onClick={() => updateTheme({ accent: DEFAULTS.accent })}
+                  className="text-[11px] text-slate-400 hover:text-slate-600 border border-dashed border-slate-300 dark:border-slate-600 px-2 py-0.5 rounded-lg transition-colors"
+                >
+                  Auto
+                </button>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Danger zone */}

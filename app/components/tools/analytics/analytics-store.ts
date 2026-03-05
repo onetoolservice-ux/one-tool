@@ -364,18 +364,24 @@ export function parseDate(value: unknown): string | null {
   const str = String(value).trim();
   if (!str) return null;
 
-  // ISO: YYYY-MM-DD
+  // ISO: YYYY-MM-DD (also handles ISO datetime: YYYY-MM-DDTHH:MM:SS)
   if (/^\d{4}-\d{2}-\d{2}/.test(str)) return str.substring(0, 10);
 
-  // DD/MM/YYYY or DD-MM-YYYY
-  const dmyMatch = str.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
+  // YYYY/MM/DD (with slashes)
+  const ymdSlash = str.match(/^(\d{4})\/(\d{2})\/(\d{2})/);
+  if (ymdSlash) return `${ymdSlash[1]}-${ymdSlash[2]}-${ymdSlash[3]}`;
+
+  // DD/MM/YYYY or DD-MM-YYYY or DD.MM.YYYY — with optional trailing time (e.g. "15/01/2024 10:30:00")
+  // Also handles 2-digit year: DD/MM/YY
+  const dmyMatch = str.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})(?:[\sT]\d{1,2}:\d{2}.*)?$/);
   if (dmyMatch) {
     const [, d, m, y] = dmyMatch;
-    return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+    const year = y.length === 2 ? `20${y}` : y;
+    return `${year}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
   }
 
-  // DD-MMM-YYYY or DD/MMM/YYYY (e.g., 15-Jan-2024)
-  const namedMatch = str.match(/^(\d{1,2})[\/\-.\s]([A-Za-z]{3,})[\/\-.\s](\d{2,4})$/);
+  // DD-MMM-YYYY or DD/MMM/YYYY (e.g., 15-Jan-2024, 15 Jan 24) — with optional trailing time
+  const namedMatch = str.match(/^(\d{1,2})[\/\-.\s]([A-Za-z]{3,})[\/\-.\s](\d{2,4})(?:[\sT]\d{1,2}:\d{2}.*)?$/);
   if (namedMatch) {
     const [, d, m, y] = namedMatch;
     const monthMap: Record<string, string> = {
@@ -480,11 +486,9 @@ export function detectColumns(headers: string[], rows: string[][]): DetectedColu
       }
     }
     if (!result.category) {
-      const uniqueVals = new Set(values.map(v => v.toLowerCase()));
-      const isTypeCol = values.length > 0 && uniqueVals.size <= 5 &&
-        [...uniqueVals].every(v => /^(debit|credit|dr|cr|purchase|transfer|withdrawal|deposit)$/.test(v.trim()));
-      if (isTypeCol) { result.category = header; return; }
-      if (/\bcategor\b|\btransaction\s*type\b|\btrans\s*type\b|\btype\b|\bclass\b|\bgroup\b|\btag\b|\bhead\b/i.test(h)) {
+      // Only map to category if the column header explicitly says "category" / "tag" etc.
+      // Do NOT map transaction-type columns (Debit/Credit/DR/CR) — those are direction, not category.
+      if (/\bcategor\b|\btrans\s*type\b|\bclass\b|\btag\b|\bhead\b/i.test(h)) {
         result.category = header;
         return;
       }

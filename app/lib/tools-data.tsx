@@ -12,9 +12,9 @@ export interface Tool {
   status?: string;
 }
 
-// Category order for display (Analytics first as it's the most feature-rich)
+// Category order for display
 export const CATEGORY_ORDER = [
-  "Analytics",
+  "Personal Finance",
   "Finance",
   "Business",
   "Documents",
@@ -29,64 +29,190 @@ export const CATEGORY_ORDER = [
 
 export const ALL_TOOLS: Tool[] = [
   // ═══════════════════════════════════════════════════════════════════════════
-  // ANALYTICS (Featured - Blue/Emerald) - Data analysis and visualization
+  // PERSONAL FINANCE - Statement-based financial record system
   // ═══════════════════════════════════════════════════════════════════════════
   {
-    id: "managetransaction",
-    name: "Manage Transactions",
-    category: "Analytics",
-    href: "/tools/analytics/managetransaction",
-    icon: "Upload",
+    id: "pf-statement-manager",
+    name: "Statement Manager",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-statement-manager",
+    icon: "FileSpreadsheet",
     popular: true,
     color: "text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400",
-    desc: "Upload bank statements once, analyze everywhere. Intelligent column detection for any bank format."
+    desc: "Upload bank and credit card statements. Manage accounts, view parsing confidence, and monitor data quality."
   },
   {
-    id: "expenses",
-    name: "Expense Tracker",
-    category: "Analytics",
-    href: "/tools/analytics/expenses",
-    icon: "TrendingDown",
-    color: "text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400",
-    desc: "Track and analyze monthly expenses with smart categorization, trends, and spending insights."
-  },
-  {
-    id: "credits",
-    name: "Income Tracker",
-    category: "Analytics",
-    href: "/tools/analytics/credits",
-    icon: "TrendingUp",
+    id: "pf-financial-position",
+    name: "Financial Position",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-financial-position",
+    icon: "Wallet",
+    popular: true,
     color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400",
-    desc: "Monitor income and credits with detailed breakdowns, source analysis, and growth tracking."
+    desc: "Period-level snapshot: income, outflow, net surplus, savings rate, commitment ratio, and debt servicing ratio."
   },
   {
-    id: "self-serve-analytics",
-    name: "Self-Serve Analytics",
-    category: "Analytics",
-    href: "/tools/analytics/self-serve-analytics",
-    icon: "BarChart3",
+    id: "pf-cash-flow",
+    name: "Income",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-cash-flow",
+    icon: "TrendingUp",
     color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400",
-    desc: "Paste CSV data and instantly visualize with customizable charts, statistics, and trend analysis."
+    desc: "Structured income and outflow statement with period comparison. Income → Outflows → Net Closing Position."
   },
   {
-    id: "autonomous-financial-analyst",
+    id: "pf-tx-explorer",
+    name: "Transaction Explorer",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-tx-explorer",
+    icon: "Table",
+    color: "text-slate-600 bg-slate-50 dark:bg-slate-900/20 dark:text-slate-400",
+    desc: "Full searchable ledger. Filter, sort, paginate, reclassify categories inline, and bulk-export transactions."
+  },
+  {
+    id: "pf-expenses",
+    name: "Expenses",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-expenses",
+    icon: "TrendingDown",
+    color: "text-orange-600 bg-orange-50 dark:bg-orange-900/20 dark:text-orange-400",
+    desc: "Full searchable expense ledger. Filter by statement, date, name, amount, and category. Reclassify, bulk-tag, and export."
+  },
+  {
+    id: "pf-expenditure",
+    name: "Manage Expenses",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-expenditure",
+    icon: "BarChart3",
+    color: "text-rose-600 bg-rose-50 dark:bg-rose-900/20 dark:text-rose-400",
+    desc: "Category-wise spend breakdown with MoM comparison. Rename, merge, and add categories. View by category, merchant, or month."
+  },
+  {
+    id: "pf-commitments",
+    name: "Commitments Register",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-commitments",
+    icon: "RefreshCw",
+    color: "text-amber-600 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-400",
+    desc: "Auto-detected recurring obligations (EMIs, rent, subscriptions). Confirm, dismiss, or add manual commitments."
+  },
+  {
+    id: "pf-recurring",
+    name: "Recurring Payments",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-recurring",
+    icon: "Repeat2",
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400",
+    desc: "All auto-detected repetitive debits grouped by merchant. Assign or change categories in bulk."
+  },
+  {
+    id: "pf-top-merchants",
+    name: "Top Merchants",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-top-merchants",
+    icon: "Trophy",
+    color: "text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20 dark:text-yellow-400",
+    desc: "Merchant leaderboard ranked by total spend. See where your money goes most, with inline category assignment."
+  },
+  {
+    id: "pf-big-spends",
+    name: "Big Spends",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-big-spends",
+    icon: "Zap",
+    color: "text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400",
+    desc: "All transactions above a custom threshold. Quickly review large one-off expenses by period or category."
+  },
+  {
+    id: "pf-rules",
+    name: "Category Rules",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-rules",
+    icon: "Wand2",
+    color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400",
+    desc: "Create auto-categorization rules. Merchant contains, amount range, or type-based conditions applied to all transactions."
+  },
+  {
+    id: "pf-income-sources",
+    name: "Income Sources",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-income-sources",
+    icon: "CircleDollarSign",
+    color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400",
+    desc: "Credit transactions broken down by category — salary, interest, refunds, freelance income and more."
+  },
+  {
+    id: "pf-behavior",
+    name: "Spending Behavior",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-behavior",
+    icon: "Activity",
+    color: "text-cyan-600 bg-cyan-50 dark:bg-cyan-900/20 dark:text-cyan-400",
+    desc: "When do you spend most? Day-of-week and day-of-month spending patterns to reveal behavioral trends."
+  },
+  {
+    id: "pf-savings-trend",
+    name: "Savings Trend",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-savings-trend",
+    icon: "TrendingUp",
+    color: "text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400",
+    desc: "Month-by-month savings rate and surplus/deficit. See if your financial discipline is improving over time."
+  },
+  {
+    id: "pf-month-compare",
+    name: "Month Comparison",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-month-compare",
+    icon: "ArrowLeftRight",
+    color: "text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400",
+    desc: "Side-by-side category breakdown for any two periods. Instantly see what changed and by how much."
+  },
+  {
+    id: "pf-heatmap",
+    name: "Spending Heatmap",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-heatmap",
+    icon: "CalendarDays",
+    color: "text-orange-600 bg-orange-50 dark:bg-orange-900/20 dark:text-orange-400",
+    desc: "Calendar heatmap of daily spend intensity. Spot high-spend days instantly and drill into transactions."
+  },
+  {
+    id: "pf-subscriptions",
+    name: "Subscription Finder",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-subscriptions",
+    icon: "Radio",
+    color: "text-purple-600 bg-purple-50 dark:bg-purple-900/20 dark:text-purple-400",
+    desc: "Detects fixed-amount recurring payments — subscriptions, SIPs, insurance premiums. Shows monthly and annual cost."
+  },
+  {
+    id: "pf-labels",
+    name: "Label Manager",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-labels",
+    icon: "Tags",
+    color: "text-pink-600 bg-pink-50 dark:bg-pink-900/20 dark:text-pink-400",
+    desc: "Create custom color-coded tags and assign them to transactions. Filter and group your data any way you want."
+  },
+  {
+    id: "pf-liability",
+    name: "Liability Ledger",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-liability",
+    icon: "Landmark",
+    color: "text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400",
+    desc: "Loan/EMI groupings, estimated monthly burden, and EMI burden ratio derived from your transaction patterns."
+  },
+  {
+    id: "pf-ai-analyst",
     name: "AI Financial Analyst",
-    category: "Analytics",
-    href: "/tools/analytics/autonomous-financial-analyst",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-ai-analyst",
     icon: "Brain",
     popular: true,
     color: "text-purple-600 bg-purple-50 dark:bg-purple-900/20 dark:text-purple-400",
-    desc: "AI-powered financial insights with anomaly detection, predictions, and automated recommendations."
-  },
-  {
-    id: "analyticsreport",
-    name: "Analytics Report",
-    category: "Analytics",
-    href: "/tools/analytics/analyticsreport",
-    icon: "Table",
-    popular: true,
-    color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400",
-    desc: "Build shareable analytics reports with drag-and-drop metrics, KPIs, pivot tables, and exportable charts."
+    desc: "Auto-generated insights, anomaly detection, spending predictions, and personalised recommendations from your statements."
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -294,6 +420,15 @@ export const ALL_TOOLS: Tool[] = [
     icon: "Table",
     color: "text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20 dark:text-yellow-400",
     desc: "Convert between JSON and CSV formats with nested object support and custom mapping."
+  },
+  {
+    id: "self-serve-analytics",
+    name: "CSV Chart Builder",
+    category: "Documents",
+    href: "/tools/documents/self-serve-analytics",
+    icon: "BarChart3",
+    color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400",
+    desc: "Paste any CSV data and instantly visualize with bar, line, pie, and area charts. Stats, summaries, and exports included."
   },
 
   // ═══════════════════════════════════════════════════════════════════════════

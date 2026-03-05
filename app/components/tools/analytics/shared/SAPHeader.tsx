@@ -35,18 +35,19 @@ export interface SAPHeaderProps {
   actions?: ReactNode;
   compact?: boolean;
   sticky?: boolean;
+  fullWidth?: boolean;
 }
 
-export function SAPHeader({ title, subtitle, modes, kpis, actions, compact = false, sticky = false }: SAPHeaderProps) {
+export function SAPHeader({ title, subtitle, modes, kpis, actions, compact = false, sticky = false, fullWidth = false }: SAPHeaderProps) {
   return (
-    <div className={`bg-gradient-to-r from-[#0070F3] via-[#005DD1] to-[#0053B8] rounded-2xl shadow-lg overflow-hidden ${compact ? 'rounded-xl' : 'rounded-2xl'} ${sticky ? 'sticky top-0 z-10' : ''}`}>
+    <div className={`bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden ${fullWidth ? 'rounded-none' : compact ? 'rounded-xl' : 'rounded-2xl'} ${sticky ? 'sticky top-0 z-10' : ''}`}>
       {/* Header Content */}
       <div className={compact ? 'px-4 py-3' : 'px-6 py-5'}>
         {/* Title Section */}
         <div className={`flex items-start justify-between ${compact ? 'mb-2' : 'mb-4'}`}>
           <div>
-            <h1 className={`font-black text-white ${compact ? 'text-lg mb-0.5' : 'text-2xl mb-1'}`}>{title}</h1>
-            {subtitle && <p className={`text-white/80 font-medium ${compact ? 'text-xs' : 'text-sm'}`}>{subtitle}</p>}
+            <h1 className={`font-black text-slate-900 dark:text-white ${compact ? 'text-lg mb-0.5' : 'text-2xl mb-1'}`}>{title}</h1>
+            {subtitle && <p className={`text-slate-500 dark:text-slate-400 font-medium ${compact ? 'text-xs' : 'text-sm'}`}>{subtitle}</p>}
           </div>
           {actions && <div className="flex items-center gap-2">{actions}</div>}
         </div>
@@ -56,10 +57,10 @@ export function SAPHeader({ title, subtitle, modes, kpis, actions, compact = fal
           <div className={`flex flex-wrap gap-4 ${compact ? 'mb-2' : 'mb-4'}`}>
             {modes.map((mode) => (
               <div key={mode.label} className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-white/70 uppercase tracking-wider">
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   {mode.label}
                 </span>
-                <div className="flex gap-1 bg-white/10 backdrop-blur-sm rounded-lg p-1">
+                <div className="flex gap-1 bg-slate-100 dark:bg-white/10 rounded-lg p-1">
                   {mode.options.map((option) => {
                     const Icon = option.icon;
                     const isActive = mode.value === option.key;
@@ -72,8 +73,8 @@ export function SAPHeader({ title, subtitle, modes, kpis, actions, compact = fal
                           transition-all duration-200
                           ${
                             isActive
-                              ? 'bg-white text-[#0070F3] shadow-md'
-                              : 'text-white/90 hover:bg-white/20'
+                              ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md'
+                              : 'text-slate-600 dark:text-white/90 hover:bg-slate-200 dark:hover:bg-white/20'
                           }
                         `}
                       >
@@ -98,19 +99,19 @@ export function SAPHeader({ title, subtitle, modes, kpis, actions, compact = fal
               return (
                 <div
                   key={index}
-                  className={`bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 hover:bg-white/15 transition-colors ${compact ? 'p-2.5' : 'p-4 rounded-xl'}`}
+                  className={`bg-slate-50 dark:bg-white/10 rounded-lg border border-slate-200 dark:border-white/20 hover:bg-slate-100 dark:hover:bg-white/15 transition-colors ${compact ? 'p-2.5' : 'p-4 rounded-xl'}`}
                 >
                   <div className={`flex items-start justify-between ${compact ? 'mb-1' : 'mb-2'}`}>
-                    <p className={`font-semibold text-white/70 uppercase tracking-wider ${compact ? 'text-[10px]' : 'text-xs'}`}>
+                    <p className={`font-semibold text-slate-500 dark:text-white/70 uppercase tracking-wider ${compact ? 'text-[10px]' : 'text-xs'}`}>
                       {kpi.label}
                     </p>
-                    {Icon && <Icon size={compact ? 13 : 16} className="text-white/60" />}
+                    {Icon && <Icon size={compact ? 13 : 16} className="text-slate-400 dark:text-white/60" />}
                   </div>
                   <p className={`font-black ${colorClass} ${compact ? 'text-lg mb-0' : 'text-2xl mb-0.5'}`}>
                     {kpi.value}
                   </p>
                   {kpi.subtitle && (
-                    <p className={`text-white/60 font-medium ${compact ? 'text-[10px]' : 'text-xs'}`}>{kpi.subtitle}</p>
+                    <p className={`text-slate-400 dark:text-white/60 font-medium ${compact ? 'text-[10px]' : 'text-xs'}`}>{kpi.subtitle}</p>
                   )}
                 </div>
               );
@@ -126,16 +127,16 @@ export function SAPHeader({ title, subtitle, modes, kpis, actions, compact = fal
 function getKPIColorClass(color?: KPICard['color']): string {
   switch (color) {
     case 'success':
-      return 'text-green-300';
+      return 'text-emerald-600 dark:text-emerald-400';
     case 'warning':
-      return 'text-amber-300';
+      return 'text-amber-600 dark:text-amber-400';
     case 'error':
-      return 'text-red-300';
+      return 'text-red-600 dark:text-red-400';
     case 'primary':
-      return 'text-blue-300';
+      return 'text-blue-600 dark:text-blue-400';
     case 'neutral':
     default:
-      return 'text-white';
+      return 'text-slate-900 dark:text-white';
   }
 }
 
@@ -151,7 +152,7 @@ export interface CompactSAPHeaderProps {
 export function CompactSAPHeader({ title, value, subtitle, icon: Icon }: CompactSAPHeaderProps) {
   return (
     <div
-      className="bg-gradient-to-r from-[#0070F3] to-[#0053B8] rounded-xl p-4 shadow-md"
+      className="bg-gradient-to-r from-slate-700 to-slate-900 rounded-xl p-4 shadow-md"
       style={{ background: SAP_GRADIENTS.primary }}
     >
       <div className="flex items-center justify-between">

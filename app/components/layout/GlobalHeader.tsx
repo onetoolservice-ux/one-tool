@@ -11,6 +11,11 @@ import BrandLogo from '@/app/components/BrandLogo';
 import { fuzzySearch } from '@/app/lib/search-utils';
 import { trackSearch } from '@/app/lib/telemetry';
 import { ALL_TOOLS } from '@/app/lib/tools-data';
+import {
+  AccentColorPicker,
+  loadThemeSettings, applyAllTheme, resolveNavbarTextColor,
+  type ThemeSettings,
+} from '@/app/components/ui/AccentColorPicker';
 
 const SEARCH_TOOLS = ALL_TOOLS.map(tool => ({
   id: tool.id,
@@ -30,6 +35,25 @@ function HeaderContent() {
   const searchRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
+  // ── Theme: navbar bg + text color ───────────────────────────────────────────
+  const [navBg, setNavBg] = useState<string | null>(null);
+  const [navText, setNavText] = useState<string | null>(null);
+
+  useEffect(() => {
+    const s = loadThemeSettings();
+    applyAllTheme(s);
+    setNavBg(s.navbar !== 'auto' ? s.navbar : null);
+    setNavText(resolveNavbarTextColor(s));
+
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<ThemeSettings>).detail;
+      setNavBg(detail.navbar !== 'auto' ? detail.navbar : null);
+      setNavText(resolveNavbarTextColor(detail));
+    };
+    window.addEventListener('ot-theme-change', handler);
+    return () => window.removeEventListener('ot-theme-change', handler);
+  }, []);
+
   // Keyboard shortcut: Ctrl/Cmd+K focuses the global search
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -45,7 +69,10 @@ function HeaderContent() {
 
   const pathSegments = pathname.split('/').filter(Boolean);
   const category = pathSegments[1];
-  const toolName = pathSegments[2]?.replace(/-/g, ' ');
+  const toolId = pathSegments[2];
+  const toolName = toolId
+    ? (ALL_TOOLS.find(t => t.id === toolId)?.name ?? toolId.replace(/-/g, ' '))
+    : undefined;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -80,32 +107,83 @@ function HeaderContent() {
     setIsFocused(false);
   };
 
+  // Search input blends with custom navbar when one is active
+  const inputStyle: React.CSSProperties = navBg
+    ? {
+        backgroundColor: isFocused
+          ? 'color-mix(in srgb, var(--ot-navbar-text) 18%, transparent)'
+          : 'color-mix(in srgb, var(--ot-navbar-text) 10%, transparent)',
+        borderColor: isFocused
+          ? 'var(--ot-accent)'
+          : 'color-mix(in srgb, var(--ot-navbar-text) 22%, transparent)',
+        ...(isFocused ? {
+          boxShadow: 'inset 0 0 0 1px var(--ot-accent), 0 0 0 3px color-mix(in srgb, var(--ot-accent) 12%, transparent)',
+        } : {}),
+      }
+    : isFocused
+    ? {
+        borderColor: 'var(--ot-accent)',
+        boxShadow: 'inset 0 0 0 1px var(--ot-accent), 0 0 0 3px color-mix(in srgb, var(--ot-accent) 12%, transparent)',
+      }
+    : {};
+
   return (
-    <header className="h-14 flex items-center justify-between px-4 md:px-6 sticky top-0 z-50 bg-white/80 dark:bg-[#0F111A]/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-white/[0.06]">
+    <header
+      className={`h-14 flex items-center justify-between px-4 md:px-6 border-b transition-colors ${
+        navBg
+          ? 'border-white/10'
+          : 'bg-white/80 dark:bg-[#0F111A]/80 backdrop-blur-xl border-slate-200/60 dark:border-white/[0.06]'
+      }`}
+      style={{
+        ...(navBg ? { backgroundColor: navBg } : {}),
+        ...(navText ? { '--ot-navbar-text': navText } as React.CSSProperties : {}),
+      }}
+      data-custom-nav={navBg ? '1' : undefined}
+    >
       {/* Left: Logo / Breadcrumb */}
       <div className="flex items-center gap-3 mr-6 min-w-fit">
         {isHome ? (
           <Link href="/" className="flex items-center gap-2.5 group">
             <BrandLogo size={32} />
-            <span className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-              One<span className="text-indigo-500">Tool</span>
+            <span
+              className={`text-lg font-bold tracking-tight ${navText ? '' : 'text-slate-900 dark:text-white'}`}
+              style={navText ? { color: navText } : undefined}
+            >
+              One<span className="text-[var(--ot-accent,#6366f1)]">Tool</span>
             </span>
           </Link>
         ) : (
           <div className="flex items-center gap-1.5 text-sm">
-            <Link href="/" className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-500 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+            <Link
+              href="/"
+              className={`p-1.5 rounded-lg transition-colors ${navText ? 'hover:opacity-75' : 'text-slate-400 hover:text-indigo-500 hover:bg-slate-100 dark:hover:bg-white/5'}`}
+              style={navText ? { color: navText } : undefined}
+            >
               <Home size={16} />
             </Link>
             {category && (
               <>
-                <span className="text-slate-300 dark:text-slate-700">/</span>
-                <Link href={`/?category=${category}`} className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white capitalize transition-colors text-xs font-medium">{category}</Link>
+                <span
+                  className={navText ? 'opacity-30' : 'text-slate-300 dark:text-slate-700'}
+                  style={navText ? { color: navText } : undefined}
+                >/</span>
+                <Link
+                  href={`/?category=${category}`}
+                  className={`capitalize transition-colors text-xs font-medium ${navText ? 'opacity-70 hover:opacity-100' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}
+                  style={navText ? { color: navText } : undefined}
+                >{category}</Link>
               </>
             )}
             {toolName && (
               <>
-                <span className="text-slate-300 dark:text-slate-700">/</span>
-                <span className="font-semibold text-slate-900 dark:text-white capitalize truncate max-w-[180px] text-xs">{toolName}</span>
+                <span
+                  className={navText ? 'opacity-30' : 'text-slate-300 dark:text-slate-700'}
+                  style={navText ? { color: navText } : undefined}
+                >/</span>
+                <span
+                  className={`font-semibold capitalize truncate max-w-[180px] text-xs ${navText ? '' : 'text-slate-900 dark:text-white'}`}
+                  style={navText ? { color: navText } : undefined}
+                >{toolName}</span>
               </>
             )}
           </div>
@@ -115,7 +193,10 @@ function HeaderContent() {
       {/* Center: Search */}
       <div className="flex-1 max-w-lg hidden md:block relative" ref={searchRef}>
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none transition-colors"
+            style={{ color: isFocused ? 'var(--ot-accent)' : undefined }}
+          />
           <input
             ref={searchInputRef}
             type="text"
@@ -124,7 +205,12 @@ function HeaderContent() {
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setIsFocused(true)}
             onKeyDown={handleSearchEnter}
-            className="w-full rounded-lg py-1.5 pl-9 pr-20 text-sm bg-slate-100/80 dark:bg-white/[0.06] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 border border-transparent focus:border-indigo-500/30 focus:bg-white dark:focus:bg-white/[0.08] focus:outline-none focus:ring-1 focus:ring-indigo-500/20 transition-all"
+            className={`w-full rounded-lg py-1.5 pl-9 pr-20 text-sm border focus:outline-none transition-all ${
+              navBg
+                ? 'border-transparent'
+                : 'bg-slate-100/80 dark:bg-white/[0.06] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-white/[0.08] border-transparent'
+            }`}
+            style={inputStyle}
           />
           <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
             {query ? (
@@ -167,6 +253,7 @@ function HeaderContent() {
         <LanguageSwitcher />
         <ThemeToggle />
         <ShareButton />
+        <AccentColorPicker />
 
         <Link
           href="/workspace"
@@ -192,7 +279,7 @@ function HeaderContent() {
 
 export default function GlobalHeader() {
   return (
-    <Suspense fallback={<div className="h-14 bg-white/80 dark:bg-[#0F111A]/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-white/[0.06]" />}>
+    <Suspense fallback={<div className="h-14 border-b" style={{ backgroundColor: '#096464' }} />}>
       <HeaderContent />
     </Suspense>
   );

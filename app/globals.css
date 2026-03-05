@@ -6,6 +6,10 @@
   --foreground-rgb: 15, 23, 42;
   --background-start-rgb: 248, 250, 252;
   --background-end-rgb: 241, 245, 249;
+  /* User-customizable theme — all updated via JS */
+  --ot-accent:     #6366f1;
+  --ot-logo-bg:    #f59e0b;   /* amber — warm complement to teal navbar */
+  --ot-logo-text:  #1e293b;   /* dark letter auto-contrasts on amber */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -73,6 +77,29 @@ input[type="text"][inputmode="numeric"],
 input[type="text"][inputmode="decimal"],
 input[type="number"] {
   color: inherit;
+}
+
+/* ── Custom navbar colour cascade ───────────────────────────────────────── */
+/* When the user sets a custom navbar background, icons, inputs and kbd     */
+/* all inherit --ot-navbar-text so nothing becomes invisible.               */
+
+header[data-custom-nav] svg {
+  color: var(--ot-navbar-text) !important;
+}
+
+header[data-custom-nav] input {
+  color: var(--ot-navbar-text) !important;
+  background-color: color-mix(in srgb, var(--ot-navbar-text) 8%, transparent) !important;
+}
+
+header[data-custom-nav] input::placeholder {
+  color: color-mix(in srgb, var(--ot-navbar-text) 45%, transparent) !important;
+}
+
+header[data-custom-nav] kbd {
+  color:            var(--ot-navbar-text) !important;
+  background-color: color-mix(in srgb, var(--ot-navbar-text) 12%, transparent) !important;
+  border-color:     color-mix(in srgb, var(--ot-navbar-text) 22%, transparent) !important;
 }
 
 /* CUSTOM SCROLLBAR */

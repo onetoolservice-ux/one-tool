@@ -344,7 +344,7 @@ export function ManageTransactions() {
                 ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600'
                 : step === 'upload'
                   ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/20'
-                  : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-blue-400 hover:text-blue-500'
+                  : 'border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-blue-400 hover:text-blue-500'
             }`}
             onClick={() => document.getElementById('file-upload')?.click()}
           >
@@ -363,7 +363,7 @@ export function ManageTransactions() {
                   const batch = savedBatches.find(b => b.batchId === e.target.value);
                   if (batch) loadBatch(batch);
                 }}
-                className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer max-w-[260px]"
+                className="bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-2.5 py-1.5 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer max-w-[260px]"
               >
                 {savedBatches.map(b => (
                   <option key={b.batchId} value={b.batchId}>
@@ -410,7 +410,7 @@ export function ManageTransactions() {
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
                 showColumnMapping
                   ? 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-700 text-indigo-600 dark:text-indigo-400'
-                  : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-indigo-300'
+                  : 'bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-400 hover:border-indigo-300'
               }`}
             >
               <Settings2 size={13} />

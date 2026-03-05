@@ -10,12 +10,12 @@ import {
 const ACTIONS = [
   { label: 'Merge PDFs',       href: '/tools/documents/smart-pdf-merge',   icon: Layers,        bg: 'from-red-600 to-rose-500' },
   { label: 'Create Invoice',   href: '/tools/business/invoice-generator',  icon: FileText,      bg: 'from-blue-600 to-blue-800' },
-  { label: 'Track Expenses',   href: '/tools/analytics/expenses',          icon: TrendingDown,  bg: 'from-rose-500 to-red-600' },
+  { label: 'Track Expenses',   href: '/tools/personal-finance/pf-expenses', icon: TrendingDown,  bg: 'from-rose-500 to-red-600' },
   { label: 'Generate QR',      href: '/tools/productivity/qr-code',        icon: QrCode,        bg: 'from-slate-700 to-slate-900' },
   { label: 'Format JSON',      href: '/tools/developer/smart-json',        icon: Braces,        bg: 'from-orange-500 to-amber-500' },
   { label: 'Loan Calculator',  href: '/tools/finance/smart-loan',          icon: Calculator,    bg: 'from-green-600 to-emerald-500' },
   { label: 'Convert Units',    href: '/tools/converters/unit-convert',     icon: ArrowRightLeft, bg: 'from-cyan-500 to-sky-600' },
-  { label: 'Upload Statement', href: '/tools/analytics/managetransaction', icon: Upload,        bg: 'from-indigo-600 to-blue-500' },
+  { label: 'Upload Statement', href: '/tools/personal-finance/pf-statement-manager', icon: Upload, bg: 'from-indigo-600 to-blue-500' },
   { label: 'Pick Colors',      href: '/tools/design/color-picker',         icon: Pipette,       bg: 'from-pink-500 to-rose-600' },
   { label: 'Password Gen',     href: '/tools/productivity/smart-pass',     icon: Lock,          bg: 'from-emerald-500 to-green-600' },
 ];

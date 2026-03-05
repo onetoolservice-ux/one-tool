@@ -60,7 +60,7 @@ export default async function ToolPage(props: { params: Promise<{ category: stri
   return (
     <>
       <ToolSEOSchemas tool={tool} baseUrl={baseUrl} includeFAQ={true} />
-      <ToolShell tool={tool} fullWidth={['analyticsreport', 'self-serve-analytics', 'invoice-generator', 'salary-slip', 'rent-receipt', 'id-card', 'smart-agreement', 'managetransaction', 'expenses', 'credits', 'smart-pdf-merge', 'smart-pdf-split', 'smart-ocr', 'smart-scan', 'smart-excel', 'smart-word', 'universal-converter', 'smart-img-compress', 'smart-img-convert', 'smart-jwt', 'smart-diff', 'cron-gen', 'api-playground', 'regex-tester', 'hash-gen', 'num-convert', 'timestamp-tool', 'dev-station', 'smart-budget', 'smart-sip', 'smart-net-worth', 'smart-retirement', 'gst-calculator', 'smart-loan', 'smart-pass', 'pomodoro', 'qr-code', 'unit-convert', 'color-picker', 'case-convert', 'color-studio'].includes(tool.id)}>
+      <ToolShell tool={tool} fullWidth>
         <ToolSEOUI tool={tool} />
         {ToolComponent}
       </ToolShell>

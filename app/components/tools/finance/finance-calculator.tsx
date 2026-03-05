@@ -154,17 +154,17 @@ export const FinanceCalculator = () => {
                  { id: 'home', label: 'Home' }, { id: 'car', label: 'Car' }, { id: 'personal', label: 'Personal' },
                  { id: 'edu', label: 'Education' }, { id: 'gold', label: 'Gold' }, { id: 'ev', label: 'EV' }
                ].map(f => (
-                  <button key={f.id} onClick={() => setPreset(f.id)} className="px-3 py-1 text-xs font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-full hover:border-blue-500 transition-colors whitespace-nowrap">
+                  <button key={f.id} onClick={() => setPreset(f.id)} className="px-3 py-1 text-xs font-bold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-full hover:border-blue-500 transition-colors whitespace-nowrap">
                     {f.label}
                   </button>
                ))}
             </div>
             
             <div className="flex items-center gap-2">
-               <button onClick={() => setView('table')} className={`px-4 py-2 text-sm font-bold rounded-lg flex items-center gap-2 transition-colors ${view==='table'?'bg-blue-600 hover:bg-blue-700 text-white shadow-md':'bg-white dark:bg-slate-900 text-slate-600 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+               <button onClick={() => setView('table')} className={`px-4 py-2 text-sm font-bold rounded-lg flex items-center gap-2 transition-colors ${view==='table'?'bg-blue-600 hover:bg-blue-700 text-white shadow-md':'bg-white dark:bg-slate-900 text-slate-600 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
                  <TableIcon size={16} /> Schedule
                </button>
-               <button onClick={exportToCSV} className="px-4 py-2 text-sm font-bold bg-white dark:bg-slate-900 text-slate-600 border border-slate-200 dark:border-slate-700 rounded-lg flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-800">
+               <button onClick={exportToCSV} className="px-4 py-2 text-sm font-bold bg-white dark:bg-slate-900 text-slate-600 border border-slate-300 dark:border-slate-600 rounded-lg flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-800">
                  <Download size={16} /> CSV
                </button>
             </div>

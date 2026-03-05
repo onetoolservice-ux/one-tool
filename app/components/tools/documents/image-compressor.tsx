@@ -281,7 +281,7 @@ export const ImageCompressor = () => {
                   </>
                 )}
                 <div className="flex-1"/>
-                <button onClick={compress} disabled={loading} className="px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 transition-colors font-semibold flex items-center gap-1.5">
+                <button onClick={compress} disabled={loading} className="px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 transition-colors font-semibold flex items-center gap-1.5">
                   <RotateCcw size={11}/> Re-compress
                 </button>
               </div>

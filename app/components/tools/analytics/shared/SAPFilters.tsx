@@ -80,7 +80,7 @@ export function SelectFilter({ value, onChange, options, placeholder }: SelectFi
     <select
       value={value}
       onChange={e => onChange(e.target.value)}
-      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500/30 transition-shadow"
+      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-2.5 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500/30 transition-shadow"
     >
       {placeholder && <option value="">{placeholder}</option>}
       {options.map(opt => (
@@ -110,7 +110,7 @@ export function SearchFilter({ value, onChange, placeholder = 'Search...' }: Sea
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg pl-9 pr-3 py-2 text-xs outline-none focus:ring-2 focus:ring-blue-500/30 transition-shadow"
+        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg pl-9 pr-3 py-2 text-xs outline-none focus:ring-2 focus:ring-blue-500/30 transition-shadow"
       />
     </div>
   );
