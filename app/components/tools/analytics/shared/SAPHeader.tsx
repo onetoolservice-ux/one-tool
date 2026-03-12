@@ -20,6 +20,8 @@ export interface KPICard {
   icon?: LucideIcon;
   color?: 'primary' | 'success' | 'warning' | 'error' | 'neutral';
   subtitle?: string;
+  onClick?: () => void;
+  active?: boolean;
 }
 
 export interface SAPHeaderProps {
@@ -99,19 +101,20 @@ export function SAPHeader({ title, subtitle, modes, kpis, actions, compact = fal
               return (
                 <div
                   key={index}
-                  className={`bg-slate-50 dark:bg-white/10 rounded-lg border border-slate-200 dark:border-white/20 hover:bg-slate-100 dark:hover:bg-white/15 transition-colors ${compact ? 'p-2.5' : 'p-4 rounded-xl'}`}
+                  onClick={kpi.onClick}
+                  className={`rounded-lg border transition-colors ${compact ? 'p-2.5' : 'p-4 rounded-xl'} ${kpi.onClick ? 'cursor-pointer' : ''} ${kpi.active ? 'bg-slate-900 dark:bg-white border-slate-900 dark:border-white' : 'bg-slate-50 dark:bg-white/10 border-slate-200 dark:border-white/20 hover:bg-slate-100 dark:hover:bg-white/15'}`}
                 >
                   <div className={`flex items-start justify-between ${compact ? 'mb-1' : 'mb-2'}`}>
-                    <p className={`font-semibold text-slate-500 dark:text-white/70 uppercase tracking-wider ${compact ? 'text-[10px]' : 'text-xs'}`}>
+                    <p className={`font-semibold uppercase tracking-wider ${compact ? 'text-[10px]' : 'text-xs'} ${kpi.active ? 'text-white/70 dark:text-slate-500' : 'text-slate-500 dark:text-white/70'}`}>
                       {kpi.label}
                     </p>
-                    {Icon && <Icon size={compact ? 13 : 16} className="text-slate-400 dark:text-white/60" />}
+                    {Icon && <Icon size={compact ? 13 : 16} className={kpi.active ? 'text-white/60 dark:text-slate-400' : 'text-slate-400 dark:text-white/60'} />}
                   </div>
-                  <p className={`font-black ${colorClass} ${compact ? 'text-lg mb-0' : 'text-2xl mb-0.5'}`}>
+                  <p className={`font-black ${compact ? 'text-lg mb-0' : 'text-2xl mb-0.5'} ${kpi.active ? 'text-white dark:text-slate-900' : colorClass}`}>
                     {kpi.value}
                   </p>
                   {kpi.subtitle && (
-                    <p className={`text-slate-400 dark:text-white/60 font-medium ${compact ? 'text-[10px]' : 'text-xs'}`}>{kpi.subtitle}</p>
+                    <p className={`font-medium ${compact ? 'text-[10px]' : 'text-xs'} ${kpi.active ? 'text-white/60 dark:text-slate-500' : 'text-slate-400 dark:text-white/60'}`}>{kpi.subtitle}</p>
                   )}
                 </div>
               );

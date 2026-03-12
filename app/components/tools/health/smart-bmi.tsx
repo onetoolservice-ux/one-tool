@@ -42,6 +42,9 @@ export const SmartBMI = () => {
   const [age, setAge]         = useState(25);
   const [sex, setSex]         = useState<'male'|'female'>('male');
   const [actIdx, setActIdx]   = useState(1);
+  const [waist, setWaist]     = useState(82); // cm
+  const [hip, setHip]         = useState(95); // cm
+  const [neck, setNeck]       = useState(37); // cm (for body fat %)
 
   const bmi     = useMemo(() => weight / Math.pow(height / 100, 2), [weight, height]);
   const cat     = useMemo(() => getBMICategory(bmi), [bmi]);
@@ -54,6 +57,39 @@ export const SmartBMI = () => {
 
   const bmr  = useMemo(() => calcBMR(weight, height, age, sex), [weight, height, age, sex]);
   const tdee = useMemo(() => bmr * ACTIVITY[actIdx].factor, [bmr, actIdx]);
+
+  // Waist-to-Hip Ratio
+  const whr = useMemo(() => hip > 0 ? waist / hip : 0, [waist, hip]);
+  const whrStatus = useMemo(() => {
+    if (sex === 'male') return whr < 0.90 ? 'Low Risk' : whr < 0.99 ? 'Moderate Risk' : 'High Risk';
+    return whr < 0.80 ? 'Low Risk' : whr < 0.85 ? 'Moderate Risk' : 'High Risk';
+  }, [whr, sex]);
+  const whrColor = whrStatus === 'Low Risk' ? 'text-emerald-600' : whrStatus === 'Moderate Risk' ? 'text-amber-600' : 'text-red-600';
+
+  // Body Fat % — US Navy Method
+  const bodyFat = useMemo(() => {
+    if (sex === 'male') {
+      return 495 / (1.0324 - 0.19077 * Math.log10(waist - neck) + 0.15456 * Math.log10(height)) - 450;
+    } else {
+      return 495 / (1.29579 - 0.35004 * Math.log10(waist + hip - neck) + 0.22100 * Math.log10(height)) - 450;
+    }
+  }, [sex, waist, hip, neck, height]);
+
+  const bfCategory = useMemo(() => {
+    if (sex === 'male') {
+      if (bodyFat < 6) return { label: 'Essential', color: 'text-blue-600' };
+      if (bodyFat < 14) return { label: 'Athlete', color: 'text-emerald-600' };
+      if (bodyFat < 18) return { label: 'Fitness', color: 'text-emerald-600' };
+      if (bodyFat < 25) return { label: 'Acceptable', color: 'text-amber-600' };
+      return { label: 'Obese', color: 'text-red-600' };
+    } else {
+      if (bodyFat < 14) return { label: 'Essential', color: 'text-blue-600' };
+      if (bodyFat < 21) return { label: 'Athlete', color: 'text-emerald-600' };
+      if (bodyFat < 25) return { label: 'Fitness', color: 'text-emerald-600' };
+      if (bodyFat < 32) return { label: 'Acceptable', color: 'text-amber-600' };
+      return { label: 'Obese', color: 'text-red-600' };
+    }
+  }, [bodyFat, sex]);
 
   const inp = 'w-full h-9 px-3 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none text-slate-900 dark:text-white font-bold text-center';
 
@@ -132,6 +168,44 @@ export const SmartBMI = () => {
             <p className="text-[9px] text-slate-400 mt-0.5">{m.sub}</p>
           </div>
         ))}
+      </div>
+
+      {/* Waist / Hip / Neck inputs for WHR & Body Fat */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+        <p className="text-[10px] font-bold text-slate-400 uppercase mb-3">Body Composition (optional)</p>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { label: 'Waist (cm)', val: waist, setter: setWaist, min: 50, max: 150 },
+            { label: 'Hip (cm)', val: hip, setter: setHip, min: 50, max: 160 },
+            { label: 'Neck (cm)', val: neck, setter: setNeck, min: 25, max: 60 },
+          ].map(({ label, val, setter, min, max }) => (
+            <div key={label}>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 text-center">{label}</label>
+              <input type="range" min={min} max={max} value={val} onChange={e => setter(+e.target.value)} className="w-full accent-teal-500 mb-1" />
+              <p className="text-center font-black text-base text-slate-800 dark:text-white">{val} cm</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* WHR + Body Fat Results */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-center">
+          <p className="text-[10px] font-bold text-slate-400 uppercase">Waist-to-Hip Ratio</p>
+          <p className={`text-3xl font-black mt-1 ${whrColor}`}>{whr.toFixed(2)}</p>
+          <span className={`text-xs font-bold px-2 py-0.5 rounded-full mt-1 inline-block ${whrStatus === 'Low Risk' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : whrStatus === 'Moderate Risk' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
+            {whrStatus}
+          </span>
+          <p className="text-[9px] text-slate-400 mt-1">{sex === 'male' ? 'Male: <0.90 low risk' : 'Female: <0.80 low risk'}</p>
+        </div>
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-center">
+          <p className="text-[10px] font-bold text-slate-400 uppercase">Body Fat %</p>
+          <p className={`text-3xl font-black mt-1 ${bfCategory.color}`}>{bodyFat > 0 ? bodyFat.toFixed(1) : '—'}%</p>
+          <span className={`text-xs font-bold px-2 py-0.5 rounded-full mt-1 inline-block bg-slate-100 dark:bg-slate-800 ${bfCategory.color}`}>
+            {bfCategory.label}
+          </span>
+          <p className="text-[9px] text-slate-400 mt-1">US Navy formula estimate</p>
+        </div>
       </div>
 
       {/* Category table */}

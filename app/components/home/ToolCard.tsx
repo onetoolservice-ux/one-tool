@@ -73,6 +73,47 @@ const TOOL_ICON_BG: Record<string, string> = {
   'smart-analyze':    'bg-gradient-to-br from-purple-600 to-indigo-600',
   // Creator
   'audio-transcription': 'bg-gradient-to-br from-rose-500 to-orange-500',
+  // Business OS
+  'biz-dashboard':    'bg-gradient-to-br from-blue-600 to-indigo-600',
+  'biz-daybook':      'bg-gradient-to-br from-emerald-500 to-teal-600',
+  'biz-parties':      'bg-gradient-to-br from-violet-500 to-purple-600',
+  'biz-invoices':     'bg-gradient-to-br from-amber-500 to-orange-500',
+  'biz-products':     'bg-gradient-to-br from-cyan-500 to-blue-500',
+  'biz-inventory':    'bg-gradient-to-br from-teal-500 to-emerald-500',
+  'biz-stock-entry':  'bg-gradient-to-br from-sky-500 to-cyan-500',
+  'biz-reports':      'bg-gradient-to-br from-indigo-500 to-blue-600',
+  'biz-outstanding':  'bg-gradient-to-br from-rose-500 to-red-600',
+  'biz-purchases':    'bg-gradient-to-br from-purple-500 to-violet-600',
+  'biz-quotations':   'bg-gradient-to-br from-sky-400 to-blue-500',
+  'biz-staff':        'bg-gradient-to-br from-pink-500 to-rose-500',
+  'biz-gst':          'bg-gradient-to-br from-green-500 to-emerald-600',
+  'biz-cashflow':     'bg-gradient-to-br from-lime-500 to-green-500',
+  'biz-loans':        'bg-gradient-to-br from-red-500 to-rose-600',
+  // Personal Finance
+  'pf-statement-manager':  'bg-gradient-to-br from-blue-500 to-indigo-600',
+  'pf-financial-position': 'bg-gradient-to-br from-emerald-500 to-teal-500',
+  'pf-cash-flow':          'bg-gradient-to-br from-teal-500 to-cyan-500',
+  'pf-tx-explorer':        'bg-gradient-to-br from-violet-500 to-purple-600',
+  'pf-expenditure':        'bg-gradient-to-br from-rose-500 to-pink-500',
+  'pf-expenses':           'bg-gradient-to-br from-red-500 to-rose-600',
+  'pf-commitments':        'bg-gradient-to-br from-amber-500 to-orange-500',
+  'pf-recurring':          'bg-gradient-to-br from-cyan-500 to-sky-500',
+  'pf-top-merchants':      'bg-gradient-to-br from-orange-500 to-amber-600',
+  'pf-big-spends':         'bg-gradient-to-br from-red-600 to-orange-500',
+  'pf-rules':              'bg-gradient-to-br from-slate-600 to-slate-800',
+  'pf-income-sources':     'bg-gradient-to-br from-green-500 to-emerald-600',
+  'pf-behavior':           'bg-gradient-to-br from-purple-500 to-violet-600',
+  'pf-savings-trend':      'bg-gradient-to-br from-lime-500 to-green-500',
+  'pf-month-compare':      'bg-gradient-to-br from-sky-500 to-blue-600',
+  'pf-heatmap':            'bg-gradient-to-br from-fuchsia-500 to-pink-500',
+  'pf-subscriptions':      'bg-gradient-to-br from-indigo-500 to-blue-500',
+  'pf-labels':             'bg-gradient-to-br from-pink-500 to-rose-500',
+  'pf-liability':          'bg-gradient-to-br from-yellow-500 to-amber-600',
+  'pf-ai-analyst':         'bg-gradient-to-br from-violet-600 to-fuchsia-500',
+  // Personal CRM
+  'crm-people':       'bg-gradient-to-br from-violet-500 to-purple-600',
+  // Biz CRM
+  'biz-crm-pipeline': 'bg-gradient-to-br from-indigo-500 to-blue-600',
 };
 
 /* Category → colored top-edge accent for the card */

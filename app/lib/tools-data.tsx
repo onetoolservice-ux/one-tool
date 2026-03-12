@@ -15,7 +15,15 @@ export interface Tool {
 // Category order for display
 export const CATEGORY_ORDER = [
   "Personal Finance",
+  "Personal CRM",
+  "Business CRM",
+  "Business OS",
   "Finance",
+  "GST & Tax",
+  "Real Estate",
+  "Career",
+  "Startup",
+  "Travel",
   "Business",
   "Documents",
   "Developer",
@@ -214,6 +222,54 @@ export const ALL_TOOLS: Tool[] = [
     color: "text-purple-600 bg-purple-50 dark:bg-purple-900/20 dark:text-purple-400",
     desc: "Auto-generated insights, anomaly detection, spending predictions, and personalised recommendations from your statements."
   },
+  {
+    id: "pf-health-score",
+    name: "Financial Health Score",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-health-score",
+    icon: "ShieldCheck",
+    popular: true,
+    color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400",
+    desc: "Score your financial fitness across 5 dimensions — savings, debt, emergency fund, insurance, and investments."
+  },
+  {
+    id: "pf-spending-dna",
+    name: "Spending DNA",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-spending-dna",
+    icon: "Dna",
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400",
+    desc: "Decode your money personality from spending patterns. Discover your archetype and get actionable insights."
+  },
+  {
+    id: "pf-investment-tracker",
+    name: "Investment Portfolio Tracker",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-investment-tracker",
+    icon: "TrendingUp",
+    popular: true,
+    color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400",
+    desc: "Track all your investments (equity, debt, gold, crypto) with XIRR, asset allocation pie chart, and gain/loss."
+  },
+  {
+    id: "pf-budget-vs-actual",
+    name: "Budget vs Actual",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-budget-vs-actual",
+    icon: "BarChart3",
+    color: "text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400",
+    desc: "Compare planned budget against actual spending by category. Spot overspends with progress bars and charts."
+  },
+  {
+    id: "pf-financial-snapshot",
+    name: "Financial Snapshot",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-financial-snapshot",
+    icon: "LayoutDashboard",
+    popular: true,
+    color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400",
+    desc: "One-screen view of your entire financial life — spending, investments, budget, and health score with deep-links."
+  },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // FINANCE (Emerald/Green) - Financial calculators and planners
@@ -273,6 +329,599 @@ export const ALL_TOOLS: Tool[] = [
     icon: "Percent",
     color: "text-orange-600 bg-orange-50 dark:bg-orange-900/20 dark:text-orange-400",
     desc: "Calculate GST amounts, inclusive/exclusive prices, and tax breakdowns for Indian businesses."
+  },
+  {
+    id: "fire-calc",
+    name: "FIRE Calculator",
+    category: "Finance",
+    href: "/tools/finance/fire-calc",
+    icon: "Flame",
+    popular: true,
+    color: "text-orange-600 bg-orange-50 dark:bg-orange-900/20 dark:text-orange-400",
+    desc: "Calculate your Financial Independence number, FIRE age, and how much corpus you need to retire early."
+  },
+  {
+    id: "cost-of-delay",
+    name: "Cost of Delay",
+    category: "Finance",
+    href: "/tools/finance/cost-of-delay",
+    icon: "Clock",
+    color: "text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400",
+    desc: "See exactly how much wealth you lose by delaying investments. Powerful motivator to start today."
+  },
+  {
+    id: "debt-planner",
+    name: "Debt Planner",
+    category: "Finance",
+    href: "/tools/finance/debt-planner",
+    icon: "CreditCard",
+    popular: true,
+    color: "text-purple-600 bg-purple-50 dark:bg-purple-900/20 dark:text-purple-400",
+    desc: "Snowball vs Avalanche — find your fastest, cheapest path to becoming debt-free."
+  },
+  {
+    id: "portfolio-rebalance",
+    name: "Portfolio Rebalancer",
+    category: "Finance",
+    href: "/tools/finance/portfolio-rebalance",
+    icon: "BarChart3",
+    color: "text-teal-600 bg-teal-50 dark:bg-teal-900/20 dark:text-teal-400",
+    desc: "Track asset allocation drift and get exact buy/sell instructions to rebalance your portfolio."
+  },
+  {
+    id: "ctc-calc",
+    name: "CTC to In-hand",
+    category: "Finance",
+    href: "/tools/finance/ctc-calc",
+    icon: "IndianRupee",
+    popular: true,
+    color: "text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400",
+    desc: "Exact take-home salary from CTC — old vs new regime, EPF, HRA, all deductions included."
+  },
+  {
+    id: "hra-calc",
+    name: "HRA Exemption",
+    category: "Finance",
+    href: "/tools/finance/hra-calc",
+    icon: "Home",
+    color: "text-sky-600 bg-sky-50 dark:bg-sky-900/20 dark:text-sky-400",
+    desc: "Calculate exact HRA exempt from income tax under Sec 10(13A). Three-condition method."
+  },
+  {
+    id: "gratuity-calc",
+    name: "Gratuity & Leave Encashment",
+    category: "Finance",
+    href: "/tools/finance/gratuity-calc",
+    icon: "Award",
+    color: "text-amber-600 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-400",
+    desc: "Calculate gratuity and leave encashment when leaving a job. Know what your employer owes you."
+  },
+  {
+    id: "capital-gains-calc",
+    name: "Capital Gains Tax",
+    category: "Finance",
+    href: "/tools/finance/capital-gains-calc",
+    icon: "TrendingUp",
+    color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400",
+    desc: "STCG & LTCG tax across stocks, mutual funds, gold, and property. FY 2024-25 rates."
+  },
+  {
+    id: "tax-saving-compare",
+    name: "NPS vs PPF vs ELSS",
+    category: "Finance",
+    href: "/tools/finance/tax-saving-compare",
+    icon: "Scale",
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400",
+    desc: "Side-by-side comparison of 80C instruments — corpus, tax savings, liquidity, and exit rules."
+  },
+  {
+    id: "sub-audit",
+    name: "Subscription Audit",
+    category: "Finance",
+    href: "/tools/finance/sub-audit",
+    icon: "Radio",
+    color: "text-pink-600 bg-pink-50 dark:bg-pink-900/20 dark:text-pink-400",
+    desc: "Track all subscriptions, flag rarely-used ones, and see your true annual subscription cost."
+  },
+  {
+    id: "wedding-budget",
+    name: "Wedding Budget Planner",
+    category: "Finance",
+    href: "/tools/finance/wedding-budget",
+    icon: "Heart",
+    color: "text-rose-600 bg-rose-50 dark:bg-rose-900/20 dark:text-rose-400",
+    desc: "Plan every rupee of your wedding across all categories. Track budgeted vs actual spend."
+  },
+  {
+    id: "salary-nego",
+    name: "Salary Negotiation",
+    category: "Finance",
+    href: "/tools/finance/salary-nego",
+    icon: "Briefcase",
+    color: "text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400",
+    desc: "Is that hike really worth it? See actual take-home difference after tax for any CTC offer."
+  },
+  {
+    id: "fd-calculator",
+    name: "FD / RD Calculator",
+    category: "Finance",
+    href: "/tools/finance/fd-calculator",
+    icon: "PiggyBank",
+    color: "text-amber-600 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-400",
+    desc: "Calculate maturity amount for Fixed Deposits and Recurring Deposits. Includes TDS, senior citizen rates, and year-wise growth chart."
+  },
+  {
+    id: "nps-calculator",
+    name: "NPS Calculator",
+    category: "Finance",
+    href: "/tools/finance/nps-calculator",
+    icon: "Coins",
+    color: "text-teal-600 bg-teal-50 dark:bg-teal-900/20 dark:text-teal-400",
+    desc: "Project NPS corpus at retirement. Choose equity/debt allocation, see annuity income, and 80CCD tax benefit."
+  },
+  {
+    id: "ppf-calculator",
+    name: "PPF Calculator",
+    category: "Finance",
+    href: "/tools/finance/ppf-calculator",
+    icon: "Droplets",
+    color: "text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400",
+    desc: "Calculate PPF maturity with yearly deposits, extension blocks, and EEE tax status. Year-by-year growth chart."
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // GST & TAX HUB - Indian tax compliance and planning tools
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    id: "tds-finder",
+    name: "TDS Rate Finder",
+    category: "GST & Tax",
+    href: "/tools/gst-tax/tds-finder",
+    icon: "Percent",
+    popular: true,
+    color: "text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400",
+    desc: "Find TDS rates for any payment type — salary, rent, professional fees, contracts. Section-wise thresholds."
+  },
+  {
+    id: "deduction-tracker",
+    name: "Deduction Tracker",
+    category: "GST & Tax",
+    href: "/tools/gst-tax/deduction-tracker",
+    icon: "ShieldCheck",
+    popular: true,
+    color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400",
+    desc: "Track 80C, 80D, 80CCD, HRA, and all deductions to plan your ITR and maximize tax savings."
+  },
+  {
+    id: "tax-calendar",
+    name: "Tax Calendar",
+    category: "GST & Tax",
+    href: "/tools/gst-tax/tax-calendar",
+    icon: "CalendarDays",
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400",
+    desc: "Never miss a tax deadline. Advance tax, TDS, GST returns, ITR filing — all dates in one place."
+  },
+  {
+    id: "advance-tax-calc",
+    name: "Advance Tax Calculator",
+    category: "GST & Tax",
+    href: "/tools/gst-tax/advance-tax-calc",
+    icon: "Calculator",
+    color: "text-amber-600 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-400",
+    desc: "Calculate advance tax instalments due in June, September, December, and March quarters."
+  },
+  {
+    id: "income-tax-calc",
+    name: "Income Tax Calculator",
+    category: "GST & Tax",
+    href: "/tools/gst-tax/income-tax-calc",
+    icon: "IndianRupee",
+    popular: true,
+    color: "text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400",
+    desc: "Old vs New regime comparison for FY 2024-25. HRA, 80C/D/CCD deductions, 87A rebate, surcharge, and cess."
+  },
+  {
+    id: "itr-checklist",
+    name: "ITR Filing Checklist",
+    category: "GST & Tax",
+    href: "/tools/gst-tax/itr-checklist",
+    icon: "ListChecks",
+    color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400",
+    desc: "Personalised ITR document checklist. Select your income types, track what you have, and get the right ITR form."
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // REAL ESTATE - Property buying, renting, and investment tools
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    id: "home-loan-emi",
+    name: "Home Loan & Prepayment",
+    category: "Real Estate",
+    href: "/tools/real-estate/home-loan-emi",
+    icon: "Building2",
+    popular: true,
+    color: "text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400",
+    desc: "EMI breakdown, amortisation schedule, and prepayment impact — see how extra payments slash your loan tenure."
+  },
+  {
+    id: "rent-vs-buy",
+    name: "Rent vs Buy",
+    category: "Real Estate",
+    href: "/tools/real-estate/rent-vs-buy",
+    icon: "Home",
+    popular: true,
+    color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400",
+    desc: "10-year breakeven analysis comparing renting vs buying. Includes opportunity cost of down payment."
+  },
+  {
+    id: "rental-yield",
+    name: "Rental Yield Calculator",
+    category: "Real Estate",
+    href: "/tools/real-estate/rental-yield",
+    icon: "TrendingUp",
+    color: "text-teal-600 bg-teal-50 dark:bg-teal-900/20 dark:text-teal-400",
+    desc: "Calculate gross and net rental yield. Compare against FD / equity returns to evaluate property investment."
+  },
+  {
+    id: "stamp-duty",
+    name: "Stamp Duty Calculator",
+    category: "Real Estate",
+    href: "/tools/real-estate/stamp-duty",
+    icon: "MapPin",
+    color: "text-rose-600 bg-rose-50 dark:bg-rose-900/20 dark:text-rose-400",
+    desc: "State-wise stamp duty and registration charges. Know the full cost of buying property in any Indian state."
+  },
+  {
+    id: "property-budget",
+    name: "Property Affordability",
+    category: "Real Estate",
+    href: "/tools/real-estate/property-budget",
+    icon: "Wallet",
+    color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400",
+    desc: "How much property can you afford? EMI-to-income ratio, down payment, and stamp duty all factored in."
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CAREER - Job, salary, and work-life tools
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    id: "job-offer-compare",
+    name: "Job Offer Comparator",
+    category: "Career",
+    href: "/tools/career/job-offer-compare",
+    icon: "Briefcase",
+    popular: true,
+    color: "text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400",
+    desc: "Compare two job offers side-by-side — CTC, take-home, growth, perks, and a final score card."
+  },
+  {
+    id: "freelance-rate",
+    name: "Freelance Rate Calculator",
+    category: "Career",
+    href: "/tools/career/freelance-rate",
+    icon: "CircleDollarSign",
+    color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400",
+    desc: "Calculate your minimum viable hourly/daily rate as a freelancer, accounting for taxes and expenses."
+  },
+  {
+    id: "fnf-calculator",
+    name: "Full & Final Settlement",
+    category: "Career",
+    href: "/tools/career/fnf-calculator",
+    icon: "FileCheck",
+    color: "text-amber-600 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-400",
+    desc: "Calculate your FnF payout — notice period pay, gratuity eligibility, leave balance, and deductions."
+  },
+  {
+    id: "wfh-savings",
+    name: "WFH Savings Estimator",
+    category: "Career",
+    href: "/tools/career/wfh-savings",
+    icon: "Laptop",
+    color: "text-teal-600 bg-teal-50 dark:bg-teal-900/20 dark:text-teal-400",
+    desc: "See how much you save working from home vs office — commute, food, wardrobe, and time."
+  },
+  {
+    id: "salary-history",
+    name: "Salary Growth Tracker",
+    category: "Career",
+    href: "/tools/career/salary-history",
+    icon: "TrendingUp",
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400",
+    desc: "Log your salary history and see real growth after inflation. Are you actually earning more?"
+  },
+  {
+    id: "esop-value-calc",
+    name: "ESOP / RSU Calculator",
+    category: "Career",
+    href: "/tools/career/esop-value-calc",
+    icon: "Gauge",
+    popular: true,
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400",
+    desc: "Value your ESOPs and RSUs. Vesting schedule, cliff, pre/post-tax value, and expected value at exit."
+  },
+  {
+    id: "career-roi-calc",
+    name: "Career Investment ROI",
+    category: "Career",
+    href: "/tools/career/career-roi-calc",
+    icon: "GraduationCap",
+    color: "text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400",
+    desc: "Should you do an MBA or certification? Calculate payback period, NPV, and 10-year earnings difference."
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // STARTUP - Founder & freelancer financial tools
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    id: "burn-rate",
+    name: "Burn Rate & Runway",
+    category: "Startup",
+    href: "/tools/startup/burn-rate",
+    icon: "Rocket",
+    popular: true,
+    color: "text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400",
+    desc: "Track monthly burn, runway, and when you'll run out of cash. Plan your next fundraise."
+  },
+  {
+    id: "equity-dilution",
+    name: "Equity Dilution Simulator",
+    category: "Startup",
+    href: "/tools/startup/equity-dilution",
+    icon: "Users",
+    color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400",
+    desc: "Simulate cap table dilution across funding rounds. See founder, investor, and ESOP stakes."
+  },
+  {
+    id: "saas-metrics",
+    name: "SaaS Metrics Dashboard",
+    category: "Startup",
+    href: "/tools/startup/saas-metrics",
+    icon: "BarChart3",
+    popular: true,
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400",
+    desc: "MRR, ARR, LTV, CAC, churn, and payback period — all key SaaS metrics in one dashboard."
+  },
+  {
+    id: "project-pricing",
+    name: "Project Pricing Calculator",
+    category: "Startup",
+    href: "/tools/startup/project-pricing",
+    icon: "CircleDollarSign",
+    color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400",
+    desc: "Price any project or freelance engagement — time + costs + margin + GST, with client quote output."
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // TRAVEL - Trip planning and vehicle cost tools
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    id: "trip-budget",
+    name: "Trip Budget Planner",
+    category: "Travel",
+    href: "/tools/travel/trip-budget",
+    icon: "Plane",
+    popular: true,
+    color: "text-sky-600 bg-sky-50 dark:bg-sky-900/20 dark:text-sky-400",
+    desc: "Plan your trip budget by category — flights, stays, food, activities, and shopping. Per-person split."
+  },
+  {
+    id: "road-trip",
+    name: "Road Trip Cost Calculator",
+    category: "Travel",
+    href: "/tools/travel/road-trip",
+    icon: "Car",
+    color: "text-orange-600 bg-orange-50 dark:bg-orange-900/20 dark:text-orange-400",
+    desc: "Calculate fuel cost for any road trip. Distance, mileage, fuel price — exact cost per person."
+  },
+  {
+    id: "forex-calc",
+    name: "Forex & Travel Money",
+    category: "Travel",
+    href: "/tools/travel/forex-calc",
+    icon: "Globe",
+    color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400",
+    desc: "Convert travel budget to foreign currency. Compare card vs cash vs forex card with fees."
+  },
+  {
+    id: "ev-vs-petrol",
+    name: "EV vs Petrol Cost",
+    category: "Travel",
+    href: "/tools/travel/ev-vs-petrol",
+    icon: "Fuel",
+    color: "text-teal-600 bg-teal-50 dark:bg-teal-900/20 dark:text-teal-400",
+    desc: "Total cost of ownership comparison — purchase price, fuel/electricity, maintenance over 5 years."
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PERSONAL CRM - Local-first relationship manager
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    id: "crm-people",
+    name: "People & Relationships",
+    category: "Personal CRM",
+    href: "/tools/personal-crm/crm-people",
+    icon: "Users",
+    popular: false,
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400",
+    desc: "Track your relationships, log interactions, and never lose touch with the people who matter. Local, private, no accounts."
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // BUSINESS CRM - Deal pipeline and follow-up tracker
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    id: "biz-crm-pipeline",
+    name: "Business CRM",
+    category: "Business CRM",
+    href: "/tools/business-crm/biz-crm-pipeline",
+    icon: "Briefcase",
+    popular: false,
+    color: "text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400",
+    desc: "Track deals, follow-ups, and client relationships. Pipeline board with deal stages and dated action items."
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // BUSINESS OS - Operating system for small businesses (3-anchor model)
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    id: "biz-dashboard",
+    name: "Business Dashboard",
+    category: "Business OS",
+    href: "/tools/business-os/biz-dashboard",
+    icon: "LayoutDashboard",
+    popular: true,
+    color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400",
+    desc: "CEO view: daily sales, expenses, profit, pending payments, and low-stock alerts in one place."
+  },
+  {
+    id: "biz-daybook",
+    name: "Daybook",
+    category: "Business OS",
+    href: "/tools/business-os/biz-daybook",
+    icon: "BookOpen",
+    popular: false,
+    color: "text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400",
+    desc: "Quick income and expense entry. Log every rupee in seconds, linked to customers and vendors."
+  },
+  {
+    id: "biz-parties",
+    name: "Party Register",
+    category: "Business OS",
+    href: "/tools/business-os/biz-parties",
+    icon: "Users",
+    popular: true,
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400",
+    desc: "Khata-style ledger for all customers, vendors, and employees with running balances."
+  },
+  {
+    id: "biz-inventory",
+    name: "Inventory Manager",
+    category: "Business OS",
+    href: "/tools/business-os/biz-inventory",
+    icon: "Package",
+    popular: false,
+    color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400",
+    desc: "Product catalog with live stock levels, low-stock alerts, and supplier tracking."
+  },
+  {
+    id: "biz-invoices",
+    name: "Invoice Manager",
+    category: "Business OS",
+    href: "/tools/business-os/biz-invoices",
+    icon: "Receipt",
+    popular: true,
+    color: "text-amber-600 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-400",
+    desc: "Create GST invoices, track payment status, and auto-record payments in your daybook."
+  },
+  {
+    id: "biz-reports",
+    name: "Business Reports",
+    category: "Business OS",
+    href: "/tools/business-os/biz-reports",
+    icon: "BarChart3",
+    popular: false,
+    color: "text-rose-600 bg-rose-50 dark:bg-rose-900/20 dark:text-rose-400",
+    desc: "P&L statement, expense breakdown, top customers, top products, and monthly trends."
+  },
+  {
+    id: "biz-products",
+    name: "Product Catalog",
+    category: "Business OS",
+    href: "/tools/business-os/biz-products",
+    icon: "Package",
+    popular: false,
+    color: "text-teal-600 bg-teal-50 dark:bg-teal-900/20 dark:text-teal-400",
+    desc: "Manage your full product catalog. Add products manually or bulk-import from a CSV spreadsheet."
+  },
+  {
+    id: "biz-stock-entry",
+    name: "Stock Entry",
+    category: "Business OS",
+    href: "/tools/business-os/biz-stock-entry",
+    icon: "ArrowRightLeft",
+    popular: false,
+    color: "text-cyan-600 bg-cyan-50 dark:bg-cyan-900/20 dark:text-cyan-400",
+    desc: "Record goods received and dispatched. Auto-updates stock and posts to your Daybook."
+  },
+  {
+    id: "biz-outstanding",
+    name: "Outstanding Tracker",
+    category: "Business OS",
+    href: "/tools/business-os/biz-outstanding",
+    icon: "Clock",
+    popular: true,
+    color: "text-orange-600 bg-orange-50 dark:bg-orange-900/20 dark:text-orange-400",
+    desc: "Track who owes you money. Aging analysis, overdue alerts, and WhatsApp reminder generator."
+  },
+  {
+    id: "biz-purchases",
+    name: "Purchase Bills",
+    category: "Business OS",
+    href: "/tools/business-os/biz-purchases",
+    icon: "ShoppingBag",
+    popular: false,
+    color: "text-purple-600 bg-purple-50 dark:bg-purple-900/20 dark:text-purple-400",
+    desc: "Record vendor invoices, track payables, and monitor input tax credit (ITC) for GST filing."
+  },
+  {
+    id: "biz-quotations",
+    name: "Quotations",
+    category: "Business OS",
+    href: "/tools/business-os/biz-quotations",
+    icon: "FileCheck",
+    popular: false,
+    color: "text-sky-600 bg-sky-50 dark:bg-sky-900/20 dark:text-sky-400",
+    desc: "Create estimates and quotations. Track win/loss rate and convert accepted quotes to invoices."
+  },
+  {
+    id: "biz-staff",
+    name: "Staff & Payroll",
+    category: "Business OS",
+    href: "/tools/business-os/biz-staff",
+    icon: "Users",
+    popular: false,
+    color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400",
+    desc: "Manage employees, mark daily attendance, calculate monthly salary with PF/ESI deductions."
+  },
+  {
+    id: "biz-gst",
+    name: "GST Helper",
+    category: "Business OS",
+    href: "/tools/business-os/biz-gst",
+    icon: "FileText",
+    popular: false,
+    color: "text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400",
+    desc: "Prepare GSTR-1 and GSTR-3B data. Track output tax, ITC, and net GST payable each month."
+  },
+  {
+    id: "biz-cashflow",
+    name: "Cash Flow",
+    category: "Business OS",
+    href: "/tools/business-os/biz-cashflow",
+    icon: "TrendingUp",
+    popular: false,
+    color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400",
+    desc: "30/60/90-day cash flow forecast based on outstanding invoices and pending purchase bills."
+  },
+  {
+    id: "biz-loans",
+    name: "Loans & EMI",
+    category: "Business OS",
+    href: "/tools/business-os/biz-loans",
+    icon: "CreditCard",
+    popular: false,
+    color: "text-rose-600 bg-rose-50 dark:bg-rose-900/20 dark:text-rose-400",
+    desc: "Track all business loans, view full EMI schedules, and mark monthly payments."
+  },
+  {
+    id: "biz-reconcile",
+    name: "Bank Reconciliation",
+    category: "Business OS",
+    href: "/tools/business-os/biz-reconcile",
+    icon: "GitMerge",
+    color: "text-cyan-600 bg-cyan-50 dark:bg-cyan-900/20 dark:text-cyan-400",
+    desc: "Match bank statement entries to daybook records. Identify missing transactions and reconcile discrepancies."
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -586,6 +1235,16 @@ export const ALL_TOOLS: Tool[] = [
     color: "text-red-500 bg-red-50 dark:bg-red-900/20 dark:text-red-300",
     desc: "Boost focus with 25-minute work sessions, breaks, and productivity tracking."
   },
+  {
+    id: "habit-tracker",
+    name: "Habit Tracker",
+    category: "Productivity",
+    href: "/tools/productivity/habit-tracker",
+    icon: "Target",
+    popular: true,
+    color: "text-orange-500 bg-orange-50 dark:bg-orange-900/20 dark:text-orange-300",
+    desc: "Build habits with a 21-day calendar grid. Track streaks, daily completion rate, and 7-day average."
+  },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // CONVERTERS (Cyan/Orange) - Unit and format conversion
@@ -665,6 +1324,25 @@ export const ALL_TOOLS: Tool[] = [
     color: "text-lime-500 bg-lime-50 dark:bg-lime-900/20 dark:text-lime-300",
     desc: "Customizable interval training timer with work/rest periods and audio cues."
   },
+  {
+    id: "calorie-calculator",
+    name: "Calorie & Macro Calculator",
+    category: "Health",
+    href: "/tools/health/calorie-calculator",
+    icon: "Utensils",
+    popular: true,
+    color: "text-orange-500 bg-orange-50 dark:bg-orange-900/20 dark:text-orange-300",
+    desc: "Calculate BMR, TDEE, and daily calorie target for weight loss/gain. With BMI and macro split (protein/carbs/fat)."
+  },
+  {
+    id: "water-tracker",
+    name: "Water Intake Tracker",
+    category: "Health",
+    href: "/tools/health/water-tracker",
+    icon: "Droplets",
+    color: "text-sky-500 bg-sky-50 dark:bg-sky-900/20 dark:text-sky-300",
+    desc: "Track daily water intake with a visual progress ring and 7-day streak chart. Set glass size and daily goals."
+  },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // AI (Violet/Purple) - AI-powered tools
@@ -710,6 +1388,26 @@ export const ALL_TOOLS: Tool[] = [
     popular: true,
     color: "text-purple-600 bg-purple-50 dark:bg-purple-900/20 dark:text-purple-400",
     desc: "Convert audio/video to text with speaker detection, timestamps, and content ideas."
+  },
+  {
+    id: "video-downloader",
+    name: "Video Downloader",
+    category: "Creator",
+    href: "/tools/creator/video-downloader",
+    icon: "Download",
+    popular: true,
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400",
+    desc: "Download videos from YouTube, Instagram, Twitter/X, TikTok, Facebook, Reddit, Vimeo and more."
+  },
+  {
+    id: "instagram-transcript",
+    name: "Video to Transcript",
+    category: "Creator",
+    href: "/tools/creator/instagram-transcript",
+    icon: "Video",
+    popular: true,
+    color: "text-pink-600 bg-pink-50 dark:bg-pink-900/20 dark:text-pink-400",
+    desc: "Upload a video or audio file — AI transcribes it with timestamps. Works with any downloaded video."
   }
 ];
 

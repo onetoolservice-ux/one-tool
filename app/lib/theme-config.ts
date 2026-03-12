@@ -1,4 +1,4 @@
-export type ToolCategory = 'analytics' | 'finance' | 'business' | 'developer' | 'health' | 'documents' | 'converters' | 'ai' | 'design' | 'productivity' | 'creator' | 'writing' | 'default';
+export type ToolCategory = 'analytics' | 'finance' | 'business' | 'developer' | 'health' | 'documents' | 'converters' | 'ai' | 'design' | 'productivity' | 'creator' | 'writing' | 'personal finance' | 'business os' | 'personal crm' | 'biz crm' | 'default';
 
 export const THEME_CONFIG: Record<ToolCategory, {
   primary: string;
@@ -103,6 +103,38 @@ export const THEME_CONFIG: Record<ToolCategory, {
     iconBg: "bg-gradient-to-br from-gray-600 to-gray-800",
     border: "group-hover:border-gray-400/50 dark:group-hover:border-gray-500/50",
     shadow: "group-hover:shadow-gray-500/20 dark:group-hover:shadow-gray-500/10"
+  },
+  'personal finance': {
+    primary: "text-emerald-600",
+    gradient: "from-emerald-500 to-teal-500",
+    bgGradient: "from-emerald-50/50 via-white to-teal-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950",
+    iconBg: "bg-gradient-to-br from-emerald-500 to-teal-500",
+    border: "group-hover:border-emerald-500/50 dark:group-hover:border-emerald-400/50",
+    shadow: "group-hover:shadow-emerald-500/20 dark:group-hover:shadow-emerald-500/10"
+  },
+  'business os': {
+    primary: "text-blue-600",
+    gradient: "from-blue-600 to-indigo-500",
+    bgGradient: "from-blue-50/50 via-white to-indigo-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950",
+    iconBg: "bg-gradient-to-br from-blue-600 to-indigo-500",
+    border: "group-hover:border-blue-500/50 dark:group-hover:border-blue-400/50",
+    shadow: "group-hover:shadow-blue-500/20 dark:group-hover:shadow-blue-500/10"
+  },
+  'personal crm': {
+    primary: "text-violet-600",
+    gradient: "from-violet-500 to-purple-500",
+    bgGradient: "from-violet-50/50 via-white to-purple-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950",
+    iconBg: "bg-gradient-to-br from-violet-500 to-purple-500",
+    border: "group-hover:border-violet-500/50 dark:group-hover:border-violet-400/50",
+    shadow: "group-hover:shadow-violet-500/20 dark:group-hover:shadow-violet-500/10"
+  },
+  'biz crm': {
+    primary: "text-indigo-600",
+    gradient: "from-indigo-500 to-blue-500",
+    bgGradient: "from-indigo-50/50 via-white to-blue-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950",
+    iconBg: "bg-gradient-to-br from-indigo-500 to-blue-500",
+    border: "group-hover:border-indigo-500/50 dark:group-hover:border-indigo-400/50",
+    shadow: "group-hover:shadow-indigo-500/20 dark:group-hover:shadow-indigo-500/10"
   },
   default: {
     primary: "text-slate-900",
