@@ -3,9 +3,8 @@
 import React, { useState, useRef, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Search, Coffee, Home, X, LayoutDashboard } from 'lucide-react';
+import { Search, Coffee, Home, X, Settings2, LayoutGrid, Star } from 'lucide-react';
 import { ShareButton } from '@/app/components/ui/ShareButton';
-import { ThemeToggle } from './ThemeToggle';
 import LanguageSwitcher from './LanguageSwitcher';
 import BrandLogo from '@/app/components/BrandLogo';
 import { fuzzySearch } from '@/app/lib/search-utils';
@@ -96,7 +95,7 @@ function HeaderContent() {
     if (e.key === 'Enter') {
       const sanitizedQuery = query.trim().replace(/[<>"']/g, '');
       trackSearch(sanitizedQuery, suggestions.length);
-      router.push(`/?search=${encodeURIComponent(sanitizedQuery)}`);
+      router.push(`/home?search=${encodeURIComponent(sanitizedQuery)}`);
       setIsFocused(false);
     }
   };
@@ -249,25 +248,55 @@ function HeaderContent() {
       </div>
 
       {/* Right: Actions */}
-      <div className="flex items-center gap-1 ml-4">
-        <LanguageSwitcher />
-        <ThemeToggle />
-        <ShareButton />
+      <div className="flex items-center gap-0.5 ml-4">
+        {/* Secondary actions — hidden on small screens */}
+        <div className="hidden sm:flex items-center gap-0.5">
+          <LanguageSwitcher />
+          <ShareButton />
+        </div>
+
+        {/* Theme customizer — always visible */}
         <AccentColorPicker />
 
+        {/* My Home (starred/pinned tools) */}
         <Link
-          href="/workspace"
-          className="p-2 rounded-lg text-slate-400 hover:text-indigo-500 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
-          aria-label="My Workspace"
+          href="/my-home"
+          className={`p-2 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5 ${navText ? '' : 'text-slate-400 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-white/5'}`}
+          style={navText ? { color: navText } : undefined}
+          aria-label="My Home"
+          title="My Home"
         >
-          <LayoutDashboard size={17} />
+          <Star size={16} />
         </Link>
 
+        {/* All Tools */}
+        <Link
+          href="/home"
+          className={`p-2 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5 ${navText ? '' : 'text-slate-400 hover:text-indigo-500 hover:bg-slate-100 dark:hover:bg-white/5'}`}
+          style={navText ? { color: navText } : undefined}
+          aria-label="All Tools"
+          title="All Tools"
+        >
+          <LayoutGrid size={17} />
+        </Link>
+
+        {/* Workspace — hidden on mobile */}
+        <Link
+          href="/workspace"
+          className={`hidden md:flex p-2 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5 ${navText ? '' : 'text-slate-400 hover:text-indigo-500 hover:bg-slate-100 dark:hover:bg-white/5'}`}
+          style={navText ? { color: navText } : undefined}
+          aria-label="My Workspace"
+          title="Workspace"
+        >
+          <Settings2 size={17} />
+        </Link>
+
+        {/* Coffee — hidden on mobile */}
         <a
           href="https://buymeacoffee.com/onetool"
           target="_blank"
           rel="noopener noreferrer"
-          className="p-2 rounded-lg text-slate-400 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+          className="hidden md:flex p-2 rounded-lg text-slate-400 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
           aria-label="Buy me a coffee"
         >
           <Coffee size={17} />
@@ -279,7 +308,7 @@ function HeaderContent() {
 
 export default function GlobalHeader() {
   return (
-    <Suspense fallback={<div className="h-14 border-b" style={{ backgroundColor: '#096464' }} />}>
+    <Suspense fallback={<div className="h-14 border-b bg-[#096464] dark:bg-[#096464]" />}>
       <HeaderContent />
     </Suspense>
   );

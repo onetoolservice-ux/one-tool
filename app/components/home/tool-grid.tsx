@@ -56,7 +56,7 @@ const SECTION_COLORS: Record<string, { iconBg: string; icon: string; text: strin
   Creator:      { iconBg: 'bg-orange-100 dark:bg-orange-500/15', icon: 'text-orange-600 dark:text-orange-400', text: 'text-orange-700 dark:text-orange-300', line: 'from-orange-300/60 dark:from-orange-700/60', count: 'bg-orange-100 text-orange-600 dark:bg-orange-500/15 dark:text-orange-400', edge: 'border-orange-500' },
 };
 
-export const ToolGrid = memo(({ searchQuery }: { searchQuery?: string }) => {
+export const ToolGrid = memo(({ searchQuery, categoryFilter }: { searchQuery?: string; categoryFilter?: string }) => {
   /* When searching, show a flat filtered grid */
   const searchResults = useMemo(() => {
     if (!searchQuery || searchQuery.trim() === '') return null;
@@ -65,13 +65,15 @@ export const ToolGrid = memo(({ searchQuery }: { searchQuery?: string }) => {
     return results.map(r => ALL_TRANSFORMED.find(t => t.id === r.id)!).filter(Boolean);
   }, [searchQuery]);
 
-  /* Group tools by category (preserving CATEGORY_ORDER) */
+  /* Group tools by category (preserving CATEGORY_ORDER), optionally filtered */
   const sections = useMemo(() => {
     return CATEGORY_ORDER.map(cat => ({
       category: cat,
       tools: ALL_TRANSFORMED.filter(t => t.category === cat),
-    })).filter(s => s.tools.length > 0);
-  }, []);
+    }))
+      .filter(s => s.tools.length > 0)
+      .filter(s => !categoryFilter || s.category.toLowerCase() === categoryFilter);
+  }, [categoryFilter]);
 
   /* Search mode: flat grid */
   if (searchResults !== null) {

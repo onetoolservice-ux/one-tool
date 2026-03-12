@@ -6,6 +6,7 @@ import { ErrorBoundary } from '@/app/components/shared/ErrorBoundary';
 import { LoadingSpinner } from '@/app/components/shared/LoadingSpinner';
 import { trackToolOpened, trackEvent } from '@/app/lib/telemetry';
 import { recordToolUse } from '@/app/hooks/useRecentTools';
+import { recordVisit } from '@/app/lib/home-store';
 
 // Tool component mapping
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -181,6 +182,7 @@ export function ToolLoader({ toolId, ...props }: ToolLoaderProps) {
     if (hasLoader) {
       trackToolOpened(toolId);
       recordToolUse(toolId);
+      recordVisit(toolId);
     } else {
       trackEvent('tool_not_found', { tool_id: toolId });
     }

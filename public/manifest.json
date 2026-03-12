@@ -1,7 +1,7 @@
 {
-  "name": "OneTool Enterprise",
+  "name": "OneTool",
   "short_name": "OneTool",
-  "description": "The Operating System for your daily work.",
+  "description": "60+ free online tools for finance, developer utilities, PDF tools, and productivity. No signup required.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -11,6 +11,12 @@
       "src": "/favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
   ]
 }

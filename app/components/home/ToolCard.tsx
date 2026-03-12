@@ -1,10 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getTheme } from '@/app/lib/theme-config';
 import { getIconComponent, type IconName } from '@/app/lib/utils/icon-mapper';
-import { Star } from 'lucide-react';
+import { Star, Pin } from 'lucide-react';
+import { isPinned, addPin, removePin } from '@/app/lib/home-store';
+import { useToast } from '@/app/components/ui/toast-system';
 
 // Per-tool unique icon gradients — overrides the category-wide default
 const TOOL_ICON_BG: Record<string, string> = {
@@ -151,6 +153,24 @@ export function ToolCard({ tool }: { tool: Tool }) {
     : null;
   const topEdge = CATEGORY_TOP_EDGE[tool.category] || 'from-slate-400 to-slate-300';
 
+  const [pinned, setPinned] = useState(false);
+  const { toast } = useToast();
+  useEffect(() => { setPinned(isPinned(tool.id)); }, [tool.id]);
+
+  const togglePin = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (pinned) {
+      removePin(tool.id);
+      setPinned(false);
+      toast(`Removed "${tool.name}" from My Home`, 'info');
+    } else {
+      addPin(tool.id);
+      setPinned(true);
+      toast(`"${tool.name}" pinned to My Home`, 'success');
+    }
+  };
+
   return (
     <Link href={href} className="group relative block" aria-label={`Open ${tool.name} tool`}>
       <article className="relative h-full rounded-xl bg-white dark:bg-[#151827] border border-slate-200/80 dark:border-white/[0.06] hover:border-slate-300 dark:hover:border-white/[0.12] transition-all duration-200 hover:shadow-lg hover:shadow-black/[0.04] dark:hover:shadow-black/25 flex flex-row overflow-hidden">
@@ -158,16 +178,30 @@ export function ToolCard({ tool }: { tool: Tool }) {
         <div className={`w-[3px] min-h-full bg-gradient-to-b ${topEdge} opacity-70 group-hover:opacity-100 transition-opacity flex-shrink-0`} />
 
         <div className="px-3.5 pt-3 pb-3 flex flex-col gap-2 flex-1 min-w-0">
-          {/* Top row: icon + popular badge */}
+          {/* Top row: icon + badges */}
           <div className="flex items-start justify-between">
             <div className={`w-10 h-10 min-w-[40px] flex items-center justify-center rounded-xl text-white shadow-sm transform group-hover:scale-110 group-hover:shadow-md transition-all duration-200 ${TOOL_ICON_BG[tool.id] ?? theme.iconBg}`}>
               {IconComponent ? <IconComponent size={18} /> : null}
             </div>
-            {tool.popular && (
-              <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                <Star size={10} fill="currentColor" />
-              </span>
-            )}
+            <div className="flex items-center gap-1">
+              {tool.popular && (
+                <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                  <Star size={10} fill="currentColor" />
+                </span>
+              )}
+              {/* Pin button — always visible, fills on pin */}
+              <button
+                onClick={togglePin}
+                title={pinned ? 'Remove from My Home' : 'Pin to My Home'}
+                className={`p-1 rounded-md transition-all duration-150 ${
+                  pinned
+                    ? 'text-indigo-500 dark:text-indigo-400'
+                    : 'text-slate-300 dark:text-slate-500 hover:text-indigo-500 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10'
+                }`}
+              >
+                <Pin size={13} fill={pinned ? 'currentColor' : 'none'} strokeWidth={pinned ? 0 : 2} />
+              </button>
+            </div>
           </div>
 
           {/* Name */}

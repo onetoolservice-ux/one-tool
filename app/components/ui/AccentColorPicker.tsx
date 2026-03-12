@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Palette, Check, RotateCcw } from 'lucide-react';
+import { Palette, Check, RotateCcw, Moon, Sun } from 'lucide-react';
+import { safeLocalStorage } from '@/app/lib/utils/storage';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -188,12 +189,15 @@ export function AccentSwatches({ value, onChange }: { value: string; onChange: (
 export function AccentColorPicker() {
   const [settings, setSettings] = useState<ThemeSettings>({ ...DEFAULTS });
   const [open, setOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const s = loadThemeSettings();
     setSettings(s);
     applyAllTheme(s);
+    // Sync dark mode state
+    setDarkMode(document.documentElement.classList.contains('dark'));
 
     const sync = (e: Event) => setSettings((e as CustomEvent<ThemeSettings>).detail);
     window.addEventListener('ot-theme-change', sync);
@@ -219,6 +223,18 @@ export function AccentColorPicker() {
     saveThemeSettings({ ...DEFAULTS });
   };
 
+  const toggleDark = () => {
+    const next = !darkMode;
+    if (next) {
+      document.documentElement.classList.add('dark');
+      safeLocalStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      safeLocalStorage.setItem('theme', 'light');
+    }
+    setDarkMode(next);
+  };
+
   const resolvedTextColor = resolveNavbarTextColor(settings);
   const navbarPickerColor = settings.navbar === 'auto' ? '#ffffff' : settings.navbar;
 
@@ -230,7 +246,7 @@ export function AccentColorPicker() {
         className="p-2 rounded-lg transition-colors hover:bg-slate-100 dark:hover:bg-white/5"
         style={{ color: open ? settings.logo : undefined }}
         aria-label="Customize theme"
-        title="Theme customizer"
+        title="Customize"
       >
         <Palette size={17} className={open ? '' : 'text-slate-400'} />
       </button>
@@ -238,6 +254,24 @@ export function AccentColorPicker() {
       {/* Panel */}
       {open && (
         <div className="absolute right-0 top-full mt-2 w-72 max-h-[85vh] overflow-y-auto bg-white dark:bg-[#1A1D2E] border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl shadow-black/12 dark:shadow-black/50 p-4 z-50 animate-in space-y-4">
+
+          {/* ── 0. Dark / Light mode ── */}
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Appearance</span>
+            <button
+              onClick={toggleDark}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
+                darkMode
+                  ? 'bg-slate-800 border-slate-600 text-slate-200'
+                  : 'bg-slate-100 border-slate-200 text-slate-700'
+              }`}
+            >
+              {darkMode ? <Moon size={13} /> : <Sun size={13} />}
+              {darkMode ? 'Dark' : 'Light'}
+            </button>
+          </div>
+
+          <Divider />
 
           {/* ── 1. Navbar Background ── */}
           <PickerSection label="Navbar Background">

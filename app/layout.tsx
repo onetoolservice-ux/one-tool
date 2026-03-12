@@ -18,6 +18,8 @@ const inter = Inter({
   preload: true,
 });
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://onetool.co.in";
+
 export const metadata: Metadata = {
   title: {
     default: "OneTool — Free Online Tools for Finance, Developer & Productivity",
@@ -26,13 +28,32 @@ export const metadata: Metadata = {
   description: "OneTool gives you 60+ free online tools — expense tracker, invoice generator, PDF tools, developer utilities, unit converters, and more. No signup. Works in your browser.",
   keywords: "free online tools, expense tracker, invoice generator, PDF merge, developer tools, unit converter, GST calculator, budget planner, QR code generator, JSON formatter, password generator, onetool",
   manifest: "/manifest.json",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://onetool.co.in"),
+  metadataBase: new URL(baseUrl),
+  alternates: {
+    canonical: baseUrl,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-snippet': -1,
+      'max-image-preview': 'large',
+      'max-video-preview': -1,
+    },
+  },
+  ...(process.env.NEXT_PUBLIC_GSC_VERIFICATION && {
+    verification: {
+      google: process.env.NEXT_PUBLIC_GSC_VERIFICATION,
+    },
+  }),
   openGraph: {
     type: "website",
     siteName: "OneTool",
     title: "OneTool — Free Online Tools for Finance, Developer & Productivity",
     description: "60+ free browser-based tools: expense tracker, invoice generator, PDF tools, developer utilities & more. No signup required.",
-    url: process.env.NEXT_PUBLIC_BASE_URL || "https://onetool.co.in",
+    url: baseUrl,
   },
   twitter: {
     card: "summary_large_image",
@@ -65,6 +86,41 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Organization structured data — helps Google identify the site entity */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: 'OneTool',
+              url: baseUrl,
+              logo: `${baseUrl}/logo/ots.svg`,
+              description: 'Free online tools for finance, developer utilities, PDF tools, and productivity. No signup required.',
+              sameAs: [],
+            }),
+          }}
+        />
+        {/* WebSite structured data — enables sitelinks searchbox in Google */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              name: 'OneTool',
+              url: baseUrl,
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: {
+                  '@type': 'EntryPoint',
+                  urlTemplate: `${baseUrl}/?q={search_term_string}`,
+                },
+                'query-input': 'required name=search_term_string',
+              },
+            }),
+          }}
+        />
         {/* AdSense — only loads when NEXT_PUBLIC_ADSENSE_ID is configured */}
         {process.env.NEXT_PUBLIC_ADSENSE_ID && (
           <Script
