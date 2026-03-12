@@ -144,10 +144,8 @@ export default function RootLayout({
                  </main>
               </div>
               <Toast />
-              {/* Google Analytics - only loads if NEXT_PUBLIC_ENABLE_ANALYTICS=true and NEXT_PUBLIC_GA_ID is set */}
-              {process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true' && (
-                <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
-              )}
+              {/* Google Analytics */}
+              <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || 'G-J4B6SYJZQF'} />
             </ToastProvider>
           </UIProvider>
         </ErrorBoundary>
