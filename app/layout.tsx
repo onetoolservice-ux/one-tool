@@ -22,11 +22,11 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://onetool.co.in";
 
 export const metadata: Metadata = {
   title: {
-    default: "OneTool — Free Online Tools for Finance, Developer & Productivity",
+    default: "OneTool — 150+ Free Online Tools for Finance, Business, Developer, Health & More",
     template: "%s | OneTool",
   },
-  description: "OneTool gives you 60+ free online tools — expense tracker, invoice generator, PDF tools, developer utilities, unit converters, and more. No signup. Works in your browser.",
-  keywords: "free online tools, expense tracker, invoice generator, PDF merge, developer tools, unit converter, GST calculator, budget planner, QR code generator, JSON formatter, password generator, onetool",
+  description: "OneTool gives you 150+ free online tools — GST calculator, EMI calculator, expense tracker, invoice generator, PDF tools, developer utilities, health calculators, AI tools, and more. No signup. Works in your browser.",
+  keywords: "free online tools India, GST calculator, EMI calculator, expense tracker, invoice generator, PDF merge, developer tools, unit converter, budget planner, QR code generator, JSON formatter, SIP calculator, salary slip generator, BMI calculator, business tools India, onetool",
   manifest: "/manifest.json",
   metadataBase: new URL(baseUrl),
   alternates: {

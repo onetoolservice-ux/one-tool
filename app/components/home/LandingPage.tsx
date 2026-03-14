@@ -90,6 +90,175 @@ export function LandingPage({ searchIntent }: Props) {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0F111A]">
 
+      {/* ── SEO content block — hidden from UI, read by Google ───────────── */}
+      <div className="sr-only">
+        <h1>OneTool — 150+ Free Online Tools for Finance, Business, Developer, Health &amp; More</h1>
+        <p>
+          OneTool is India&apos;s free all-in-one tool suite with 150+ utilities across 19 categories.
+          No signup. No account. No installation. Everything runs in your browser and your data stays on your device.
+        </p>
+
+        <section>
+          <h2>Free Personal Finance Tools India</h2>
+          <p>
+            Upload bank statements, track expenses, analyze spending patterns, view income vs outflow,
+            find top merchants, track subscriptions, monitor investments, check financial health score,
+            compare month-on-month spending — all free personal finance tools for Indians.
+          </p>
+        </section>
+
+        <section>
+          <h2>Free Finance Calculators India</h2>
+          <p>
+            EMI calculator, SIP calculator, GST calculator India, retirement planner, net worth calculator,
+            budget planner, FIRE calculator, debt planner, FD calculator, NPS calculator, PPF calculator,
+            HRA calculator, CTC calculator, gratuity calculator, capital gains calculator, tax saving comparison.
+          </p>
+        </section>
+
+        <section>
+          <h2>Free GST &amp; Tax Tools India</h2>
+          <p>
+            GST calculator with CGST SGST IGST, reverse GST calculator, income tax calculator India,
+            TDS rate finder, deduction tracker 80C 80D, advance tax calculator, ITR checklist,
+            tax calendar — free GST and income tax tools for India.
+          </p>
+        </section>
+
+        <section>
+          <h2>Free Business OS — Small Business Management Tools India</h2>
+          <p>
+            GST invoice generator, party ledger khata, inventory management, daybook income expense entry,
+            purchase management, staff payroll, business dashboard, P&amp;L report, outstanding payments,
+            quotation maker, business cash flow — free business management tools for small businesses in India.
+          </p>
+        </section>
+
+        <section>
+          <h2>Free Business Document Tools India</h2>
+          <p>
+            GST invoice maker, salary slip generator, rent receipt for HRA, employee ID card generator,
+            legal agreement template, NDA generator, service agreement creator — free business documents India.
+          </p>
+        </section>
+
+        <section>
+          <h2>Free Real Estate Tools India</h2>
+          <p>
+            Home loan EMI calculator, rent vs buy calculator, rental yield calculator,
+            stamp duty calculator India, property budget planner — free real estate calculators.
+          </p>
+        </section>
+
+        <section>
+          <h2>Free Career Tools India</h2>
+          <p>
+            Job offer comparison tool, freelance rate calculator, full and final settlement calculator,
+            work from home savings calculator, salary history tracker, ESOP value calculator,
+            career ROI calculator — free career planning tools.
+          </p>
+        </section>
+
+        <section>
+          <h2>Free Startup Tools for Founders</h2>
+          <p>
+            Burn rate calculator, equity dilution calculator, SaaS metrics dashboard,
+            project pricing tool — free startup financial tools for founders and entrepreneurs.
+          </p>
+        </section>
+
+        <section>
+          <h2>Free Travel Planning Tools</h2>
+          <p>
+            Trip budget planner, road trip cost calculator, forex currency calculator,
+            EV vs petrol cost comparison — free travel planning and budgeting tools.
+          </p>
+        </section>
+
+        <section>
+          <h2>Free CRM Tools — Personal &amp; Business</h2>
+          <p>
+            Personal CRM to manage relationships and contacts, business CRM with sales pipeline tracker,
+            lead management — free CRM tools no signup required.
+          </p>
+        </section>
+
+        <section>
+          <h2>Free PDF &amp; Document Tools</h2>
+          <p>
+            Merge PDF online free, split PDF, compress image, convert image format PNG JPG WebP AVIF,
+            OCR image to text, document scanner to PDF, markdown editor, CSV editor online,
+            JSON to CSV converter, universal file format converter — free document tools in browser.
+          </p>
+        </section>
+
+        <section>
+          <h2>Free Developer Tools Online</h2>
+          <p>
+            JSON formatter and validator, JWT decoder, regex tester online, SQL formatter,
+            cron expression generator, API playground REST tester, hash generator MD5 SHA256 SHA512,
+            text diff checker, number base converter binary hex decimal, Unix timestamp converter,
+            git commands cheat sheet — free online developer utilities no signup.
+          </p>
+        </section>
+
+        <section>
+          <h2>Free Productivity Tools Online</h2>
+          <p>
+            QR code generator free, strong password generator, Pomodoro timer online,
+            habit tracker, life OS planner — free productivity tools for daily use.
+          </p>
+        </section>
+
+        <section>
+          <h2>Free Unit Converters Online</h2>
+          <p>
+            Unit converter for length weight temperature volume speed area,
+            text case converter uppercase lowercase camelCase snake_case kebab-case,
+            metric to imperial converter — free online converters no signup.
+          </p>
+        </section>
+
+        <section>
+          <h2>Free Design Tools Online</h2>
+          <p>
+            Color picker HEX RGB HSL, CSS gradient generator linear radial conic,
+            color palette maker, contrast ratio checker — free web design tools.
+          </p>
+        </section>
+
+        <section>
+          <h2>Free Health &amp; Fitness Tools</h2>
+          <p>
+            BMI calculator India, HIIT interval workout timer, box breathing exercise tool,
+            calorie calculator, water intake tracker — free health and fitness tools online.
+          </p>
+        </section>
+
+        <section>
+          <h2>Free AI Tools Online</h2>
+          <p>
+            AI prompt generator for ChatGPT and Claude, AI chat assistant free,
+            sentiment analyzer, text emotion detector — free AI tools no signup required.
+          </p>
+        </section>
+
+        <section>
+          <h2>Free Creator &amp; Transcription Tools</h2>
+          <p>
+            Audio to text transcription free, speech to text browser, live transcription online,
+            Hindi multilingual voice transcription — free content creator tools.
+          </p>
+        </section>
+
+        <p>
+          OneTool has 150+ free tools across Personal Finance, Finance, GST &amp; Tax, Business OS,
+          Business, Real Estate, Career, Startup, Travel, Personal CRM, Business CRM, Documents,
+          Developer, Productivity, Converters, Design, Health, AI, and Creator categories.
+          All tools are free, work in your browser, and require no signup. India-focused. Local-first.
+        </p>
+      </div>
+
       {/* ── Search intent banner ─────────────────────────────────────────── */}
       {searchIntent && (
         <div className="bg-indigo-600 text-white px-4 py-2.5 text-center text-sm">
