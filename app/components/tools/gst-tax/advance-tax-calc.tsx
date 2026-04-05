@@ -2,6 +2,7 @@
 import { useState, useMemo } from 'react';
 import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
 import { AlertTriangle, Info } from 'lucide-react';
+import { TaxDisclaimer } from './TaxDisclaimer';
 
 const fmt = (n: number) =>
   new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
@@ -106,6 +107,7 @@ export function AdvanceTaxCalc() {
         subtitle="Quarterly advance tax instalments — FY 2025-26"
         kpis={kpis}
       />
+      <TaxDisclaimer />
       <div className="p-4 space-y-4">
         {/* Tax Regime */}
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">

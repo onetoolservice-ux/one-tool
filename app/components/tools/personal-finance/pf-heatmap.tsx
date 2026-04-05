@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { Download } from 'lucide-react';
 import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
 import { fmtINR, getPFTransactions, getAccounts, type PFTransaction, type PFAccount } from './finance-store';
 
@@ -21,6 +22,8 @@ function getIntensityClass(amount: number, max: number): string {
 }
 
 export function SpendingHeatmap() {
+  const heatmapRef = useRef<HTMLDivElement>(null);
+  const [exportingPng, setExportingPng] = useState(false);
   const [mounted, setMounted]   = useState(false);
   const [allTxns, setAllTxns]   = useState<PFTransaction[]>([]);
   const [accounts, setAccounts] = useState<PFAccount[]>([]);
@@ -67,6 +70,23 @@ export function SpendingHeatmap() {
     return txns;
   }, [allTxns, selectedDay, accountFilter]);
 
+  const exportPng = async () => {
+    if (!heatmapRef.current) return;
+    setExportingPng(true);
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(heatmapRef.current, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+      const link = document.createElement('a');
+      link.download = `spending-heatmap-${selectedYear}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (e) {
+      console.error('Export failed', e);
+    } finally {
+      setExportingPng(false);
+    }
+  };
+
   if (!mounted) return null;
 
   return (
@@ -110,10 +130,17 @@ export function SpendingHeatmap() {
             ))}
             <span className="text-[10px] text-slate-400">High</span>
           </div>
+          <button
+            onClick={exportPng}
+            disabled={exportingPng || yearTotal === 0}
+            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white transition-colors disabled:opacity-40"
+          >
+            <Download size={12} /> {exportingPng ? 'Exporting…' : 'Export PNG'}
+          </button>
         </div>
 
         {/* Calendar Grid */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-4 space-y-3 overflow-x-auto">
+        <div ref={heatmapRef} className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-4 space-y-3 overflow-x-auto">
           {MONTH_NAMES.map((mon, mi) => {
             const daysInMonth = new Date(selectedYear, mi + 1, 0).getDate();
             return (

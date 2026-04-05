@@ -1,8 +1,10 @@
 "use client";
-import React, { useState, useEffect, useMemo } from 'react';
-import { TrendingUp, TrendingDown, Wallet, ShieldCheck, BarChart3, ExternalLink, RefreshCw, Info } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { TrendingUp, TrendingDown, Wallet, ShieldCheck, BarChart3, ExternalLink, RefreshCw, Info, Camera } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
+import { getPFFinanceSummary } from '../finance/pf-data-bridge';
+import { safeLocalStorage } from '@/app/lib/utils/storage';
 
 const fmt = (n: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
 const fmtL = (n: number) => {
@@ -10,31 +12,21 @@ const fmtL = (n: number) => {
   if (Math.abs(n) >= 1e5) return `₹${(n / 1e5).toFixed(2)} L`;
   return fmt(n);
 };
-
-// Read from localStorage stores
-function readPFStore() {
-  try {
-    const s = localStorage.getItem('otsd-pf-store');
-    return s ? JSON.parse(s) : null;
-  } catch { return null; }
+// Read from localStorage stores (investment + budget + biz remain on their own stores)
+function readInvestmentStore(): { investedAmount: number; currentValue: number; type: string }[] {
+  return safeLocalStorage.getItem<{ investedAmount: number; currentValue: number; type: string }[]>(
+    'otsd-investment-tracker', []
+  ) ?? [];
 }
-function readInvestmentStore() {
-  try {
-    const s = localStorage.getItem('otsd-investment-tracker');
-    return s ? JSON.parse(s) : [];
-  } catch { return []; }
+function readBudgetStore(): { categories: { budget: number; actual: number }[] } | null {
+  return safeLocalStorage.getItem<{ categories: { budget: number; actual: number }[] }>(
+    'otsd-budget-vs-actual', null
+  );
 }
-function readBudgetStore() {
-  try {
-    const s = localStorage.getItem('otsd-budget-vs-actual');
-    return s ? JSON.parse(s) : null;
-  } catch { return null; }
-}
-function readBizStore() {
-  try {
-    const s = localStorage.getItem('otsd-biz-os-store');
-    return s ? JSON.parse(s) : null;
-  } catch { return null; }
+function readBizStore(): { transactions?: { type: string; amount: number }[] } | null {
+  return safeLocalStorage.getItem<{ transactions?: { type: string; amount: number }[] }>(
+    'otsd-biz-os-store', null
+  );
 }
 
 interface SnapshotData {
@@ -62,6 +54,8 @@ interface SnapshotData {
 const CATEGORY_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#f97316', '#8b5cf6', '#06b6d4', '#ec4899'];
 
 export const PFFinancialSnapshot = () => {
+  const snapshotRef = useRef<HTMLDivElement>(null);
+  const [capturingPng, setCapturingPng] = useState(false);
   const [data, setData] = useState<SnapshotData>({
     monthlyIncome: 0, monthlyExpenses: 0, savingsRate: 0,
     totalInvested: 0, currentPortfolioValue: 0, portfolioGain: 0,
@@ -71,27 +65,38 @@ export const PFFinancialSnapshot = () => {
   });
   const [lastUpdated, setLastUpdated] = useState('');
 
+  const captureScreenshot = async () => {
+    if (!snapshotRef.current) return;
+    setCapturingPng(true);
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(snapshotRef.current, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+      const link = document.createElement('a');
+      link.download = `financial-snapshot-${new Date().toISOString().slice(0, 10)}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (e) {
+      console.error('Screenshot failed', e);
+    } finally {
+      setCapturingPng(false);
+    }
+  };
+
   const refresh = () => {
-    const pf = readPFStore();
     const investments: { investedAmount: number; currentValue: number }[] = readInvestmentStore();
     const budget = readBudgetStore();
     const biz = readBizStore();
 
-    // PF data
+    // PF data — use proper store functions (not raw JSON parsing)
     let monthlyIncome = 0;
     let monthlyExpenses = 0;
-    if (pf?.transactions?.length) {
-      const now = new Date();
-      const last3Months = pf.transactions.filter((t: { date: string }) => {
-        const d = new Date(t.date);
-        const diff = (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth());
-        return diff < 3;
-      });
-      const income = last3Months.filter((t: { amount: number }) => t.amount > 0).reduce((s: number, t: { amount: number }) => s + t.amount, 0);
-      const expense = last3Months.filter((t: { amount: number }) => t.amount < 0).reduce((s: number, t: { amount: number }) => s + Math.abs(t.amount), 0);
-      monthlyIncome = income / 3;
-      monthlyExpenses = expense / 3;
-    }
+    try {
+      const pfSummary = getPFFinanceSummary(3);
+      if (pfSummary.hasData) {
+        monthlyIncome   = pfSummary.avgMonthlyIncome;
+        monthlyExpenses = pfSummary.avgMonthlyExpense;
+      }
+    } catch { /* no statements uploaded yet */ }
 
     // Investments
     const totalInvested = investments.reduce((s, i) => s + i.investedAmount, 0);
@@ -128,7 +133,7 @@ export const PFFinancialSnapshot = () => {
       hasBusinessData: !!biz?.transactions?.length,
       businessRevenue, businessExpenses, businessProfit: businessRevenue - businessExpenses,
       netWorthEstimate,
-      hasData: !!(pf?.transactions?.length || investments.length || budget?.categories?.length),
+      hasData: !!(monthlyIncome > 0 || investments.length || budget?.categories?.length),
     });
     setLastUpdated(new Date().toLocaleTimeString('en-IN'));
   };
@@ -202,14 +207,20 @@ export const PFFinancialSnapshot = () => {
         {/* Refresh */}
         <div className="flex items-center justify-between">
           <p className="text-xs text-slate-400">{lastUpdated ? `Last updated: ${lastUpdated}` : ''}</p>
-          <button onClick={refresh}
-            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-            <RefreshCw className="w-3.5 h-3.5" /> Refresh
-          </button>
+          <div className="flex gap-2">
+            <button onClick={refresh}
+              className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+              <RefreshCw className="w-3.5 h-3.5" /> Refresh
+            </button>
+            <button onClick={captureScreenshot} disabled={capturingPng || !data.hasData}
+              className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-violet-600 dark:text-violet-400 bg-white dark:bg-slate-900 border border-violet-200 dark:border-violet-800 rounded-xl hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors disabled:opacity-40">
+              <Camera className="w-3.5 h-3.5" /> {capturingPng ? 'Saving…' : 'Screenshot'}
+            </button>
+          </div>
         </div>
 
         {/* Pillars */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div ref={snapshotRef} className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {pillars.map(p => (
             <div key={p.id} className={`rounded-xl p-4 border ${p.bgColor} ${p.borderColor}`}>
               <div className="flex items-center gap-2 mb-2">
@@ -301,7 +312,7 @@ export const PFFinancialSnapshot = () => {
             <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
               <BarChart3 className="w-4 h-4 text-violet-500" /> Business OS Summary
             </h3>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
                 { label: 'Revenue', value: data.businessRevenue, color: 'text-emerald-600 dark:text-emerald-400' },
                 { label: 'Expenses', value: data.businessExpenses, color: 'text-red-500' },

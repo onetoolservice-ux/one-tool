@@ -97,6 +97,13 @@ export function resolveNavbarTextColor(s: ThemeSettings): string | null {
 
 export function applyAccentColor(color: string) {
   document.documentElement.style.setProperty('--ot-accent', color);
+  // Also set the RGB triplet so Tailwind opacity modifiers (bg-accent/10 etc.) work
+  const r = parseInt(color.slice(1, 3), 16);
+  const g = parseInt(color.slice(3, 5), 16);
+  const b = parseInt(color.slice(5, 7), 16);
+  if (!isNaN(r) && !isNaN(g) && !isNaN(b)) {
+    document.documentElement.style.setProperty('--ot-accent-rgb', `${r}, ${g}, ${b}`);
+  }
 }
 
 export function applyLogoColor(color: string) {
@@ -186,7 +193,7 @@ export function AccentSwatches({ value, onChange }: { value: string; onChange: (
 
 // ── Main Dropdown ─────────────────────────────────────────────────────────────
 
-export function AccentColorPicker() {
+export function AccentColorPicker({ navText }: { navText?: string | null } = {}) {
   const [settings, setSettings] = useState<ThemeSettings>({ ...DEFAULTS });
   const [open, setOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
@@ -196,8 +203,13 @@ export function AccentColorPicker() {
     const s = loadThemeSettings();
     setSettings(s);
     applyAllTheme(s);
-    // Sync dark mode state
-    setDarkMode(document.documentElement.classList.contains('dark'));
+    // Sync dark mode state — respect OS preference when no stored value
+    const stored = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = stored === 'dark' || (stored === null && prefersDark);
+    if (isDark) document.documentElement.classList.add('dark');
+    else document.documentElement.classList.remove('dark');
+    setDarkMode(isDark);
 
     const sync = (e: Event) => setSettings((e as CustomEvent<ThemeSettings>).detail);
     window.addEventListener('ot-theme-change', sync);
@@ -243,12 +255,12 @@ export function AccentColorPicker() {
       {/* Trigger */}
       <button
         onClick={() => setOpen(o => !o)}
-        className="p-2 rounded-lg transition-colors hover:bg-slate-100 dark:hover:bg-white/5"
-        style={{ color: open ? settings.logo : undefined }}
+        className={`p-2 rounded-lg transition-colors ${navText ? 'hover:bg-black/5 dark:hover:bg-white/5' : 'hover:bg-slate-100 dark:hover:bg-white/5'}`}
+        style={{ color: open ? settings.logo : (navText ?? undefined) }}
         aria-label="Customize theme"
         title="Customize"
       >
-        <Palette size={17} className={open ? '' : 'text-slate-400'} />
+        <Palette size={17} className={open || navText ? '' : 'text-slate-400'} />
       </button>
 
       {/* Panel */}

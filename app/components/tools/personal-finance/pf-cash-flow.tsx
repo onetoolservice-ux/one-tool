@@ -445,7 +445,7 @@ export function Income() {
   if (!mounted) return null;
   const hasData = allTxns.length > 0;
 
-  const inputCls = 'text-sm border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-1.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200';
+  const inputCls = 'text-sm border border-slate-400 dark:border-slate-600 rounded-lg px-3 py-1.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200';
 
   return (
     <div className="space-y-0">
@@ -596,10 +596,10 @@ export function Income() {
       )}
 
       {/* ── Filter Bar ──────────────────────────────────────────────────────── */}
-      <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 overflow-hidden">
+      <div className="bg-slate-50 dark:bg-slate-900 border-b border-slate-300 dark:border-slate-700 overflow-hidden">
 
         {/* Filter bar header — SAP style: white bar, Go + Hide Filter Bar + Filters (N) on right */}
-        <div className="flex items-center justify-end gap-3 px-4 py-2 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+        <div className="flex items-center justify-end gap-3 px-4 py-2 border-b border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
 
           <span className="text-sm font-semibold text-blue-600 dark:text-blue-400 mr-auto">
             Filters
@@ -733,7 +733,7 @@ export function Income() {
             {!hiddenFilters.has('name') && (
               <div className="flex flex-col gap-1 col-span-2 sm:col-span-1">
                 <label className="text-xs font-normal text-slate-700 dark:text-slate-300">Name:</label>
-                <div className="flex border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden bg-white dark:bg-slate-900 focus-within:border-blue-400 dark:focus-within:border-blue-500 transition-colors">
+                <div className="flex border border-slate-400 dark:border-slate-600 rounded-lg overflow-hidden bg-white dark:bg-slate-900 focus-within:border-blue-500 dark:focus-within:border-blue-500 transition-colors">
                   <input
                     type="text"
                     placeholder="Quick search…"

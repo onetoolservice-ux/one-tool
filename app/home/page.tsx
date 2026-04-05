@@ -9,6 +9,7 @@ import { PinHintBanner } from '@/app/components/home/PinHintBanner';
 function CatalogContent() {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search') || '';
+  const categoryFilter = searchParams.get('category') || undefined;
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -24,7 +25,7 @@ function CatalogContent() {
       </Script>
       <main className="overflow-y-auto custom-scrollbar px-4 md:px-6 lg:px-8 pt-4 pb-8">
         <PinHintBanner />
-        <ToolGrid searchQuery={searchQuery} />
+        <ToolGrid searchQuery={searchQuery} categoryFilter={categoryFilter} />
       </main>
     </div>
   );

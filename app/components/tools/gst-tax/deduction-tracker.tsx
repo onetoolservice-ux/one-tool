@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { AlertTriangle, Info, CheckCircle2, TrendingDown } from 'lucide-react';
 import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
+import { TaxDisclaimer } from './TaxDisclaimer';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TAX DEDUCTION PLANNER — 80C / 80D and all major deductions FY 2024-25
@@ -182,6 +183,7 @@ export function DeductionTracker() {
         subtitle="Plan your deductions to minimize income tax — FY 2024-25 (Old Regime)"
         kpis={kpis}
       />
+      <TaxDisclaimer />
 
       <div className="p-4 space-y-4">
         {/* Tax bracket selector */}

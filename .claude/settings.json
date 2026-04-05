@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep \"pf-.*\\\\.tsx$\")",
+      "Bash(wc -l \"c:\\\\Users\\\\Aman Mishra\\\\OneDrive\\\\Desktop\\\\OTSD\\\\one-tool\\\\app\\\\components\\\\tools\\\\personal-finance\"/pf-*.tsx)"
+    ]
+  }
+}

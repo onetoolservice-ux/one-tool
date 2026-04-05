@@ -7,31 +7,7 @@ import { addPin, removePin, getPinsForSpace } from '@/app/lib/home-store';
 import { getIconComponent, type IconName } from '@/app/lib/utils/icon-mapper';
 import { getTheme } from '@/app/lib/theme-config';
 
-const TOOL_ICON_BG: Record<string, string> = {
-  'biz-dashboard':         'bg-gradient-to-br from-blue-600 to-indigo-600',
-  'biz-daybook':           'bg-gradient-to-br from-emerald-500 to-teal-600',
-  'biz-parties':           'bg-gradient-to-br from-violet-500 to-purple-600',
-  'biz-invoices':          'bg-gradient-to-br from-amber-500 to-orange-500',
-  'biz-products':          'bg-gradient-to-br from-cyan-500 to-blue-500',
-  'biz-inventory':         'bg-gradient-to-br from-teal-500 to-emerald-500',
-  'biz-reports':           'bg-gradient-to-br from-indigo-500 to-blue-600',
-  'biz-outstanding':       'bg-gradient-to-br from-rose-500 to-red-600',
-  'pf-statement-manager':  'bg-gradient-to-br from-blue-500 to-indigo-600',
-  'pf-expenses':           'bg-gradient-to-br from-red-500 to-rose-600',
-  'pf-cash-flow':          'bg-gradient-to-br from-teal-500 to-cyan-500',
-  'pf-ai-analyst':         'bg-gradient-to-br from-violet-600 to-fuchsia-500',
-  'gst-calculator':        'bg-gradient-to-br from-orange-500 to-amber-600',
-  'smart-budget':          'bg-gradient-to-br from-emerald-500 to-teal-600',
-  'smart-loan':            'bg-gradient-to-br from-green-600 to-emerald-500',
-  'dev-station':           'bg-gradient-to-br from-violet-600 to-purple-700',
-  'smart-pdf-merge':       'bg-gradient-to-br from-red-600 to-rose-500',
-  'smart-json':            'bg-gradient-to-br from-orange-500 to-amber-500',
-  'smart-bmi':             'bg-gradient-to-br from-teal-500 to-cyan-600',
-  'life-os':               'bg-gradient-to-br from-rose-500 to-pink-600',
-  'qr-code':               'bg-gradient-to-br from-slate-700 to-slate-900',
-  'color-picker':          'bg-gradient-to-br from-pink-500 to-rose-600',
-  'prompt-generator':      'bg-gradient-to-br from-fuchsia-500 to-purple-600',
-};
+import { TOOL_ICON_BG } from '@/app/lib/tool-icon-bg';
 
 interface Props {
   spaceId: string;
@@ -107,7 +83,7 @@ export function SpaceToolPicker({ spaceId, spaceName, onClose }: Props) {
               type="text"
               value={query}
               onChange={e => setQuery(e.target.value)}
-              placeholder="Search 158 tools…"
+              placeholder={`Search ${ALL_TOOLS.length} tools…`}
               className="w-full pl-9 pr-4 py-2 text-sm rounded-lg bg-slate-100 dark:bg-white/[0.06] border border-transparent focus:border-indigo-400 dark:focus:border-indigo-500 focus:outline-none text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors"
             />
           </div>

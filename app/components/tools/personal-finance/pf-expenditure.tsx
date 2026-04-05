@@ -10,7 +10,8 @@ import {
   addUserCategory, bulkApplyCategoryOverride,
   getAvailableMonths, getPeriodRange,
   getStatementCoverageRange, getLastUpdatedTimestamp,
-  type PFAccount, type PFStatement, type PFTransaction,
+  getLabels, loadPFStore,
+  type PFAccount, type PFStatement, type PFTransaction, type PFLabel,
   fmtINR, fmtPct,
 } from './finance-store';
 
@@ -23,7 +24,7 @@ import {
 // Table primary, optional bar chart.
 // ═══════════════════════════════════════════════════════════════════════════════
 
-type ViewBy  = 'category' | 'merchant' | 'month';
+type ViewBy  = 'category' | 'merchant' | 'month' | 'label';
 type AggMode = 'sum' | 'avg' | 'count';
 type SortBy  = 'amount' | 'count' | 'name' | 'pct';
 
@@ -77,6 +78,7 @@ export function ExpenditureDistribution() {
   const [statements, setStatements] = useState<PFStatement[]>([]);
   const [allTxns, setAllTxns]   = useState<PFTransaction[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
+  const [labels, setLabels]     = useState<PFLabel[]>([]);
 
   // Controls
   const [period, setPeriod]       = useState('all');
@@ -106,6 +108,7 @@ export function ExpenditureDistribution() {
     setStatements(getStatements());
     setAllTxns(getPFTransactions());
     setCategories(getAllCategories());
+    setLabels(getLabels());
   };
 
   useEffect(() => {
@@ -129,6 +132,19 @@ export function ExpenditureDistribution() {
   }, [showStmtVH]);
 
   const availableMonths = useMemo(() => getAvailableMonths(), [allTxns]);
+
+  // Build txnId → label names map for label view
+  const txnLabelMap = useMemo(() => {
+    const store = loadPFStore();
+    const map = new Map<string, string[]>();
+    for (const lm of store.labelMaps ?? []) {
+      const label = labels.find(l => l.id === lm.labelId);
+      if (!label) continue;
+      if (!map.has(lm.transactionId)) map.set(lm.transactionId, []);
+      map.get(lm.transactionId)!.push(label.name);
+    }
+    return map;
+  }, [labels]);
 
   const filteredStmts = useMemo(
     () => stmtFilterAcct === 'all' ? statements : statements.filter(s => s.accountId === stmtFilterAcct),
@@ -167,7 +183,28 @@ export function ExpenditureDistribution() {
   }, [allTxns, statementId, period, showMoM]);
 
   const rows = useMemo(() => {
-    const curr = buildRows(base, viewBy, agg);
+    let curr: CategoryRow[];
+    if (viewBy === 'label') {
+      // Group transactions by label; unlabeled go to "Unlabeled"
+      const labelMap = new Map<string, { txns: PFTransaction[]; ids: string[] }>();
+      const total = base.reduce((s, t) => s + t.amount, 0);
+      for (const t of base) {
+        const txnLabels = txnLabelMap.get(t.id) ?? ['Unlabeled'];
+        for (const lname of txnLabels) {
+          if (!labelMap.has(lname)) labelMap.set(lname, { txns: [], ids: [] });
+          labelMap.get(lname)!.txns.push(t);
+          labelMap.get(lname)!.ids.push(t.id);
+        }
+      }
+      curr = Array.from(labelMap.entries()).map(([key, { txns: groupTxns, ids }]) => {
+        const sum   = groupTxns.reduce((s, t) => s + t.amount, 0);
+        const count = groupTxns.length;
+        const amount = agg === 'sum' ? sum : agg === 'avg' ? sum / count : count;
+        return { key, amount, count, pct: total > 0 ? (sum / total) * 100 : 0, prevAmount: 0, prevCount: 0, txnIds: ids };
+      });
+    } else {
+      curr = buildRows(base, viewBy, agg);
+    }
     const prev = buildRows(prevBase, viewBy, agg);
     const prevMap: Record<string, CategoryRow> = {};
     prev.forEach(r => { prevMap[r.key] = r; });
@@ -176,7 +213,7 @@ export function ExpenditureDistribution() {
       prevAmount: prevMap[r.key]?.amount ?? 0,
       prevCount:  prevMap[r.key]?.count  ?? 0,
     }));
-  }, [base, prevBase, viewBy, agg]);
+  }, [base, prevBase, viewBy, agg, txnLabelMap]);
 
   const sorted = useMemo(() => {
     return [...rows].sort((a, b) => {
@@ -372,7 +409,7 @@ export function ExpenditureDistribution() {
             <>
               <PFBadge color="slate">{fmtINR(totalAmount)} total</PFBadge>
               <PFBadge color="blue">
-                {sorted.length} {viewBy === 'category' ? 'categories' : viewBy === 'merchant' ? 'merchants' : 'months'}
+                {sorted.length} {viewBy === 'category' ? 'categories' : viewBy === 'merchant' ? 'merchants' : viewBy === 'month' ? 'months' : 'labels'}
               </PFBadge>
               <PFBadge color="slate">{base.length} txns</PFBadge>
             </>
@@ -381,10 +418,10 @@ export function ExpenditureDistribution() {
             <>
               {/* View By */}
               <div className="flex border border-slate-300 dark:border-slate-600 rounded-lg p-0.5 bg-slate-50 dark:bg-slate-800">
-                {(['category', 'merchant', 'month'] as ViewBy[]).map(v => (
+                {(['category', 'merchant', 'month', 'label'] as ViewBy[]).map(v => (
                   <button key={v} onClick={() => setViewBy(v)}
                     className={`text-xs font-semibold px-2.5 py-1 rounded-md transition-colors ${viewBy === v ? 'bg-[#0070F3] text-white' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-200'}`}>
-                    {v === 'category' ? 'Category' : v === 'merchant' ? 'Merchant' : 'Month'}
+                    {v === 'category' ? 'Category' : v === 'merchant' ? 'Merchant' : v === 'month' ? 'Month' : 'Label'}
                   </button>
                 ))}
               </div>
@@ -424,7 +461,9 @@ export function ExpenditureDistribution() {
           </div>
         ) : sorted.length === 0 ? (
           <div className="text-center py-10 text-slate-400 text-sm">
-            No transactions found for the selected filters.
+            {viewBy === 'label' && labels.length === 0
+              ? 'No labels created yet. Create labels in Label Manager and assign them to transactions.'
+              : 'No transactions found for the selected filters.'}
           </div>
         ) : (
           <>
@@ -456,7 +495,7 @@ export function ExpenditureDistribution() {
               <thead>
                 <tr className="bg-slate-50 dark:bg-slate-800 text-slate-500 text-[10px] uppercase tracking-wide">
                   <th className="px-4 py-3 text-left font-semibold">
-                    {viewBy === 'category' ? 'Category' : viewBy === 'merchant' ? 'Merchant' : 'Month'}
+                    {viewBy === 'category' ? 'Category' : viewBy === 'merchant' ? 'Merchant' : viewBy === 'month' ? 'Month' : 'Label'}
                   </th>
                   <th className="px-4 py-3 text-right font-semibold">{agg === 'count' ? 'Count' : agg === 'avg' ? 'Avg / Txn' : 'Amount'}</th>
                   <th className="px-4 py-3 text-right font-semibold">Txns</th>
@@ -517,7 +556,7 @@ export function ExpenditureDistribution() {
                         )}
                         <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                           <div className="flex items-center justify-center gap-1">
-                            {viewBy === 'category' && (
+                            {(viewBy === 'category') && (
                               <>
                                 <button title="Rename"
                                   onClick={() => { setRenamingKey(r.key); setRenameValue(r.key); setMergingKey(null); }}

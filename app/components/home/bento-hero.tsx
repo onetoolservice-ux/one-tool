@@ -22,9 +22,9 @@ export const BentoHero = () => {
 
   const cards = [
     { id: 'invoice', name: 'Invoice', icon: FileText, color: 'bg-indigo-600', href: '/tools/business/invoice-generator', desc: 'Create PDF' },
-    { id: 'pdf', name: 'PDF Tools', icon: Layers, color: 'bg-rose-500', href: '/tools/documents/smart-pdf-merge', desc: 'Merge/Split' },
-    { id: 'convert', name: 'Converter', icon: RefreshCw, color: 'bg-teal-600', href: '/tools/documents/universal-converter', desc: 'Any Format' },
-    { id: 'finance', name: 'Budget', icon: Wallet, color: 'bg-amber-500', href: '/tools/finance/smart-budget', desc: 'Track $$' },
+    { id: 'pdf', name: 'PDF Tools', icon: Layers, color: 'bg-amber-500', href: '/tools/documents/smart-pdf-merge', desc: 'Merge/Split' },
+    { id: 'convert', name: 'Converter', icon: RefreshCw, color: 'bg-cyan-500', href: '/tools/documents/universal-converter', desc: 'Any Format' },
+    { id: 'finance', name: 'Budget', icon: Wallet, color: 'bg-emerald-500', href: '/tools/finance/smart-budget', desc: 'Track $$' },
   ];
 
   return (

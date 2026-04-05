@@ -1,8 +1,10 @@
 "use client";
 import React, { useState, useEffect, useMemo } from 'react';
-import { BarChart3, Plus, Trash2, Info, AlertTriangle, CheckCircle2, TrendingDown } from 'lucide-react';
+import { BarChart3, Plus, Trash2, Info, AlertTriangle, CheckCircle2, TrendingDown, RefreshCw, X } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, ReferenceLine } from 'recharts';
 import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
+import { getPFTransactions } from './finance-store';
+import { safeLocalStorage } from '@/app/lib/utils/storage';
 
 const fmt = (n: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
 
@@ -31,13 +33,13 @@ const DEFAULT_CATEGORIES: CategoryBudget[] = [
 const STORAGE_KEY = 'otsd-budget-vs-actual';
 
 function load(): { categories: CategoryBudget[]; monthlyIncome: number } {
-  try {
-    const s = localStorage.getItem(STORAGE_KEY);
-    return s ? JSON.parse(s) : { categories: DEFAULT_CATEGORIES, monthlyIncome: 75000 };
-  } catch { return { categories: DEFAULT_CATEGORIES, monthlyIncome: 75000 }; }
+  return safeLocalStorage.getItem<{ categories: CategoryBudget[]; monthlyIncome: number }>(
+    STORAGE_KEY,
+    { categories: DEFAULT_CATEGORIES, monthlyIncome: 75000 }
+  ) ?? { categories: DEFAULT_CATEGORIES, monthlyIncome: 75000 };
 }
 function save(data: { categories: CategoryBudget[]; monthlyIncome: number }) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  safeLocalStorage.setItem(STORAGE_KEY, data);
 }
 
 export const BudgetVsActual = () => {
@@ -45,6 +47,8 @@ export const BudgetVsActual = () => {
   const [monthlyIncome, setMonthlyIncome] = useState(75000);
   const [showAdd, setShowAdd] = useState(false);
   const [newCat, setNewCat] = useState({ category: '', budget: 0, actual: 0 });
+  const [showSync, setShowSync] = useState(false);
+  const [syncPreview, setSyncPreview] = useState<{ id: string; category: string; suggested: number; pfMatches: string[] }[]>([]);
   const [month, setMonth] = useState(() => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
@@ -68,9 +72,53 @@ export const BudgetVsActual = () => {
 
   const addCategory = () => {
     if (!newCat.category) return;
+    if (newCat.budget <= 0) return;
     setCategories(prev => [...prev, { ...newCat, id: Date.now().toString() }]);
     setNewCat({ category: '', budget: 0, actual: 0 });
     setShowAdd(false);
+  };
+
+  // ── Sync actuals from transactions ──────────────────────────────────────────
+  const buildSyncPreview = () => {
+    const txns = getPFTransactions({ type: 'debit' }).filter(
+      t => t.date.startsWith(month) && !t.isTransfer
+    );
+    const pfTotals: Record<string, number> = {};
+    for (const t of txns) {
+      pfTotals[t.category] = (pfTotals[t.category] ?? 0) + t.amount;
+    }
+
+    const preview = categories.map(cat => {
+      const budgetLower = cat.category.toLowerCase();
+      const matchedPF: string[] = [];
+      let suggested = 0;
+      for (const [pfCat, amount] of Object.entries(pfTotals)) {
+        const pfLower = pfCat.toLowerCase();
+        const budgetWords = budgetLower.split(/[\s\/&,+\-]+/).filter(w => w.length > 2);
+        const pfWords     = pfLower.split(/[\s\/&,+\-]+/).filter(w => w.length > 2);
+        const hasOverlap  = budgetWords.some(bw => pfWords.some(pw => pw.includes(bw) || bw.includes(pw)));
+        if (pfLower === budgetLower || budgetLower.includes(pfLower) || pfLower.includes(budgetLower) || hasOverlap) {
+          matchedPF.push(pfCat);
+          suggested += amount;
+        }
+      }
+      return { id: cat.id, category: cat.category, suggested: Math.round(suggested), pfMatches: matchedPF };
+    });
+
+    setSyncPreview(preview);
+    setShowSync(true);
+  };
+
+  const applySyncRow = (id: string, value: number) => {
+    setCategories(prev => prev.map(c => c.id === id ? { ...c, actual: value } : c));
+  };
+
+  const applyAllSync = () => {
+    setCategories(prev => prev.map(c => {
+      const match = syncPreview.find(p => p.id === c.id);
+      return match && match.suggested > 0 ? { ...c, actual: match.suggested } : c;
+    }));
+    setShowSync(false);
   };
 
   const stats = useMemo(() => {
@@ -119,14 +167,20 @@ export const BudgetVsActual = () => {
             <input type="number" className={inputCls + ' w-36'} value={monthlyIncome}
               onChange={e => setMonthlyIncome(+e.target.value)} />
           </div>
-          <button onClick={() => setShowAdd(!showAdd)}
-            className="ml-auto flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-xl text-sm font-semibold hover:bg-blue-600 transition-colors">
-            <Plus className="w-4 h-4" /> Add Category
-          </button>
+          <div className="ml-auto flex items-center gap-2">
+            <button onClick={buildSyncPreview}
+              className="flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-xl text-sm font-semibold hover:bg-emerald-600 transition-colors">
+              <RefreshCw className="w-4 h-4" /> Sync Actuals
+            </button>
+            <button onClick={() => setShowAdd(!showAdd)}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-xl text-sm font-semibold hover:bg-blue-600 transition-colors">
+              <Plus className="w-4 h-4" /> Add Category
+            </button>
+          </div>
         </div>
 
         {showAdd && (
-          <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-blue-200 dark:border-blue-800 grid grid-cols-3 gap-3">
+          <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-blue-200 dark:border-blue-800 grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="space-y-1">
               <label className={labelCls}>Category Name</label>
               <input type="text" className={inputCls} placeholder="e.g. Dining Out" value={newCat.category}
@@ -142,9 +196,53 @@ export const BudgetVsActual = () => {
               <input type="number" className={inputCls} value={newCat.actual || ''}
                 onChange={e => setNewCat(n => ({ ...n, actual: +e.target.value }))} />
             </div>
-            <div className="col-span-3 flex gap-2">
+            <div className="sm:col-span-3 flex gap-2">
               <button onClick={addCategory} className="px-4 py-2 bg-blue-500 text-white rounded-xl text-sm font-semibold">Add</button>
               <button onClick={() => setShowAdd(false)} className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-sm font-semibold">Cancel</button>
+            </div>
+          </div>
+        )}
+
+        {/* ── Sync Actuals Preview ─────────────────────────────────────────── */}
+        {showSync && (
+          <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 rounded-xl overflow-hidden">
+            <div className="px-4 py-3 border-b border-emerald-200 dark:border-emerald-700 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-200">Sync Actuals from Transactions — {month}</p>
+                <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5">Matched using PF category names. Review and apply per row or all at once.</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button onClick={applyAllSync}
+                  className="text-xs font-semibold px-3 py-1.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
+                  Apply All
+                </button>
+                <button onClick={() => setShowSync(false)} className="text-emerald-600 hover:text-emerald-800 dark:hover:text-emerald-200">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+            <div className="divide-y divide-emerald-100 dark:divide-emerald-800">
+              {syncPreview.map(row => (
+                <div key={row.id} className="px-4 py-2.5 flex items-center gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">{row.category}</p>
+                    <p className="text-[10px] text-slate-400 truncate">
+                      {row.pfMatches.length > 0
+                        ? `Matched: ${row.pfMatches.join(', ')}`
+                        : 'No PF category match found'}
+                    </p>
+                  </div>
+                  <span className="text-sm font-bold font-mono text-emerald-700 dark:text-emerald-300 shrink-0">
+                    {row.suggested > 0 ? `₹${row.suggested.toLocaleString('en-IN')}` : '—'}
+                  </span>
+                  {row.suggested > 0 && (
+                    <button onClick={() => applySyncRow(row.id, row.suggested)}
+                      className="text-[10px] font-semibold px-2.5 py-1 bg-emerald-100 dark:bg-emerald-800 text-emerald-700 dark:text-emerald-300 rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-700 transition-colors shrink-0">
+                      Use
+                    </button>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         )}

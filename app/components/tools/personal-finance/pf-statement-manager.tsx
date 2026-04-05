@@ -4,13 +4,17 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Upload, Plus, Trash2, FileSpreadsheet, AlertCircle,
   CheckCircle2, X, ChevronDown, ChevronUp, Database,
-  RefreshCw, Info, ShieldAlert, ShieldCheck,
+  RefreshCw, Info, ShieldAlert, ShieldCheck, Download, FolderInput,
 } from 'lucide-react';
 import { useToast } from '@/app/components/ui/toast-system';
 import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
+import { MAX_PDF_FILE_SIZE } from '@/app/lib/constants';
+import { ToolEmptyState } from '@/app/components/tools/shared/ToolEmptyState';
+import { getDemoPFStore } from './pf-demo-data';
+import { activateDemoJourney } from '@/app/components/ui/DemoJourneyBanner';
 import {
   type PFAccount, type PFStatement, type DetectedColumns,
-  loadPFStore, addAccount, deleteAccount, getAccounts,
+  loadPFStore, savePFStore, addAccount, deleteAccount, getAccounts,
   getStatements, deleteStatement, ingestStatement,
   getIntegrityReport, type IntegrityReport,
   detectColumns, buildPFTransactions, fmtINR,
@@ -159,6 +163,10 @@ export function StatementManager() {
       toast('Please upload an Excel (.xlsx, .xls) or CSV file', 'error');
       return;
     }
+    if (file.size > MAX_PDF_FILE_SIZE) {
+      toast('File exceeds 50 MB. Please export a smaller date range from your bank.', 'error');
+      return;
+    }
     if (!selectedAccountId) {
       toast('Please select or create an account first', 'error');
       return;
@@ -277,6 +285,52 @@ export function StatementManager() {
     });
   };
 
+  // ── Export / Import ──────────────────────────────────────────────────────────
+  const handleExport = () => {
+    const data = loadPFStore();
+    const blob = new Blob([JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), data }, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `onetool-pf-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('Data exported successfully', 'success');
+  };
+
+  const handleImport = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const parsed = JSON.parse(e.target?.result as string);
+        const importData = parsed.version === 1 ? parsed.data : parsed;
+        if (!importData.transactions || !importData.accounts) {
+          toast('Invalid backup file format', 'error');
+          return;
+        }
+        savePFStore(importData);
+        setIntegrity(getIntegrityReport());
+        setAccounts(getAccounts());
+        toast('Data imported successfully', 'success');
+      } catch {
+        toast('Failed to read backup file', 'error');
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleLoadDemo = () => {
+    const existing = loadPFStore();
+    if (existing.transactions.length > 0) {
+      if (!confirm('This will replace your current data with demo data. Continue?')) return;
+    }
+    savePFStore(getDemoPFStore());
+    setIntegrity(getIntegrityReport());
+    setAccounts(getAccounts());
+    activateDemoJourney();
+    toast('3 months of demo data loaded — explore all 27 tools!', 'success');
+  };
+
   if (!mounted) return null;
 
   // ── Render ───────────────────────────────────────────────────────────────────
@@ -331,6 +385,33 @@ export function StatementManager() {
             >
               <Plus size={14} /> Add Account
             </button>
+            <div className="flex gap-2 ml-auto flex-wrap">
+              <button
+                onClick={handleLoadDemo}
+                title="Load 3 months of realistic demo data to explore all tools"
+                className="flex items-center gap-1.5 text-sm text-violet-600 dark:text-violet-400 border border-violet-200 dark:border-violet-800 px-3 py-2 rounded-lg hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors font-semibold"
+              >
+                ✨ Load Demo Data
+              </button>
+              <button
+                onClick={handleExport}
+                title="Export all financial data as a JSON backup"
+                className="flex items-center gap-1.5 text-sm text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 px-3 py-2 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors font-semibold"
+              >
+                <Download size={14} /> Backup
+              </button>
+              <label className="cursor-pointer">
+                <span className="flex items-center gap-1.5 text-sm text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800 px-3 py-2 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors font-semibold">
+                  <FolderInput size={14} /> Restore
+                </span>
+                <input
+                  type="file"
+                  accept=".json"
+                  className="hidden"
+                  onChange={e => e.target.files?.[0] && handleImport(e.target.files[0])}
+                />
+              </label>
+            </div>
           </div>
 
           {/* Add Account Form */}
@@ -374,11 +455,19 @@ export function StatementManager() {
 
           {/* Account List */}
           {accounts.length === 0 ? (
-            <div className="text-center py-16 text-slate-400 dark:text-slate-600">
-              <Database size={40} className="mx-auto mb-3 opacity-40" />
-              <p className="text-sm font-medium">No accounts yet.</p>
-              <p className="text-xs mt-1">Add an account to start uploading statements.</p>
-            </div>
+            <ToolEmptyState
+              icon={Database}
+              iconColorClass="text-blue-600 dark:text-blue-400"
+              iconBgClass="bg-blue-100 dark:bg-blue-900/40"
+              title="No accounts yet"
+              description="Add a bank account or credit card to start importing your statements and unlocking all Personal Finance tools."
+              steps={[
+                { label: 'Click "Add Account"', detail: 'Give it a name, type (Bank / Credit Card / Cash), and currency.' },
+                { label: 'Upload a CSV or Excel file', detail: 'Export your statement from net banking and drag & drop it here.' },
+                { label: 'Map columns & import', detail: 'Tell the tool which column is Date, Amount, and Description — then confirm.' },
+              ]}
+              cta={{ label: 'Add Account', onClick: () => setShowAddAccount(true) }}
+            />
           ) : (
             <div className="space-y-3">
               {accounts.map(acc => {

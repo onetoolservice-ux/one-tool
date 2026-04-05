@@ -38,11 +38,12 @@ export function IncomeSources() {
   const [accounts, setAccounts] = useState<PFAccount[]>([]);
   const [months, setMonths]     = useState<{ key: string; label: string }[]>([]);
 
-  const [period,        setPeriod]        = useState('all');
-  const [accountFilter, setAccountFilter] = useState('all');
-  const [showFilterBar, setShowFilterBar] = useState(true);
-  const [sortCol,       setSortCol]       = useState<SortCol>('total');
-  const [sortDir,       setSortDir]       = useState<SortDir>('desc');
+  const [period,         setPeriod]         = useState('all');
+  const [accountFilter,  setAccountFilter]  = useState('all');
+  const [showFilterBar,  setShowFilterBar]  = useState(true);
+  const [showTransfers,  setShowTransfers]  = useState(false);
+  const [sortCol,        setSortCol]        = useState<SortCol>('total');
+  const [sortDir,        setSortDir]        = useState<SortDir>('desc');
 
   const reload = () => {
     setAllTxns(getPFTransactions({ type: 'credit' }));
@@ -60,6 +61,7 @@ export function IncomeSources() {
   const { rows, grandTotal } = useMemo(() => {
     let txns = filterByPeriod(allTxns, period);
     if (accountFilter !== 'all') txns = txns.filter(t => t.accountId === accountFilter);
+    if (!showTransfers) txns = txns.filter(t => !t.isTransfer);
 
     const map = new Map<string, PFTransaction[]>();
     for (const t of txns) {
@@ -95,7 +97,7 @@ export function IncomeSources() {
       : <ChevronDown size={11} className="text-slate-300 dark:text-slate-600" />;
 
   const totalTxns = rows.reduce((s, r) => s + r.count, 0);
-  const activeFilters = [accountFilter !== 'all', period !== 'all'].filter(Boolean).length;
+  const activeFilters = [accountFilter !== 'all', period !== 'all', showTransfers].filter(Boolean).length;
 
   if (!mounted) return null;
 
@@ -117,7 +119,7 @@ export function IncomeSources() {
         <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
           <PFFilterBarHeader
             activeCount={activeFilters}
-            onClearAll={() => { setAccountFilter('all'); setPeriod('all'); }}
+            onClearAll={() => { setAccountFilter('all'); setPeriod('all'); setShowTransfers(false); }}
             showFilterBar={showFilterBar}
             onToggle={() => setShowFilterBar(v => !v)}
           />
@@ -138,6 +140,14 @@ export function IncomeSources() {
                   <option value="all">All Accounts</option>
                   {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                 </select>
+              </div>
+              <div className="col-span-2 flex items-center gap-2 pt-1">
+                <input type="checkbox" id="show-transfers" checked={showTransfers}
+                  onChange={e => setShowTransfers(e.target.checked)} className="accent-blue-500" />
+                <label htmlFor="show-transfers" className="text-xs text-slate-600 dark:text-slate-300 cursor-pointer">
+                  Include inter-account transfers
+                  <span className="ml-1 text-[10px] text-slate-400">(off by default to avoid inflating income)</span>
+                </label>
               </div>
             </div>
           )}

@@ -8,6 +8,7 @@
   --background-end-rgb: 241, 245, 249;
   /* User-customizable theme — all updated via JS */
   --ot-accent:     #6366f1;
+  --ot-accent-rgb: 99, 102, 241;  /* RGB triplet of --ot-accent for Tailwind opacity modifiers */
   --ot-logo-bg:    #f59e0b;   /* amber — warm complement to teal navbar */
   --ot-logo-text:  #1e293b;   /* dark letter auto-contrasts on amber */
 }
@@ -124,7 +125,7 @@ header[data-custom-nav] kbd {
   input:focus-visible,
   textarea:focus-visible,
   select:focus-visible {
-    outline: 2px solid theme('colors.blue.500');
+    outline: 2px solid var(--ot-accent);
     outline-offset: 2px;
   }
 

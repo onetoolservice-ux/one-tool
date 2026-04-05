@@ -89,6 +89,19 @@ export interface PFCommitment {
   convertedToOneTime: boolean;
 }
 
+// ── Shared merchant normalizer ────────────────────────────────────────────────
+// Strips long reference numbers, punctuation, and excess whitespace.
+// Used by RecurringPayments and SubscriptionFinder — keep in sync here.
+export function normMerchant(desc: string): string {
+  return desc
+    .toLowerCase()
+    .replace(/\d{6,}/g, '')
+    .replace(/[^a-z\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 40);
+}
+
 export interface PFLabel {
   id: string;
   name: string;
@@ -143,6 +156,7 @@ export interface ValidationResult {
 // ── Store ─────────────────────────────────────────────────────────────────────
 
 export interface PFStoreData {
+  schemaVersion?: number;
   accounts: Record<string, PFAccount>;
   statements: Record<string, PFStatement>;
   transactions: PFTransaction[];
@@ -185,6 +199,8 @@ export const PF_CATEGORIES: string[] = [
 // ── Storage ───────────────────────────────────────────────────────────────────
 
 const PF_STORAGE_KEY = 'otsd-pf-store';
+/** Bump this when PFStoreData shape changes. loadPFStore() uses it to run migrations. */
+const CURRENT_PF_SCHEMA_VERSION = 2;
 
 function emptyStore(): PFStoreData {
   return {
@@ -207,27 +223,32 @@ export function loadPFStore(): PFStoreData {
     const raw = localStorage.getItem(PF_STORAGE_KEY);
     if (raw) {
       const data = JSON.parse(raw) as PFStoreData;
-      // ── Forward-migration for older stores ────────────────────────────────
-      if (!data.labels)    data.labels    = {};
-      if (!data.labelMaps) data.labelMaps = [];
-      if (!data.rules)     data.rules     = {};
-      for (const t of data.transactions ?? []) {
-        if (t.isTransfer  === undefined) t.isTransfer  = false;
-        if (t.isLoan      === undefined) t.isLoan      = false;
-        if (t.createdAt   === undefined) t.createdAt   = t.date || new Date().toISOString();
-      }
-      for (const c of Object.values(data.commitments ?? {})) {
-        if (c.category        === undefined) c.category        = 'Miscellaneous';
-        if (c.convertedToOneTime === undefined) c.convertedToOneTime = false;
-        if (c.frequency === ('one-time' as string) && c.convertedToOneTime === undefined) {
-          c.convertedToOneTime = true;
+      const storedVersion = data.schemaVersion ?? 1;
+
+      // ── v1 → v2: add labels, labelMaps, rules; backfill transaction/commitment/statement fields ──
+      if (storedVersion < 2) {
+        if (!data.labels)    data.labels    = {};
+        if (!data.labelMaps) data.labelMaps = [];
+        if (!data.rules)     data.rules     = {};
+        for (const t of data.transactions ?? []) {
+          if (t.isTransfer  === undefined) t.isTransfer  = false;
+          if (t.isLoan      === undefined) t.isLoan      = false;
+          if (t.createdAt   === undefined) t.createdAt   = t.date || new Date().toISOString();
+        }
+        for (const c of Object.values(data.commitments ?? {})) {
+          if (c.category           === undefined) c.category           = 'Miscellaneous';
+          if (c.convertedToOneTime === undefined) c.convertedToOneTime = false;
+        }
+        for (const s of Object.values(data.statements ?? {})) {
+          if (s.integrityScore     === undefined) s.integrityScore     = s.parsingConfidence ?? 80;
+          if (s.missingDateCount   === undefined) s.missingDateCount   = 0;
+          if (s.invalidAmountCount === undefined) s.invalidAmountCount = 0;
         }
       }
-      for (const s of Object.values(data.statements ?? {})) {
-        if (s.integrityScore    === undefined) s.integrityScore    = s.parsingConfidence ?? 80;
-        if (s.missingDateCount  === undefined) s.missingDateCount  = 0;
-        if (s.invalidAmountCount=== undefined) s.invalidAmountCount= 0;
-      }
+
+      // ── Future migrations go here as: if (storedVersion < 3) { ... } ──
+
+      data.schemaVersion = CURRENT_PF_SCHEMA_VERSION;
       return data;
     }
   } catch { /* ignore */ }
@@ -236,6 +257,7 @@ export function loadPFStore(): PFStoreData {
 
 export function savePFStore(data: PFStoreData): void {
   data.lastUpdated = new Date().toISOString();
+  data.schemaVersion = CURRENT_PF_SCHEMA_VERSION;
   if (typeof window !== 'undefined') {
     localStorage.setItem(PF_STORAGE_KEY, JSON.stringify(data));
     window.dispatchEvent(new CustomEvent('pf-store-updated'));

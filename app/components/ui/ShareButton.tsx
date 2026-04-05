@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Share2, Link2, Check, X } from 'lucide-react';
 import { trackShare } from '@/app/lib/telemetry';
 
-export function ShareButton() {
+export function ShareButton({ navText }: { navText?: string | null }) {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -78,7 +78,8 @@ export function ShareButton() {
     <div className="relative" ref={panelRef}>
       <button
         onClick={handleClick}
-        className="p-2 rounded-lg transition-colors text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5 min-w-[44px] min-h-[44px] flex items-center justify-center"
+        className={`p-2 rounded-lg transition-colors ${navText ? 'hover:bg-black/5 dark:hover:bg-white/5' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-white/5'}`}
+        style={navText ? { color: navText } : undefined}
         aria-label="Share"
       >
         <Share2 size={18} />

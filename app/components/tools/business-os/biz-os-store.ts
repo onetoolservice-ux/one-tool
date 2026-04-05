@@ -85,6 +85,7 @@ export interface BizInvoice {
 
 // ── ROOT STORE ─────────────────────────────────────────────────────────────────
 export interface BizOSStore {
+  schemaVersion?: number;
   parties: Record<string, BizParty>;
   transactions: BizTransaction[];
   products: Record<string, BizProduct>;
@@ -117,6 +118,9 @@ export const UNITS = ['pcs', 'kg', 'gm', 'litre', 'ml', 'box', 'packet', 'metre'
 export const GST_RATES = [0, 5, 12, 18, 28] as const;
 export const PAYMENT_MODES: PaymentMode[] = ['cash', 'upi', 'bank', 'credit', 'other'];
 
+/** Bump this when BizOSStore shape changes. loadBizStore() uses it to run migrations. */
+const CURRENT_BIZ_SCHEMA_VERSION = 2;
+
 // ── STORE LIFECYCLE ────────────────────────────────────────────────────────────
 
 function emptyStore(): BizOSStore {
@@ -139,15 +143,22 @@ export function loadBizStore(): BizOSStore {
     const raw = localStorage.getItem(STORE_KEY);
     if (!raw) return emptyStore();
     const parsed = JSON.parse(raw) as BizOSStore;
-    // Ensure all required keys exist (migration safety)
-    return {
-      parties: parsed.parties ?? {},
-      transactions: parsed.transactions ?? [],
-      products: parsed.products ?? {},
-      invoices: parsed.invoices ?? {},
-      settings: parsed.settings ?? emptyStore().settings,
-      lastUpdated: parsed.lastUpdated ?? new Date().toISOString(),
-    };
+    const storedVersion = parsed.schemaVersion ?? 1;
+
+    // ── v1 → v2: ensure all required top-level keys exist ──
+    if (storedVersion < 2) {
+      parsed.parties      = parsed.parties      ?? {};
+      parsed.transactions = parsed.transactions ?? [];
+      parsed.products     = parsed.products     ?? {};
+      parsed.invoices     = parsed.invoices     ?? {};
+      parsed.settings     = parsed.settings     ?? emptyStore().settings;
+      parsed.lastUpdated  = parsed.lastUpdated  ?? new Date().toISOString();
+    }
+
+    // ── Future migrations go here as: if (storedVersion < 3) { ... } ──
+
+    parsed.schemaVersion = CURRENT_BIZ_SCHEMA_VERSION;
+    return parsed;
   } catch {
     return emptyStore();
   }
@@ -155,6 +166,7 @@ export function loadBizStore(): BizOSStore {
 
 export function saveBizStore(data: BizOSStore): void {
   data.lastUpdated = new Date().toISOString();
+  data.schemaVersion = CURRENT_BIZ_SCHEMA_VERSION;
   localStorage.setItem(STORE_KEY, JSON.stringify(data));
   window.dispatchEvent(new CustomEvent(STORE_EVENT));
 }

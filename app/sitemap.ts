@@ -4,8 +4,8 @@ import { ALL_TOOLS } from '@/app/lib/tools-data';
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://onetool.co.in';
 
-  // Use a fixed build date so Google doesn't think all pages change on every deploy
-  const SITE_LAST_UPDATED = new Date('2026-03-12');
+  // Always reflects the latest deploy so Google re-crawls on every release
+  const SITE_LAST_UPDATED = new Date();
 
   // Unique category slugs derived from tool hrefs (e.g. "personal-finance", "developer")
   const categorySlugs = [...new Set(ALL_TOOLS.map((t) => t.href.split('/')[2]))];

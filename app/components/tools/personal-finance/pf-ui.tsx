@@ -16,9 +16,9 @@ type PFButtonVariant = 'default' | 'primary' | 'danger' | 'active';
 
 const BTN: Record<PFButtonVariant, string> = {
   default: 'border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-400 dark:hover:border-slate-500',
-  primary: 'border border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 hover:border-blue-400 dark:hover:border-blue-600',
+  primary: 'border border-accent/40 text-accent hover:bg-accent/10 hover:border-accent/60',
   danger:  'border border-slate-300 dark:border-slate-600 text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 hover:border-red-300 dark:hover:border-red-700',
-  active:  'bg-blue-600 border border-blue-600 text-white hover:bg-blue-700 hover:border-blue-700',
+  active:  'bg-accent border border-accent text-white hover:opacity-90',
 };
 
 export function PFButton({
@@ -78,7 +78,7 @@ export function PFFilterBarHeader({
           </button>
         )}
         {onToggle !== undefined && (
-          <button onClick={onToggle} className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold">
+          <button onClick={onToggle} className="text-xs text-accent hover:underline font-semibold">
             {showFilterBar ? 'Hide Filter Bar' : 'Show Filter Bar'}
           </button>
         )}
@@ -193,15 +193,11 @@ export function matchCond(val: string, cond: VHCondition): boolean {
 }
 
 export function applyVHF(vhf: VHFilter, rawVal: string): boolean {
-  const inclConds = vhf.conditions.filter(c => !VH_EXCLUDE_OPS.has(c.op));
-  const exclConds = vhf.conditions.filter(c =>  VH_EXCLUDE_OPS.has(c.op));
-  const hasIncl   = vhf.items.length > 0 || inclConds.length > 0;
+  const hasIncl = vhf.items.length > 0 || vhf.conditions.length > 0;
   if (hasIncl) {
-    const ok = vhf.items.includes(rawVal) || inclConds.some(c => matchCond(rawVal, c));
+    // matchCond already implements the correct logic for all ops (including negations like neq, ncontains)
+    const ok = vhf.items.includes(rawVal) || vhf.conditions.some(c => matchCond(rawVal, c));
     if (!ok) return false;
-  }
-  for (const c of exclConds) {
-    if (matchCond(rawVal, c)) return false;
   }
   return true;
 }
@@ -259,7 +255,7 @@ export function VHFilterField({
       </label>
       <div
         onClick={onOpen}
-        className="flex flex-wrap gap-1 items-center min-h-[34px] border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 bg-white dark:bg-slate-900 cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-colors"
+        className="flex flex-wrap gap-1 items-center min-h-[34px] border border-slate-400 dark:border-slate-600 rounded-lg px-2 py-1 bg-white dark:bg-slate-900 cursor-pointer hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
       >
         {vhf.items.map(v => (
           <span key={v} className="flex items-center gap-0.5 text-[10px] font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded-full border border-blue-200/60 dark:border-blue-800/60">

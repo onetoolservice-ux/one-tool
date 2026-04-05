@@ -92,7 +92,9 @@ const toolComponents: Record<string, ToolComponentLoader> = {
   'pf-spending-dna': () => import('@/app/components/tools/personal-finance/pf-spending-dna').then(mod => ({ default: mod.SpendingDNA })),
   'pf-investment-tracker': () => import('@/app/components/tools/personal-finance/pf-investment-tracker').then(mod => ({ default: mod.PFInvestmentTracker })),
   'pf-budget-vs-actual': () => import('@/app/components/tools/personal-finance/pf-budget-vs-actual').then(mod => ({ default: mod.BudgetVsActual })),
+  'pf-budget-planner': () => import('@/app/components/tools/personal-finance/pf-budget-planner').then(mod => ({ default: mod.MonthlyBudgetPlanner })),
   'pf-financial-snapshot': () => import('@/app/components/tools/personal-finance/pf-financial-snapshot').then(mod => ({ default: mod.PFFinancialSnapshot })),
+  'pf-daily-pulse': () => import('@/app/components/tools/personal-finance/pf-daily-pulse').then(mod => ({ default: mod.DailyTransactionPulse })),
   // Finance — new tools
   'fire-calc': () => import('@/app/components/tools/finance/fire-calculator').then(mod => ({ default: mod.FireCalculator })),
   'cost-of-delay': () => import('@/app/components/tools/finance/cost-of-delay').then(mod => ({ default: mod.CostOfDelay })),
@@ -122,6 +124,10 @@ const toolComponents: Record<string, ToolComponentLoader> = {
   'rental-yield': () => import('@/app/components/tools/real-estate/rental-yield').then(mod => ({ default: mod.RentalYield })),
   'stamp-duty': () => import('@/app/components/tools/real-estate/stamp-duty').then(mod => ({ default: mod.StampDuty })),
   'property-budget': () => import('@/app/components/tools/real-estate/property-budget').then(mod => ({ default: mod.PropertyBudget })),
+  // Bio Data & Resume
+  'biodata-maker': () => import('@/app/components/tools/biodata/biodata-maker').then(mod => ({ default: mod.BiodataMaker })),
+  'resume-builder': () => import('@/app/components/tools/biodata/resume-builder').then(mod => ({ default: mod.ResumeBuilder })),
+  'cover-letter': () => import('@/app/components/tools/biodata/cover-letter').then(mod => ({ default: mod.CoverLetter })),
   // Career
   'job-offer-compare': () => import('@/app/components/tools/career/job-offer-compare').then(mod => ({ default: mod.JobOfferCompare })),
   'freelance-rate': () => import('@/app/components/tools/career/freelance-rate').then(mod => ({ default: mod.FreelanceRate })),
@@ -162,10 +168,22 @@ const toolComponents: Record<string, ToolComponentLoader> = {
   'biz-loans': () => import('@/app/components/tools/business-os/biz-loans').then(mod => ({ default: mod.BizLoans })),
   'biz-reconcile': () => import('@/app/components/tools/business-os/biz-reconcile').then(mod => ({ default: mod.BizReconcile })),
   // Productivity — new
+  'task-planner': () => import('@/app/components/tools/productivity/task-planner').then(mod => ({ default: mod.TaskPlanner })),
   'habit-tracker': () => import('@/app/components/tools/productivity/habit-tracker').then(mod => ({ default: mod.HabitTracker })),
+  'lang-translate': () => import('@/app/components/tools/productivity/language-translator').then(mod => ({ default: mod.LanguageTranslator })),
   // Health — new
   'calorie-calculator': () => import('@/app/components/tools/health/calorie-calculator').then(mod => ({ default: mod.CalorieCalculator })),
   'water-tracker': () => import('@/app/components/tools/health/water-tracker').then(mod => ({ default: mod.WaterTracker })),
+  // Writer's OS
+  'writer-ideas': () => import('@/app/components/tools/writer/writer-ideas'),
+  'writer-planner': () => import('@/app/components/tools/writer/writer-planner'),
+  'writer-studio': () => import('@/app/components/tools/writer/writer-studio'),
+  'writer-analyzer': () => import('@/app/components/tools/writer/writer-analyzer'),
+  'writer-headline': () => import('@/app/components/tools/writer/writer-headline'),
+  'writer-export': () => import('@/app/components/tools/writer/writer-export'),
+  // Daily Utility
+  'smart-cart': () => import('@/app/components/tools/daily-utility/smart-cart').then(mod => ({ default: mod.SmartCart })),
+  'grocery-items': () => import('@/app/components/tools/daily-utility/grocery-items').then(mod => ({ default: mod.GroceryItems })),
 };
 
 interface ToolLoaderProps {

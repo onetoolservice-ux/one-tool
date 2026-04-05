@@ -7,7 +7,7 @@ import { PFButton, PFBadge, PFFilterBarHeader } from './pf-ui';
 import { useToast } from '@/app/components/ui/toast-system';
 import {
   getPFTransactions, getAllCategories, getAccounts, getAvailableMonths,
-  bulkApplyCategoryOverride, filterByPeriod, fmtINR,
+  bulkApplyCategoryOverride, filterByPeriod, fmtINR, normMerchant,
   type PFTransaction, type PFAccount,
 } from './finance-store';
 
@@ -35,9 +35,6 @@ const PERIOD_OPTIONS = [
   { key: 'this-year',     label: 'This Year' },
 ];
 
-function normMerchant(desc: string): string {
-  return desc.toLowerCase().replace(/\d{6,}/g, '').replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 40);
-}
 
 export function TopMerchants() {
   const { toast } = useToast();

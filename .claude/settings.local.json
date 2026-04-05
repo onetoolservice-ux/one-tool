@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:biovaq.com)",
+      "WebFetch(domain:pitchmeai.com)",
+      "WebFetch(domain:www.simplebiodatamaker.in)",
+      "WebFetch(domain:resufit.com)",
+      "WebFetch(domain:www.biodatabanao.com)",
+      "Read(//c/Users/Aman/ Mishra/MySystem/02_Work/Code/OTSD/one-tool/app/components/tools/business/**)",
+      "Bash(wc -l app/components/tools/biodata/*.tsx)",
+      "WebFetch(domain:www.weddingbiodata.in)",
+      "Bash(wc -l \"c:\\\\Users\\\\Aman Mishra\\\\MySystem\\\\02_Work\\\\Code\\\\OTSD\\\\one-tool/app/components/tools/personal-finance\"/*.tsx)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\Aman Mishra\\MySystem\\02_Work\\Code\\OTSD\\one-tool\\app\\components\\tools",
+      "c:\\Users\\Aman Mishra\\MySystem\\02_Work\\Code\\OTSD\\one-tool\\app\\components\\tools"
+    ]
+  }
+}

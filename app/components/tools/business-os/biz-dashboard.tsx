@@ -4,17 +4,19 @@ import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import {
   TrendingUp, TrendingDown, AlertTriangle, Clock, Users, Package,
-  ArrowRight, Plus, Settings, LayoutDashboard,
+  ArrowRight, Plus, Settings, LayoutDashboard, Download, FolderInput,
 } from 'lucide-react';
 import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
+import { useToast } from '@/app/components/ui/toast-system';
 import {
-  loadBizStore, onBizStoreUpdate, getDashboardKPIs, getLast7DaysData,
+  loadBizStore, saveBizStore, onBizStoreUpdate, getDashboardKPIs, getLast7DaysData,
   fmtCurrency, updateSettings, type BizOSStore,
 } from './biz-os-store';
 
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function BizDashboard() {
+  const { toast } = useToast();
   const [store, setStore] = useState<BizOSStore | null>(null);
   const [showSetup, setShowSetup] = useState(false);
   const [bizName, setBizName] = useState('');
@@ -64,6 +66,37 @@ export function BizDashboard() {
   function saveSetup() {
     updateSettings({ businessName: bizName.trim(), gstin: gstin.trim() || undefined });
     setShowSetup(false);
+  }
+
+  function handleExport() {
+    const data = loadBizStore();
+    const blob = new Blob([JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), data }, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `onetool-bizos-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('Business data exported', 'success');
+  }
+
+  function handleImport(file: File) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const parsed = JSON.parse(e.target?.result as string);
+        const importData = parsed.version === 1 ? parsed.data : parsed;
+        if (!importData.transactions || !importData.parties) {
+          toast('Invalid backup file', 'error');
+          return;
+        }
+        saveBizStore(importData);
+        toast('Business data restored', 'success');
+      } catch {
+        toast('Failed to read backup file', 'error');
+      }
+    };
+    reader.readAsText(file);
   }
 
   return (
@@ -131,13 +164,28 @@ export function BizDashboard() {
           { label: 'Low Stock', value: kpis.lowStockCount, color: kpis.lowStockCount > 0 ? 'error' : 'neutral', icon: AlertTriangle },
         ]}
         actions={
-          <button
-            onClick={() => setShowSetup(true)}
-            className="p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            title="Business Settings"
-          >
-            <Settings size={16} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={handleExport}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+              title="Backup business data as JSON"
+            >
+              <Download size={13} /> Backup
+            </button>
+            <label className="cursor-pointer">
+              <span className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">
+                <FolderInput size={13} /> Restore
+              </span>
+              <input type="file" accept=".json" className="hidden" onChange={e => e.target.files?.[0] && handleImport(e.target.files[0])} />
+            </label>
+            <button
+              onClick={() => setShowSetup(true)}
+              className="p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              title="Business Settings"
+            >
+              <Settings size={16} />
+            </button>
+          </div>
         }
       />
 

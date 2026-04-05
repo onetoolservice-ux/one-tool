@@ -11,6 +11,10 @@ import GlobalHeader from "@/app/components/layout/GlobalHeader";
 import ScrollToTop from "@/app/components/layout/ScrollToTop";
 import { ErrorBoundary } from "@/app/components/shared/ErrorBoundary";
 import Toast from "@/app/shared/Toast";
+import { OnboardingTour } from "@/app/components/onboarding/OnboardingTour";
+import { PWAInstallPrompt } from "@/app/components/ui/PWAInstallPrompt";
+import { DemoJourneyBanner } from "@/app/components/ui/DemoJourneyBanner";
+import { StorageQuotaToast } from "@/app/components/ui/StorageQuotaToast";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -52,13 +56,13 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "OneTool",
     title: "OneTool — Free Online Tools for Finance, Developer & Productivity",
-    description: "60+ free browser-based tools: expense tracker, invoice generator, PDF tools, developer utilities & more. No signup required.",
+    description: "150+ free browser-based tools: expense tracker, invoice generator, PDF tools, developer utilities & more. No signup required.",
     url: baseUrl,
   },
   twitter: {
     card: "summary_large_image",
     title: "OneTool — Free Online Tools",
-    description: "60+ free browser-based tools — expense tracker, invoice, PDF, developer tools & more. No signup.",
+    description: "150+ free browser-based tools — expense tracker, invoice, PDF, developer tools & more. No signup.",
   },
   appleWebApp: {
     capable: true,
@@ -86,6 +90,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Dark mode initialiser — runs before paint to prevent flash of wrong theme */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t===null&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();`,
+          }}
+        />
         {/* Organization structured data — helps Google identify the site entity */}
         <script
           type="application/ld+json"
@@ -144,8 +154,12 @@ export default function RootLayout({
                  </main>
               </div>
               <Toast />
+              <OnboardingTour />
+              <PWAInstallPrompt />
+              <DemoJourneyBanner />
+              <StorageQuotaToast />
               {/* Google Analytics */}
-              <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || 'G-J4B6SYJZQF'} />
+              {process.env.NEXT_PUBLIC_GA_ID && <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />}
             </ToastProvider>
           </UIProvider>
         </ErrorBoundary>

@@ -2,6 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { FileCheck, CheckCircle2, Circle, AlertTriangle, Info, ChevronDown, ChevronUp } from 'lucide-react';
 import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
+import { TaxDisclaimer } from './TaxDisclaimer';
 
 type IncomeType = 'salary' | 'freelance' | 'business' | 'capital_gains' | 'rental' | 'agriculture' | 'foreign';
 type DocStatus = 'have' | 'need' | 'na';
@@ -157,6 +158,7 @@ export const ITRChecklist = () => {
           { label: 'Pending Review', value: String(stats.pending), color: 'error', subtitle: 'Not yet reviewed' },
         ]}
       />
+      <TaxDisclaimer />
 
       <div className="p-4 space-y-4">
         {/* Income Type Selector */}

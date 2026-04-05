@@ -130,6 +130,10 @@ class SafeStorage {
       if (error.name === 'QuotaExceededError' || error.code === 22) {
         logger.warn(`Storage quota exceeded for key "${key}"`);
         this.handleQuotaExceeded(key);
+        // Notify the UI so the user knows their data was not saved
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('ot-storage-quota-exceeded', { detail: { key } }));
+        }
         return false;
       }
 

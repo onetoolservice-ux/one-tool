@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { AlertTriangle, Calendar, Clock, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
+import { TaxDisclaimer } from './TaxDisclaimer';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TAX COMPLIANCE CALENDAR — Indian tax deadlines FY 2025-26 / AY 2026-27
@@ -241,6 +242,7 @@ export function TaxCalendar() {
         subtitle="Never miss an income tax, TDS, or GST deadline — FY 2025-26 / AY 2026-27"
         kpis={kpis}
       />
+      <TaxDisclaimer />
 
       <div className="p-4 space-y-4">
         {/* Filter tabs */}

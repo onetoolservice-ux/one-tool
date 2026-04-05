@@ -11,6 +11,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { logger } from '@/app/lib/utils/logger';
 import Link from 'next/link';
+import * as Sentry from '@sentry/nextjs';
 
 interface Props {
   children: ReactNode;
@@ -49,10 +50,9 @@ export class ErrorBoundary extends Component<Props, State> {
       this.props.onError(error, errorInfo);
     }
 
-    // In production, send to error tracking service
+    // In production, send to Sentry
     if (process.env.NODE_ENV === 'production') {
-      // TODO: Integrate with error tracking service (e.g., Sentry)
-      // Sentry.captureException(error, { contexts: { react: errorInfo } });
+      Sentry.captureException(error, { contexts: { react: { componentStack: errorInfo.componentStack } } });
     }
   }
 

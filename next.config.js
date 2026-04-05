@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+const { withSentryConfig } = require("@sentry/nextjs");
 const withPWA = require("next-pwa")({
   dest: "public",
   register: true,
@@ -8,16 +9,12 @@ const withPWA = require("next-pwa")({
 
 const nextConfig = {
   reactStrictMode: true,
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   // Turbopack empty config to silence warnings
   turbopack: {},
   // Production optimizations
   compress: true,
   poweredByHeader: false,
-  // Source maps for production (required by Lighthouse for debugging)
-  productionBrowserSourceMaps: true,
+  productionBrowserSourceMaps: false,
   // Note: swcMinify is enabled by default in Next.js 13+, no need to specify
   // Optimize images
   images: {
@@ -79,4 +76,16 @@ const nextConfig = {
   },
 };
 
-module.exports = withPWA(nextConfig);
+module.exports = withSentryConfig(withPWA(nextConfig), {
+  // Suppress the Sentry CLI upload wizard (requires SENTRY_AUTH_TOKEN to upload source maps)
+  silent: true,
+  // Only upload source maps when SENTRY_AUTH_TOKEN is set
+  disableServerWebpackPlugin: !process.env.SENTRY_AUTH_TOKEN,
+  disableClientWebpackPlugin: !process.env.SENTRY_AUTH_TOKEN,
+  // Reduce bundle size by tree-shaking unused Sentry modules
+  widenClientFileUpload: false,
+  // Hide source maps from browser
+  hideSourceMaps: true,
+  // Disable Sentry's automatic instrumentation of API routes
+  autoInstrumentServerFunctions: false,
+});

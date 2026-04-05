@@ -1,13 +1,14 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect, useMemo } from 'react';
-import { Repeat2, Tag } from 'lucide-react';
+import { Repeat2, Tag, ArrowRight } from 'lucide-react';
 import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
 import { PFButton, PFBadge } from './pf-ui';
 import { useToast } from '@/app/components/ui/toast-system';
 import {
   getPFTransactions, getAllCategories, getAccounts, bulkApplyCategoryOverride,
-  fmtINR, type PFTransaction, type PFAccount,
+  fmtINR, normMerchant, type PFTransaction, type PFAccount,
 } from './finance-store';
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -25,10 +26,6 @@ interface SubRow {
   annualEst: number;
   txnIds: string[];
   lastDate: string;
-}
-
-function normMerchant(desc: string): string {
-  return desc.toLowerCase().replace(/\d{6,}/g, '').replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 40);
 }
 
 function stdDev(vals: number[]): number {
@@ -154,6 +151,14 @@ export function SubscriptionFinder() {
               <p className="text-[10px] text-slate-400">Lower = stricter (fixed amounts only)</p>
             </div>
           </div>
+        </div>
+
+        {/* Cross-link banner */}
+        <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg text-xs text-amber-700 dark:text-amber-300">
+          <span className="flex-1">Shows only recurring payments with <strong>consistent amounts</strong> (low variance). For all repeat transactions including variable ones →</span>
+          <Link href="/tools/personal-finance/pf-recurring-payments" className="flex items-center gap-1 font-semibold whitespace-nowrap hover:underline">
+            Recurring Payments <ArrowRight size={11} />
+          </Link>
         </div>
 
         {subs.length === 0 ? (

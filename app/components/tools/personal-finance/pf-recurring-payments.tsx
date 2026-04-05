@@ -1,14 +1,15 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect, useMemo } from 'react';
-import { RefreshCw, Search, Tag, ChevronUp, ChevronDown, X } from 'lucide-react';
+import { RefreshCw, Search, Tag, ChevronUp, ChevronDown, X, ArrowRight } from 'lucide-react';
 import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
 import { PFButton, PFBadge, PFFilterBarHeader } from './pf-ui';
 import { useToast } from '@/app/components/ui/toast-system';
 import {
   getPFTransactions, getAllCategories, bulkApplyCategoryOverride,
   getAccounts, rerunRecurringDetection,
-  fmtINR,
+  fmtINR, normMerchant,
   type PFTransaction, type PFAccount,
 } from './finance-store';
 
@@ -31,16 +32,6 @@ interface MerchantGroup {
 
 type SortCol = 'merchant' | 'category' | 'count' | 'avgAmount' | 'totalAmount' | 'lastDate';
 type SortDir = 'asc' | 'desc';
-
-function normMerchant(desc: string): string {
-  return desc
-    .toLowerCase()
-    .replace(/\d{6,}/g, '')        // strip long numbers (refs/acc numbers)
-    .replace(/[^a-z\s]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 40);
-}
 
 export function RecurringPayments() {
   const { toast } = useToast();
@@ -237,6 +228,14 @@ export function RecurringPayments() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Cross-link banner */}
+        <div className="flex items-center gap-2 px-3 py-2 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-700 rounded-lg text-xs text-violet-700 dark:text-violet-300">
+          <span className="flex-1">Shows <strong>all</strong> repeat transactions regardless of amount consistency. For fixed-amount subscriptions (Netflix, SIPs, insurance) only →</span>
+          <Link href="/tools/personal-finance/pf-subscriptions" className="flex items-center gap-1 font-semibold whitespace-nowrap hover:underline">
+            Subscription Finder <ArrowRight size={11} />
+          </Link>
         </div>
 
         {/* Empty state */}

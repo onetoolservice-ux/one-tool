@@ -31,6 +31,7 @@ export const SentimentAI = () => {
              onChange={e=>setText(e.target.value)}
           />
           <button onClick={analyze} className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold transition-colors">Analyze Text</button>
+          <p className="mt-2 text-center text-[11px] text-slate-400">Keyword-based analysis. Results are indicative, not definitive.</p>
        </div>
 
        <div className="w-full lg:w-80">

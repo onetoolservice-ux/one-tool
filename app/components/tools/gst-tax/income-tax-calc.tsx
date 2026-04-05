@@ -2,6 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { IndianRupee, TrendingDown, CheckCircle2, AlertTriangle, Info, ChevronDown, ChevronUp } from 'lucide-react';
 import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
+import { TaxDisclaimer } from './TaxDisclaimer';
 
 const fmt = (n: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
 const fmtL = (n: number) => {
@@ -166,6 +167,7 @@ export const IncomeTaxCalc = () => {
           { label: 'You Save', value: fmtL(result.savings), color: 'success', subtitle: `Go with ${result.recommended === 'new' ? 'New' : 'Old'} Regime` },
         ]}
       />
+      <TaxDisclaimer />
 
       <div className="p-4 space-y-4">
         {/* FY Selector */}

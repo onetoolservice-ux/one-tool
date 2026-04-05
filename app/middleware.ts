@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getClientIP, checkRateLimit, type RateLimitConfig } from '@/app/lib/utils/rate-limit';
+import { getClientIP, checkRateLimitAsync, type RateLimitConfig } from '@/app/lib/utils/rate-limit';
 
 /**
  * Rate limit configuration
@@ -21,17 +21,17 @@ const AUTH_RATE_LIMIT: RateLimitConfig = {
   maxRequests: 10, // 10 auth requests per minute
 };
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
-  
+
   // Get client IP safely (prevents IP spoofing)
   const ip = getClientIP(request);
   const path = request.nextUrl.pathname;
   const isAuthRoute = path.startsWith('/auth/');
 
-  // Rate limiting with appropriate config
+  // Rate limiting — uses Upstash Redis in production if env vars are set, in-memory otherwise
   const rateLimitConfig = isAuthRoute ? AUTH_RATE_LIMIT : RATE_LIMIT;
-  const rateLimit = checkRateLimit(ip, path, rateLimitConfig);
+  const rateLimit = await checkRateLimitAsync(ip, path, rateLimitConfig);
   
   if (!rateLimit.allowed) {
     return new NextResponse(

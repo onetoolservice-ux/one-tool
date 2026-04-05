@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useMemo, useEffect } from 'react';
-import { ShieldCheck, Info, TrendingUp, AlertTriangle, CheckCircle2, ArrowRight } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { ShieldCheck, Info, TrendingUp, AlertTriangle, CheckCircle2, ArrowRight, Share2, Download } from 'lucide-react';
 import { getPFFinanceSummary } from '../finance/pf-data-bridge';
 import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
 
@@ -44,6 +44,8 @@ interface Metric {
 }
 
 export const FinancialHealthScore = () => {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [sharing, setSharing] = useState(false);
   const [monthlyIncome, setMonthlyIncome] = useState(80000);
   const [monthlyExpenses, setMonthlyExpenses] = useState(55000);
   const [emergencyFund, setEmergencyFund] = useState(150000);
@@ -62,10 +64,24 @@ export const FinancialHealthScore = () => {
       if (s.hasData && !pfLoaded) {
         setMonthlyIncome(Math.round(s.avgMonthlyIncome));
         setMonthlyExpenses(Math.round(s.avgMonthlyExpense));
+        if (s.detectedLoanEMIMonthly > 0) setMonthlyEMI(Math.round(s.detectedLoanEMIMonthly));
+        if (s.detectedSIPMonthly > 0)     setMonthlyInvestment(Math.round(s.detectedSIPMonthly));
         setPfLoaded(true);
       }
     } catch {}
   }, [pfLoaded]);
+
+  const resyncFromStatements = () => {
+    try {
+      const s = getPFFinanceSummary(3);
+      if (s.hasData) {
+        setMonthlyIncome(Math.round(s.avgMonthlyIncome));
+        setMonthlyExpenses(Math.round(s.avgMonthlyExpense));
+        if (s.detectedLoanEMIMonthly > 0) setMonthlyEMI(Math.round(s.detectedLoanEMIMonthly));
+        if (s.detectedSIPMonthly > 0)     setMonthlyInvestment(Math.round(s.detectedSIPMonthly));
+      }
+    } catch {}
+  };
 
   const metrics = useMemo((): Metric[] => {
     // 1. Savings Rate (0-20)
@@ -131,6 +147,23 @@ export const FinancialHealthScore = () => {
   const weakestMetric = metrics.reduce((a, b) => (a.score / a.max < b.score / b.max ? a : b));
   const scoreKpiColor = totalScore >= 70 ? 'success' : totalScore >= 40 ? 'warning' : 'error';
 
+  const shareAsImage = async () => {
+    if (!cardRef.current) return;
+    setSharing(true);
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(cardRef.current, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+      const link = document.createElement('a');
+      link.download = `financial-health-score-${totalScore}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (e) {
+      console.error('Share failed', e);
+    } finally {
+      setSharing(false);
+    }
+  };
+
   return (
     <div>
       <SAPHeader
@@ -147,9 +180,15 @@ export const FinancialHealthScore = () => {
 
       <div className="p-4 space-y-4">
         {pfLoaded && (
-          <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl px-4 py-2 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            Income & expenses auto-filled from your statement data
+          <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl px-4 py-2 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-700 dark:text-emerald-300 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+              Income, expenses, EMI &amp; SIP auto-filled from your last 3 months of statement data
+            </div>
+            <button onClick={resyncFromStatements}
+              className="shrink-0 text-[10px] font-semibold px-2 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-800 hover:bg-emerald-200 dark:hover:bg-emerald-700 transition-colors">
+              Re-sync
+            </button>
           </div>
         )}
 
@@ -201,18 +240,36 @@ export const FinancialHealthScore = () => {
           <div className="lg:col-span-2 space-y-4">
             {/* Big score */}
             <div className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-700 text-center">
-              <div className="text-xs text-slate-500 mb-2 uppercase tracking-wide">Financial Health Score</div>
-              <div className={`text-7xl font-black ${gradeColor}`}>{totalScore}</div>
-              <div className="text-slate-400 text-sm mt-1">out of 100</div>
-              <div className={`text-2xl font-bold mt-2 ${gradeColor}`}>{grade} — {gradeLabel}</div>
-              {/* Progress bar */}
-              <div className="mt-4 w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                <div className="h-full rounded-full transition-all duration-500"
-                  style={{
-                    width: `${totalScore}%`,
-                    background: totalScore >= 70 ? '#10b981' : totalScore >= 50 ? '#f59e0b' : '#ef4444',
-                  }} />
+              {/* Shareable card */}
+              <div ref={cardRef} className="bg-white rounded-2xl p-6 text-center">
+                <div className="text-xs text-slate-500 mb-2 uppercase tracking-wide font-semibold">Financial Health Score · OneTool</div>
+                <div className={`text-7xl font-black ${gradeColor}`}>{totalScore}</div>
+                <div className="text-slate-400 text-sm mt-1">out of 100</div>
+                <div className={`text-2xl font-bold mt-2 ${gradeColor}`}>{grade} — {gradeLabel}</div>
+                <div className="mt-4 w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-full rounded-full transition-all duration-500"
+                    style={{
+                      width: `${totalScore}%`,
+                      background: totalScore >= 70 ? '#10b981' : totalScore >= 50 ? '#f59e0b' : '#ef4444',
+                    }} />
+                </div>
+                <div className="mt-4 flex justify-center gap-4 flex-wrap">
+                  {metrics.map(m => (
+                    <div key={m.id} className="text-center">
+                      <div className={`text-lg font-black ${m.status === 'great' ? 'text-emerald-600' : m.status === 'ok' ? 'text-amber-600' : 'text-red-500'}`}>{m.score}/{m.max}</div>
+                      <div className="text-[10px] text-slate-400 font-semibold">{m.label}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 text-[10px] text-slate-300 font-medium">onetool.co.in · Free · No Signup</div>
               </div>
+              <button
+                onClick={shareAsImage}
+                disabled={sharing}
+                className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-sm font-semibold transition-colors disabled:opacity-50"
+              >
+                <Download size={15} /> {sharing ? 'Generating…' : 'Download Score Card'}
+              </button>
             </div>
 
             {/* Metrics */}

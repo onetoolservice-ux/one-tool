@@ -1,8 +1,13 @@
 /**
  * Rate Limiting Utility
- * 
- * NOTE: In-memory rate limiting is for development only.
- * For production, use Redis-based rate limiting (Upstash Redis, Vercel KV, etc.)
+ *
+ * In development (or when Upstash env vars are not set): uses in-memory store.
+ * In production with UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN set:
+ *   uses Upstash Redis via @upstash/ratelimit — works across multiple instances.
+ *
+ * To enable Upstash:
+ *   1. Create a database at upstash.com
+ *   2. Add UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN to .env.local / Vercel env
  */
 
 interface RateLimitRecord {
@@ -79,6 +84,43 @@ export interface RateLimitResult {
  * - Vercel KV
  * - Custom Redis instance
  */
+// ── Upstash Redis-backed rate limiter (production) ───────────────────────────
+
+let _upstashLimiter: import('@upstash/ratelimit').Ratelimit | null = null;
+let _upstashAuthLimiter: import('@upstash/ratelimit').Ratelimit | null = null;
+
+async function getUpstashLimiters() {
+  if (_upstashLimiter) return { limiter: _upstashLimiter, authLimiter: _upstashAuthLimiter! };
+  const url   = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return null;
+  const { Ratelimit } = await import('@upstash/ratelimit');
+  const { Redis }     = await import('@upstash/redis');
+  const redis = new Redis({ url, token });
+  _upstashLimiter     = new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(100, '1 m'), prefix: 'rl:general' });
+  _upstashAuthLimiter = new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(10,  '1 m'), prefix: 'rl:auth' });
+  return { limiter: _upstashLimiter, authLimiter: _upstashAuthLimiter };
+}
+
+/**
+ * Async rate limit check — uses Upstash Redis in production (if env vars set),
+ * falls back to in-memory for dev or when Redis is not configured.
+ */
+export async function checkRateLimitAsync(
+  ip: string,
+  path: string,
+  config: RateLimitConfig
+): Promise<RateLimitResult> {
+  const isAuthRoute = path.startsWith('/auth/');
+  const upstash = await getUpstashLimiters().catch(() => null);
+  if (upstash) {
+    const { success, remaining, reset } = await (isAuthRoute ? upstash.authLimiter : upstash.limiter).limit(ip);
+    return { allowed: success, remaining, resetTime: reset };
+  }
+  // Fallback: in-memory
+  return checkRateLimit(ip, path, config);
+}
+
 export function checkRateLimit(
   ip: string,
   path: string,

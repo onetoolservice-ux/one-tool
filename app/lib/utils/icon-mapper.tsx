@@ -13,11 +13,13 @@ import {
   Calendar, QrCode, Lock, Timer, ArrowRightLeft, Type, Pipette, Scale, Wind, Dumbbell, Sparkles, BrainCircuit,
   Image, Table, Percent, Check, Split, Grid, Laptop, FileCode, Mic, Upload,
   BarChart3, Brain, SearchCode, LayoutDashboard, Package, BookOpen, Receipt,
-  ShoppingBag, CreditCard, FileCheck, Banknote, Activity, Tags, Repeat2,
+  ShoppingBag, ShoppingCart, CreditCard, FileCheck, Banknote, Activity, Tags, Repeat2,
   Radio, Trophy, Zap, Wand2, CircleDollarSign, CalendarDays, Tag,
   Flame, IndianRupee, Award, Heart, ShieldCheck, Dna,
   Building2, MapPin, Rocket, Plane, Car, Fuel, Video, Download,
-  PiggyBank, Coins, Droplets, ListChecks, Gauge, GraduationCap, GitMerge, Utensils, Target
+  PiggyBank, Coins, Droplets, ListChecks, Gauge, GraduationCap, GitMerge, Utensils, Target,
+  Languages, ClipboardCheck,
+  PenLine, Lightbulb
 } from "lucide-react";
 
 export type IconName =
@@ -28,12 +30,14 @@ export type IconName =
   | 'Image' | 'Table' | 'Percent' | 'Check' | 'Split' | 'Grid' | 'Laptop' | 'FileCode' | 'Mic' | 'Upload'
   | 'BarChart3' | 'Brain' | 'SearchCode' | 'Users'
   | 'LayoutDashboard' | 'Package' | 'BookOpen' | 'Receipt'
-  | 'ShoppingBag' | 'CreditCard' | 'FileCheck' | 'Banknote' | 'Activity' | 'Tags'
+  | 'ShoppingBag' | 'ShoppingCart' | 'CreditCard' | 'FileCheck' | 'Banknote' | 'Activity' | 'Tags'
   | 'Repeat2' | 'Radio' | 'Trophy' | 'Zap' | 'Wand2' | 'CircleDollarSign'
   | 'CalendarDays' | 'Tag'
   | 'Flame' | 'IndianRupee' | 'Award' | 'Heart' | 'ShieldCheck' | 'Dna'
   | 'Building2' | 'MapPin' | 'Rocket' | 'Plane' | 'Car' | 'Fuel' | 'Video' | 'Download'
-  | 'PiggyBank' | 'Coins' | 'Droplets' | 'ListChecks' | 'Gauge' | 'GraduationCap' | 'GitMerge' | 'Utensils' | 'Target';
+  | 'PiggyBank' | 'Coins' | 'Droplets' | 'ListChecks' | 'Gauge' | 'GraduationCap' | 'GitMerge' | 'Utensils' | 'Target'
+  | 'Languages' | 'ClipboardCheck'
+  | 'PenLine' | 'Lightbulb';
 
 const ICON_MAP: Record<IconName, React.ComponentType<{ size?: number; className?: string }>> = {
   FileText,
@@ -94,6 +98,7 @@ const ICON_MAP: Record<IconName, React.ComponentType<{ size?: number; className?
   BookOpen,
   Receipt,
   ShoppingBag,
+  ShoppingCart,
   CreditCard,
   FileCheck,
   Banknote,
@@ -130,6 +135,10 @@ const ICON_MAP: Record<IconName, React.ComponentType<{ size?: number; className?
   GitMerge,
   Utensils,
   Target,
+  Languages,
+  ClipboardCheck,
+  PenLine,
+  Lightbulb,
 };
 
 /**

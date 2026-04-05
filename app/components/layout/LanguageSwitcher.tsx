@@ -3,13 +3,16 @@
 import React from 'react';
 import { Globe } from 'lucide-react';
 
-export default function LanguageSwitcher() {
+export default function LanguageSwitcher({ navText }: { navText?: string | null }) {
   return (
     <button
-      className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-      aria-label="Switch language"
+      disabled
+      title="Multi-language support coming soon"
+      className={`p-2 rounded-lg transition-colors opacity-40 cursor-not-allowed ${navText ? '' : 'text-slate-400'}`}
+      style={navText ? { color: navText } : undefined}
+      aria-label="Language switcher — coming soon"
     >
-      <Globe size={18} />
+      <Globe size={17} />
     </button>
   );
 }

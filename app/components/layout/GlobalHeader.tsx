@@ -3,13 +3,14 @@
 import React, { useState, useRef, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Search, Coffee, Home, X, Settings2, LayoutGrid, Star } from 'lucide-react';
+import { Search, Coffee, X, Settings2, LayoutGrid, Star, ArrowLeft, GraduationCap } from 'lucide-react';
 import { ShareButton } from '@/app/components/ui/ShareButton';
 import LanguageSwitcher from './LanguageSwitcher';
 import BrandLogo from '@/app/components/BrandLogo';
 import { fuzzySearch } from '@/app/lib/search-utils';
 import { trackSearch } from '@/app/lib/telemetry';
-import { ALL_TOOLS } from '@/app/lib/tools-data';
+import { ALL_TOOLS, type ToolHelpConfig } from '@/app/lib/tools-data';
+import { ToolHelpPanel } from '@/app/components/tools/shared/ToolHelpPanel';
 import {
   AccentColorPicker,
   loadThemeSettings, applyAllTheme, resolveNavbarTextColor,
@@ -21,6 +22,37 @@ const SEARCH_TOOLS = ALL_TOOLS.map(tool => ({
   title: tool.name,
   category: tool.category.toLowerCase(),
 }));
+
+const PAGE_HELP_CONFIGS: Record<string, ToolHelpConfig> = {
+  '/home': {
+    title: 'All Tools',
+    description: 'Browse 150+ free tools across Personal Finance, Business OS, Developer, Health, Documents, and more — all running locally in your browser with no account required.',
+    steps: [
+      { title: 'Browse by category', description: 'Scroll through the category sections or use the category filter bar at the top to jump to a specific group.' },
+      { title: 'Search for a tool', description: 'Use the search bar (⌘K) to instantly find any tool by name or keyword.' },
+      { title: 'Pin your favourites', description: 'Click the ★ icon on any tool card to pin it. Pinned tools appear on your My Home page for quick access.' },
+      { title: 'Open a tool', description: 'Click any tool card to open it. All data is saved locally — your work persists between sessions.' },
+    ],
+    tips: [
+      { text: 'Pinned tools are stored in your browser — they stay even after you close the tab.' },
+      { text: 'Personal Finance tools share one data store — upload once in Statement Manager and every analytics tool updates automatically.' },
+      { text: 'Business OS tools share one store too — add a party once and it appears in Daybook, Invoices, and Reports.' },
+    ],
+  },
+  '/my-home': {
+    title: 'My Home',
+    description: 'Your personal dashboard — quick access to pinned tools, recently used tools, and a snapshot of what you\'ve been working on.',
+    steps: [
+      { title: 'Pin tools from All Tools', description: 'Go to All Tools (/home) and click the ★ on any tool card to add it here.' },
+      { title: 'Access pinned tools instantly', description: 'All your starred tools appear here so you don\'t have to search each time.' },
+      { title: 'Reorder or unpin', description: 'Click the ★ on a pinned tool to remove it from this page.' },
+    ],
+    tips: [
+      { text: 'Pins are saved in localStorage — they persist across sessions but are device-specific.' },
+      { text: 'Use My Home as your daily starting point if you regularly use the same 4–5 tools.' },
+    ],
+  },
+};
 
 function HeaderContent() {
   const pathname = usePathname();
@@ -69,9 +101,17 @@ function HeaderContent() {
   const pathSegments = pathname.split('/').filter(Boolean);
   const category = pathSegments[1];
   const toolId = pathSegments[2];
-  const toolName = toolId
-    ? (ALL_TOOLS.find(t => t.id === toolId)?.name ?? toolId.replace(/-/g, ' '))
-    : undefined;
+  const currentTool = toolId ? ALL_TOOLS.find(t => t.id === toolId) : undefined;
+  const toolName = currentTool?.name ?? (toolId ? toolId.replace(/-/g, ' ') : undefined);
+  const toolHelpConfig: ToolHelpConfig | undefined =
+    PAGE_HELP_CONFIGS[pathname] ??
+    (currentTool
+      ? (currentTool.helpConfig ?? {
+          title: currentTool.name,
+          description: currentTool.desc,
+          steps: [],
+        })
+      : undefined);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -139,35 +179,37 @@ function HeaderContent() {
       }}
       data-custom-nav={navBg ? '1' : undefined}
     >
-      {/* Left: Logo / Breadcrumb */}
-      <div className="flex items-center gap-3 mr-6 min-w-fit">
-        {isHome ? (
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <BrandLogo size={32} />
+      {/* Left: Logo (always) + Breadcrumb (non-home) */}
+      <div className="flex items-center gap-2 mr-6 min-w-fit">
+        <Link href="/" className="flex items-center gap-2 group shrink-0" aria-label="OneTool home">
+          <BrandLogo size={isHome ? 32 : 26} />
+          {isHome && (
             <span
               className={`text-lg font-bold tracking-tight ${navText ? '' : 'text-slate-900 dark:text-white'}`}
               style={navText ? { color: navText } : undefined}
             >
               One<span className="text-[var(--ot-accent,#6366f1)]">Tool</span>
             </span>
-          </Link>
-        ) : (
-          <div className="flex items-center gap-1.5 text-sm">
-            <Link
-              href="/"
+          )}
+        </Link>
+
+        {!isHome && (
+          <div className="flex items-center gap-1 text-sm">
+            <span className={navText ? 'opacity-20' : 'text-slate-200 dark:text-slate-700'} style={navText ? { color: navText } : undefined}>|</span>
+            <button
+              onClick={() => router.back()}
               className={`p-1.5 rounded-lg transition-colors ${navText ? 'hover:opacity-75' : 'text-slate-400 hover:text-indigo-500 hover:bg-slate-100 dark:hover:bg-white/5'}`}
               style={navText ? { color: navText } : undefined}
+              aria-label="Go back"
+              title="Back"
             >
-              <Home size={16} />
-            </Link>
+              <ArrowLeft size={15} />
+            </button>
             {category && (
               <>
-                <span
-                  className={navText ? 'opacity-30' : 'text-slate-300 dark:text-slate-700'}
-                  style={navText ? { color: navText } : undefined}
-                >/</span>
+                <span className={navText ? 'opacity-30' : 'text-slate-300 dark:text-slate-700'} style={navText ? { color: navText } : undefined}>/</span>
                 <Link
-                  href={`/?category=${category}`}
+                  href={`/home?category=${category}`}
                   className={`capitalize transition-colors text-xs font-medium ${navText ? 'opacity-70 hover:opacity-100' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}
                   style={navText ? { color: navText } : undefined}
                 >{category}</Link>
@@ -175,12 +217,9 @@ function HeaderContent() {
             )}
             {toolName && (
               <>
+                <span className={navText ? 'opacity-30' : 'text-slate-300 dark:text-slate-700'} style={navText ? { color: navText } : undefined}>/</span>
                 <span
-                  className={navText ? 'opacity-30' : 'text-slate-300 dark:text-slate-700'}
-                  style={navText ? { color: navText } : undefined}
-                >/</span>
-                <span
-                  className={`font-semibold capitalize truncate max-w-[180px] text-xs ${navText ? '' : 'text-slate-900 dark:text-white'}`}
+                  className={`font-semibold capitalize truncate max-w-[140px] text-xs ${navText ? '' : 'text-slate-900 dark:text-white'}`}
                   style={navText ? { color: navText } : undefined}
                 >{toolName}</span>
               </>
@@ -198,12 +237,16 @@ function HeaderContent() {
           />
           <input
             ref={searchInputRef}
-            type="text"
+            type="search"
             placeholder="Search tools..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setIsFocused(true)}
             onKeyDown={handleSearchEnter}
+            aria-label="Search tools"
+            aria-autocomplete="list"
+            aria-controls={isFocused && suggestions.length > 0 ? 'search-suggestions' : undefined}
+            aria-expanded={isFocused && suggestions.length > 0}
             className={`w-full rounded-lg py-1.5 pl-9 pr-20 text-sm border focus:outline-none transition-all ${
               navBg
                 ? 'border-transparent'
@@ -229,13 +272,15 @@ function HeaderContent() {
         </div>
 
         {isFocused && query && suggestions.length > 0 && (
-          <div className="absolute top-full mt-1.5 w-full bg-white dark:bg-[#1A1D2E] border border-slate-200 dark:border-white/10 rounded-xl shadow-xl shadow-black/5 dark:shadow-black/30 overflow-hidden z-50">
+          <div id="search-suggestions" role="listbox" aria-label="Search suggestions" className="absolute top-full mt-1.5 w-full bg-white dark:bg-[#1A1D2E] border border-slate-200 dark:border-white/10 rounded-xl shadow-xl shadow-black/5 dark:shadow-black/30 overflow-hidden z-50">
             <div className="px-3 py-1.5 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
               Results
             </div>
             {suggestions.map((tool) => (
               <button
                 key={tool.id}
+                role="option"
+                aria-selected={false}
                 onClick={() => handleSuggestionClick(tool)}
                 className="w-full text-left px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-white/5 flex items-center justify-between group transition-colors"
               >
@@ -249,14 +294,19 @@ function HeaderContent() {
 
       {/* Right: Actions */}
       <div className="flex items-center gap-0.5 ml-4">
+        {/* Tool help — only shown when current tool has a helpConfig */}
+        {toolHelpConfig && (
+          <ToolHelpPanel config={toolHelpConfig} />
+        )}
+
         {/* Secondary actions — hidden on small screens */}
         <div className="hidden sm:flex items-center gap-0.5">
-          <LanguageSwitcher />
-          <ShareButton />
+          <LanguageSwitcher navText={navText} />
+          <ShareButton navText={navText} />
         </div>
 
         {/* Theme customizer — always visible */}
-        <AccentColorPicker />
+        <AccentColorPicker navText={navText} />
 
         {/* My Home (starred/pinned tools) */}
         <Link
@@ -280,6 +330,17 @@ function HeaderContent() {
           <LayoutGrid size={17} />
         </Link>
 
+        {/* Learning Center */}
+        <Link
+          href="/learn"
+          className={`p-2 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5 ${navText ? '' : 'text-slate-400 hover:text-indigo-500 hover:bg-slate-100 dark:hover:bg-white/5'}`}
+          style={navText ? { color: navText } : undefined}
+          aria-label="Learning Center"
+          title="Learning Center"
+        >
+          <GraduationCap size={17} />
+        </Link>
+
         {/* Workspace — hidden on mobile */}
         <Link
           href="/workspace"
@@ -296,7 +357,8 @@ function HeaderContent() {
           href="https://buymeacoffee.com/onetool"
           target="_blank"
           rel="noopener noreferrer"
-          className="hidden md:flex p-2 rounded-lg text-slate-400 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+          className={`hidden md:flex p-2 rounded-lg transition-colors ${navText ? 'hover:bg-black/5 dark:hover:bg-white/5' : 'text-slate-400 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-white/5'}`}
+          style={navText ? { color: navText } : undefined}
           aria-label="Buy me a coffee"
         >
           <Coffee size={17} />

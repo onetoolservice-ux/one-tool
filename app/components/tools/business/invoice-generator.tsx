@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { FileText, Plus, Trash2, Download, Upload, PenTool, X, Settings2, RotateCcw } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -21,7 +21,7 @@ function Field({ label, value, onChange, type = 'text', placeholder = '' }: {
     <div>
       <label className="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">{label}</label>
       <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-        className="w-full h-8 text-xs px-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-blue-400 transition-all font-medium text-slate-800 dark:text-white"/>
+        className="w-full h-8 text-xs px-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-accent transition-all font-medium text-slate-800 dark:text-white"/>
     </div>
   );
 }
@@ -74,7 +74,13 @@ export const InvoiceGenerator = () => {
     }
     if (file.size > 5 * 1024 * 1024) { showToast('Image must be under 5MB', 'error'); return; }
     const url = URL.createObjectURL(file);
-    if (type === 'logo') setLogo(url); else setSignature(url);
+    if (type === 'logo') {
+      if (logo) URL.revokeObjectURL(logo);
+      setLogo(url);
+    } else {
+      if (signature) URL.revokeObjectURL(signature);
+      setSignature(url);
+    }
   };
 
   const downloadPDF = async () => {
@@ -98,12 +104,23 @@ export const InvoiceGenerator = () => {
 
   const clearAll = () => {
     setItems([{ id: 1, name: '', qty: 1, rate: 0, gstRate: 18 }]);
+    if (logo) URL.revokeObjectURL(logo);
+    if (signature) URL.revokeObjectURL(signature);
     setLogo(null); setSignature(null);
     setMeta({ number: 'INV-001', date: new Date().toISOString().split('T')[0], due: '', po: '' });
     setFrom({ name: '', gstin: '', email: '', address: '', phone: '' });
     setTo({ name: '', gstin: '', email: '', address: '', phone: '' });
     showToast('Cleared', 'success');
   };
+
+  // Revoke object URLs on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (logo) URL.revokeObjectURL(logo);
+      if (signature) URL.revokeObjectURL(signature);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const fmt = (n: number) => `${currency} ${n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 

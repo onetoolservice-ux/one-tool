@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { Search, AlertTriangle, Info } from 'lucide-react';
 import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
+import { TaxDisclaimer } from './TaxDisclaimer';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TDS RATE FINDER — Section-wise TDS rates & thresholds FY 2024-25
@@ -168,6 +169,7 @@ export function TdsFinder() {
         subtitle="Section-wise TDS rates & thresholds — FY 2024-25"
         kpis={kpis}
       />
+      <TaxDisclaimer />
 
       <div className="p-4 space-y-4">
         {/* Search */}

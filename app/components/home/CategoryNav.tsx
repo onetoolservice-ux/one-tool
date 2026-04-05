@@ -5,6 +5,7 @@ import { CATEGORY_ORDER, ALL_TOOLS } from '@/app/lib/tools-data';
 import {
   LayoutGrid, BarChart3, Wallet, Briefcase, FileText,
   Terminal, Zap, ArrowRightLeft, Palette, Heart, Brain, Mic,
+  ShoppingBag,
   PanelLeftClose, PanelLeftOpen,
 } from 'lucide-react';
 
@@ -18,6 +19,7 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
   business: Briefcase, documents: FileText, developer: Terminal,
   productivity: Zap, converters: ArrowRightLeft, design: Palette,
   health: Heart, ai: Brain, creator: Mic,
+  'daily utility': ShoppingBag,
 };
 
 /* Each category gets a unique accent for the icon circle + active pill */
@@ -25,15 +27,16 @@ const CATEGORY_ACCENT: Record<string, { icon: string; active: string; chip: stri
   all:          { icon: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-400', active: 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300', chip: 'bg-indigo-600 text-white' },
   analytics:    { icon: 'bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400', active: 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300', chip: 'bg-blue-600 text-white' },
   finance:      { icon: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400', active: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300', chip: 'bg-emerald-600 text-white' },
-  business:     { icon: 'bg-violet-100 text-violet-600 dark:bg-violet-500/15 dark:text-violet-400', active: 'bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-300', chip: 'bg-violet-600 text-white' },
+  business:     { icon: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-400', active: 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300', chip: 'bg-indigo-600 text-white' },
   documents:    { icon: 'bg-amber-100 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400', active: 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300', chip: 'bg-amber-600 text-white' },
-  developer:    { icon: 'bg-purple-100 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400', active: 'bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300', chip: 'bg-purple-600 text-white' },
+  developer:    { icon: 'bg-sky-100 text-sky-600 dark:bg-sky-500/15 dark:text-sky-400', active: 'bg-sky-50 dark:bg-sky-500/10 text-sky-700 dark:text-sky-300', chip: 'bg-sky-600 text-white' },
   productivity: { icon: 'bg-rose-100 text-rose-600 dark:bg-rose-500/15 dark:text-rose-400', active: 'bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-300', chip: 'bg-rose-600 text-white' },
   converters:   { icon: 'bg-cyan-100 text-cyan-600 dark:bg-cyan-500/15 dark:text-cyan-400', active: 'bg-cyan-50 dark:bg-cyan-500/10 text-cyan-700 dark:text-cyan-300', chip: 'bg-cyan-600 text-white' },
   design:       { icon: 'bg-pink-100 text-pink-600 dark:bg-pink-500/15 dark:text-pink-400', active: 'bg-pink-50 dark:bg-pink-500/10 text-pink-700 dark:text-pink-300', chip: 'bg-pink-600 text-white' },
   health:       { icon: 'bg-teal-100 text-teal-600 dark:bg-teal-500/15 dark:text-teal-400', active: 'bg-teal-50 dark:bg-teal-500/10 text-teal-700 dark:text-teal-300', chip: 'bg-teal-600 text-white' },
-  ai:           { icon: 'bg-fuchsia-100 text-fuchsia-600 dark:bg-fuchsia-500/15 dark:text-fuchsia-400', active: 'bg-fuchsia-50 dark:bg-fuchsia-500/10 text-fuchsia-700 dark:text-fuchsia-300', chip: 'bg-fuchsia-600 text-white' },
-  creator:      { icon: 'bg-orange-100 text-orange-600 dark:bg-orange-500/15 dark:text-orange-400', active: 'bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-300', chip: 'bg-orange-600 text-white' },
+  ai:           { icon: 'bg-pink-100 text-pink-600 dark:bg-pink-500/15 dark:text-pink-400', active: 'bg-pink-50 dark:bg-pink-500/10 text-pink-700 dark:text-pink-300', chip: 'bg-pink-600 text-white' },
+  creator:          { icon: 'bg-orange-100 text-orange-600 dark:bg-orange-500/15 dark:text-orange-400', active: 'bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-300', chip: 'bg-orange-600 text-white' },
+  'daily utility':  { icon: 'bg-green-100 text-green-600 dark:bg-green-500/15 dark:text-green-400', active: 'bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-300', chip: 'bg-green-600 text-white' },
 };
 
 const CATEGORIES = [

@@ -6,6 +6,8 @@
  * v1 → v2 migration: flat `pins[]` is wrapped into the default "My Home" space automatically.
  */
 
+import { safeLocalStorage } from '@/app/lib/utils/storage';
+
 const KEY     = 'onetool-my-home';
 const VERSION = 2;
 
@@ -84,17 +86,13 @@ function migrate(raw: any): StoreV2 {
 
 function load(): StoreV2 {
   if (typeof window === 'undefined') return defaultStore();
-  try {
-    const raw = localStorage.getItem(KEY);
-    return migrate(raw ? JSON.parse(raw) : null);
-  } catch {
-    return defaultStore();
-  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return migrate(safeLocalStorage.getItem<any>(KEY));
 }
 
 function save(store: StoreV2): void {
   if (typeof window === 'undefined') return;
-  try { localStorage.setItem(KEY, JSON.stringify(store)); } catch { /* quota */ }
+  safeLocalStorage.setItem(KEY, store);
 }
 
 function dispatch(): void {

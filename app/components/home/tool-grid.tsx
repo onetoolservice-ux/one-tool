@@ -45,14 +45,14 @@ const SECTION_ICONS: Record<string, React.ElementType> = {
 const SECTION_COLORS: Record<string, { iconBg: string; icon: string; text: string; line: string; count: string; edge: string }> = {
   Analytics:    { iconBg: 'bg-blue-100 dark:bg-blue-500/15', icon: 'text-blue-600 dark:text-blue-400', text: 'text-blue-700 dark:text-blue-300', line: 'from-blue-300/60 dark:from-blue-700/60', count: 'bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400', edge: 'border-blue-500' },
   Finance:      { iconBg: 'bg-emerald-100 dark:bg-emerald-500/15', icon: 'text-emerald-600 dark:text-emerald-400', text: 'text-emerald-700 dark:text-emerald-300', line: 'from-emerald-300/60 dark:from-emerald-700/60', count: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400', edge: 'border-emerald-500' },
-  Business:     { iconBg: 'bg-violet-100 dark:bg-violet-500/15', icon: 'text-violet-600 dark:text-violet-400', text: 'text-violet-700 dark:text-violet-300', line: 'from-violet-300/60 dark:from-violet-700/60', count: 'bg-violet-100 text-violet-600 dark:bg-violet-500/15 dark:text-violet-400', edge: 'border-violet-500' },
+  Business:     { iconBg: 'bg-indigo-100 dark:bg-indigo-500/15', icon: 'text-indigo-600 dark:text-indigo-400', text: 'text-indigo-700 dark:text-indigo-300', line: 'from-indigo-300/60 dark:from-indigo-700/60', count: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-400', edge: 'border-indigo-500' },
   Documents:    { iconBg: 'bg-amber-100 dark:bg-amber-500/15', icon: 'text-amber-600 dark:text-amber-400', text: 'text-amber-700 dark:text-amber-300', line: 'from-amber-300/60 dark:from-amber-700/60', count: 'bg-amber-100 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400', edge: 'border-amber-500' },
-  Developer:    { iconBg: 'bg-purple-100 dark:bg-purple-500/15', icon: 'text-purple-600 dark:text-purple-400', text: 'text-purple-700 dark:text-purple-300', line: 'from-purple-300/60 dark:from-purple-700/60', count: 'bg-purple-100 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400', edge: 'border-purple-500' },
+  Developer:    { iconBg: 'bg-sky-100 dark:bg-sky-500/15', icon: 'text-sky-600 dark:text-sky-400', text: 'text-sky-700 dark:text-sky-300', line: 'from-sky-300/60 dark:from-sky-700/60', count: 'bg-sky-100 text-sky-600 dark:bg-sky-500/15 dark:text-sky-400', edge: 'border-sky-500' },
   Productivity: { iconBg: 'bg-rose-100 dark:bg-rose-500/15', icon: 'text-rose-600 dark:text-rose-400', text: 'text-rose-700 dark:text-rose-300', line: 'from-rose-300/60 dark:from-rose-700/60', count: 'bg-rose-100 text-rose-600 dark:bg-rose-500/15 dark:text-rose-400', edge: 'border-rose-500' },
   Converters:   { iconBg: 'bg-cyan-100 dark:bg-cyan-500/15', icon: 'text-cyan-600 dark:text-cyan-400', text: 'text-cyan-700 dark:text-cyan-300', line: 'from-cyan-300/60 dark:from-cyan-700/60', count: 'bg-cyan-100 text-cyan-600 dark:bg-cyan-500/15 dark:text-cyan-400', edge: 'border-cyan-500' },
   Design:       { iconBg: 'bg-pink-100 dark:bg-pink-500/15', icon: 'text-pink-600 dark:text-pink-400', text: 'text-pink-700 dark:text-pink-300', line: 'from-pink-300/60 dark:from-pink-700/60', count: 'bg-pink-100 text-pink-600 dark:bg-pink-500/15 dark:text-pink-400', edge: 'border-pink-500' },
   Health:       { iconBg: 'bg-teal-100 dark:bg-teal-500/15', icon: 'text-teal-600 dark:text-teal-400', text: 'text-teal-700 dark:text-teal-300', line: 'from-teal-300/60 dark:from-teal-700/60', count: 'bg-teal-100 text-teal-600 dark:bg-teal-500/15 dark:text-teal-400', edge: 'border-teal-500' },
-  AI:           { iconBg: 'bg-fuchsia-100 dark:bg-fuchsia-500/15', icon: 'text-fuchsia-600 dark:text-fuchsia-400', text: 'text-fuchsia-700 dark:text-fuchsia-300', line: 'from-fuchsia-300/60 dark:from-fuchsia-700/60', count: 'bg-fuchsia-100 text-fuchsia-600 dark:bg-fuchsia-500/15 dark:text-fuchsia-400', edge: 'border-fuchsia-500' },
+  AI:           { iconBg: 'bg-pink-100 dark:bg-pink-500/15', icon: 'text-pink-600 dark:text-pink-400', text: 'text-pink-700 dark:text-pink-300', line: 'from-pink-300/60 dark:from-pink-700/60', count: 'bg-pink-100 text-pink-600 dark:bg-pink-500/15 dark:text-pink-400', edge: 'border-pink-500' },
   Creator:      { iconBg: 'bg-orange-100 dark:bg-orange-500/15', icon: 'text-orange-600 dark:text-orange-400', text: 'text-orange-700 dark:text-orange-300', line: 'from-orange-300/60 dark:from-orange-700/60', count: 'bg-orange-100 text-orange-600 dark:bg-orange-500/15 dark:text-orange-400', edge: 'border-orange-500' },
 };
 
@@ -72,7 +72,13 @@ export const ToolGrid = memo(({ searchQuery, categoryFilter }: { searchQuery?: s
       tools: ALL_TRANSFORMED.filter(t => t.category === cat),
     }))
       .filter(s => s.tools.length > 0)
-      .filter(s => !categoryFilter || s.category.toLowerCase() === categoryFilter);
+      .filter(s => {
+        if (!categoryFilter) return true;
+        if (s.category.toLowerCase() === categoryFilter.replace(/-/g, ' ')) return true;
+        // Fallback: match via URL slug from the first tool's href (e.g. "writer" → "Writer's OS")
+        const hrefSlug = s.tools[0]?.href?.split('/')?.[2] ?? '';
+        return hrefSlug === categoryFilter;
+      });
   }, [categoryFilter]);
 
   /* Search mode: flat grid */
