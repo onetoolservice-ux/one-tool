@@ -8,6 +8,8 @@ import { activateDemoJourney } from '@/app/components/ui/DemoJourneyBanner';
 import { ALL_TOOLS, CATEGORY_ORDER } from '@/app/lib/tools-data';
 import { getIconComponent, type IconName } from '@/app/lib/utils/icon-mapper';
 import { categoryToSpaceHref } from '@/app/lib/space-config';
+import { getCategoryEmoji } from '@/app/lib/category-config';
+import { TOOL_ICON_BG } from '@/app/lib/tool-icon-bg';
 
 // Analytics-driven order: top tools by actual views (GA data)
 const FEATURED_IDS = [
@@ -30,27 +32,9 @@ const TRENDING_DESC: Record<string, string> = {
 };
 
 
-const CAT_EMOJI: Record<string, string> = {
-  'Personal Finance': '📊', 'Finance': '💰', 'GST & Tax': '🧾',
-  'Real Estate': '🏠', 'Career': '🎯', 'Startup': '🚀',
-  'Travel': '✈️', 'Personal CRM': '👥', 'Business CRM': '🤝',
-  'Business OS': '🏪', 'Business': '💼', 'Documents': '📄',
-  'Developer': '⌨️', 'Productivity': '⚡', 'Converters': '🔄',
-  'Design': '🎨', 'Health': '❤️', 'AI': '🤖', 'Creator': '🎬',
-  "Writer's OS": '✍️',
-};
+// Emoji per category is now sourced from category-config via getCategoryEmoji()
 
-const TOOL_ICON_BG: Record<string, string> = {
-  'pf-statement-manager':  'bg-gradient-to-br from-blue-500 to-indigo-600',
-  'pf-budget-vs-actual':   'bg-gradient-to-br from-emerald-500 to-teal-600',
-  'pf-financial-snapshot': 'bg-gradient-to-br from-sky-500 to-blue-600',
-  'gst-calculator':        'bg-gradient-to-br from-orange-500 to-amber-600',
-  'biz-invoices':          'bg-gradient-to-br from-amber-500 to-orange-500',
-  'smart-budget':          'bg-gradient-to-br from-emerald-500 to-teal-600',
-  'dev-station':           'bg-gradient-to-br from-indigo-600 to-blue-700',
-  'smart-pdf-merge':       'bg-gradient-to-br from-red-600 to-rose-500',
-  'writer-studio':         'bg-gradient-to-br from-amber-500 to-orange-500',
-};
+// Tool icon backgrounds are now imported from tool-icon-bg.ts (single source of truth)
 
 interface Props {
   searchIntent?: string | null;
@@ -81,7 +65,7 @@ export function LandingPage({ searchIntent }: Props) {
   const categoryCounts = CATEGORY_ORDER.map(cat => ({
     name: cat,
     count: ALL_TOOLS.filter(t => t.category === cat).length,
-    emoji: CAT_EMOJI[cat] || '📦',
+    emoji: getCategoryEmoji(cat),
   }));
 
   // ── Returning-user compact mode ───────────────────────────────────────────
@@ -107,11 +91,8 @@ export function LandingPage({ searchIntent }: Props) {
     router.push('/tools/personal-finance/pf-statement-manager');
   };
 
-  // Avoid SSR/hydration flash — render nothing until client has read localStorage
-  if (!mounted) return <div className="min-h-screen bg-gray-50 dark:bg-[#0F111A]" />;
-
-  // ── Compact view — returning user ─────────────────────────────────────────
-  if (isCompact) return (
+  // ── Compact view — returning user (only after mount to avoid blank SSR) ──
+  if (mounted && isCompact) return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0F111A]">
 
       {/* SEO block — always present, hidden from UI */}

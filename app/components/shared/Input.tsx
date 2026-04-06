@@ -76,7 +76,7 @@ const InputComponent = React.forwardRef<HTMLInputElement, InputProps>(
               // Icon padding
               leftIcon && 'pl-10',
               rightIcon && 'pr-10',
-              // Error state - Always visible borders (SAP style)
+              // Error state — always show border so users know where the issue is
               hasError
                 ? 'border-red-500 focus:border-red-500'
                 : 'border-blue-300 dark:border-blue-600',

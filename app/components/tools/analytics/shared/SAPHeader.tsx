@@ -3,11 +3,6 @@
 import { type ReactNode, type LucideIcon } from 'lucide-react';
 import { SAP_COLORS, SAP_GRADIENTS } from './sap-theme';
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// SAP HEADER COMPONENT
-// Professional enterprise header with SAP blue gradient, mode toggles, and KPI cards
-// ═══════════════════════════════════════════════════════════════════════════════
-
 export interface ModeToggle {
   key: string;
   label: string;
@@ -25,6 +20,7 @@ export interface KPICard {
 }
 
 export interface SAPHeaderProps {
+  // Note: SAPHeader is OneTool's own shared tool header — the "SAP" prefix is legacy naming
   title: string;
   subtitle?: string;
   modes?: {
@@ -143,7 +139,7 @@ function getKPIColorClass(color?: KPICard['color']): string {
   }
 }
 
-// ── Compact Header Variant ────────────────────────────────────────────────────
+// ── Compact variant ───────────────────────────────────────────────────────────
 
 export interface CompactSAPHeaderProps {
   title: string;

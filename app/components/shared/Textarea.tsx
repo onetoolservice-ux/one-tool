@@ -67,7 +67,7 @@ const TextareaComponent = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
               'transition-all duration-200',
               'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
               'disabled:bg-slate-50 dark:disabled:bg-slate-900 disabled:text-slate-500 disabled:cursor-not-allowed',
-              // Error state - Always visible borders (SAP style)
+              // Error state — always show border so users know where the issue is
               hasError
                 ? 'border-red-500 focus:border-red-500'
                 : 'border-blue-300 dark:border-blue-600',

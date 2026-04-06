@@ -1,12 +1,7 @@
 'use client';
 
 import { type ReactNode, type LucideIcon } from 'lucide-react';
-import { Calendar, Filter, Search, FileDown } from 'lucide-react';
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// SAP FILTERS COMPONENT
-// Consistent filter panel for analytics tools with search, dropdowns, and actions
-// ═══════════════════════════════════════════════════════════════════════════════
+import { Filter, Search, FileDown } from 'lucide-react';
 
 export interface FilterSection {
   id: string;

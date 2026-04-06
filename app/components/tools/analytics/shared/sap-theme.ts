@@ -1,29 +1,24 @@
-// ═══════════════════════════════════════════════════════════════════════════════
-// SAP THEME CONSTANTS
-// Professional color palette, spacing, and chart configurations for SAP-style
-// analytics dashboards. Includes light and dark mode variants.
-// ═══════════════════════════════════════════════════════════════════════════════
+// ─────────────────────────────────────────────────────────────────────────────
+// chart-theme — color palette, spacing, and chart config for OneTool dashboards
+// ─────────────────────────────────────────────────────────────────────────────
 
-// ── SAP Color Palette ─────────────────────────────────────────────────────────
+// ── Color palette ─────────────────────────────────────────────────────────────
 
 export const SAP_COLORS = {
-  // Primary blues (SAP signature color)
-  primary: '#0070F3',
-  primaryDark: '#0053B8',
-  primaryLight: '#84B2FF',
-  primaryHover: '#005DD1',
+  primary: '#6366f1',
+  primaryDark: '#4338ca',
+  primaryLight: '#a5b4fc',
+  primaryHover: '#5254cc',
 
-  // Semantic colors
-  success: '#107E3E',      // SAP Green
-  successLight: '#30A46C',
-  warning: '#E76500',      // SAP Orange
-  warningLight: '#FF8E3C',
-  error: '#BB0000',        // SAP Red
-  errorLight: '#E5484D',
-  info: '#427CAC',         // SAP Info Blue
-  infoLight: '#52A9FF',
+  success: '#10b981',
+  successLight: '#34d399',
+  warning: '#f59e0b',
+  warningLight: '#fbbf24',
+  error: '#ef4444',
+  errorLight: '#f87171',
+  info: '#3b82f6',
+  infoLight: '#60a5fa',
 
-  // Neutrals for light mode
   gray50: '#F7F8FA',
   gray100: '#EAECF0',
   gray200: '#D1D5DB',
@@ -35,98 +30,81 @@ export const SAP_COLORS = {
   gray800: '#111827',
   gray900: '#0A0A0A',
 
-  // Dark mode specific
-  darkBg: '#0F1419',
-  darkPanel: '#1A1F2C',
-  darkBorder: '#2D3748',
+  darkBg: '#0F1119',
+  darkPanel: '#151827',
+  darkBorder: '#1e2132',
   darkText: '#E5E7EB',
 
-  // Chart color palette (professional and accessible)
   chart: [
-    '#0070F3', // SAP Blue
-    '#107E3E', // SAP Green
-    '#E76500', // SAP Orange
-    '#6A1B9A', // Purple
-    '#00838F', // Teal
-    '#C62828', // Deep Red
-    '#F9A825', // Amber
-    '#5E35B1', // Deep Purple
-    '#00695C', // Dark Teal
-    '#F57C00', // Dark Orange
+    '#6366f1',
+    '#10b981',
+    '#f59e0b',
+    '#3b82f6',
+    '#06b6d4',
+    '#ef4444',
+    '#f97316',
+    '#8b5cf6',
+    '#14b8a6',
+    '#ec4899',
   ],
 
-  // Category-specific colors (for financial data)
   category: {
-    income: '#107E3E',
-    expense: '#E76500',
-    savings: '#0070F3',
-    investment: '#6A1B9A',
-    debt: '#BB0000',
-    transfer: '#427CAC',
+    income: '#10b981',
+    expense: '#f59e0b',
+    savings: '#6366f1',
+    investment: '#8b5cf6',
+    debt: '#ef4444',
+    transfer: '#3b82f6',
   },
 };
 
-// ── Spacing & Layout ──────────────────────────────────────────────────────────
+// ── Spacing ───────────────────────────────────────────────────────────────────
 
 export const SAP_SPACING = {
-  // Card padding
-  cardPadding: '1.25rem',      // 20px
-  cardPaddingSm: '1rem',       // 16px
-  cardPaddingLg: '1.5rem',     // 24px
-
-  // Grid gaps
-  gridGap: '1rem',             // 16px
-  gridGapSm: '0.75rem',        // 12px
-  gridGapLg: '1.5rem',         // 24px
-
-  // Section spacing
-  sectionGap: '1.5rem',        // 24px
-  sectionGapLg: '2rem',        // 32px
-
-  // Component spacing
-  componentGap: '0.5rem',      // 8px
-  componentGapSm: '0.25rem',   // 4px
+  cardPadding: '1.25rem',
+  cardPaddingSm: '1rem',
+  cardPaddingLg: '1.5rem',
+  gridGap: '1rem',
+  gridGapSm: '0.75rem',
+  gridGapLg: '1.5rem',
+  sectionGap: '1.5rem',
+  sectionGapLg: '2rem',
+  componentGap: '0.5rem',
+  componentGapSm: '0.25rem',
 };
 
 // ── Typography ────────────────────────────────────────────────────────────────
 
 export const SAP_TYPOGRAPHY = {
-  // Font families
   fontSans: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
   fontMono: '"Fira Code", "Cascadia Code", Consolas, Monaco, "Courier New", monospace',
-
-  // Font sizes
-  textXs: '0.625rem',   // 10px
-  textSm: '0.75rem',    // 12px
-  textBase: '0.875rem', // 14px
-  textLg: '1rem',       // 16px
-  textXl: '1.125rem',   // 18px
-  text2Xl: '1.25rem',   // 20px
-  text3Xl: '1.5rem',    // 24px
-
-  // Font weights
+  textXs: '0.625rem',
+  textSm: '0.75rem',
+  textBase: '0.875rem',
+  textLg: '1rem',
+  textXl: '1.125rem',
+  text2Xl: '1.25rem',
+  text3Xl: '1.5rem',
   weightNormal: '400',
   weightMedium: '500',
   weightSemibold: '600',
   weightBold: '700',
   weightExtrabold: '800',
   weightBlack: '900',
-
-  // Line heights
   leadingTight: '1.25',
   leadingNormal: '1.5',
   leadingRelaxed: '1.75',
 };
 
-// ── Border Radius ─────────────────────────────────────────────────────────────
+// ── Border radius ─────────────────────────────────────────────────────────────
 
 export const SAP_RADIUS = {
   none: '0',
-  sm: '0.25rem',      // 4px
-  base: '0.5rem',     // 8px
-  md: '0.75rem',      // 12px
-  lg: '1rem',         // 16px
-  xl: '1.25rem',      // 20px
+  sm: '0.25rem',
+  base: '0.5rem',
+  md: '0.75rem',
+  lg: '1rem',
+  xl: '1.25rem',
   full: '9999px',
 };
 
@@ -144,58 +122,45 @@ export const SAP_SHADOWS = {
 // ── Gradients ─────────────────────────────────────────────────────────────────
 
 export const SAP_GRADIENTS = {
-  primary: 'linear-gradient(135deg, #0070F3 0%, #0053B8 100%)',
-  success: 'linear-gradient(135deg, #107E3E 0%, #0C5E2E 100%)',
-  warning: 'linear-gradient(135deg, #E76500 0%, #C75400 100%)',
-  error: 'linear-gradient(135deg, #BB0000 0%, #8B0000 100%)',
-
-  // Chart area gradients
-  chartArea: 'linear-gradient(180deg, rgba(0, 112, 243, 0.2) 0%, rgba(0, 112, 243, 0.02) 100%)',
-  chartAreaSuccess: 'linear-gradient(180deg, rgba(16, 126, 62, 0.2) 0%, rgba(16, 126, 62, 0.02) 100%)',
-  chartAreaWarning: 'linear-gradient(180deg, rgba(231, 101, 0, 0.2) 0%, rgba(231, 101, 0, 0.02) 100%)',
+  primary: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
+  success: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+  warning: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+  error: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
+  chartArea: 'linear-gradient(180deg, rgba(99, 102, 241, 0.2) 0%, rgba(99, 102, 241, 0.02) 100%)',
+  chartAreaSuccess: 'linear-gradient(180deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.02) 100%)',
+  chartAreaWarning: 'linear-gradient(180deg, rgba(245, 158, 11, 0.2) 0%, rgba(245, 158, 11, 0.02) 100%)',
 };
 
-// ── Recharts Configuration ────────────────────────────────────────────────────
+// ── Recharts config ───────────────────────────────────────────────────────────
 
 export const SAP_CHART_CONFIG = {
-  // Common chart props
   margin: { top: 10, right: 10, left: 0, bottom: 0 },
-
-  // Grid
   cartesianGrid: {
     strokeDasharray: '3 3',
     stroke: '#E5E7EB',
     strokeOpacity: 0.5,
   },
-
   cartesianGridDark: {
     strokeDasharray: '3 3',
     stroke: '#374151',
     strokeOpacity: 0.5,
   },
-
-  // Axes
   xAxis: {
     tick: { fontSize: 11, fill: '#6B7280' },
     stroke: '#D1D5DB',
   },
-
   xAxisDark: {
     tick: { fontSize: 11, fill: '#9CA3AF' },
     stroke: '#4B5563',
   },
-
   yAxis: {
     tick: { fontSize: 11, fill: '#6B7280' },
     stroke: '#D1D5DB',
   },
-
   yAxisDark: {
     tick: { fontSize: 11, fill: '#9CA3AF' },
     stroke: '#4B5563',
   },
-
-  // Tooltip
   tooltip: {
     contentStyle: {
       backgroundColor: '#FFFFFF',
@@ -203,12 +168,8 @@ export const SAP_CHART_CONFIG = {
       borderRadius: '0.5rem',
       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
     },
-    labelStyle: {
-      color: '#1F2937',
-      fontWeight: 600,
-    },
+    labelStyle: { color: '#1F2937', fontWeight: 600 },
   },
-
   tooltipDark: {
     contentStyle: {
       backgroundColor: '#1F2937',
@@ -216,39 +177,23 @@ export const SAP_CHART_CONFIG = {
       borderRadius: '0.5rem',
       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3)',
     },
-    labelStyle: {
-      color: '#E5E7EB',
-      fontWeight: 600,
-    },
+    labelStyle: { color: '#E5E7EB', fontWeight: 600 },
   },
-
-  // Legend
   legend: {
     iconSize: 12,
-    wrapperStyle: {
-      fontSize: '12px',
-      paddingTop: '10px',
-    },
+    wrapperStyle: { fontSize: '12px', paddingTop: '10px' },
   },
-
-  // Bar chart
   bar: {
     radius: [4, 4, 0, 0] as [number, number, number, number],
   },
-
-  // Line chart
   line: {
     strokeWidth: 2.5,
     dot: { r: 4 },
     activeDot: { r: 6 },
   },
-
-  // Area chart
   area: {
     strokeWidth: 2,
   },
-
-  // Pie chart
   pie: {
     outerRadius: 110,
     labelLine: true,
@@ -265,59 +210,41 @@ export const SAP_BREAKPOINTS = {
   '2xl': 1536,
 };
 
-// ── Helper Functions ──────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-/**
- * Get chart color by index with wrapping
- */
 export function getChartColor(index: number): string {
   return SAP_COLORS.chart[index % SAP_COLORS.chart.length];
 }
 
-/**
- * Get chart color with opacity
- */
 export function getChartColorWithOpacity(index: number, opacity: number): string {
   const color = getChartColor(index);
-  // Convert hex to rgba
   const r = parseInt(color.slice(1, 3), 16);
   const g = parseInt(color.slice(3, 5), 16);
   const b = parseInt(color.slice(5, 7), 16);
   return `rgba(${r}, ${g}, ${b}, ${opacity})`;
 }
 
-/**
- * Get category color
- */
 export function getCategoryColor(category: keyof typeof SAP_COLORS.category): string {
   return SAP_COLORS.category[category] || SAP_COLORS.primary;
 }
 
-/**
- * Format currency value
- */
+/** Format as Indian Rupees (₹) */
 export function formatChartCurrency(value: number): string {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'INR',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(value);
 }
 
-/**
- * Format number with abbreviation (K, M, B)
- */
 export function formatChartNumber(value: number): string {
-  if (value >= 1000000000) return `${(value / 1000000000).toFixed(1)}B`;
-  if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
-  if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
+  if (value >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(1)}B`;
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
+  if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K`;
   return value.toFixed(0);
 }
 
-/**
- * Format percentage
- */
 export function formatChartPercentage(value: number): string {
   return `${(value * 100).toFixed(1)}%`;
 }
