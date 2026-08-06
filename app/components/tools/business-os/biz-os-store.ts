@@ -38,6 +38,8 @@ export interface BizTransaction {
   invoiceId?: string;
   notes?: string;
   createdAt: string;
+  /** id of the Personal Finance PFTransaction this entry corresponds to, if the user has linked them */
+  linkedPFTransactionId?: string;
 }
 
 // ── ANCHOR 3: Product Catalog ──────────────────────────────────────────────────
@@ -119,7 +121,7 @@ export const GST_RATES = [0, 5, 12, 18, 28] as const;
 export const PAYMENT_MODES: PaymentMode[] = ['cash', 'upi', 'bank', 'credit', 'other'];
 
 /** Bump this when BizOSStore shape changes. loadBizStore() uses it to run migrations. */
-const CURRENT_BIZ_SCHEMA_VERSION = 2;
+const CURRENT_BIZ_SCHEMA_VERSION = 3;
 
 // ── STORE LIFECYCLE ────────────────────────────────────────────────────────────
 
@@ -155,7 +157,13 @@ export function loadBizStore(): BizOSStore {
       parsed.lastUpdated  = parsed.lastUpdated  ?? new Date().toISOString();
     }
 
-    // ── Future migrations go here as: if (storedVersion < 3) { ... } ──
+    // ── v2 → v3: add linkedPFTransactionId (cross-store link to Personal Finance) ──
+    // No-op migration: field is optional and simply absent on older data.
+    if (storedVersion < 3) {
+      // Nothing to backfill — linkedPFTransactionId defaults to undefined.
+    }
+
+    // ── Future migrations go here as: if (storedVersion < 4) { ... } ──
 
     parsed.schemaVersion = CURRENT_BIZ_SCHEMA_VERSION;
     return parsed;

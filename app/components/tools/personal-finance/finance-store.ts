@@ -6,22 +6,22 @@
  * User override always wins.
  */
 
-// ── Re-use pure utilities from analytics-store ────────────────────────────────
+// ── Re-use pure utilities from the shared statement-parsing module ────────────
 export {
   parseDate,
   parseAmount,
   detectColumns,
   autoCategory,
-} from '../analytics/analytics-store';
+} from '@/app/lib/finance/statement-parsing';
 
-export type { DetectedColumns } from '../analytics/analytics-store';
+export type { DetectedColumns } from '@/app/lib/finance/statement-parsing';
 
 import {
   parseDate,
   parseAmount,
   autoCategory,
   type DetectedColumns,
-} from '../analytics/analytics-store';
+} from '@/app/lib/finance/statement-parsing';
 
 // ── Core Entity Types ─────────────────────────────────────────────────────────
 
@@ -69,6 +69,8 @@ export interface PFTransaction {
   userOverrideFlag: boolean;  // category was manually changed
   createdAt: string;
   rawData: Record<string, string>;
+  /** id of the Business OS BizTransaction this entry corresponds to, if the user has linked them */
+  linkedBizTransactionId?: string;
 }
 
 export interface PFCommitment {
@@ -200,7 +202,7 @@ export const PF_CATEGORIES: string[] = [
 
 const PF_STORAGE_KEY = 'otsd-pf-store';
 /** Bump this when PFStoreData shape changes. loadPFStore() uses it to run migrations. */
-const CURRENT_PF_SCHEMA_VERSION = 2;
+const CURRENT_PF_SCHEMA_VERSION = 3;
 
 function emptyStore(): PFStoreData {
   return {
@@ -246,7 +248,13 @@ export function loadPFStore(): PFStoreData {
         }
       }
 
-      // ── Future migrations go here as: if (storedVersion < 3) { ... } ──
+      // ── v2 → v3: add linkedBizTransactionId (cross-store link to Business OS) ──
+      // No-op migration: field is optional and simply absent on older data.
+      if (storedVersion < 3) {
+        // Nothing to backfill — linkedBizTransactionId defaults to undefined.
+      }
+
+      // ── Future migrations go here as: if (storedVersion < 4) { ... } ──
 
       data.schemaVersion = CURRENT_PF_SCHEMA_VERSION;
       return data;
