@@ -7,7 +7,7 @@ import { useVoiceSearch } from "@/app/hooks/useVoiceSearch";
 
 export default function CommandMenu() {
   const { searchQuery, setSearchQuery } = useUI();
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const { isListening, transcript, startListening } = useVoiceSearch();
 
   // Sync voice result to search
@@ -16,7 +16,7 @@ export default function CommandMenu() {
   }, [transcript, setSearchQuery]);
 
   useEffect(() => {
-    const down = (e) => {
+    const down = (e: KeyboardEvent) => {
       if (e.key === "/" || (e.key === "k" && (e.metaKey || e.ctrlKey))) {
         e.preventDefault();
         inputRef.current?.focus();

@@ -26,14 +26,16 @@ export const GitCheats = () => {
   return (
     <div className="max-w-3xl mx-auto h-[600px] flex flex-col">
        <div className="mb-6">
-          <Input
-            type="text"
-            placeholder="Search commands (e.g. 'undo', 'branch')..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            icon={<Search size={20} />}
-            className="text-base"
-          />
+          <div className="relative">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            <Input
+              type="text"
+              placeholder="Search commands (e.g. 'undo', 'branch')..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="text-base pl-9"
+            />
+          </div>
        </div>
        
        <div className="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
@@ -46,7 +48,7 @@ export const GitCheats = () => {
                 <CopyButton
                   text={c.cmd}
                   className="opacity-0 group-hover:opacity-100"
-                  variant="ghost"
+                  variant="icon"
                   size="sm"
                 />
              </div>

@@ -4,14 +4,16 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
   SlidersHorizontal, ChevronUp, ChevronDown,
   FileDown, Trash2, Tag, ArrowLeftRight, CreditCard, X, Copy,
+  BookOpen, TrendingUp, Search, AlertTriangle, Filter,
 } from 'lucide-react';
+import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
 import {
   PFButton,
   type VHOp, type VHCondition, type VHFilter,
   emptyVHF, vhfActive, applyVHF,
   VH_EXCLUDE_OPS, OP_META, TEXT_OPS, NUM_OPS, genId, condLabel,
   ValueHelpDialog, VHFilterField, VHChipStrip, AdaptFiltersDialog,
-} from './pf-ui';
+} from './PfUi';
 import { downloadFile } from '@/app/lib/utils/tool-helpers';
 import {
   getAccounts, getPFTransactions, getStatements,
@@ -42,9 +44,87 @@ const STANDARD_FILTER_NAMES = new Set([
   'balance', 'closingbalance', 'openingbalance', 'availablebalance',
 ]);
 
+const GUIDE_KEY = 'pf-income-guide-seen';
+
+// ── Guide View ─────────────────────────────────────────────────────────────────
+function IncomeGuide({ onEnter }: { onEnter: () => void }) {
+  const features = [
+    {
+      icon: <TrendingUp size={18} className="text-emerald-600 dark:text-emerald-400" />,
+      bg: 'bg-emerald-50 dark:bg-emerald-900/20',
+      title: 'Only credit transactions',
+      desc: 'This page shows every money-in entry — salary credits, freelance payments, UPI received, bank interest, refunds. Debits are not shown here.',
+    },
+    {
+      icon: <Filter size={18} className="text-blue-600 dark:text-blue-400" />,
+      bg: 'bg-blue-50 dark:bg-blue-900/20',
+      title: 'Filter by account, date, merchant',
+      desc: 'Filter by which bank account, date range, or search a merchant name. Useful when you want to verify a specific salary credit or refund landed.',
+    },
+    {
+      icon: <Tag size={18} className="text-violet-600 dark:text-violet-400" />,
+      bg: 'bg-violet-50 dark:bg-violet-900/20',
+      title: 'Fix wrong categories',
+      desc: 'Click any category badge to change it. If a transfer was wrongly detected as income, mark it as "Transfer" using the bulk action — it will be excluded from totals.',
+    },
+    {
+      icon: <Search size={18} className="text-amber-600 dark:text-amber-400" />,
+      bg: 'bg-amber-50 dark:bg-amber-900/20',
+      title: 'Verify your actual income',
+      desc: 'The total at the top is your gross income for the filtered period. Cross-check it against what you expected — if it looks low, check if your salary account was uploaded.',
+    },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <SAPHeader
+        fullWidth
+        title="Income"
+        subtitle="All credit transactions — salary, freelance, refunds, interest, UPI received"
+      />
+      <div className="px-4 pb-6 space-y-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-5 py-4">
+          <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">What does this page show?</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            This is your income ledger — only the money that came <span className="font-semibold text-emerald-600 dark:text-emerald-400">into</span> your accounts. Every credit entry from every statement you uploaded, in one filterable list. Use it to verify salaries landed, spot extra income sources, and fix miscategorised credits.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {features.map((f, i) => (
+            <div key={i} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 flex gap-3">
+              <div className={`w-9 h-9 rounded-lg ${f.bg} flex items-center justify-center shrink-0`}>
+                {f.icon}
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-800 dark:text-slate-100 mb-0.5">{f.title}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{f.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex items-start gap-2.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl px-4 py-3">
+          <AlertTriangle size={14} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+          <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
+            <span className="font-bold">Self-transfers inflate income.</span> If you moved money between your own accounts (wallet top-up, savings transfer), those show as credits here. Select them and mark as Transfer so they don't count as real income.
+          </p>
+        </div>
+
+        <button onClick={onEnter}
+          className="w-full h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold transition-colors flex items-center justify-center gap-2 shadow-sm">
+          View Income Ledger →
+        </button>
+        <p className="text-center text-[11px] text-slate-400 dark:text-slate-500">Re-open this guide anytime from the toolbar</p>
+      </div>
+    </div>
+  );
+}
+
 // ── Main Component ─────────────────────────────────────────────────────────────
 export function Income() {
   const [mounted,    setMounted]    = useState(false);
+  const [showGuide,  setShowGuide]  = useState(false);
   const [accounts,   setAccounts]   = useState<PFAccount[]>([]);
   const [statements, setStatements] = useState<PFStatement[]>([]);
   const [allTxns,    setAllTxns]    = useState<PFTransaction[]>([]);
@@ -112,6 +192,7 @@ export function Income() {
 
   useEffect(() => {
     setMounted(true);
+    if (!localStorage.getItem(GUIDE_KEY)) setShowGuide(true);
     reload();
     window.addEventListener('pf-store-updated', reload);
     return () => window.removeEventListener('pf-store-updated', reload);
@@ -443,6 +524,11 @@ export function Income() {
   };
 
   if (!mounted) return null;
+
+  if (showGuide) {
+    return <IncomeGuide onEnter={() => { localStorage.setItem(GUIDE_KEY, '1'); setShowGuide(false); }} />;
+  }
+
   const hasData = allTxns.length > 0;
 
   const inputCls = 'text-sm border border-slate-400 dark:border-slate-600 rounded-lg px-3 py-1.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200';
@@ -624,6 +710,14 @@ export function Income() {
             className="text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:underline font-medium"
           >
             Adapt Filters
+          </button>
+
+          <button
+            onClick={() => setShowGuide(true)}
+            className="flex items-center gap-1 text-xs text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
+            title="How to use"
+          >
+            <BookOpen size={12} /> Guide
           </button>
 
           <button

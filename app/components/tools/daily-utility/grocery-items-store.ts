@@ -101,7 +101,7 @@ function defaultStore(): GroceryStore {
 
 export function loadGIStore(): GroceryStore {
   try {
-    const raw = safeLocalStorage.getItem(GI_STORAGE_KEY);
+    const raw = safeLocalStorage.getItem<string>(GI_STORAGE_KEY);
     if (!raw) return defaultStore();
     const parsed = JSON.parse(raw) as GroceryStore;
     return { ...defaultStore(), ...parsed };

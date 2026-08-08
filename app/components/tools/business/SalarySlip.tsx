@@ -8,6 +8,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { showToast } from '@/app/shared/Toast';
 import { getErrorMessage } from '@/app/lib/errors/error-handler';
+import { numberToWords } from '@/app/lib/utils/number-formatter';
 import { logger } from '@/app/lib/utils/logger';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -32,23 +33,6 @@ const F = ({ label, value, onChange, placeholder = '', type = 'text', className 
   </div>
 );
 
-// ─── Number-to-words (simplified Indian) ─────────────────────────────────────
-const ONES = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine',
-  'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-const TENS = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-function numWords(n: number): string {
-  if (n === 0) return 'Zero';
-  const r = (x: number): string => {
-    if (x === 0) return '';
-    if (x < 20) return ONES[x] + ' ';
-    if (x < 100) return TENS[Math.floor(x / 10)] + (x % 10 ? ' ' + ONES[x % 10] : '') + ' ';
-    if (x < 1000) return ONES[Math.floor(x / 100)] + ' Hundred ' + r(x % 100);
-    if (x < 100000) return r(Math.floor(x / 1000)) + 'Thousand ' + r(x % 1000);
-    if (x < 10000000) return r(Math.floor(x / 100000)) + 'Lakh ' + r(x % 100000);
-    return r(Math.floor(x / 10000000)) + 'Crore ' + r(x % 10000000);
-  };
-  return r(Math.round(n)).trim() + ' Only';
-}
 
 // ─── Default state builders ───────────────────────────────────────────────────
 function buildEarnings(annualCTC: number, lopDays: number, workingDays: number): SalaryRow[] {
@@ -484,7 +468,7 @@ export const SalarySlipGenerator = () => {
               <div style={{ background: '#0f172a', color: '#fff', borderRadius: 12, padding: '20px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
                 <div>
                   <p style={{ fontSize: 10, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 1, fontWeight: 700, margin: 0 }}>Net Salary Payable</p>
-                  <p style={{ fontSize: 11, color: '#cbd5e1', marginTop: 6, fontStyle: 'italic' }}>Rupees {numWords(netPay)}</p>
+                  <p style={{ fontSize: 11, color: '#cbd5e1', marginTop: 6, fontStyle: 'italic' }}>Rupees {numberToWords(netPay)} Only</p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <p style={{ fontSize: 32, fontWeight: 900, margin: 0, letterSpacing: -1 }}>₹{fmt(netPay)}</p>

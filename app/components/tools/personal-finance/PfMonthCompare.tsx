@@ -136,6 +136,38 @@ export function MonthComparison() {
           </div>
         </div>
 
+        {/* Overall summary banner */}
+        {rows.length > 0 && totalA > 0 && (
+          <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-semibold ${
+            totalDiff > 0
+              ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300'
+              : totalDiff < 0
+              ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300'
+              : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'
+          }`}>
+            {totalDiff > 0
+              ? <ArrowUp size={16} className="shrink-0" />
+              : totalDiff < 0
+              ? <ArrowDown size={16} className="shrink-0" />
+              : <Minus size={16} className="shrink-0" />}
+            <span>
+              Overall you spent{' '}
+              <strong>{fmtINR(Math.abs(totalDiff))}</strong>
+              {' '}
+              {totalDiff > 0
+                ? `more in ${labelB} than ${labelA}`
+                : totalDiff < 0
+                ? `less in ${labelB} than ${labelA}`
+                : `the same in both periods`}
+              {totalA > 0 && totalDiff !== 0 && (
+                <span className="opacity-75 font-normal">
+                  {' '}({Math.abs((totalDiff / totalA) * 100).toFixed(1)}% {totalDiff > 0 ? 'increase' : 'decrease'})
+                </span>
+              )}
+            </span>
+          </div>
+        )}
+
         {rows.length === 0 ? (
           <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-12 text-center">
             <p className="text-sm text-slate-400">No data for selected periods.</p>

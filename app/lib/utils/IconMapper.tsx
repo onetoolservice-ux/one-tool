@@ -19,7 +19,8 @@ import {
   Building2, MapPin, Rocket, Plane, Car, Fuel, Video, Download,
   PiggyBank, Coins, Droplets, ListChecks, Gauge, GraduationCap, GitMerge, Utensils, Target,
   Languages, ClipboardCheck,
-  PenLine, Lightbulb
+  PenLine, Lightbulb, Star,
+  Moon, Sun
 } from "lucide-react";
 
 export type IconName =
@@ -37,7 +38,8 @@ export type IconName =
   | 'Building2' | 'MapPin' | 'Rocket' | 'Plane' | 'Car' | 'Fuel' | 'Video' | 'Download'
   | 'PiggyBank' | 'Coins' | 'Droplets' | 'ListChecks' | 'Gauge' | 'GraduationCap' | 'GitMerge' | 'Utensils' | 'Target'
   | 'Languages' | 'ClipboardCheck'
-  | 'PenLine' | 'Lightbulb';
+  | 'PenLine' | 'Lightbulb' | 'Star'
+  | 'Moon' | 'Sun';
 
 const ICON_MAP: Record<IconName, React.ComponentType<{ size?: number; className?: string }>> = {
   FileText,
@@ -139,6 +141,9 @@ const ICON_MAP: Record<IconName, React.ComponentType<{ size?: number; className?
   ClipboardCheck,
   PenLine,
   Lightbulb,
+  Star,
+  Moon,
+  Sun,
 };
 
 /**

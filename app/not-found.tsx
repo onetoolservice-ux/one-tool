@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Home, AlertTriangle, Search, ArrowRight } from 'lucide-react';
 import { ALL_TOOLS } from '@/app/lib/tools-data';
-import { getIconComponent, type IconName } from '@/app/lib/utils/icon-mapper';
+import { getIconComponent, type IconName } from '@/app/lib/utils/IconMapper';
 import { getTheme } from '@/app/lib/theme-config';
 
 // Keep force-dynamic to avoid build errors

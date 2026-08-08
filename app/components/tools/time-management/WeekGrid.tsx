@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Plus, Pencil, Trash2, Check, X, Clock,
   Moon, Sunrise, Sunset, Dumbbell, UtensilsCrossed,
@@ -107,6 +107,37 @@ function persist(s: Store) {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch {}
 }
 function genId() { return Math.random().toString(36).slice(2, 10); }
+
+// ── Calendar-view constants ───────────────────────────────────────────────────
+
+const PX_PER_MIN = 1.3; // ≈ 78 px per hour
+
+const CAT_BORDER: Record<Category, string> = {
+  morning:  '#f59e0b',
+  exercise: '#10b981',
+  meal:     '#f97316',
+  work:     '#3b82f6',
+  personal: '#8b5cf6',
+  evening:  '#6366f1',
+  sleep:    '#94a3b8',
+};
+
+const CAT_BG: Record<Category, string> = {
+  morning:  'rgba(245,158,11,0.09)',
+  exercise: 'rgba(16,185,129,0.09)',
+  meal:     'rgba(249,115,22,0.09)',
+  work:     'rgba(59,130,246,0.09)',
+  personal: 'rgba(139,92,246,0.09)',
+  evening:  'rgba(99,102,241,0.09)',
+  sleep:    'rgba(148,163,184,0.09)',
+};
+
+function fmtHour(h: number) {
+  const hh = h % 24;
+  if (hh === 0) return '12 AM';
+  if (hh === 12) return '12 PM';
+  return hh < 12 ? `${hh} AM` : `${hh - 12} PM`;
+}
 
 const BLANK: Omit<Activity, 'id'> = { time: '08:00', title: '', duration: 30, category: 'work', emoji: '📌' };
 const ONBOARDING_KEY = 'otsd-daily-routine-onboarded';
@@ -506,12 +537,24 @@ export function WeekGrid() {
   const [form, setForm]             = useState<Omit<Activity, 'id'> | null>(null);
   const [editId, setEditId]         = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const timelineRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setStore(load());
+    const s = load();
+    setStore(s);
     // Show onboarding only on first visit
     const seen = localStorage.getItem(ONBOARDING_KEY);
     if (!seen) setShowOnboarding(true);
+    // Scroll timeline to current time
+    setTimeout(() => {
+      if (!timelineRef.current) return;
+      const srt = sortByTime(s.routine);
+      if (!srt.length) return;
+      const calS = Math.floor(toMin(srt[0].time) / 60) * 60;
+      const nm = new Date().getHours() * 60 + new Date().getMinutes();
+      const scrollTo = (nm - calS) * PX_PER_MIN - 150;
+      timelineRef.current.scrollTop = Math.max(0, scrollTo);
+    }, 80);
   }, []);
 
   function closeOnboarding() {
@@ -544,6 +587,15 @@ export function WeekGrid() {
 
   const ticks: number[] = [];
   for (let m = Math.ceil(tlStart / 120) * 120; m <= tlEnd; m += 120) ticks.push(m);
+
+  // Vertical calendar geometry
+  const calStartMin = sorted.length ? Math.floor(toMin(sorted[0].time) / 60) * 60 : 360;
+  const calEndMin   = sorted.length
+    ? Math.ceil(Math.max(...sorted.map(a => toMin(a.time) + a.duration)) / 60) * 60
+    : calStartMin + 960;
+  const calTotalPx  = (calEndMin - calStartMin) * PX_PER_MIN;
+  const calHours: number[] = [];
+  for (let h = calStartMin / 60; h <= calEndMin / 60; h++) calHours.push(h);
 
   // Mutations
   function upd(next: Store) { setStore(next); persist(next); }
@@ -742,8 +794,8 @@ export function WeekGrid() {
         )}
       </div>
 
-      {/* ── Cards grid ── */}
-      <div className="w-full flex-1 p-4">
+      {/* ── Vertical Calendar Timeline ── */}
+      <div className="w-full flex-1 overflow-hidden flex flex-col">
         {sorted.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 text-slate-400 dark:text-slate-600">
             <Clock size={36} className="mb-3 opacity-30" />
@@ -751,99 +803,215 @@ export function WeekGrid() {
             <p className="text-xs mt-1">Click Edit → Add to build your day</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3">
-            {sorted.map(act => {
-              const c = CAT[act.category];
-              const done = doneIds.includes(act.id);
-              const isCur = currentAct?.id === act.id;
+          <div
+            ref={timelineRef}
+            className="flex-1 overflow-y-auto"
+            style={{ maxHeight: 'calc(100vh - 160px)' }}
+          >
+            <div className="relative flex py-2 pr-3 pl-1" style={{ height: calTotalPx + 32 }}>
 
-              return (
-                <div
-                  key={act.id}
-                  className={`relative flex flex-col rounded-2xl border transition-all bg-white dark:bg-slate-900 ${
-                    isCur
-                      ? 'border-slate-400 dark:border-slate-500 shadow-md'
-                      : 'border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700'
-                  } ${done ? 'opacity-50' : ''}`}
-                >
-                  {/* Top accent line — subtle */}
-                  <div className={`h-0.5 rounded-t-2xl ${c.dot} opacity-70`} />
+              {/* Time gutter */}
+              <div className="w-[52px] flex-shrink-0 relative select-none">
+                {calHours.map(h => (
+                  <div
+                    key={h}
+                    className="absolute right-2 text-[10px] font-medium text-slate-400 dark:text-slate-500 -translate-y-2 whitespace-nowrap"
+                    style={{ top: (h * 60 - calStartMin) * PX_PER_MIN }}
+                  >
+                    {fmtHour(h)}
+                  </div>
+                ))}
+              </div>
 
-                  <div className="flex flex-col flex-1 p-3 gap-2.5">
-                    {/* Emoji + NOW badge */}
-                    <div className="flex items-start justify-between">
-                      <span className="text-2xl leading-none">{act.emoji}</span>
-                      {isCur && (
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900 leading-tight tracking-wide">
-                          NOW
-                        </span>
-                      )}
-                    </div>
+              {/* Grid + events area */}
+              <div className="flex-1 relative border-l border-slate-200 dark:border-slate-700/60">
 
-                    {/* Title */}
-                    <p className={`text-xs font-semibold leading-snug line-clamp-2 flex-1 ${
-                      done
-                        ? 'line-through text-slate-400 dark:text-slate-600'
-                        : 'text-slate-800 dark:text-slate-100'
-                    }`}>
-                      {act.title}
-                    </p>
+                {/* Hour lines */}
+                {calHours.map(h => (
+                  <div
+                    key={h}
+                    className="absolute w-full border-t border-slate-100 dark:border-slate-800"
+                    style={{ top: (h * 60 - calStartMin) * PX_PER_MIN }}
+                  />
+                ))}
 
-                    {/* Time + duration */}
-                    <div>
-                      <p className="text-[10px] font-semibold text-slate-600 dark:text-slate-400">{fmtTime(act.time)}</p>
-                      <p className="text-[10px] text-slate-400 dark:text-slate-600">{fmtDuration(act.duration)}</p>
-                    </div>
+                {/* Half-hour lines (dashed, subtle) */}
+                {calHours.map(h => {
+                  const top = (h * 60 + 30 - calStartMin) * PX_PER_MIN;
+                  if (top <= 0 || top >= calTotalPx) return null;
+                  return (
+                    <div
+                      key={`hh${h}`}
+                      className="absolute w-full border-t border-dashed border-slate-100 dark:border-slate-800/50"
+                      style={{ top }}
+                    />
+                  );
+                })}
 
-                    {/* Bottom row */}
-                    <div className="flex items-center justify-between gap-1">
-                      <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${c.chipBg} ${c.textColor} truncate max-w-[65%]`}>
-                        {c.label}
-                      </span>
+                {/* Now indicator — red line like Teams */}
+                {nowMin >= calStartMin && nowMin <= calEndMin && (
+                  <div
+                    className="absolute w-full z-20 flex items-center pointer-events-none"
+                    style={{ top: (nowMin - calStartMin) * PX_PER_MIN }}
+                  >
+                    <div className="w-2.5 h-2.5 rounded-full bg-red-500 dark:bg-red-400 -ml-1.5 flex-shrink-0 shadow-sm" />
+                    <div className="flex-1 h-[1.5px] bg-red-500 dark:bg-red-400" />
+                  </div>
+                )}
 
-                      {editing ? (
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => openEdit(act)}
-                            className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                          >
-                            <Pencil size={11} />
-                          </button>
-                          <button
-                            onClick={() => del(act.id)}
-                            className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
-                          >
-                            <Trash2 size={11} />
-                          </button>
+                {/* Activity blocks */}
+                {sorted.map(act => {
+                  const c     = CAT[act.category];
+                  const done  = doneIds.includes(act.id);
+                  const isCur = currentAct?.id === act.id;
+                  const blockTop = (toMin(act.time) - calStartMin) * PX_PER_MIN + 1;
+                  const blockH   = Math.max(act.duration * PX_PER_MIN - 2, 20);
+                  const compact  = blockH < 46;
+
+                  return (
+                    <div
+                      key={act.id}
+                      className={`absolute left-1.5 right-1.5 rounded-md overflow-hidden transition-all border-l-[3px] ${
+                        isCur
+                          ? 'ring-1 ring-slate-300 dark:ring-slate-600 shadow-md'
+                          : 'shadow-sm hover:shadow-md'
+                      } ${done ? 'opacity-40' : ''}`}
+                      style={{
+                        top: blockTop,
+                        height: blockH,
+                        borderLeftColor: CAT_BORDER[act.category],
+                        backgroundColor: CAT_BG[act.category],
+                      }}
+                    >
+                      {/* Compact (short) block */}
+                      {compact ? (
+                        <div className="flex items-center gap-1.5 px-2 h-full overflow-hidden">
+                          <span className="text-sm leading-none flex-shrink-0">{act.emoji}</span>
+                          <span className={`text-[11px] font-semibold truncate flex-1 text-slate-800 dark:text-slate-100 ${done ? 'line-through' : ''}`}>
+                            {act.title}
+                          </span>
+                          <span className="text-[9px] text-slate-500 dark:text-slate-400 flex-shrink-0 mr-1">
+                            {fmtTime(act.time)}
+                          </span>
+                          {editing ? (
+                            <div className="flex items-center gap-0.5 flex-shrink-0">
+                              <button
+                                onClick={() => openEdit(act)}
+                                className="w-5 h-5 flex items-center justify-center rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                              >
+                                <Pencil size={9} />
+                              </button>
+                              <button
+                                onClick={() => del(act.id)}
+                                className="w-5 h-5 flex items-center justify-center rounded text-slate-400 hover:text-red-500 transition-colors"
+                              >
+                                <Trash2 size={9} />
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => toggle(act.id)}
+                              className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                                done
+                                  ? 'bg-slate-700 dark:bg-slate-300 border-slate-700 dark:border-slate-300 text-white dark:text-slate-900'
+                                  : 'border-slate-300 dark:border-slate-600 text-transparent hover:border-slate-500'
+                              }`}
+                            >
+                              <Check size={8} strokeWidth={3} />
+                            </button>
+                          )}
                         </div>
                       ) : (
-                        <button
-                          onClick={() => toggle(act.id)}
-                          className={`w-6 h-6 flex items-center justify-center rounded-full border-2 flex-shrink-0 transition-all ${
-                            done
-                              ? 'bg-slate-700 dark:bg-slate-300 border-slate-700 dark:border-slate-300 text-white dark:text-slate-900'
-                              : 'border-slate-300 dark:border-slate-600 text-transparent hover:border-slate-500 hover:text-slate-500'
-                          }`}
-                        >
-                          <Check size={11} strokeWidth={3} />
-                        </button>
+                        /* Full block */
+                        <div className="flex flex-col px-2.5 py-1.5 h-full overflow-hidden">
+                          {/* Title row */}
+                          <div className="flex items-start justify-between gap-1">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <span className="text-base leading-none flex-shrink-0">{act.emoji}</span>
+                              <span className={`text-xs font-bold leading-snug line-clamp-1 ${
+                                done
+                                  ? 'line-through text-slate-400 dark:text-slate-500'
+                                  : 'text-slate-800 dark:text-slate-100'
+                              }`}>
+                                {act.title}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                              {isCur && (
+                                <span className="text-[8px] font-bold px-1.5 py-0.5 rounded bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900 leading-tight">
+                                  NOW
+                                </span>
+                              )}
+                              {editing ? (
+                                <div className="flex items-center gap-0.5">
+                                  <button
+                                    onClick={() => openEdit(act)}
+                                    className="w-5 h-5 flex items-center justify-center rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                                  >
+                                    <Pencil size={9} />
+                                  </button>
+                                  <button
+                                    onClick={() => del(act.id)}
+                                    className="w-5 h-5 flex items-center justify-center rounded text-slate-400 hover:text-red-500 transition-colors"
+                                  >
+                                    <Trash2 size={9} />
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => toggle(act.id)}
+                                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                                    done
+                                      ? 'bg-slate-700 dark:bg-slate-300 border-slate-700 dark:border-slate-300 text-white dark:text-slate-900'
+                                      : 'border-slate-300 dark:border-slate-600 text-transparent hover:border-slate-500 hover:text-slate-500'
+                                  }`}
+                                >
+                                  <Check size={9} strokeWidth={3} />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Time range */}
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-none">
+                            {fmtTime(act.time)} – {fmtTime(endTimeStr(act.time, act.duration))}
+                          </p>
+
+                          {/* Duration (only if enough space) */}
+                          {blockH >= 68 && (
+                            <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
+                              {fmtDuration(act.duration)}
+                            </p>
+                          )}
+
+                          {/* Category chip at bottom */}
+                          {blockH >= 90 && (
+                            <div className="mt-auto pt-1">
+                              <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${c.chipBg} ${c.textColor}`}>
+                                {c.label}
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
-                  </div>
-                </div>
-              );
-            })}
+                  );
+                })}
 
-            {/* Add placeholder card */}
-            {editing && (
-              <button
-                onClick={openAdd}
-                className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-600 hover:border-slate-400 dark:hover:border-slate-500 hover:text-slate-600 dark:hover:text-slate-400 transition-all min-h-[140px] gap-2"
-              >
-                <Plus size={18} />
-                <span className="text-xs font-semibold">Add</span>
-              </button>
-            )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Floating Add button when editing */}
+        {editing && sorted.length > 0 && (
+          <div className="flex justify-end px-4 py-2 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+            <button
+              onClick={openAdd}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900 text-xs font-semibold hover:bg-slate-700 dark:hover:bg-white transition-colors"
+            >
+              <Plus size={12} /> Add Activity
+            </button>
           </div>
         )}
       </div>

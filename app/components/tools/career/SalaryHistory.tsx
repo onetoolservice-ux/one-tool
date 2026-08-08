@@ -72,18 +72,21 @@ export function SalaryHistory() {
     setEntries((prev) => prev.filter((e) => e.id !== id));
   };
 
+  type KPIColor = 'primary' | 'success' | 'warning' | 'error' | 'neutral';
+  const realColor: KPIColor = result && result.realCagr > 0 ? 'success' : 'error';
+  const ppColor: KPIColor = result && result.purchasingPowerChange >= 0 ? 'success' : 'error';
   const kpis = result
     ? [
-        { label: 'Latest CTC', value: fmtL(result.last.ctc), color: 'text-violet-600 dark:text-violet-400' },
-        { label: 'Nominal CAGR', value: result.nominalCagr.toFixed(1) + '%', color: 'text-blue-600 dark:text-blue-400' },
-        { label: 'Real CAGR', value: result.realCagr.toFixed(1) + '%', color: result.realCagr > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400' },
-        { label: 'Purchasing Power', value: (result.purchasingPowerChange >= 0 ? '+' : '') + result.purchasingPowerChange.toFixed(1) + '%', color: result.purchasingPowerChange >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400' },
+        { label: 'Latest CTC', value: fmtL(result.last.ctc), color: 'primary' as KPIColor },
+        { label: 'Nominal CAGR', value: result.nominalCagr.toFixed(1) + '%', color: 'primary' as KPIColor },
+        { label: 'Real CAGR', value: result.realCagr.toFixed(1) + '%', color: realColor },
+        { label: 'Purchasing Power', value: (result.purchasingPowerChange >= 0 ? '+' : '') + result.purchasingPowerChange.toFixed(1) + '%', color: ppColor },
       ]
     : [
-        { label: 'Latest CTC', value: '—', color: 'text-slate-500' },
-        { label: 'Nominal CAGR', value: '—', color: 'text-slate-500' },
-        { label: 'Real CAGR', value: '—', color: 'text-slate-500' },
-        { label: 'Purchasing Power', value: '—', color: 'text-slate-500' },
+        { label: 'Latest CTC', value: '—', color: 'neutral' as KPIColor },
+        { label: 'Nominal CAGR', value: '—', color: 'neutral' as KPIColor },
+        { label: 'Real CAGR', value: '—', color: 'neutral' as KPIColor },
+        { label: 'Purchasing Power', value: '—', color: 'neutral' as KPIColor },
       ];
 
   return (

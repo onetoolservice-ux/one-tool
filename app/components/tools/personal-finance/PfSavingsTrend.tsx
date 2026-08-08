@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, AlertTriangle } from 'lucide-react';
 import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
 import {
   getPFTransactions, getAvailableMonths, getPeriodRange, fmtINR, fmtPct,
@@ -56,6 +56,11 @@ export function SavingsTrend() {
   const worstMonth = rows.length > 0 ? rows.reduce((a, b) => a.savingsRate < b.savingsRate ? a : b) : null;
   const maxAbs     = Math.max(...rows.map(r => Math.abs(r.surplus)), 1);
 
+  // Detect if income looks suspiciously low — likely salary account not uploaded
+  const avgIncome = rows.length > 0 ? rows.reduce((s, r) => s + r.income, 0) / rows.length : 0;
+  const allDeficits = rows.length > 0 && rows.every(r => r.surplus < 0);
+  const showLowIncomeWarning = rows.length > 0 && (avgIncome < 5000 || allDeficits);
+
   if (!mounted) return null;
 
   return (
@@ -72,6 +77,18 @@ export function SavingsTrend() {
         ] : undefined}
       />
       <div className="space-y-4 px-4 pb-4">
+        {showLowIncomeWarning && (
+          <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700">
+            <AlertTriangle size={15} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-xs font-semibold text-amber-700 dark:text-amber-300">Income appears very low — did you upload your salary account?</p>
+              <p className="text-xs text-amber-600/80 dark:text-amber-400/80 mt-0.5">
+                Every month is showing as a deficit. This usually means only an expense account was uploaded, not the account where your salary lands.
+                Upload your primary bank statement to see accurate savings rates.
+              </p>
+            </div>
+          </div>
+        )}
         {rows.length === 0 ? (
           <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-12 text-center">
             <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">No monthly data available.</p>

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   FileText, Layers, RefreshCw, Wallet, 
-  ArrowRight, Calendar, Search, Globe, MapPin, Clock
+  ArrowRight, Calendar, Search, Clock
 } from 'lucide-react';
 
 export const BentoHero = () => {
@@ -28,54 +28,40 @@ export const BentoHero = () => {
   ];
 
   return (
-    <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-4 h-[200px] lg:h-[180px] shrink-0">
-       
+    <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-3 h-[160px] lg:h-[148px] shrink-0">
+
        {/* CLOCK WIDGET (LCP ELEMENT) */}
-       <div className="lg:col-span-3 flex flex-col gap-3 h-full">
-          <div className="flex-1 bg-[#0B1120] text-white rounded-2xl p-5 flex flex-col justify-center relative overflow-hidden shadow-lg border border-slate-800">
-             <div className="absolute top-0 right-0 w-32 h-32 bg-teal-500/10 rounded-full blur-[40px]"></div>
+       <div className="lg:col-span-3 flex flex-col gap-2 h-full">
+          <div className="flex-1 bg-[#0B1120] text-white rounded-xl p-4 flex flex-col justify-center relative overflow-hidden border border-slate-800/80">
              <div className="relative z-10">
-                <div className="flex items-baseline justify-between mb-1">
-                   <h2 className="text-xs font-bold text-teal-400 tracking-wider uppercase">{greeting}</h2>
-                   <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded-full text-slate-400">
-                      <Clock size={10}/> <span>Local</span>
-                   </div>
-                </div>
-                
-                {/* HYDRATION SAFE TIME DISPLAY */}
-                <div className="text-5xl font-black tracking-tighter tabular-nums my-1 text-white" suppressHydrationWarning>
+                <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mb-1">{greeting}</p>
+                <div className="text-4xl font-black tracking-tighter tabular-nums text-white" suppressHydrationWarning>
                    {timeString}
                 </div>
-                
-                <div className="flex justify-between items-end mt-1">
-                   <div className="text-xs text-slate-400 flex items-center gap-1 font-medium" suppressHydrationWarning>
-                      <Calendar size={12} className="text-slate-500"/> {dateString}
-                   </div>
+                <div className="text-[11px] text-slate-500 flex items-center gap-1 mt-1 font-medium" suppressHydrationWarning>
+                   <Calendar size={11} className="text-slate-600"/> {dateString}
                 </div>
              </div>
           </div>
 
           {/* SEARCH TRIGGER */}
-          <div className="h-10 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center px-3 shadow-sm cursor-text hover:border-teal-500 transition-colors group" onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}>
-             <Search size={14} className="text-slate-400 group-hover:text-teal-500 transition-colors mr-2" />
-             <span className="text-xs font-bold text-slate-400 flex-1">Find tool...</span>
-             <span className="font-mono bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded text-[9px] text-slate-500 font-bold">⌘K</span>
+          <div className="h-8 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 flex items-center px-2.5 cursor-text hover:border-slate-300 dark:hover:border-slate-600 transition-colors group" onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}>
+             <Search size={12} className="text-slate-400 mr-2 flex-shrink-0" />
+             <span className="text-[11px] text-slate-400 flex-1">Find tool...</span>
+             <span className="font-mono bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded text-[9px] text-slate-500">⌘K</span>
           </div>
        </div>
 
        {/* HERO CARDS (CLS SAFE) */}
        <div className="lg:col-span-9 grid grid-cols-2 md:grid-cols-4 gap-3 h-full">
           {cards.map((card) => (
-             <Link key={card.id} href={card.href} className="group relative bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between hover:border-teal-500/50 hover:shadow-md transition-all h-full">
-                <div className="flex justify-between items-start mb-2">
-                   <div className={`w-10 h-10 rounded-xl ${card.color} text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform`}>
-                      <card.icon size={20} />
-                   </div>
-                   <ArrowRight size={14} className="text-slate-300 group-hover:text-teal-500 -translate-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+             <Link key={card.id} href={card.href} className="group bg-white dark:bg-[#151827] rounded-xl border border-slate-200 dark:border-white/[0.07] p-3 flex flex-col justify-between hover:border-slate-300 dark:hover:border-white/[0.14] hover:shadow-sm transition-all h-full">
+                <div className={`w-9 h-9 rounded-lg ${card.color} text-white flex items-center justify-center flex-shrink-0`}>
+                   <card.icon size={16} />
                 </div>
                 <div>
-                   <h3 className="text-sm font-bold text-slate-900 dark:text-white">{card.name}</h3>
-                   <p className="text-[10px] text-slate-500 font-medium mt-0.5">{card.desc}</p>
+                   <h3 className="text-[13px] font-semibold text-slate-800 dark:text-slate-100">{card.name}</h3>
+                   <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">{card.desc}</p>
                 </div>
              </Link>
           ))}

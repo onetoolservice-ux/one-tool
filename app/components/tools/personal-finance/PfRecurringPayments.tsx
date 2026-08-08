@@ -2,10 +2,10 @@
 
 import Link from 'next/link';
 import { useState, useEffect, useMemo } from 'react';
-import { RefreshCw, Search, Tag, ChevronUp, ChevronDown, X, ArrowRight } from 'lucide-react';
+import { RefreshCw, Search, Tag, ChevronUp, ChevronDown, X, ArrowRight, AlertTriangle } from 'lucide-react';
 import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
-import { PFButton, PFBadge, PFFilterBarHeader } from './pf-ui';
-import { useToast } from '@/app/components/ui/toast-system';
+import { PFButton, PFBadge, PFFilterBarHeader } from './PfUi';
+import { useToast } from '@/app/components/ui/ToastSystem';
 import {
   getPFTransactions, getAllCategories, bulkApplyCategoryOverride,
   getAccounts, rerunRecurringDetection,
@@ -26,6 +26,8 @@ interface MerchantGroup {
   avgAmount: number;
   firstDate: string;
   lastDate: string;
+  nextDate: string | null;   // estimated next payment date (null if < 2 occurrences)
+  avgIntervalDays: number;   // avg days between payments
   txnIds: string[];
   accountIds: Set<string>;
 }
@@ -80,6 +82,14 @@ export function RecurringPayments() {
     return Array.from(map.entries()).map(([, txns]) => {
       const sorted = [...txns].sort((a, b) => a.date.localeCompare(b.date));
       const total = txns.reduce((s, t) => s + t.amount, 0);
+      const firstMs = new Date(sorted[0].date).getTime();
+      const lastMs  = new Date(sorted[sorted.length - 1].date).getTime();
+      const avgIntervalDays = sorted.length >= 2
+        ? Math.round((lastMs - firstMs) / (1000 * 60 * 60 * 24) / (sorted.length - 1))
+        : 0;
+      const nextDate = avgIntervalDays > 0
+        ? new Date(lastMs + avgIntervalDays * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+        : null;
       return {
         merchant: sorted[sorted.length - 1].description,
         category: sorted[sorted.length - 1].category,
@@ -88,6 +98,8 @@ export function RecurringPayments() {
         avgAmount: total / txns.length,
         firstDate: sorted[0].date,
         lastDate: sorted[sorted.length - 1].date,
+        nextDate,
+        avgIntervalDays,
         txnIds: txns.map(t => t.id),
         accountIds: new Set(txns.map(t => t.accountId)),
       } satisfies MerchantGroup;
@@ -298,6 +310,7 @@ export function RecurringPayments() {
                       </button>
                     </th>
                     <th className="px-4 py-2.5 text-left">First Seen</th>
+                    <th className="px-4 py-2.5 text-left">Next Due (est.)</th>
                     <th className="px-4 py-2.5 text-right">Actions</th>
                   </tr>
                 </thead>
@@ -379,6 +392,30 @@ export function RecurringPayments() {
 
                         {/* First Date */}
                         <td className="px-4 py-3 text-slate-400 dark:text-slate-500">{group.firstDate}</td>
+
+                        {/* Next Due */}
+                        <td className="px-4 py-3">
+                          {group.nextDate ? (() => {
+                            const today = new Date().toISOString().slice(0, 10);
+                            const isOverdue = group.nextDate < today;
+                            const daysAway = Math.round((new Date(group.nextDate).getTime() - new Date(today).getTime()) / (1000 * 60 * 60 * 24));
+                            return (
+                              <div className="flex flex-col gap-0.5">
+                                <span className={`text-xs font-semibold ${isOverdue ? 'text-red-600 dark:text-red-400' : daysAway <= 7 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-600 dark:text-slate-300'}`}>
+                                  {group.nextDate}
+                                </span>
+                                <span className={`text-[10px] flex items-center gap-0.5 ${isOverdue ? 'text-red-500' : daysAway <= 7 ? 'text-amber-500' : 'text-slate-400'}`}>
+                                  {isOverdue
+                                    ? <><AlertTriangle size={9} /> {Math.abs(daysAway)}d overdue</>
+                                    : daysAway === 0 ? 'Today'
+                                    : `in ${daysAway}d`}
+                                </span>
+                              </div>
+                            );
+                          })() : (
+                            <span className="text-xs text-slate-300 dark:text-slate-600">—</span>
+                          )}
+                        </td>
 
                         {/* Actions */}
                         <td className="px-4 py-3 text-right">

@@ -1,8 +1,8 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
 import { getToolById } from '@/app/lib/utils/tools-fallback';
-import ToolShell from '@/app/components/tools/tool-shell';
-import { ToolLoader } from '@/app/components/tools/tool-loader';
+import ToolShell from '@/app/components/tools/ToolShell';
+import { ToolLoader } from '@/app/components/tools/ToolLoader';
 import { ToolSEOSchemas } from '@/app/components/seo/ToolSEOSchemas';
 import { ToolSEOUI } from '@/app/components/seo/ToolSEOUI';
 import type { Metadata } from 'next';

@@ -51,6 +51,8 @@ export function WfhSavings() {
       foodSavingsMonthly,
       clothingSavingsMonthly,
       wfhCostsMonthly,
+      internetExtra,
+      electricityExtra,
       netMonthlySavings,
       annualSavings,
       monthlyCommuteHours,
@@ -60,11 +62,12 @@ export function WfhSavings() {
     };
   }, [distanceKm, transportMode, workingDays, officeFoodCost, homeFoodCost, clothingCost, internetExtra, electricityExtra, commuteMinutes]);
 
+  type KPIColor = 'primary' | 'success' | 'warning' | 'error' | 'neutral';
   const kpis = [
-    { label: 'Monthly Savings', value: fmt(result.netMonthlySavings), color: 'text-teal-600 dark:text-teal-400' },
-    { label: 'Annual Savings', value: fmt(result.annualSavings), color: 'text-emerald-600 dark:text-emerald-400' },
-    { label: 'Hours Saved / Month', value: result.monthlyCommuteHours.toFixed(1) + ' hrs', color: 'text-blue-600 dark:text-blue-400' },
-    { label: 'Time Value / Year', value: fmt(result.timeValueAnnual), color: 'text-violet-600 dark:text-violet-400' },
+    { label: 'Monthly Savings', value: fmt(result.netMonthlySavings), color: (result.netMonthlySavings >= 0 ? 'success' : 'error') as KPIColor },
+    { label: 'Annual Savings', value: fmt(result.annualSavings), color: (result.annualSavings >= 0 ? 'success' : 'error') as KPIColor },
+    { label: 'Hours Saved / Month', value: result.monthlyCommuteHours.toFixed(1) + ' hrs', color: 'primary' as KPIColor },
+    { label: 'Time Value / Year', value: fmt(result.timeValueAnnual), color: 'primary' as KPIColor },
   ];
 
   const breakdown = [

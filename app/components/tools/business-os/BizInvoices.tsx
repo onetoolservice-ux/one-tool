@@ -157,6 +157,7 @@ export function BizInvoices() {
   }
 
   function selectProduct(i: number, productId: string) {
+    if (!store) return;
     const p = store.products[productId];
     if (!p) return;
     updateItem(i, { name: p.name, rate: p.sellingPrice, gstRate: p.gstRate, productId: p.id });

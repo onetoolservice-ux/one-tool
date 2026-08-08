@@ -1,6 +1,7 @@
 'use client';
 
-import { type ReactNode, type LucideIcon } from 'lucide-react';
+import type { ReactNode } from 'react';
+import { type LucideIcon } from 'lucide-react';
 import { SAP_COLORS, SAP_GRADIENTS } from './sap-theme';
 
 export interface ModeToggle {

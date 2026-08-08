@@ -1,6 +1,6 @@
 "use client";
 import { usePathname } from "next/navigation";
-import Footer from "@/app/shared/layout/Footer";
+import { Footer } from "@/app/components/layout/Footer";
 
 export default function PageWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

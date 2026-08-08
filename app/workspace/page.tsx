@@ -16,8 +16,9 @@ import {
 } from '@/app/components/ui/AccentColorPicker';
 import { safeLocalStorage } from '@/app/lib/utils/storage';
 import { ALL_TOOLS } from '@/app/lib/tools-data';
-import { getIconComponent, type IconName } from '@/app/lib/utils/icon-mapper';
+import { getIconComponent, type IconName } from '@/app/lib/utils/IconMapper';
 import { getAllMonthKeys, getMonthData, monthKeyToLabel } from '@/app/components/tools/analytics/analytics-store';
+import { getRecentlyUsed } from '@/app/lib/home-store';
 
 // ─── Storage scanner: finds all OneTool data in localStorage ───────────────
 interface StoredItem {
@@ -91,6 +92,7 @@ export default function WorkspacePage() {
   const [items, setItems] = useState<StoredItem[]>([]);
   const [importStatus, setImportStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [theme, setTheme] = useState<ThemeSettings>({ ...DEFAULTS });
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -111,7 +113,8 @@ export default function WorkspacePage() {
 
   const recentTools = useMemo(() => {
     if (!mounted) return [];
-    const ids = safeLocalStorage.getItem<string[]>('onetool-recents', []) ?? [];
+    // Single source of truth: home-store.recentlyUsed (same as MyHomePage "Recently Visited")
+    const ids = getRecentlyUsed(8);
     return ids.map(id => ALL_TOOLS.find(t => t.id === id)).filter(Boolean).slice(0, 8);
   }, [mounted]);
 
@@ -404,23 +407,49 @@ export default function WorkspacePage() {
             <Trash2 size={16} className="text-red-500" />
             <h2 className="text-sm font-bold text-red-600 dark:text-red-400">Clear All Data</h2>
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">This removes all saved tool data from your browser. This cannot be undone. Export a backup first.</p>
-          <button
-            onClick={() => {
-              if (confirm('Delete ALL OneTool data from this browser? This cannot be undone.')) {
-                const keysToRemove: string[] = [];
-                for (let i = 0; i < localStorage.length; i++) {
-                  const k = localStorage.key(i);
-                  if (k && (k.startsWith('onetool-') || k.startsWith('tool-') || k.startsWith('mmt-'))) keysToRemove.push(k);
-                }
-                keysToRemove.forEach(k => localStorage.removeItem(k));
-                setItems([]);
-              }
-            }}
-            className="px-4 py-2 text-sm font-medium rounded-xl bg-red-600 hover:bg-red-500 text-white transition-colors"
-          >
-            Clear Everything
-          </button>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+            This removes all saved tool data from your browser. This cannot be undone. Export a backup first.
+          </p>
+
+          {!showClearConfirm ? (
+            <button
+              onClick={() => setShowClearConfirm(true)}
+              className="px-4 py-2 text-sm font-medium rounded-xl bg-red-600 hover:bg-red-500 text-white transition-colors"
+            >
+              Clear Everything
+            </button>
+          ) : (
+            <div className="flex flex-col gap-2 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40">
+              <p className="text-xs font-semibold text-red-700 dark:text-red-400 flex items-center gap-1.5">
+                <AlertTriangle size={13} /> Are you sure? This cannot be undone.
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    const keysToRemove: string[] = [];
+                    for (let i = 0; i < localStorage.length; i++) {
+                      const k = localStorage.key(i);
+                      if (k && (k.startsWith('onetool-') || k.startsWith('tool-') || k.startsWith('mmt-'))) {
+                        keysToRemove.push(k);
+                      }
+                    }
+                    keysToRemove.forEach(k => localStorage.removeItem(k));
+                    setItems([]);
+                    setShowClearConfirm(false);
+                  }}
+                  className="px-4 py-1.5 text-sm font-semibold rounded-lg bg-red-600 hover:bg-red-500 text-white transition-colors"
+                >
+                  Yes, delete all
+                </button>
+                <button
+                  onClick={() => setShowClearConfirm(false)}
+                  className="px-4 py-1.5 text-sm font-medium rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

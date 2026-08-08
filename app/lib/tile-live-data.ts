@@ -188,6 +188,7 @@ function getPFTileData(toolId: string): TileLiveData | null {
   const totalTxs     = store.transactions.length;
 
   switch (toolId) {
+    case 'pf-bank-connect':
     case 'pf-statement-manager':
       return { value: String(totalTxs), label: `transaction${totalTxs === 1 ? '' : 's'}`, tone: 'neutral' };
 
@@ -357,7 +358,7 @@ export function getTileLiveData(toolId: string): TileLiveData | null {
     switch (toolId) {
       case 'habit-tracker':        return getHabitTileData();
       case 'water-tracker':        return getWaterTileData();
-      case 'calorie-calculator':   return getWaterTileData(); // fallback if key matches
+      case 'calorie-calculator':   return null; // no live data yet — tool has its own local state
       case 'life-os':              return getLifeOsTileData();
       default:                     return null;
     }

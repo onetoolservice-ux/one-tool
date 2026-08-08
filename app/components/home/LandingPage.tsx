@@ -6,14 +6,14 @@ import { useRouter } from 'next/navigation';
 import { ArrowRight, Shield, Zap, Lock, LayoutGrid, Palette, Check, Pin, LayoutDashboard, GraduationCap, TrendingUp, Flame, ChevronRight, PlayCircle } from 'lucide-react';
 import { activateDemoJourney } from '@/app/components/ui/DemoJourneyBanner';
 import { ALL_TOOLS, CATEGORY_ORDER } from '@/app/lib/tools-data';
-import { getIconComponent, type IconName } from '@/app/lib/utils/icon-mapper';
+import { getIconComponent, type IconName } from '@/app/lib/utils/IconMapper';
 import { categoryToSpaceHref } from '@/app/lib/space-config';
 import { getCategoryEmoji } from '@/app/lib/category-config';
 import { TOOL_ICON_BG } from '@/app/lib/tool-icon-bg';
 
 // Analytics-driven order: top tools by actual views (GA data)
 const FEATURED_IDS = [
-  'pf-statement-manager',   // #1 most viewed tool
+  'pf-bank-connect',        // #1 entry point — import statements
   'pf-budget-vs-actual',    // #2 most viewed
   'pf-financial-snapshot',  // #3 most viewed
   'gst-calculator',         // India essential
@@ -22,11 +22,11 @@ const FEATURED_IDS = [
 ];
 
 // Tools confirmed popular by analytics — show trending badge
-const TRENDING_IDS = new Set(['pf-statement-manager', 'pf-budget-vs-actual', 'pf-financial-snapshot']);
+const TRENDING_IDS = new Set(['pf-bank-connect', 'pf-budget-vs-actual', 'pf-financial-snapshot']);
 
 // Short hook descriptions for trending quick-access cards
 const TRENDING_DESC: Record<string, string> = {
-  'pf-statement-manager':  'Upload your bank CSV → auto-categorize → see exactly where your money goes',
+  'pf-bank-connect':       'Import your bank statement in 3 steps — unlocks 27 Personal Finance tools instantly',
   'pf-budget-vs-actual':   'Set monthly budgets, track actual spend, spot where you overshoot',
   'pf-financial-snapshot': 'All your assets, liabilities & net worth in one clean view',
 };
@@ -41,7 +41,7 @@ interface Props {
 }
 
 const DEMO_STEPS = [
-  { num: '1', label: 'Statement Manager', hint: 'Load sample bank data', href: '/tools/personal-finance/pf-statement-manager' },
+  { num: '1', label: 'Import Statements', hint: 'Load sample bank data', href: '/tools/personal-finance/pf-bank-connect' },
   { num: '2', label: 'Financial Snapshot', hint: 'See your money picture',  href: '/tools/personal-finance/pf-financial-snapshot' },
   { num: '3', label: 'Spending Heatmap',   hint: 'Spot yearly patterns',    href: '/tools/personal-finance/pf-heatmap' },
   { num: '4', label: 'Health Score',        hint: 'Get a fitness score',     href: '/tools/personal-finance/pf-health-score' },
@@ -347,26 +347,24 @@ export function LandingPage({ searchIntent }: Props) {
       )}
 
       {/* ── Hero ────────────────────────────────────────────────────────── */}
-      <section className="px-4 pt-16 pb-12 md:pt-24 md:pb-16 text-center">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-300 text-xs font-semibold mb-6">
-          <Zap size={11} />
+      <section className="px-4 pt-10 pb-8 md:pt-14 md:pb-10 text-center">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-white/[0.07] border border-slate-200 dark:border-white/[0.1] text-slate-600 dark:text-slate-300 text-xs font-semibold mb-4">
+          <Zap size={11} className="text-[var(--ot-accent,#6366f1)]" />
           {TOOL_COUNT} tools · {CAT_COUNT} categories · 100% free
         </div>
 
-        <h1 className="text-4xl md:text-6xl font-black tracking-tight text-slate-900 dark:text-white max-w-3xl mx-auto leading-tight">
+        <h1 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white max-w-3xl mx-auto leading-tight">
           Everything you need,{' '}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500">
-            one place.
-          </span>
+          <span className="text-[var(--ot-accent,#6366f1)]">one place.</span>
         </h1>
 
-        <p className="mt-4 text-lg text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
+        <p className="mt-3 text-base text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
           Finance, business, developer tools, documents, health — all free.
           No login. No cloud. Your data never leaves your device.
         </p>
 
         {/* Trust pills */}
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
           {[
             { icon: Lock,        label: 'Data stays on your device' },
             { icon: Shield,      label: 'No account needed' },
@@ -375,42 +373,42 @@ export function LandingPage({ searchIntent }: Props) {
           ].map(({ icon: Icon, label }) => (
             <span
               key={label}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs font-medium text-slate-600 dark:text-slate-300"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs text-slate-500 dark:text-slate-400"
             >
-              <Icon size={11} className="text-indigo-500" />
+              <Icon size={11} className="text-slate-400 dark:text-slate-500 flex-shrink-0" />
               {label}
             </span>
           ))}
         </div>
 
-        {/* India-specific nudge — visible but not the lead message */}
-        <p className="mt-3 text-xs text-slate-400 dark:text-slate-500">
+        {/* India nudge */}
+        <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
           GST, INR &amp; tax tools built for India &middot; all other tools work globally
         </p>
 
         {/* CTAs */}
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+        <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-2.5">
           <Link
             href="/home"
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm transition-colors shadow-lg shadow-indigo-500/20"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--ot-accent,#6366f1)] hover:opacity-90 text-white font-semibold text-sm transition-opacity shadow-sm"
           >
-            <LayoutGrid size={16} />
+            <LayoutGrid size={15} />
             Browse All {TOOL_COUNT} Tools
-            <ArrowRight size={15} />
+            <ArrowRight size={14} />
           </Link>
           <Link
             href="/learn"
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 font-semibold text-sm hover:border-indigo-300 dark:hover:border-indigo-500/40 transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 font-semibold text-sm hover:border-slate-300 dark:hover:border-white/20 transition-colors"
           >
-            <GraduationCap size={15} />
+            <GraduationCap size={14} />
             Learning Center
           </Link>
         </div>
 
-        {/* Skip link — for users who already know what they want */}
+        {/* Skip link */}
         <a
           href="#categories"
-          className="mt-5 inline-block text-xs text-slate-400 dark:text-slate-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
+          className="mt-4 inline-block text-xs text-slate-400 dark:text-slate-500 hover:text-[var(--ot-accent,#6366f1)] transition-colors"
         >
           Skip to categories ↓
         </a>
@@ -448,7 +446,7 @@ export function LandingPage({ searchIntent }: Props) {
       ── end Personas ── */}
 
       {/* ── Trending in India ───────────────────────────────────────────── */}
-      <section className="px-4 pb-10 max-w-5xl mx-auto">
+      <section className="px-4 pb-8">
         <div className="flex items-center gap-2 mb-4">
           <Flame size={13} className="text-orange-500" />
           <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
@@ -487,7 +485,7 @@ export function LandingPage({ searchIntent }: Props) {
       </section>
 
       {/* ── Demo Journey ───────────────────────────────────────────────── */}
-      <section className="px-4 pb-12 max-w-5xl mx-auto">
+      <section className="px-4 pb-8">
         <div className="rounded-2xl overflow-hidden border border-indigo-200 dark:border-indigo-500/20 bg-gradient-to-br from-indigo-50 via-white to-blue-50 dark:from-indigo-500/10 dark:via-[#0F111A] dark:to-blue-500/5">
           <div className="px-6 pt-6 pb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>

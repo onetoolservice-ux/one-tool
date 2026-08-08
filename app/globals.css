@@ -22,6 +22,7 @@
 }
 
 body {
+  font-family: 'Calibri', 'Carlito', 'Trebuchet MS', 'Segoe UI', Arial, sans-serif;
   color: rgb(var(--foreground-rgb));
   background: transparent;
   text-rendering: optimizeLegibility;

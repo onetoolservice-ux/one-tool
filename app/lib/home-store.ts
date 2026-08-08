@@ -101,6 +101,27 @@ function dispatch(): void {
   }
 }
 
+// ── Snapshot (single parse for MyHomePage refresh) ────────────────────────────
+
+export interface HomeSnapshot {
+  spaces: Space[];
+  activeSpaceId: string;
+  pins: string[];
+  recents: string[];
+}
+
+export function getHomeSnapshot(recentLimit = 8): HomeSnapshot {
+  const s = load();
+  const activeSpaceId = s.activeSpaceId;
+  const activeSpace = s.spaces.find(sp => sp.id === activeSpaceId) ?? s.spaces[0];
+  return {
+    spaces: s.spaces,
+    activeSpaceId: activeSpace?.id ?? 'my-home',
+    pins: activeSpace?.pins ?? [],
+    recents: s.recentlyUsed.slice(0, recentLimit).map(r => r.id),
+  };
+}
+
 // ── Spaces ────────────────────────────────────────────────────────────────────
 
 export function getSpaces(): Space[] {

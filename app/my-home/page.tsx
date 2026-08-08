@@ -1,7 +1,5 @@
-'use client';
-
-import { MyHomePage } from '@/app/components/home/MyHomePage';
+import { redirect } from 'next/navigation';
 
 export default function MyHomeRoute() {
-  return <MyHomePage />;
+  redirect('/');
 }

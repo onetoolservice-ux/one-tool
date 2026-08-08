@@ -4,6 +4,7 @@ import { BarChart3, Plus, Trash2, Info, AlertTriangle, CheckCircle2, TrendingDow
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, ReferenceLine } from 'recharts';
 import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
 import { getPFTransactions } from './finance-store';
+import { getPFFinanceSummary } from '../finance/pf-data-bridge';
 import { safeLocalStorage } from '@/app/lib/utils/storage';
 
 const fmt = (n: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
@@ -35,8 +36,8 @@ const STORAGE_KEY = 'otsd-budget-vs-actual';
 function load(): { categories: CategoryBudget[]; monthlyIncome: number } {
   return safeLocalStorage.getItem<{ categories: CategoryBudget[]; monthlyIncome: number }>(
     STORAGE_KEY,
-    { categories: DEFAULT_CATEGORIES, monthlyIncome: 75000 }
-  ) ?? { categories: DEFAULT_CATEGORIES, monthlyIncome: 75000 };
+    { categories: DEFAULT_CATEGORIES, monthlyIncome: 0 }
+  ) ?? { categories: DEFAULT_CATEGORIES, monthlyIncome: 0 };
 }
 function save(data: { categories: CategoryBudget[]; monthlyIncome: number }) {
   safeLocalStorage.setItem(STORAGE_KEY, data);
@@ -44,7 +45,7 @@ function save(data: { categories: CategoryBudget[]; monthlyIncome: number }) {
 
 export const BudgetVsActual = () => {
   const [categories, setCategories] = useState<CategoryBudget[]>([]);
-  const [monthlyIncome, setMonthlyIncome] = useState(75000);
+  const [monthlyIncome, setMonthlyIncome] = useState(0);
   const [showAdd, setShowAdd] = useState(false);
   const [newCat, setNewCat] = useState({ category: '', budget: 0, actual: 0 });
   const [showSync, setShowSync] = useState(false);
@@ -57,7 +58,18 @@ export const BudgetVsActual = () => {
   useEffect(() => {
     const data = load();
     setCategories(data.categories);
-    setMonthlyIncome(data.monthlyIncome);
+    // If income was previously saved and non-zero, use it.
+    // Otherwise try to auto-detect from uploaded statement data.
+    if (data.monthlyIncome > 0) {
+      setMonthlyIncome(data.monthlyIncome);
+    } else {
+      try {
+        const summary = getPFFinanceSummary(3);
+        if (summary.hasData && summary.avgMonthlyIncome > 0) {
+          setMonthlyIncome(Math.round(summary.avgMonthlyIncome));
+        }
+      } catch { /* ignore — no statement data uploaded yet */ }
+    }
   }, []);
 
   useEffect(() => {

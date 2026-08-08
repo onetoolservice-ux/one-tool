@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+// Font: Calibri (system font — no import needed)
 import Script from "next/script";
 import "./globals.css";
 
 import { GoogleAnalytics } from "@/app/components/analytics/GoogleAnalytics"; 
 import { UIProvider } from "@/app/lib/ui-context";
-import { ToastProvider } from "@/app/components/ui/toast-system";
+import { ToastProvider } from "@/app/components/ui/ToastSystem";
 
 import GlobalHeader from "@/app/components/layout/GlobalHeader";
 import ScrollToTop from "@/app/components/layout/ScrollToTop";
@@ -16,11 +16,6 @@ import { PWAInstallPrompt } from "@/app/components/ui/PWAInstallPrompt";
 import { DemoJourneyBanner } from "@/app/components/ui/DemoJourneyBanner";
 import { StorageQuotaToast } from "@/app/components/ui/StorageQuotaToast";
 
-const inter = Inter({ 
-  subsets: ["latin"],
-  display: 'swap',
-  preload: true,
-});
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://onetool.co.in";
 
@@ -140,14 +135,14 @@ export default function RootLayout({
           />
         )}
       </head>
-      <body className={inter.className}>
+      <body>
         <ErrorBoundary>
           <UIProvider>
             <ToastProvider>
               <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-[#0F111A]">
                  <ScrollToTop />
                  <GlobalHeader />
-                 <main className="flex-1 w-full max-w-[1800px] mx-auto">
+                 <main className="flex-1 w-full">
                    <ErrorBoundary>
                      {children}
                    </ErrorBoundary>

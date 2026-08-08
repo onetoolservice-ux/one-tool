@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { getIconComponent, type IconName } from '@/app/lib/utils/icon-mapper';
+import { getIconComponent, type IconName } from '@/app/lib/utils/IconMapper';
 import { ALL_TOOLS } from '@/app/lib/tools-data';
 
 // ── Workflow connections: after using tool X, suggest tool Y ────────────────

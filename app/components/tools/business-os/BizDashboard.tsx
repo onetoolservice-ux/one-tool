@@ -7,7 +7,7 @@ import {
   ArrowRight, Plus, Settings, LayoutDashboard, Download, FolderInput,
 } from 'lucide-react';
 import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
-import { useToast } from '@/app/components/ui/toast-system';
+import { useToast } from '@/app/components/ui/ToastSystem';
 import {
   loadBizStore, saveBizStore, onBizStoreUpdate, getDashboardKPIs, getLast7DaysData,
   fmtCurrency, updateSettings, type BizOSStore,

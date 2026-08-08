@@ -1,4 +1,4 @@
-import type { IconName } from "./utils/icon-mapper";
+import type { IconName } from "./utils/IconMapper";
 
 export interface ToolHelpStep {
   title: string;
@@ -52,13 +52,25 @@ export const CATEGORY_ORDER = [
   "AI",
   "Creator",
   "Writer's OS",
-  "Daily Utility"
+  "Time Management",
+  "Daily Utility",
+  "Astrology"
 ] as const;
 
 export const ALL_TOOLS: Tool[] = [
   // ═══════════════════════════════════════════════════════════════════════════
   // PERSONAL FINANCE - Statement-based financial record system
   // ═══════════════════════════════════════════════════════════════════════════
+  {
+    id: "pf-bank-connect",
+    name: "Import Statements",
+    category: "Personal Finance",
+    href: "/tools/personal-finance/pf-bank-connect",
+    icon: "Download",
+    popular: true,
+    color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400",
+    desc: "Your data gateway — import bank statements via CSV, manual entry, or (coming soon) Account Aggregator & SMS sync. Load once, unlock all 27 Personal Finance tools.",
+  },
   {
     id: "pf-statement-manager",
     name: "Statement Manager",
@@ -102,7 +114,7 @@ export const ALL_TOOLS: Tool[] = [
     href: "/tools/personal-finance/pf-cash-flow",
     icon: "TrendingUp",
     color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400",
-    desc: "Structured income and outflow statement from your bank statements. Compare any two periods, track net closing position, and understand cash inflows vs total outflows at a glance."
+    desc: "All credit transactions from your bank statements — salary, freelance, refunds, interest. Filter by account, date range, category, or merchant. Export to CSV."
   },
   {
     id: "pf-tx-explorer",
@@ -124,7 +136,7 @@ export const ALL_TOOLS: Tool[] = [
   },
   {
     id: "pf-expenditure",
-    name: "Manage Expenses",
+    name: "Spend by Category",
     category: "Personal Finance",
     href: "/tools/personal-finance/pf-expenditure",
     icon: "BarChart3",
@@ -294,7 +306,7 @@ export const ALL_TOOLS: Tool[] = [
   },
   {
     id: "pf-spending-dna",
-    name: "Spending DNA",
+    name: "Money Personality",
     category: "Personal Finance",
     href: "/tools/personal-finance/pf-spending-dna",
     icon: "Dna",
@@ -303,7 +315,7 @@ export const ALL_TOOLS: Tool[] = [
   },
   {
     id: "pf-investment-tracker",
-    name: "Investment Portfolio Tracker",
+    name: "Investment Tracker",
     category: "Personal Finance",
     href: "/tools/personal-finance/pf-investment-tracker",
     icon: "TrendingUp",
@@ -364,7 +376,7 @@ export const ALL_TOOLS: Tool[] = [
   // ═══════════════════════════════════════════════════════════════════════════
   {
     id: "smart-budget",
-    name: "Budget Planner Pro",
+    name: "Budget Planner",
     category: "Finance",
     href: "/tools/finance/smart-budget",
     icon: "Wallet",
@@ -374,7 +386,7 @@ export const ALL_TOOLS: Tool[] = [
   },
   {
     id: "smart-loan",
-    name: "Smart Loan Calculator",
+    name: "Loan Calculator",
     category: "Finance",
     href: "/tools/finance/smart-loan",
     icon: "Calculator",
@@ -495,7 +507,7 @@ export const ALL_TOOLS: Tool[] = [
   },
   {
     id: "tax-saving-compare",
-    name: "NPS vs PPF vs ELSS",
+    name: "Tax Saving Compare",
     category: "Finance",
     href: "/tools/finance/tax-saving-compare",
     icon: "Scale",
@@ -707,7 +719,7 @@ export const ALL_TOOLS: Tool[] = [
   // ═══════════════════════════════════════════════════════════════════════════
   {
     id: "job-offer-compare",
-    name: "Job Offer Comparator",
+    name: "Job Offer Compare",
     category: "Career",
     href: "/tools/career/job-offer-compare",
     icon: "Briefcase",
@@ -1065,7 +1077,7 @@ export const ALL_TOOLS: Tool[] = [
   // ═══════════════════════════════════════════════════════════════════════════
   {
     id: "invoice-generator",
-    name: "Pro Invoice Studio",
+    name: "Invoice Generator",
     category: "Business",
     href: "/tools/business/invoice-generator",
     icon: "FileText",
@@ -1075,7 +1087,7 @@ export const ALL_TOOLS: Tool[] = [
   },
   {
     id: "salary-slip",
-    name: "Salary Slip Studio",
+    name: "Salary Slip Generator",
     category: "Business",
     href: "/tools/business/salary-slip",
     icon: "FileText",
@@ -1085,7 +1097,7 @@ export const ALL_TOOLS: Tool[] = [
   },
   {
     id: "smart-agreement",
-    name: "Legal Contract Studio",
+    name: "Contract Generator",
     category: "Business",
     href: "/tools/business/smart-agreement",
     icon: "Shield",
@@ -1126,7 +1138,7 @@ export const ALL_TOOLS: Tool[] = [
   },
   {
     id: "smart-scan",
-    name: "Smart Scan",
+    name: "Document Scanner",
     category: "Documents",
     href: "/tools/documents/smart-scan",
     icon: "ScanLine",
@@ -1135,7 +1147,7 @@ export const ALL_TOOLS: Tool[] = [
   },
   {
     id: "smart-pdf-merge",
-    name: "PDF Workbench",
+    name: "PDF Merge",
     category: "Documents",
     href: "/tools/documents/smart-pdf-merge",
     icon: "Layers",
@@ -1172,7 +1184,7 @@ export const ALL_TOOLS: Tool[] = [
   },
   {
     id: "smart-ocr",
-    name: "Smart OCR",
+    name: "OCR Reader",
     category: "Documents",
     href: "/tools/documents/smart-ocr",
     icon: "FileType",
@@ -1181,7 +1193,7 @@ export const ALL_TOOLS: Tool[] = [
   },
   {
     id: "smart-word",
-    name: "Markdown Studio",
+    name: "Markdown Editor",
     category: "Documents",
     href: "/tools/documents/smart-word",
     icon: "Code2",
@@ -1190,7 +1202,7 @@ export const ALL_TOOLS: Tool[] = [
   },
   {
     id: "smart-excel",
-    name: "Data Studio (CSV)",
+    name: "CSV Editor",
     category: "Documents",
     href: "/tools/documents/smart-excel",
     icon: "Grid",
@@ -1221,7 +1233,7 @@ export const ALL_TOOLS: Tool[] = [
   // ═══════════════════════════════════════════════════════════════════════════
   {
     id: "dev-station",
-    name: "DevStation Pro",
+    name: "Dev Station",
     category: "Developer",
     href: "/tools/developer/dev-station",
     icon: "Terminal",
@@ -1335,8 +1347,18 @@ export const ALL_TOOLS: Tool[] = [
   // PRODUCTIVITY (Rose/Slate) - Daily productivity tools
   // ═══════════════════════════════════════════════════════════════════════════
   {
+    id: "second-brain",
+    name: "Second Brain",
+    category: "Productivity",
+    href: "/tools/productivity/second-brain",
+    icon: "Brain",
+    popular: true,
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400",
+    desc: "Second Brain — capture ideas, track their lifecycle from raw thought to shipped product. Never lose an idea again. Session continuity remembers where you left off. 100% local, no account needed.",
+  },
+  {
     id: "life-os",
-    name: "Life OS Planner",
+    name: "Life OS",
     category: "Productivity",
     href: "/tools/productivity/life-os",
     icon: "Calendar",
@@ -1497,7 +1519,7 @@ export const ALL_TOOLS: Tool[] = [
   },
   {
     id: "calorie-calculator",
-    name: "Calorie & Macro Calculator",
+    name: "Calorie Calculator",
     category: "Health",
     href: "/tools/health/calorie-calculator",
     icon: "Utensils",
@@ -1507,7 +1529,7 @@ export const ALL_TOOLS: Tool[] = [
   },
   {
     id: "water-tracker",
-    name: "Water Intake Tracker",
+    name: "Water Tracker",
     category: "Health",
     href: "/tools/health/water-tracker",
     icon: "Droplets",
@@ -1641,6 +1663,82 @@ export const ALL_TOOLS: Tool[] = [
     desc: "Export blog posts and articles online free — download as Markdown, Plain Text, or HTML, or format for LinkedIn post and Twitter/X thread. Preview before downloading. Print to PDF with one click. No watermark, no signup required."
   },
   // ═══════════════════════════════════════════════════════════════════════════
+  // TIME MANAGEMENT — Smart scheduling, focus, and deadline tools
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    id: "time-blocks",
+    name: "Time Blocks",
+    category: "Time Management",
+    href: "/tools/time-management/time-blocks",
+    icon: "Columns3",
+    popular: true,
+    color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400",
+    desc: "Visual daily time blocking planner — drag and drop your day into focused blocks. Schedule deep work, meetings, and breaks to maximize productive output.",
+  },
+  {
+    id: "week-grid",
+    name: "Daily Routine",
+    category: "Time Management",
+    href: "/tools/time-management/week-grid",
+    icon: "LayoutGrid",
+    popular: true,
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400",
+    desc: "Personal daily routine planner — build your ideal day from wake-up to sleep, track activities by category, check off as you go, and see today's live progress.",
+    helpConfig: {
+      title: "Daily Routine Planner",
+      description: "Design your ideal day once — then live it every day. Map every hour from wake-up to sleep, track what you actually complete, and watch your consistency build over time.",
+      steps: [
+        { title: "Build your routine", description: "Click 'Edit' then 'Add' to create activity slots — give each one a time, duration, emoji and category. A default starter routine is already loaded." },
+        { title: "Track your day", description: "Each morning, start ticking off activities as you complete them. The progress bar and timeline update in real time." },
+        { title: "See what's happening now", description: "The 'Now' indicator in the header and the white line on the timeline always show your current slot — no hunting needed." },
+        { title: "Edit anytime", description: "Toggle 'Edit' mode to update times, rename activities, change durations or delete slots. Your routine is saved locally and persists across sessions." },
+      ],
+      tips: [
+        { text: "Start with 5–6 anchors (wake up, meals, work blocks, sleep) — fill in the detail later." },
+        { text: "Keep durations honest. If your morning routine always takes 45 min, don't plan 20." },
+        { text: "Progress resets each day automatically — yesterday's ticks don't carry over." },
+        { text: "All data is stored in your browser — nothing leaves your device, no account needed." },
+      ],
+    },
+  },
+  {
+    id: "deep-focus",
+    name: "Deep Focus",
+    category: "Time Management",
+    href: "/tools/time-management/deep-focus",
+    icon: "BrainCircuit",
+    color: "text-sky-600 bg-sky-50 dark:bg-sky-900/20 dark:text-sky-400",
+    desc: "Advanced distraction-free work session timer — customise focus intervals, track flow streaks, and get session analytics to build your best deep work habit.",
+  },
+  {
+    id: "deadline-board",
+    name: "Deadline Board",
+    category: "Time Management",
+    href: "/tools/time-management/deadline-board",
+    icon: "AlarmClock",
+    color: "text-rose-600 bg-rose-50 dark:bg-rose-900/20 dark:text-rose-400",
+    desc: "Multi-project deadline & countdown tracker — visualise upcoming deadlines, set alerts, and never miss a due date across all your projects.",
+  },
+  {
+    id: "sprint-timer",
+    name: "Sprint Timer",
+    category: "Time Management",
+    href: "/tools/time-management/sprint-timer",
+    icon: "Gauge",
+    color: "text-amber-600 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-400",
+    desc: "Agile sprint planning & retrospective timer — run standups, time-box discussions, track sprint velocity, and keep every meeting on schedule.",
+  },
+  {
+    id: "time-audit",
+    name: "Time Audit",
+    category: "Time Management",
+    href: "/tools/time-management/time-audit",
+    icon: "BarChart3",
+    color: "text-teal-600 bg-teal-50 dark:bg-teal-900/20 dark:text-teal-400",
+    desc: "Daily time log & productivity analyser — log how you spend each hour, spot time leaks, and get weekly reports on where your time actually goes.",
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // DAILY UTILITY — Everyday tools for managing what you buy, need & spend
   // Designed by Claude
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1695,6 +1793,103 @@ export const ALL_TOOLS: Tool[] = [
         { text: "Use 'Add all to list' on the Saved Items tab to populate your full regular list in one tap." },
       ],
     },
+  },
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ASTROLOGY
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    id: "kundali-generator",
+    name: "Kundali Generator",
+    category: "Astrology",
+    href: "/tools/astrology/kundali-generator",
+    icon: "Star",
+    popular: true,
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400",
+    desc: "Apni janam kundali banao — janm tithi, samay aur sthan daalkar apna rashi, lagna, nakshatra aur graha sthiti jaano. Bilkul free, koi login nahi.",
+  },
+  {
+    id: "panchang-today",
+    name: "Aaj Ka Panchang",
+    category: "Astrology",
+    href: "/tools/astrology/panchang-today",
+    icon: "Sun",
+    popular: true,
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400",
+    desc: "Aaj ka tithi, nakshatra, yoga, karana, vara, rahu kaal, choghadiya — ek jagah.",
+  },
+  {
+    id: "vedic-clock",
+    name: "Vedic Clock",
+    category: "Astrology",
+    href: "/tools/astrology/vedic-clock",
+    icon: "Clock",
+    popular: true,
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400",
+    desc: "Live Vedic clock — muhurta, hora, ghadi, prahar real-time dikhata hai.",
+  },
+  {
+    id: "choghadiya",
+    name: "Choghadiya",
+    category: "Astrology",
+    href: "/tools/astrology/choghadiya",
+    icon: "Calendar",
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400",
+    desc: "Din aur raat ka choghadiya aur hora table — kab kya karna theek hai.",
+  },
+  {
+    id: "graha-sthiti",
+    name: "Graha Sthiti",
+    category: "Astrology",
+    href: "/tools/astrology/graha-sthiti",
+    icon: "Star",
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400",
+    desc: "Navagraha ki abhi ki sthiti — vakri, uccha, neech live dekho.",
+  },
+  {
+    id: "muhurta-finder",
+    name: "Muhurta Finder",
+    category: "Astrology",
+    href: "/tools/astrology/muhurta-finder",
+    icon: "Wand2",
+    popular: true,
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400",
+    desc: "Vivah, vaahan, griha pravesh — agle kuch dinon mein sarvashreshtha muhurta khojo.",
+  },
+  {
+    id: "panchang-calendar",
+    name: "Panchang Calendar",
+    category: "Astrology",
+    href: "/tools/astrology/panchang-calendar",
+    icon: "CalendarDays",
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400",
+    desc: "Maasik panchang calendar — har din ki tithi, nakshatra aur tyohar.",
+  },
+  {
+    id: "vrat-tyohar",
+    name: "Vrat aur Tyohar",
+    category: "Astrology",
+    href: "/tools/astrology/vrat-tyohar",
+    icon: "Heart",
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400",
+    desc: "Upcoming vrat, parv aur tyohar — Ekadashi, Purnima, Diwali, Holi sab ek jagah.",
+  },
+  {
+    id: "grahan-tracker",
+    name: "Grahan Tracker",
+    category: "Astrology",
+    href: "/tools/astrology/grahan-tracker",
+    icon: "Moon",
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400",
+    desc: "Agle surya aur chandra grahan — sutak timing, niyam aur live countdown.",
+  },
+  {
+    id: "gochar",
+    name: "Gochar (Transits)",
+    category: "Astrology",
+    href: "/tools/astrology/gochar",
+    icon: "TrendingUp",
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400",
+    desc: "Graha rashi parivartan — Sade Sati, vakri, Guru-Shani transit tracker.",
   },
 ];
 

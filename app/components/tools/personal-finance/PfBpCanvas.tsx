@@ -271,7 +271,7 @@ function EnvelopeRow({
 }: {
   envelope: Envelope; month: string; onDelete: () => void;
 }) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   const categories = useMemo(() => getAvailablePFCategories(), []);
 
   const update = useCallback((updates: Partial<Envelope>) => {

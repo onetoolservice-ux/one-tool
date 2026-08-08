@@ -15,11 +15,11 @@ import {
   updateMonthFlag, type SpecialFlag,
 } from './budget-planner-store';
 import { fmtINR } from './finance-store';
-import { BudgetCanvas }     from './pf-bp-canvas';
-import { EnvelopesBoard }   from './pf-bp-envelopes';
-import { GoalsEngine }      from './pf-bp-goals';
-import { CashFlowCalendar } from './pf-bp-calendar';
-import { YearView }         from './pf-bp-year';
+import { BudgetCanvas }     from './PfBpCanvas';
+import { EnvelopesBoard }   from './PfBpEnvelopes';
+import { GoalsEngine }      from './PfBpGoals';
+import { CashFlowCalendar } from './PfBpCalendar';
+import { YearView }         from './PfBpYear';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -64,11 +64,11 @@ function todayMonth(): string {
 type TabKey = 'canvas' | 'envelopes' | 'goals' | 'calendar' | 'year';
 
 const TABS: { key: TabKey; label: string; icon: React.FC<{ className?: string }>; desc: string }[] = [
-  { key: 'canvas',    label: 'Canvas',     icon: LayoutGrid, desc: 'Zero-based allocation'       },
-  { key: 'envelopes', label: 'Envelopes',  icon: Layers,     desc: 'Live spend tracking'          },
-  { key: 'goals',     label: 'Goals',      icon: Target,     desc: 'Savings goals & simulator'    },
-  { key: 'calendar',  label: 'Cash Flow',  icon: Calendar,   desc: 'Day-by-day timeline'          },
-  { key: 'year',      label: 'Year View',  icon: BarChart3,  desc: '12-month health overview'     },
+  { key: 'canvas',    label: 'Canvas',     icon: LayoutGrid, desc: 'Plan where every rupee goes'       },
+  { key: 'envelopes', label: 'Envelopes',  icon: Layers,     desc: 'Track spend vs budget per category' },
+  { key: 'goals',     label: 'Goals',      icon: Target,     desc: 'Set targets, simulate timelines'    },
+  { key: 'calendar',  label: 'Cash Flow',  icon: Calendar,   desc: 'Bills & income day-by-day'          },
+  { key: 'year',      label: 'Year View',  icon: BarChart3,  desc: 'See all 12 months at once'          },
 ];
 
 // ── Month Navigator ───────────────────────────────────────────────────────────
@@ -163,8 +163,11 @@ function TabBar({
                 : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50'
             }`}
           >
-            <Icon className="w-4 h-4" />
-            {tab.label}
+            <Icon className="w-4 h-4 shrink-0" />
+            <span className="flex flex-col items-start gap-0.5">
+              <span>{tab.label}</span>
+              <span className={`text-[10px] font-normal leading-tight ${isActive ? 'text-blue-400 dark:text-blue-500' : 'text-slate-400 dark:text-slate-500'}`}>{tab.desc}</span>
+            </span>
           </button>
         );
       })}

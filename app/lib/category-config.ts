@@ -11,7 +11,7 @@ import {
   TrendingUp, Wallet, Receipt, Store, Briefcase, Terminal,
   Zap, FileText, Heart, Target, User, Home, Rocket, Globe,
   Users, UserCheck, ArrowRightLeft, Palette, Sparkles, Video,
-  PenLine, ShoppingBag, LayoutGrid,
+  PenLine, ShoppingBag, LayoutGrid, Clock, Star,
 } from 'lucide-react';
 
 export type CategoryMeta = {
@@ -335,6 +335,34 @@ const CONFIG: CategoryMeta[] = [
     sectionLine: 'from-stone-300/60 dark:from-stone-700/60',
     sectionCount: 'bg-stone-100 text-stone-600 dark:bg-stone-500/15 dark:text-stone-400',
     topEdge: 'from-stone-500 to-gray-400',
+  },
+  {
+    label: 'Time Management',
+    emoji: '⏱️',
+    Icon: Clock,
+    iconCircle: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300',
+    activeItem: 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-800 dark:text-indigo-200',
+    activeChip: 'bg-indigo-700 text-white',
+    sectionIconBg: 'bg-indigo-100 dark:bg-indigo-500/15',
+    sectionIconText: 'text-indigo-700 dark:text-indigo-300',
+    sectionText: 'text-indigo-800 dark:text-indigo-200',
+    sectionLine: 'from-indigo-400/60 dark:from-indigo-600/60',
+    sectionCount: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300',
+    topEdge: 'from-indigo-600 to-violet-500',
+  },
+  {
+    label: 'Astrology',
+    emoji: '🔮',
+    Icon: Star,
+    iconCircle: 'bg-violet-100 text-violet-700 dark:bg-violet-500/15 dark:text-violet-300',
+    activeItem: 'bg-violet-50 dark:bg-violet-500/10 text-violet-800 dark:text-violet-200',
+    activeChip: 'bg-violet-700 text-white',
+    sectionIconBg: 'bg-violet-100 dark:bg-violet-500/15',
+    sectionIconText: 'text-violet-700 dark:text-violet-300',
+    sectionText: 'text-violet-800 dark:text-violet-200',
+    sectionLine: 'from-violet-400/60 dark:from-violet-600/60',
+    sectionCount: 'bg-violet-100 text-violet-700 dark:bg-violet-500/15 dark:text-violet-300',
+    topEdge: 'from-violet-600 to-purple-500',
   },
   {
     label: 'Daily Utility',

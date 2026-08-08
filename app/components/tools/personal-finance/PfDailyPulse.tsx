@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Activity } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
-import { PFFilterBarHeader } from './pf-ui';
+import { PFFilterBarHeader } from './PfUi';
 import { ToolEmptyState } from '@/app/components/tools/shared/ToolEmptyState';
 import {
   getPFTransactions, getAccounts, getAvailableMonths, filterByPeriod, fmtINR,
@@ -43,7 +43,7 @@ export function DailyTransactionPulse() {
   const [allTxns, setAllTxns]         = useState<PFTransaction[]>([]);
   const [accounts, setAccounts]       = useState<PFAccount[]>([]);
   const [months, setMonths]           = useState<{ key: string; label: string }[]>([]);
-  const [period, setPeriod]           = useState('last-3-months');
+  const [period, setPeriod]           = useState('this-month');
   const [accountFilter, setAccountFilter] = useState('all');
   const [showFilterBar, setShowFilterBar] = useState(true);
   const [selectedTopDay, setSelectedTopDay] = useState<string | null>(null);

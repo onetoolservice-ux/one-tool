@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useToast } from '@/app/components/ui/toast-system';
+import { useToast } from '@/app/components/ui/ToastSystem';
 
 /** Listens for ot-storage-quota-exceeded and shows a user-facing toast. */
 export function StorageQuotaToast() {

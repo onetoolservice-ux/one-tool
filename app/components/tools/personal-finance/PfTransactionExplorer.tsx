@@ -4,13 +4,15 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Search, X, FileDown, ChevronLeft, ChevronRight,
   ArrowUpDown, Check, Pencil, RefreshCw, Tag, Trash2,
-  ArrowRightLeft, Landmark, SlidersHorizontal, Settings2,
+  ArrowRightLeft, Landmark, SlidersHorizontal, BookOpen,
+  Filter, MousePointerClick, Download, Layers, AlertTriangle,
 } from 'lucide-react';
+import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
 import {
   PFButton, PFBadge, PFFilterBarHeader, PFSmartTableBar,
   type VHFilter, emptyVHF, vhfActive, applyVHF, VHFilterField, ValueHelpDialog, AdaptFiltersDialog,
-} from './pf-ui';
-import { useToast } from '@/app/components/ui/toast-system';
+} from './PfUi';
+import { useToast } from '@/app/components/ui/ToastSystem';
 import { downloadFile } from '@/app/lib/utils/tool-helpers';
 import {
   getAccounts, getStatements, getPFTransactions, filterByPeriod, getAvailableMonths,
@@ -23,18 +25,13 @@ import {
 } from './finance-store';
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// TRANSACTION EXPLORER — Production-Ready
-//
-// Full searchable/filterable/sortable ledger.
-// Inline category edit per transaction.
-// Bulk actions: assign category, mark transfer, mark loan/EMI, add label, delete.
-// Label column with multi-label support.
-// Paginated (50/page). Export CSV.
+// TRANSACTION EXPLORER
+// Full searchable/filterable/sortable ledger with bulk actions.
 // ═══════════════════════════════════════════════════════════════════════════════
 
 const PAGE_SIZE = 50;
+const GUIDE_KEY = 'pf-tx-explorer-guide-seen';
 
-// ── Dynamic column helpers (mirrors pf-cash-flow logic) ───────────────────────
 const normCol = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 
 const STANDARD_COLS = new Set([
@@ -52,13 +49,141 @@ const DIRECTION_VALUES = new Set([
   'credit', 'debit', 'cr', 'dr', 'c', 'd', 'withdrawal', 'deposit', 'received', 'paid',
 ]);
 
-type SortKey = 'date' | 'amount' | 'description';
+type SortKey = 'date' | 'amount' | 'description' | 'category' | 'type';
 type SortDir = 'asc' | 'desc';
 type BulkAction = 'category' | 'transfer' | 'loan' | 'label' | 'delete' | '';
+
+// ── Onboarding Guide ──────────────────────────────────────────────────────────
+
+const GUIDE_FEATURES = [
+  {
+    icon: <Filter size={18} className="text-blue-600 dark:text-blue-400" />,
+    bg: 'bg-blue-50 dark:bg-blue-900/20',
+    title: 'Filter anything',
+    desc: 'Search by merchant name, filter by period, account, type (credit/debit), category, amount range — all at once. Combine as many filters as you need.',
+  },
+  {
+    icon: <MousePointerClick size={18} className="text-violet-600 dark:text-violet-400" />,
+    bg: 'bg-violet-50 dark:bg-violet-900/20',
+    title: 'Fix categories in bulk',
+    desc: 'Select multiple rows → pick "Assign Category" → apply to all at once. Or click the pencil icon on any single row to change it inline.',
+  },
+  {
+    icon: <Layers size={18} className="text-amber-600 dark:text-amber-400" />,
+    bg: 'bg-amber-50 dark:bg-amber-900/20',
+    title: 'Mark transfers & loans',
+    desc: 'Internal transfers (wallet top-ups, self-transfers) and loan EMIs skew your expense totals. Select them and mark correctly — they are excluded from analysis.',
+  },
+  {
+    icon: <Tag size={18} className="text-emerald-600 dark:text-emerald-400" />,
+    bg: 'bg-emerald-50 dark:bg-emerald-900/20',
+    title: 'Labels for custom grouping',
+    desc: 'Create labels like "Trip to Goa" or "Home Renovation" and tag multiple transactions across categories. Labels are separate from categories.',
+  },
+  {
+    icon: <Download size={18} className="text-slate-600 dark:text-slate-400" />,
+    bg: 'bg-slate-50 dark:bg-slate-800',
+    title: 'Export filtered results',
+    desc: 'Apply any filter combination, then click Export — only the filtered rows are exported to CSV. Useful for sharing or further analysis in Excel.',
+  },
+];
+
+function GuideView({ onEnter }: { onEnter: () => void }) {
+  return (
+    <div className="space-y-4">
+      <SAPHeader
+        fullWidth
+        title="Transaction Explorer"
+        subtitle="Every transaction from all your accounts — search, filter, categorise, and export"
+      />
+
+      <div className="px-4 pb-6 space-y-5">
+
+        {/* What is this */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-5 py-4">
+          <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">What is Transaction Explorer?</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            This is your full raw ledger — every transaction from every statement you've uploaded, in one place.
+            It's the one screen where you can find any transaction, fix its category, tag it, or delete it.
+            All other tools (Expenses, Behavior, Budget vs Actual) read from what you clean up here.
+          </p>
+        </div>
+
+        {/* Feature cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {GUIDE_FEATURES.map((f, i) => (
+            <div key={i} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 flex gap-3">
+              <div className={`w-9 h-9 rounded-lg ${f.bg} flex items-center justify-center shrink-0`}>
+                {f.icon}
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-800 dark:text-slate-100 mb-0.5">{f.title}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{f.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Quick tip */}
+        <div className="flex items-start gap-2.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl px-4 py-3">
+          <AlertTriangle size={14} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+          <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
+            <span className="font-bold">Clean before you analyse.</span> Wrong categories here mean wrong numbers everywhere. Spend 5 minutes fixing bulk mismatches before you trust any chart.
+          </p>
+        </div>
+
+        {/* CTA */}
+        <button
+          onClick={onEnter}
+          className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition-colors flex items-center justify-center gap-2 shadow-sm"
+        >
+          Open Transaction Explorer →
+        </button>
+
+        <p className="text-center text-[11px] text-slate-400 dark:text-slate-500">
+          You can re-open this guide anytime from the toolbar
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ── Delete Confirm Modal ───────────────────────────────────────────────────────
+
+function DeleteConfirmModal({ count, onConfirm, onCancel }: { count: number; onConfirm: () => void; onCancel: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl shadow-2xl w-80 p-5 flex flex-col gap-4">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0">
+            <Trash2 size={16} className="text-red-600 dark:text-red-400" />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-slate-800 dark:text-slate-100">Delete {count} transaction{count !== 1 ? 's' : ''}?</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">This cannot be undone.</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <button onClick={onCancel}
+            className="flex-1 text-sm px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium">
+            Cancel
+          </button>
+          <button onClick={onConfirm}
+            className="flex-1 text-sm font-bold bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg transition-colors">
+            Yes, Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main Component ─────────────────────────────────────────────────────────────
 
 export function TransactionExplorer() {
   const { toast } = useToast();
   const [mounted, setMounted]   = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
   const [accounts, setAccounts] = useState<PFAccount[]>([]);
   const [statements, setStatements] = useState<PFStatement[]>([]);
   const [allTxns, setAllTxns]   = useState<PFTransaction[]>([]);
@@ -93,7 +218,11 @@ export function TransactionExplorer() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkAction, setBulkAction] = useState<BulkAction>('');
   const [bulkCategory, setBulkCategory] = useState('');
+  const [bulkNewCat, setBulkNewCat] = useState('');
   const [bulkLabelId, setBulkLabelId]   = useState('');
+
+  // Delete confirm modal
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Label quick-add
   const [newLabelName, setNewLabelName] = useState('');
@@ -110,7 +239,6 @@ export function TransactionExplorer() {
   const [hiddenFilters,  setHiddenFilters]  = useState<Set<string>>(new Set());
   const [showAdaptDialog, setShowAdaptDialog] = useState(false);
 
-  // SAP-style filter bar visibility toggle
   const [showFilterBar, setShowFilterBar] = useState(true);
 
   const reload = () => {
@@ -123,15 +251,23 @@ export function TransactionExplorer() {
 
   useEffect(() => {
     setMounted(true);
+    // Show guide on first visit
+    const seen = localStorage.getItem(GUIDE_KEY);
+    if (!seen) setShowGuide(true);
     reload();
     const h = () => reload();
     window.addEventListener('pf-store-updated', h);
     return () => window.removeEventListener('pf-store-updated', h);
   }, []);
 
+  const handleEnterExplorer = () => {
+    localStorage.setItem(GUIDE_KEY, '1');
+    setShowGuide(false);
+  };
+
   const availableMonths = useMemo(() => getAvailableMonths(), [allTxns]);
 
-  // ── Dynamic columns — extra columns from the uploaded Excel/CSV ──────────────
+  // ── Dynamic columns ────────────────────────────────────────────────────────
   const dynamicColumns = useMemo(() => {
     if (allTxns.length === 0) return [];
     const groups = new Map<string, { displayName: string; rawKeys: string[] }>();
@@ -158,7 +294,6 @@ export function TransactionExplorer() {
     return result;
   }, [allTxns]);
 
-  // ── Adaptable filter fields (for Adapt Filters dialog) ────────────────────
   const adaptableFields = useMemo(() => [
     { key: 'category',  label: 'Category',     group: 'Standard' },
     { key: 'recurring', label: 'Recurring',    group: 'Standard' },
@@ -184,43 +319,37 @@ export function TransactionExplorer() {
     }
     if (amountMin) txns = txns.filter(t => t.amount >= parseFloat(amountMin));
     if (amountMax) txns = txns.filter(t => t.amount <= parseFloat(amountMax));
-
-    // Category VHFilter
     if (vhfActive(catVH)) txns = txns.filter(t => applyVHF(catVH, t.category));
-
-    // Label VHFilter — match any of the transaction's labels
     if (vhfActive(labelVH)) {
       txns = txns.filter(t => {
         const txnLabels = getTransactionLabels(t.id);
         return txnLabels.some(l => applyVHF(labelVH, l.name));
       });
     }
-
-    // Dynamic column VHFilters
     for (const [nk, vhf] of Object.entries(dynVH)) {
       if (!vhfActive(vhf)) continue;
       const col = dynamicColumns.find(d => d.key === nk);
       if (!col) continue;
       txns = txns.filter(t => col.rawKeys.some(k => applyVHF(vhf, (t.rawData?.[k] ?? '').trim())));
     }
-
     txns = [...txns].sort((a, b) => {
       let cmp = 0;
       if (sortKey === 'date')        cmp = a.date.localeCompare(b.date);
       else if (sortKey === 'amount') cmp = a.amount - b.amount;
-      else                           cmp = a.description.localeCompare(b.description);
+      else if (sortKey === 'description') cmp = a.description.localeCompare(b.description);
+      else if (sortKey === 'category')    cmp = a.category.localeCompare(b.category);
+      else if (sortKey === 'type')        cmp = a.type.localeCompare(b.type);
       return sortDir === 'asc' ? cmp : -cmp;
     });
     return txns;
   }, [allTxns, accountId, statementId, period, customFrom, customTo, filterType, catVH, labelVH, filterRecurring, search, amountMin, amountMax, dynVH, dynamicColumns, sortKey, sortDir]);
 
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
-  const pageTxns   = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const totalPages  = Math.ceil(filtered.length / PAGE_SIZE);
+  const pageTxns    = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const totalAmount = filtered.reduce((a, t) => a + (t.type === 'debit' ? -t.amount : t.amount), 0);
 
   useEffect(() => { setPage(1); }, [filtered.length]);
 
-  // Load labels for current page
   useEffect(() => {
     const cache: Record<string, PFLabel[]> = {};
     pageTxns.forEach(t => { cache[t.id] = getTransactionLabels(t.id); });
@@ -250,7 +379,7 @@ export function TransactionExplorer() {
     toast('Category updated', 'success');
   };
 
-  // ── Bulk selection ─────────────────────────────────────────────────────────
+  // ── Bulk selection — ALL filtered, not just current page ──────────────────
   const toggleSelect = (id: string) => {
     setSelected(prev => {
       const next = new Set(prev);
@@ -260,20 +389,28 @@ export function TransactionExplorer() {
   };
 
   const selectAll = () => {
-    if (selected.size === pageTxns.length) setSelected(new Set());
-    else setSelected(new Set(pageTxns.map(t => t.id)));
+    // If all filtered are already selected, deselect all; otherwise select all filtered
+    const allFilteredIds = filtered.map(t => t.id);
+    const allSelected = allFilteredIds.every(id => selected.has(id));
+    if (allSelected) setSelected(new Set());
+    else setSelected(new Set(allFilteredIds));
   };
 
-  const clearSelection = () => { setSelected(new Set()); setBulkAction(''); setBulkCategory(''); setBulkLabelId(''); };
+  const pageAllSelected = pageTxns.length > 0 && pageTxns.every(t => selected.has(t.id));
+
+  const clearSelection = () => { setSelected(new Set()); setBulkAction(''); setBulkCategory(''); setBulkNewCat(''); setBulkLabelId(''); };
 
   // ── Bulk Actions ───────────────────────────────────────────────────────────
   const applyBulk = () => {
     const ids = [...selected];
     if (ids.length === 0) return;
 
-    if (bulkAction === 'category' && bulkCategory) {
-      bulkApplyCategoryOverride(ids, bulkCategory);
-      toast(`Moved ${ids.length} transactions to "${bulkCategory}"`, 'success');
+    if (bulkAction === 'category') {
+      const cat = bulkNewCat.trim() || bulkCategory;
+      if (!cat) return;
+      if (bulkNewCat.trim()) addUserCategory(bulkNewCat.trim());
+      bulkApplyCategoryOverride(ids, cat);
+      toast(`Moved ${ids.length} transactions to "${cat}"`, 'success');
     } else if (bulkAction === 'transfer') {
       bulkMarkAsTransfer(ids);
       toast(`Marked ${ids.length} transactions as Transfer`, 'success');
@@ -284,12 +421,19 @@ export function TransactionExplorer() {
       assignLabels(ids, bulkLabelId);
       toast(`Added label to ${ids.length} transactions`, 'success');
     } else if (bulkAction === 'delete') {
-      if (!confirm(`Permanently delete ${ids.length} transaction${ids.length > 1 ? 's' : ''}?`)) return;
-      bulkDeleteTransactions(ids);
-      toast(`Deleted ${ids.length} transactions`, 'success');
+      setShowDeleteModal(true);
+      return;
     } else {
       return;
     }
+    clearSelection();
+  };
+
+  const confirmDelete = () => {
+    const ids = [...selected];
+    bulkDeleteTransactions(ids);
+    toast(`Deleted ${ids.length} transactions`, 'success');
+    setShowDeleteModal(false);
     clearSelection();
   };
 
@@ -346,15 +490,21 @@ export function TransactionExplorer() {
   };
 
   if (!mounted) return null;
+
+  // ── Guide view ─────────────────────────────────────────────────────────────
+  if (showGuide) {
+    return <GuideView onEnter={handleEnterExplorer} />;
+  }
+
   const hasData = allTxns.length > 0;
   const coverage    = getStatementCoverageRange();
   const lastUpdated = getLastUpdatedTimestamp();
+  const hasLabels   = labels.length > 0;
 
   const bulkActionNeedsExtra =
-    (bulkAction === 'category' && !bulkCategory) ||
+    (bulkAction === 'category' && !bulkCategory && !bulkNewCat.trim()) ||
     (bulkAction === 'label'    && !bulkLabelId);
 
-  // ── Active filter count (for badge on Filters button) ─────────────────────
   const activeFilterCount = [
     period !== 'all', accountId !== 'all', filterType !== 'all',
     filterRecurring !== 'all', !!search, !!amountMin, !!amountMax,
@@ -365,9 +515,39 @@ export function TransactionExplorer() {
   return (
     <div className="space-y-0">
 
+      {/* Delete confirm modal */}
+      {showDeleteModal && (
+        <DeleteConfirmModal
+          count={selected.size}
+          onConfirm={confirmDelete}
+          onCancel={() => setShowDeleteModal(false)}
+        />
+      )}
+
+      {/* Adapt Filters Dialog */}
+      {showAdaptDialog && (
+        <AdaptFiltersDialog
+          fields={adaptableFields}
+          hidden={hiddenFilters}
+          onConfirm={setHiddenFilters}
+          onClose={() => setShowAdaptDialog(false)}
+        />
+      )}
+
+      {/* Value Help Dialog */}
+      {vhField && (
+        <ValueHelpDialog
+          title={getVhTitle(vhField)}
+          values={getVhValues(vhField)}
+          filter={getVhFilter(vhField)}
+          fieldType="text"
+          onConfirm={vhf => setVhFilter(vhField, vhf)}
+          onClose={() => setVhField(null)}
+        />
+      )}
+
       {/* ── SAP Fiori Filter Bar ───────────────────────────────────────────── */}
       <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 overflow-hidden">
-        {/* Filter bar toolbar row */}
         <PFFilterBarHeader
           activeCount={activeFilterCount}
           onClearAll={() => {
@@ -378,16 +558,25 @@ export function TransactionExplorer() {
           showFilterBar={showFilterBar}
           onToggle={() => setShowFilterBar(v => !v)}
           actions={
-            <button
-              onClick={() => setShowAdaptDialog(true)}
-              className="text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 font-semibold transition-colors"
-            >
-              Adapt Filters
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowAdaptDialog(true)}
+                className="text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 font-semibold transition-colors"
+              >
+                Adapt Filters
+              </button>
+              <button
+                onClick={() => setShowGuide(true)}
+                title="How to use"
+                className="flex items-center gap-1 text-xs text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
+                <BookOpen size={13} />
+                Guide
+              </button>
+            </div>
           }
         />
 
-        {/* Filter fields grid */}
         {showFilterBar && (
           <div className="px-4 py-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-3">
 
@@ -429,8 +618,8 @@ export function TransactionExplorer() {
               </select>
             </div>
 
-            {/* Statement */}
-            {statements.length > 1 && (
+            {/* Statement — only when multiple exist AND filtered to matching account */}
+            {statements.filter(s => accountId === 'all' || s.accountId === accountId).length > 1 && (
               <div>
                 <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">Statement</label>
                 <select value={statementId} onChange={e => setStatementId(e.target.value)}
@@ -479,8 +668,8 @@ export function TransactionExplorer() {
               </div>
             )}
 
-            {/* Label */}
-            {labels.length > 0 && !hiddenFilters.has('label') && (
+            {/* Label — only when labels exist */}
+            {hasLabels && !hiddenFilters.has('label') && (
               <VHFilterField
                 label="Label"
                 vhf={labelVH}
@@ -525,7 +714,7 @@ export function TransactionExplorer() {
               </>
             )}
 
-            {/* ── Dynamic columns from Excel ─────────────────────────────────── */}
+            {/* Dynamic columns from Excel */}
             {dynamicColumns.filter(col => !hiddenFilters.has(col.key)).map(col => (
               <VHFilterField
                 key={col.key}
@@ -550,7 +739,6 @@ export function TransactionExplorer() {
       {/* ── Smart Table ───────────────────────────────────────────────────────── */}
       <div className="bg-white dark:bg-slate-900 overflow-hidden">
 
-        {/* Smart Table Header */}
         <PFSmartTableBar
           title="Transactions"
           count={filtered.length}
@@ -564,6 +752,9 @@ export function TransactionExplorer() {
                   {allTxns.filter(t => t.userOverrideFlag).length} overridden
                 </PFBadge>
               )}
+              {selected.size > 0 && (
+                <PFBadge color="blue">{selected.size} of {filtered.length} selected</PFBadge>
+              )}
             </>
           )}
           actions={
@@ -571,11 +762,7 @@ export function TransactionExplorer() {
               <PFButton icon={<FileDown size={13} />} onClick={handleExport} title="Export CSV">
                 Export
               </PFButton>
-              <button title="Sort settings"
-                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                <Settings2 size={14} />
-              </button>
-              <button title="Filter options"
+              <button title="Toggle filters"
                 onClick={() => setShowFilterBar(v => !v)}
                 className={`relative p-1.5 border rounded-lg transition-colors ${showFilterBar ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400' : 'text-slate-400 hover:text-slate-600 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
                 <SlidersHorizontal size={14} />
@@ -589,7 +776,7 @@ export function TransactionExplorer() {
           }
         />
 
-        {/* Bulk action bar — appears inside the smart table header when rows selected */}
+        {/* Bulk action bar */}
         {selected.size > 0 && (
           <div className="border-b border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 px-4 py-2.5">
             <div className="flex items-center gap-3 flex-wrap">
@@ -598,7 +785,7 @@ export function TransactionExplorer() {
               </span>
 
               <select value={bulkAction}
-                onChange={e => { setBulkAction(e.target.value as BulkAction); setBulkCategory(''); setBulkLabelId(''); }}
+                onChange={e => { setBulkAction(e.target.value as BulkAction); setBulkCategory(''); setBulkNewCat(''); setBulkLabelId(''); }}
                 className="text-xs border border-blue-200 dark:border-blue-700 rounded-lg px-2.5 py-1.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200">
                 <option value="">— Action —</option>
                 <option value="category">Assign Category</option>
@@ -609,11 +796,21 @@ export function TransactionExplorer() {
               </select>
 
               {bulkAction === 'category' && (
-                <select value={bulkCategory} onChange={e => setBulkCategory(e.target.value)}
-                  className="text-xs border border-blue-200 dark:border-blue-700 rounded-lg px-2.5 py-1.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200">
-                  <option value="">— Category —</option>
-                  {categories.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <select value={bulkCategory} onChange={e => setBulkCategory(e.target.value)}
+                    className="text-xs border border-blue-200 dark:border-blue-700 rounded-lg px-2.5 py-1.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200">
+                    <option value="">— Pick existing —</option>
+                    {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                  <span className="text-[10px] text-slate-400">or</span>
+                  <input
+                    value={bulkNewCat}
+                    onChange={e => setBulkNewCat(e.target.value)}
+                    placeholder="Type new category…"
+                    className="text-xs border border-blue-200 dark:border-blue-700 rounded-lg px-2.5 py-1.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 w-36"
+                    onKeyDown={e => { if (e.key === 'Enter') applyBulk(); }}
+                  />
+                </div>
               )}
 
               {bulkAction === 'label' && (
@@ -651,7 +848,7 @@ export function TransactionExplorer() {
                 {bulkAction === 'transfer' && <ArrowRightLeft size={11} />}
                 {bulkAction === 'loan'     && <Landmark size={11} />}
                 {bulkAction === 'delete'   && <Trash2 size={11} />}
-                Apply
+                Apply to {selected.size}
               </button>
 
               <button onClick={clearSelection}
@@ -702,8 +899,10 @@ export function TransactionExplorer() {
                   <tr className="bg-slate-50 dark:bg-slate-800/60 text-slate-500 text-[10px] uppercase tracking-wider border-b border-slate-100 dark:border-slate-800">
                     <th className="px-4 py-2.5 w-8">
                       <input type="checkbox"
-                        checked={selected.size === pageTxns.length && pageTxns.length > 0}
-                        onChange={selectAll} className="rounded" />
+                        checked={pageAllSelected}
+                        onChange={selectAll}
+                        title={filtered.length > PAGE_SIZE ? `Select all ${filtered.length} filtered` : 'Select all'}
+                        className="rounded" />
                     </th>
                     <th className="px-4 py-2.5 text-left font-bold">
                       <SortBtn col="date">Date</SortBtn>
@@ -711,12 +910,18 @@ export function TransactionExplorer() {
                     <th className="px-4 py-2.5 text-left font-bold">
                       <SortBtn col="description">Description</SortBtn>
                     </th>
-                    <th className="px-4 py-2.5 text-left font-bold">Category</th>
-                    <th className="px-4 py-2.5 text-left font-bold">Labels</th>
+                    <th className="px-4 py-2.5 text-left font-bold">
+                      <SortBtn col="category">Category</SortBtn>
+                    </th>
+                    {hasLabels && (
+                      <th className="px-4 py-2.5 text-left font-bold">Labels</th>
+                    )}
                     <th className="px-4 py-2.5 text-right font-bold">
                       <SortBtn col="amount">Amount</SortBtn>
                     </th>
-                    <th className="px-4 py-2.5 text-left font-bold">Type</th>
+                    <th className="px-4 py-2.5 text-left font-bold">
+                      <SortBtn col="type">Type</SortBtn>
+                    </th>
                     <th className="px-4 py-2.5 text-left font-bold">Flags</th>
                     <th className="px-3 py-2.5 w-8" />
                   </tr>
@@ -766,17 +971,19 @@ export function TransactionExplorer() {
                             </span>
                           )}
                         </td>
-                        <td className="px-4 py-2">
-                          <div className="flex flex-wrap gap-1">
-                            {txnLabels.map(l => (
-                              <span key={l.id}
-                                className="text-[10px] px-1.5 py-0.5 rounded font-semibold text-white"
-                                style={{ backgroundColor: l.color }}>
-                                {l.name}
-                              </span>
-                            ))}
-                          </div>
-                        </td>
+                        {hasLabels && (
+                          <td className="px-4 py-2">
+                            <div className="flex flex-wrap gap-1">
+                              {txnLabels.map(l => (
+                                <span key={l.id}
+                                  className="text-[10px] px-1.5 py-0.5 rounded font-semibold text-white"
+                                  style={{ backgroundColor: l.color }}>
+                                  {l.name}
+                                </span>
+                              ))}
+                            </div>
+                          </td>
+                        )}
                         <td className={`px-4 py-2 text-right font-mono font-bold ${t.type === 'credit' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-200'}`}>
                           {t.type === 'credit' ? '+' : ''}{fmtINR(t.amount)}
                         </td>
@@ -803,7 +1010,24 @@ export function TransactionExplorer() {
               </table>
             </div>
 
-            {/* Pagination — inside the smart table card */}
+            {/* Select-all-filtered banner */}
+            {filtered.length > PAGE_SIZE && selected.size > 0 && selected.size < filtered.length && (
+              <div className="px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border-t border-blue-100 dark:border-blue-800 text-xs text-blue-700 dark:text-blue-300 flex items-center gap-2">
+                <span>{selected.size} selected on this page.</span>
+                <button onClick={() => setSelected(new Set(filtered.map(t => t.id)))}
+                  className="font-bold underline hover:no-underline">
+                  Select all {filtered.length} filtered transactions
+                </button>
+              </div>
+            )}
+            {filtered.length > PAGE_SIZE && selected.size === filtered.length && (
+              <div className="px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border-t border-blue-100 dark:border-blue-800 text-xs text-blue-700 dark:text-blue-300 flex items-center gap-2">
+                <span>All {filtered.length} filtered transactions selected.</span>
+                <button onClick={clearSelection} className="font-bold underline hover:no-underline">Clear selection</button>
+              </div>
+            )}
+
+            {/* Pagination */}
             <div className="flex items-center justify-between px-4 py-2.5 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30">
               <span className="text-xs text-slate-500">
                 {filtered.length} transactions · Page {page} of {totalPages || 1}
@@ -823,7 +1047,7 @@ export function TransactionExplorer() {
           </>
         )}
 
-        {/* Last updated footer — inside the card */}
+        {/* Last updated footer */}
         {hasData && (
           <div className="px-4 py-2.5 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 dark:text-slate-600 flex flex-wrap gap-x-4">
             {coverage && <span>Statements: <span className="font-medium">{coverage.from} → {coverage.to}</span></span>}
@@ -831,28 +1055,6 @@ export function TransactionExplorer() {
           </div>
         )}
       </div>
-
-      {/* Adapt Filters Dialog */}
-      {showAdaptDialog && (
-        <AdaptFiltersDialog
-          fields={adaptableFields}
-          hidden={hiddenFilters}
-          onConfirm={setHiddenFilters}
-          onClose={() => setShowAdaptDialog(false)}
-        />
-      )}
-
-      {/* Value Help Dialog */}
-      {vhField && (
-        <ValueHelpDialog
-          title={getVhTitle(vhField)}
-          values={getVhValues(vhField)}
-          filter={getVhFilter(vhField)}
-          fieldType="text"
-          onConfirm={vhf => setVhFilter(vhField, vhf)}
-          onClose={() => setVhField(null)}
-        />
-      )}
     </div>
   );
 }

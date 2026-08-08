@@ -5,12 +5,12 @@ import {
   LayoutDashboard, Clock, Calendar, Target, Globe, 
   Search, Command 
 } from 'lucide-react';
-import ActionCenter from './action-center';
-import FocusSection from './focus-section';
-import { DailyView } from './views/daily-view';
-import { WeeklyView } from './views/weekly-view';
-import { MonthlyView } from './views/monthly-view';
-import { MacroView } from './views/macro-view';
+import ActionCenter from './ActionCenter';
+import FocusSection from './FocusSection';
+import { DailyView } from './views/DailyView';
+import { WeeklyView } from './views/WeeklyView';
+import { MonthlyView } from './views/MonthlyView';
+import { MacroView } from './views/MacroView';
 
 // --- TYPES ---
 export interface Task {

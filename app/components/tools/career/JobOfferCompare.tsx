@@ -67,7 +67,8 @@ async function extractText(file: File): Promise<string> {
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
       const content = await page.getTextContent();
-      pages.push(content.items.map((x: { str?: string }) => x.str ?? '').join(' '));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      pages.push(content.items.map((x: any) => x.str ?? '').join(' '));
     }
     return pages.join('\n');
   }

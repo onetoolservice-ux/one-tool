@@ -1,8 +1,8 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { Zap, ArrowRight, Clock, Calculator, StickyNote } from 'lucide-react';
-import { ModalWrapper } from './modal-wrapper';
-import { TimerWidget, CalculatorWidget, NoteWidget } from './tool-widgets';
+import { ModalWrapper } from './ModalWrapper';
+import { TimerWidget, CalculatorWidget, NoteWidget } from './ToolWidgets';
 
 interface ActionCenterProps {
   onAddTask: (task: string) => void;

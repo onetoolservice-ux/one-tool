@@ -11,7 +11,7 @@ import {
   emptyVHF, vhfActive, applyVHF,
   VH_EXCLUDE_OPS, OP_META, TEXT_OPS, NUM_OPS, genId, condLabel,
   ValueHelpDialog, VHFilterField, VHChipStrip, AdaptFiltersDialog,
-} from './pf-ui';
+} from './PfUi';
 import { downloadFile } from '@/app/lib/utils/tool-helpers';
 import {
   getAccounts, getPFTransactions, getStatements,

@@ -9,6 +9,7 @@ import html2canvas from 'html2canvas';
 import { showToast } from '@/app/shared/Toast';
 import { getErrorMessage } from '@/app/lib/errors/error-handler';
 import { logger } from '@/app/lib/utils/logger';
+import { numberToWords } from '@/app/lib/utils/number-formatter';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type PayMode = 'Cash' | 'NEFT/IMPS' | 'UPI' | 'Cheque' | 'Bank Transfer';
@@ -27,23 +28,6 @@ interface ReceiptData {
   showHraInfo: boolean;
 }
 
-// ─── Number-to-words (Indian) ─────────────────────────────────────────────────
-const ONES = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine',
-  'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-const TENS = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-function numWords(n: number): string {
-  if (n === 0) return 'Zero';
-  const r = (x: number): string => {
-    if (x === 0) return '';
-    if (x < 20) return ONES[x] + ' ';
-    if (x < 100) return TENS[Math.floor(x / 10)] + (x % 10 ? ' ' + ONES[x % 10] : '') + ' ';
-    if (x < 1000) return ONES[Math.floor(x / 100)] + ' Hundred ' + r(x % 100);
-    if (x < 100000) return r(Math.floor(x / 1000)) + 'Thousand ' + r(x % 1000);
-    if (x < 10000000) return r(Math.floor(x / 100000)) + 'Lakh ' + r(x % 100000);
-    return r(Math.floor(x / 10000000)) + 'Crore ' + r(x % 10000000);
-  };
-  return r(Math.round(n)).trim();
-}
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export const RentReceiptGenerator = () => {
@@ -186,7 +170,7 @@ export const RentReceiptGenerator = () => {
           <p style={{ margin: '0 0 8px' }}>
             the sum of{' '}
             <span style={{ fontWeight: 700, borderBottom: '1.5px solid #0f172a', paddingBottom: 1 }}>
-              ₹{fmt(rentAmt)}/- (Rupees {numWords(rentAmt)} Only)
+              ₹{fmt(rentAmt)}/- (Rupees {numberToWords(rentAmt)} Only)
             </span>
           </p>
           <p style={{ margin: '0 0 8px' }}>

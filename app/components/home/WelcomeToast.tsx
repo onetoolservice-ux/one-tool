@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from 'react';
-import { useToast } from '@/app/components/ui/toast-provider';
+import { useToast } from '@/app/components/ui/ToastProvider';
 import { safeLocalStorage } from '@/app/lib/utils/storage';
 
 export const WelcomeToast = () => {
@@ -12,7 +12,7 @@ export const WelcomeToast = () => {
     
     if (!hasVisited) {
       const timer = setTimeout(() => {
-         showToast("Welcome to OneTool Enterprise. Secure & Offline.", "welcome");
+         showToast("Welcome to OneTool — 170+ free tools, no signup needed.", "welcome");
          safeLocalStorage.setItem('onetool-visited-v3', 'true');
       }, 1500);
       return () => clearTimeout(timer);

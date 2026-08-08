@@ -1,13 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { getTheme } from '@/app/lib/theme-config';
-import { getCategoryMeta } from '@/app/lib/category-config';
-import { getIconComponent, type IconName } from '@/app/lib/utils/icon-mapper';
-import { Pin } from 'lucide-react';
+import { getIconComponent, type IconName } from '@/app/lib/utils/IconMapper';
+import { Pin, Info } from 'lucide-react';
 import { isPinned, addPin, removePin } from '@/app/lib/home-store';
-import { useToast } from '@/app/components/ui/toast-system';
+import { useToast } from '@/app/components/ui/ToastSystem';
 import { TOOL_ICON_BG } from '@/app/lib/tool-icon-bg';
 
 interface Tool {
@@ -22,16 +21,80 @@ interface Tool {
   status?: string;
 }
 
+// ── Info tooltip — shows full description on hover/focus ─────────────────────
+function InfoTooltip({ description }: { description: string }) {
+  const [visible, setVisible] = useState(false);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const tipRef = useRef<HTMLDivElement>(null);
+
+  // Close tooltip on outside click
+  useEffect(() => {
+    if (!visible) return;
+    const handler = (e: MouseEvent) => {
+      if (
+        btnRef.current && !btnRef.current.contains(e.target as Node) &&
+        tipRef.current && !tipRef.current.contains(e.target as Node)
+      ) {
+        setVisible(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [visible]);
+
+  return (
+    <div className="relative flex-shrink-0">
+      <button
+        ref={btnRef}
+        type="button"
+        onMouseEnter={() => setVisible(true)}
+        onMouseLeave={() => setVisible(false)}
+        onFocus={() => setVisible(true)}
+        onBlur={() => setVisible(false)}
+        aria-label="Tool description"
+        className="
+          p-1 rounded transition-colors duration-100
+          text-slate-300 dark:text-slate-600
+          hover:text-[var(--ot-accent,#6366f1)] dark:hover:text-[var(--ot-accent,#6366f1)]
+        "
+        onClick={e => { e.preventDefault(); e.stopPropagation(); }}
+      >
+        <Info size={12} />
+      </button>
+
+      {visible && (
+        <div
+          ref={tipRef}
+          role="tooltip"
+          className="
+            absolute bottom-full right-0 mb-1.5 z-50
+            w-52 p-2.5 rounded-xl
+            bg-white dark:bg-[#1e2132]
+            border border-slate-200 dark:border-white/[0.1]
+            shadow-xl shadow-black/10 dark:shadow-black/40
+            text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed
+            pointer-events-none
+          "
+        >
+          {description}
+          {/* Caret */}
+          <span className="
+            absolute -bottom-1.5 right-3
+            w-3 h-3 rotate-45
+            bg-white dark:bg-[#1e2132]
+            border-r border-b border-slate-200 dark:border-white/[0.1]
+          " />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Tool Card ─────────────────────────────────────────────────────────────────
 export function ToolCard({ tool }: { tool: Tool }) {
   const theme = getTheme(tool.category);
   const href = tool.href || `/tools/${tool.category.toLowerCase()}/${tool.id}`;
-  const IconComponent = tool.icon_name
-    ? getIconComponent(tool.icon_name as IconName)
-    : null;
-
-  // Use category-config for the left edge — single source of truth
-  const categoryMeta = getCategoryMeta(tool.category);
-  const topEdge = categoryMeta.topEdge;
+  const IconComponent = tool.icon_name ? getIconComponent(tool.icon_name as IconName) : null;
 
   const [pinned, setPinned] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -55,52 +118,49 @@ export function ToolCard({ tool }: { tool: Tool }) {
 
   return (
     <Link href={href} className="group relative block" aria-label={`Open ${tool.name} tool`}>
-      <article className="relative h-[108px] rounded-xl bg-white dark:bg-[#151827] border border-slate-200/80 dark:border-white/[0.06] hover:border-slate-300 dark:hover:border-white/[0.12] transition-all duration-200 hover:shadow-lg hover:shadow-black/[0.04] dark:hover:shadow-black/25 flex flex-row overflow-hidden">
-        {/* Colored left edge — from category-config */}
-        <div className={`w-[3px] min-h-full bg-gradient-to-b ${topEdge} opacity-70 group-hover:opacity-100 transition-opacity flex-shrink-0`} />
+      <article className="
+        relative rounded-lg bg-white dark:bg-[#151827]
+        overflow-hidden
+        border border-slate-200 dark:border-white/[0.07]
+        hover:border-slate-300 dark:hover:border-white/[0.14]
+        hover:shadow-sm hover:shadow-black/[0.05] dark:hover:shadow-black/30
+        transition-all duration-150
+        pt-3 pb-3 pl-5 pr-3 flex flex-col gap-2 min-h-[88px]
+      ">
+        {/* ③ Left color strip — category color identity */}
+        <div className={`absolute left-0 top-0 bottom-0 w-[3px] ${TOOL_ICON_BG[tool.id] ?? theme.iconBg}`} />
 
-        <div className="px-3.5 pt-3 pb-3 flex flex-col gap-2 flex-1 min-w-0">
-          <div className="flex items-start justify-between">
-            <div className={`w-10 h-10 min-w-[40px] flex items-center justify-center rounded-xl text-white shadow-sm transform group-hover:scale-105 transition-all duration-200 ${TOOL_ICON_BG[tool.id] ?? theme.iconBg}`}>
-              {IconComponent ? <IconComponent size={18} /> : null}
-            </div>
-            <div className="flex items-center gap-1">
-              {tool.popular && (
-                <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[9px] font-bold">
-                  Popular
-                </span>
-              )}
-              <button
-                onClick={togglePin}
-                title={pinned ? 'Unpin from My Home' : 'Pin to My Home'}
-                aria-label={mounted ? (pinned ? `Unpin ${tool.name} from My Home` : `Pin ${tool.name} to My Home`) : undefined}
-                aria-pressed={mounted ? pinned : undefined}
-                className={`p-1 rounded-md transition-all duration-150 ${
-                  pinned
-                    ? 'text-indigo-500 dark:text-indigo-400'
-                    : 'text-slate-300 dark:text-slate-500 hover:text-indigo-500 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10'
-                }`}
-              >
-                <Pin size={13} fill={pinned ? 'currentColor' : 'none'} strokeWidth={pinned ? 0 : 2} />
-              </button>
-            </div>
-          </div>
-          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-tight line-clamp-2">
+        {/* Pin button — top right, hover-only (always visible if pinned) */}
+        <button
+          onClick={togglePin}
+          title={pinned ? 'Unpin from My Home' : 'Pin to My Home'}
+          aria-label={mounted ? (pinned ? `Unpin ${tool.name}` : `Pin ${tool.name}`) : undefined}
+          aria-pressed={mounted ? pinned : undefined}
+          className={`absolute top-2 right-2 p-1 rounded transition-all duration-150 ${
+            pinned
+              ? 'text-[var(--ot-accent,#6366f1)]'
+              : 'opacity-0 group-hover:opacity-100 text-slate-300 dark:text-slate-600 hover:text-[var(--ot-accent,#6366f1)]'
+          }`}
+        >
+          <Pin size={11} fill={pinned ? 'currentColor' : 'none'} strokeWidth={pinned ? 0 : 2} />
+        </button>
+
+        {/* Icon */}
+        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white flex-shrink-0 shadow-sm ${TOOL_ICON_BG[tool.id] ?? theme.iconBg}`}>
+          {IconComponent ? <IconComponent size={15} /> : null}
+        </div>
+
+        {/* Name row — name + info icon */}
+        <div className="flex items-start justify-between gap-1 pr-4">
+          <h3 className="text-[13px] font-semibold text-slate-900 dark:text-white leading-snug line-clamp-2 tracking-tight">
             {tool.name}
           </h3>
+          {tool.description && (
+            <InfoTooltip description={tool.description} />
+          )}
         </div>
-      </article>
 
-      {/* Description tooltip — desktop hover only */}
-      {tool.description && (
-        <div className="absolute top-full left-0 right-0 mt-1.5 z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 hidden md:block">
-          <div className="bg-slate-800 dark:bg-slate-900 rounded-xl px-3 py-2.5 shadow-lg">
-            <p className="text-[11px] leading-relaxed text-slate-200 line-clamp-3">
-              {tool.description}
-            </p>
-          </div>
-        </div>
-      )}
+      </article>
     </Link>
   );
 }

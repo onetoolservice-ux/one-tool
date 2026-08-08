@@ -44,7 +44,7 @@ export function FinancialPosition() {
   const [accounts, setAccounts]   = useState<PFAccount[]>([]);
   const [statements, setStatements] = useState<PFStatement[]>([]);
   const [allTxns, setAllTxns]     = useState<PFTransaction[]>([]);
-  const [period, setPeriod]       = useState('all');
+  const [period, setPeriod]       = useState('last-3-months');
   const [customFrom, setCustomFrom] = useState('');
   const [customTo, setCustomTo]   = useState('');
   const [accountId, setAccountId] = useState('all');

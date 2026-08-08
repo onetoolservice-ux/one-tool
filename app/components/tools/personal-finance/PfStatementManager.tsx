@@ -3,13 +3,13 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Upload, Plus, Trash2, FileSpreadsheet, AlertCircle,
-  CheckCircle2, X, ChevronDown, ChevronUp, Database,
-  RefreshCw, Info, ShieldAlert, ShieldCheck, Download, FolderInput,
+  CheckCircle2, X, ChevronDown, ChevronUp, RefreshCw,
+  ShieldAlert, ShieldCheck, Download, FolderInput,
+  ArrowRight, ArrowLeft, ChevronRight, Sparkles,
 } from 'lucide-react';
-import { useToast } from '@/app/components/ui/toast-system';
-import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
+import Link from 'next/link';
+import { useToast } from '@/app/components/ui/ToastSystem';
 import { MAX_PDF_FILE_SIZE } from '@/app/lib/constants';
-import { ToolEmptyState } from '@/app/components/tools/shared/ToolEmptyState';
 import { getDemoPFStore } from './pf-demo-data';
 import { activateDemoJourney } from '@/app/components/ui/DemoJourneyBanner';
 import {
@@ -21,75 +21,87 @@ import {
   computeIntegrityScore,
 } from './finance-store';
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// STATEMENT MANAGER — Production-Ready
-//
-// Import pipeline:
-//   1. Select account
-//   2. Upload & parse file
-//   3. Column mapping (mandatory — blocks if Date/Amount unmapped)
-//   4. Data integrity check (blocks if >5% missing dates)
-//   5. Preview 10 rows
-//   6. Confirm & save
-// ═══════════════════════════════════════════════════════════════════════════════
+// ── Bank presets ──────────────────────────────────────────────────────────────
 
-type Step = 'list' | 'mapping';
-
-const ACCOUNT_TYPES: { value: PFAccount['type']; label: string }[] = [
-  { value: 'bank',        label: 'Bank Account' },
-  { value: 'credit_card', label: 'Credit Card' },
-  { value: 'cash',        label: 'Cash / Wallet' },
-  { value: 'other',       label: 'Other' },
+const BANK_PRESETS = [
+  { label: 'HDFC Bank',   short: 'HD', type: 'bank'        as const, color: 'bg-blue-700'   },
+  { label: 'SBI',         short: 'SB', type: 'bank'        as const, color: 'bg-blue-900'   },
+  { label: 'ICICI Bank',  short: 'IC', type: 'bank'        as const, color: 'bg-orange-600' },
+  { label: 'Axis Bank',   short: 'AX', type: 'bank'        as const, color: 'bg-rose-700'   },
+  { label: 'Kotak Bank',  short: 'KO', type: 'bank'        as const, color: 'bg-red-600'    },
+  { label: 'Yes Bank',    short: 'YB', type: 'bank'        as const, color: 'bg-purple-700' },
+  { label: 'IndusInd',    short: 'II', type: 'bank'        as const, color: 'bg-indigo-700' },
+  { label: 'IDFC First',  short: 'IF', type: 'bank'        as const, color: 'bg-teal-700'   },
+  { label: 'Credit Card', short: 'CC', type: 'credit_card' as const, color: 'bg-slate-600'  },
+  { label: 'Other',       short: '··', type: 'bank'        as const, color: 'bg-slate-400'  },
 ];
 
-// ── Shared page header (white/neutral for secondary pages) ────────────────────
-function PageHeader({
-  title, subtitle, kpis,
-}: {
-  title: string;
-  subtitle?: string;
-  kpis?: Array<{ label: string; value: string | number; color?: 'primary' | 'success' | 'warning' | 'error' | 'neutral' }>;
-}) {
-  const colorMap: Record<string, string> = {
-    primary: 'text-blue-600 dark:text-blue-400',
-    success: 'text-emerald-600 dark:text-emerald-400',
-    warning: 'text-amber-600 dark:text-amber-400',
-    error:   'text-red-600   dark:text-red-400',
-    neutral: 'text-slate-700 dark:text-slate-200',
-  };
+// ── Quick tool links post-import ──────────────────────────────────────────────
+
+const NEXT_TOOLS = [
+  { emoji: '💸', label: 'Cash Flow',    href: '/tools/personal-finance/pf-cash-flow'     },
+  { emoji: '📊', label: 'Expenses',     href: '/tools/personal-finance/pf-expenses'      },
+  { emoji: '🧠', label: 'Behavior',     href: '/tools/personal-finance/pf-behavior'      },
+  { emoji: '❤️', label: 'Health Score', href: '/tools/personal-finance/pf-health-score'  },
+  { emoji: '🗓️', label: 'Heatmap',      href: '/tools/personal-finance/pf-heatmap'       },
+  { emoji: '🏪', label: 'Merchants',    href: '/tools/personal-finance/pf-top-merchants' },
+];
+
+// ── Wizard step type ──────────────────────────────────────────────────────────
+
+type WizardStep = 'banks' | 'upload' | 'mapping' | 'done';
+
+// ── Progress bar ──────────────────────────────────────────────────────────────
+
+const STEPS = ['Choose Bank', 'Upload File', 'Verify', 'Done'];
+
+function ProgressBar({ current }: { current: WizardStep }) {
+  const idx = { banks: 0, upload: 1, mapping: 2, done: 3 }[current];
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-5 py-4">
-      <p className="text-base font-bold text-slate-800 dark:text-slate-100">{title}</p>
-      {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
-      {kpis && kpis.length > 0 && (
-        <div className="flex flex-wrap gap-5 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-          {kpis.map(k => (
-            <div key={k.label}>
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">{k.label}</p>
-              <p className={`text-lg font-black ${colorMap[k.color ?? 'neutral']}`}>{k.value}</p>
+    <div className="flex items-center gap-0 mb-8">
+      {STEPS.map((label, i) => (
+        <div key={label} className="flex items-center flex-1 last:flex-none">
+          <div className="flex flex-col items-center">
+            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold transition-all ${
+              i < idx  ? 'bg-emerald-500 text-white' :
+              i === idx ? 'bg-[var(--ot-accent,#6366f1)] text-white ring-4 ring-[var(--ot-accent,#6366f1)]/20' :
+                          'bg-slate-100 dark:bg-white/[0.06] text-slate-400'
+            }`}>
+              {i < idx ? <CheckCircle2 size={13} /> : i + 1}
             </div>
-          ))}
+            <span className={`text-[10px] mt-1 font-medium whitespace-nowrap ${
+              i === idx ? 'text-[var(--ot-accent,#6366f1)]' : 'text-slate-400 dark:text-slate-500'
+            }`}>{label}</span>
+          </div>
+          {i < STEPS.length - 1 && (
+            <div className={`h-[2px] flex-1 mx-1.5 mb-4 rounded-full transition-all ${
+              i < idx ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-white/[0.06]'
+            }`} />
+          )}
         </div>
-      )}
+      ))}
     </div>
   );
 }
 
+// ── Main Component ────────────────────────────────────────────────────────────
+
 export function StatementManager() {
   const { toast } = useToast();
   const [mounted, setMounted] = useState(false);
-  const [step, setStep] = useState<Step>('list');
-  const [isDragging, setIsDragging] = useState(false);
-  const [expandedAccounts, setExpandedAccounts] = useState<Set<string>>(new Set());
 
-  // Account form
-  const [showAddAccount, setShowAddAccount] = useState(false);
-  const [accName, setAccName]   = useState('');
-  const [accType, setAccType]   = useState<PFAccount['type']>('bank');
-  const [accCurrency, setAccCurrency] = useState('INR');
+  // Wizard state
+  const [wizardStep, setWizardStep] = useState<WizardStep>('banks');
+  const [isDragging, setIsDragging] = useState(false);
+  const [importedCount, setImportedCount] = useState(0);
+  const [importedBankName, setImportedBankName] = useState('');
+
+  // Bank / account selection
+  const [selectedPreset, setSelectedPreset] = useState<typeof BANK_PRESETS[0] | null>(null);
+  const [customBankName, setCustomBankName] = useState('');
+  const [selectedAccountId, setSelectedAccountId] = useState('');
 
   // Upload state
-  const [selectedAccountId, setSelectedAccountId] = useState('');
   const [rawHeaders, setRawHeaders] = useState<string[]>([]);
   const [rawRows, setRawRows] = useState<string[][]>([]);
   const [fileName, setFileName] = useState('');
@@ -98,15 +110,15 @@ export function StatementManager() {
     date: null, amount: null, creditAmount: null,
     debitAmount: null, description: null, category: null, balance: null,
   });
+  const [showAdvancedMapping, setShowAdvancedMapping] = useState(false);
   const [skipDuplicates, setSkipDuplicates] = useState(true);
-
-  // Blocking modal state (>5% missing dates)
   const [showMissingDateModal, setShowMissingDateModal] = useState(false);
 
   // Data
-  const [accounts, setAccounts]     = useState<PFAccount[]>([]);
+  const [accounts, setAccounts] = useState<PFAccount[]>([]);
   const [statements, setStatements] = useState<PFStatement[]>([]);
-  const [integrity, setIntegrity]   = useState<IntegrityReport | null>(null);
+  const [integrity, setIntegrity] = useState<IntegrityReport | null>(null);
+  const [expandedAccId, setExpandedAccId] = useState<string | null>(null);
 
   const reload = () => {
     setAccounts(getAccounts());
@@ -117,24 +129,23 @@ export function StatementManager() {
   useEffect(() => {
     setMounted(true);
     reload();
-    const handler = () => reload();
-    window.addEventListener('pf-store-updated', handler);
-    return () => window.removeEventListener('pf-store-updated', handler);
+    window.addEventListener('pf-store-updated', reload);
+    return () => window.removeEventListener('pf-store-updated', reload);
   }, []);
 
-  // ── Pre-save column validation ────────────────────────────────────────────────
+  // ── Derived ────────────────────────────────────────────────────────────────
+
   const dateOk   = Boolean(columns.date);
   const amountOk = Boolean(columns.amount || columns.creditAmount);
   const descOk   = Boolean(columns.description);
   const canSave  = dateOk && amountOk && descOk && rawRows.length > 0;
 
-  // ── Live integrity stats from parsed rows (using first 200 rows for speed) ───
   const liveIntegrity = useMemo(() => {
     if (rawRows.length === 0 || !selectedAccountId) return null;
     const sample = buildPFTransactions(rawHeaders, rawRows, columns, selectedAccountId, 'preview');
-    const total   = sample.length;
-    const missingDate    = sample.filter(t => !t.date).length;
-    const invalidAmount  = rawRows.filter(row => {
+    const total = sample.length;
+    const missingDate   = sample.filter(t => !t.date).length;
+    const invalidAmount = rawRows.filter(row => {
       const amtCols = [columns.amount, columns.creditAmount, columns.debitAmount].filter(Boolean);
       return amtCols.length > 0 && amtCols.every(col => {
         const idx = rawHeaders.indexOf(col!);
@@ -143,61 +154,56 @@ export function StatementManager() {
         return isNaN(n) || n === 0;
       });
     }).length;
-    const unclassified  = sample.filter(t => t.category === 'Miscellaneous' || t.category === 'Other').length;
+    const unclassified = sample.filter(t => t.category === 'Miscellaneous' || t.category === 'Other').length;
     const score = computeIntegrityScore({ total, missingDate, invalidAmount, unclassified, duplicates: 0 });
-    const missingDatePct = total > 0 ? (missingDate / total) * 100 : 0;
-    return { total, missingDate, missingDatePct, invalidAmount, unclassified, score };
+    return { total, missingDate, missingDatePct: total > 0 ? (missingDate / total) * 100 : 0, invalidAmount, unclassified, score };
   }, [rawHeaders, rawRows, columns, selectedAccountId]);
 
-  // ── Preview transactions (first 10 rows) ──────────────────────────────────────
   const previewTxns = useMemo(() =>
     rawRows.length > 0
-      ? buildPFTransactions(rawHeaders, rawRows.slice(0, 10), columns, selectedAccountId || 'preview', 'preview')
+      ? buildPFTransactions(rawHeaders, rawRows.slice(0, 8), columns, selectedAccountId || 'preview', 'preview')
       : [],
     [rawHeaders, rawRows, columns, selectedAccountId]
   );
 
-  // ── File Parsing ─────────────────────────────────────────────────────────────
+  // ── Sample values helper ───────────────────────────────────────────────────
+
+  const sampleFor = (col: string | null): string => {
+    if (!col) return '';
+    const idx = rawHeaders.indexOf(col);
+    if (idx < 0) return '';
+    const vals = rawRows.slice(0, 5).map(r => (r[idx] ?? '').trim()).filter(Boolean);
+    return vals[0] ?? '';
+  };
+
+  // ── File parsing ──────────────────────────────────────────────────────────
+
   const handleFile = useCallback(async (file: File) => {
     if (!file.name.match(/\.(xlsx?|csv)$/i)) {
-      toast('Please upload an Excel (.xlsx, .xls) or CSV file', 'error');
-      return;
+      toast('Please upload an Excel (.xlsx, .xls) or CSV file', 'error'); return;
     }
     if (file.size > MAX_PDF_FILE_SIZE) {
-      toast('File exceeds 50 MB. Please export a smaller date range from your bank.', 'error');
-      return;
+      toast('File exceeds 50 MB. Export a smaller date range from your bank.', 'error'); return;
     }
-    if (!selectedAccountId) {
-      toast('Please select or create an account first', 'error');
-      return;
-    }
-
     try {
       const XLSX = await import('xlsx');
       const arrayBuffer = await file.arrayBuffer();
       const workbook = XLSX.read(arrayBuffer, { type: 'array', cellDates: true });
-      const sheetName = workbook.SheetNames[0];
-      const sheet = workbook.Sheets[sheetName];
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const rawData: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
 
-      // Find header row (row with most non-empty cells in first 10 rows)
-      let headerIdx = 0;
-      let maxCols = 0;
+      let headerIdx = 0, maxCols = 0;
       for (let i = 0; i < Math.min(10, rawData.length); i++) {
         const nonEmpty = rawData[i].filter((c: unknown) => c !== '' && c != null).length;
         if (nonEmpty > maxCols) { maxCols = nonEmpty; headerIdx = i; }
       }
 
-      const headers = rawData[headerIdx].map((h: unknown) =>
-        String(h || '').trim() || `Column ${headerIdx}`,
-      );
+      const headers = rawData[headerIdx].map((h: unknown) => String(h || '').trim() || `Column ${headerIdx}`);
       const dataRows = rawData
         .slice(headerIdx + 1)
         .map(row => headers.map((_: string, i: number) => {
           const cell = row[i];
-          // XLSX with cellDates:true returns JS Date objects for date cells.
-          // Convert them directly to YYYY-MM-DD rather than relying on String() locale output.
           if (cell instanceof Date && !isNaN(cell.getTime())) {
             const y = cell.getFullYear();
             const mo = String(cell.getMonth() + 1).padStart(2, '0');
@@ -209,22 +215,19 @@ export function StatementManager() {
         .filter(row => row.some(cell => cell !== ''));
 
       if (headers.length === 0 || dataRows.length === 0) {
-        toast('No data found in file. Check the file format.', 'error');
-        return;
+        toast('No data found. Check the file format.', 'error'); return;
       }
 
-      const detectedIsExcel = file.name.match(/\.xlsx?$/i) ? 'excel' : 'csv';
-      setFileType(detectedIsExcel as 'csv' | 'excel');
+      setFileType(file.name.match(/\.xlsx?$/i) ? 'excel' : 'csv');
       setRawHeaders(headers);
       setRawRows(dataRows);
       setFileName(file.name);
       setColumns(detectColumns(headers, dataRows));
-      setStep('mapping');
-      toast(`Parsed ${dataRows.length} rows from "${file.name}"`, 'success');
+      setWizardStep('mapping');
     } catch (err) {
-      toast(`Failed to parse file: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error');
+      toast(`Could not read file: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error');
     }
-  }, [selectedAccountId, toast]);
+  }, [toast]);
 
   const onDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -233,13 +236,12 @@ export function StatementManager() {
     if (file) handleFile(file);
   }, [handleFile]);
 
-  // ── Save with blocking checks ────────────────────────────────────────────────
+  // ── Save ──────────────────────────────────────────────────────────────────
+
   const handleSaveRequest = () => {
     if (!canSave) return;
-    // Check for >5% missing dates — show blocking modal
     if (liveIntegrity && liveIntegrity.missingDatePct > 5) {
-      setShowMissingDateModal(true);
-      return;
+      setShowMissingDateModal(true); return;
     }
     doSave();
   };
@@ -248,631 +250,686 @@ export function StatementManager() {
     if (!selectedAccountId || rawRows.length === 0) return;
     setShowMissingDateModal(false);
     const result = ingestStatement({
-      accountId: selectedAccountId,
-      fileName,
-      fileType,
-      headers: rawHeaders,
-      rows: rawRows,
-      detectedColumns: columns,
-      skipDuplicates,
+      accountId: selectedAccountId, fileName, fileType,
+      headers: rawHeaders, rows: rawRows,
+      detectedColumns: columns, skipDuplicates,
     });
-    toast(
-      `Imported ${result.addedCount} transactions${result.duplicateCount > 0 ? ` (${result.duplicateCount} duplicates skipped)` : ''}`,
-      'success',
-    );
-    resetUpload();
+    const bankName = accounts.find(a => a.id === selectedAccountId)?.name ?? 'your bank';
+    setImportedCount(result.addedCount);
+    setImportedBankName(bankName);
+    setWizardStep('done');
+    reload();
   };
 
-  const resetUpload = () => {
-    setRawHeaders([]); setRawRows([]); setFileName(''); setStep('list');
-    setShowMissingDateModal(false);
+  // ── Bank selection → create account ───────────────────────────────────────
+
+  const handleSelectBank = (preset: typeof BANK_PRESETS[0]) => {
+    setSelectedPreset(preset);
+    if (preset.label === 'Other') setCustomBankName('');
   };
 
-  // ── Add Account ───────────────────────────────────────────────────────────────
-  const handleAddAccount = () => {
-    if (!accName.trim()) { toast('Account name is required', 'error'); return; }
-    const acc = addAccount({ name: accName.trim(), type: accType, currency: accCurrency });
-    setAccName(''); setShowAddAccount(false);
+  const handleConfirmBank = () => {
+    const name = selectedPreset?.label === 'Other'
+      ? customBankName.trim()
+      : selectedPreset?.label ?? '';
+    if (!name) { toast('Enter your bank name', 'error'); return; }
+    const acc = addAccount({ name, type: selectedPreset?.type ?? 'bank', currency: 'INR' });
     setSelectedAccountId(acc.id);
-    toast(`Account "${acc.name}" created`, 'success');
+    reload();
+    setWizardStep('upload');
   };
 
-  const toggleAccount = (id: string) => {
-    setExpandedAccounts(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
+  // ── Upload to existing account ────────────────────────────────────────────
+
+  const uploadToExisting = (accId: string) => {
+    setSelectedAccountId(accId);
+    setWizardStep('upload');
   };
 
-  // ── Export / Import ──────────────────────────────────────────────────────────
+  // ── Backup / Restore / Demo ───────────────────────────────────────────────
+
   const handleExport = () => {
     const data = loadPFStore();
     const blob = new Blob([JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), data }, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = `onetool-pf-backup-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast('Data exported successfully', 'success');
+    a.href = url; a.download = `onetool-pf-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click(); URL.revokeObjectURL(url);
+    toast('Backup downloaded', 'success');
   };
 
   const handleImport = (file: File) => {
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = e => {
       try {
         const parsed = JSON.parse(e.target?.result as string);
         const importData = parsed.version === 1 ? parsed.data : parsed;
-        if (!importData.transactions || !importData.accounts) {
-          toast('Invalid backup file format', 'error');
-          return;
-        }
+        if (!importData.transactions || !importData.accounts) { toast('Invalid backup file', 'error'); return; }
         savePFStore(importData);
-        setIntegrity(getIntegrityReport());
-        setAccounts(getAccounts());
-        toast('Data imported successfully', 'success');
-      } catch {
-        toast('Failed to read backup file', 'error');
-      }
+        reload();
+        toast('Backup restored successfully', 'success');
+      } catch { toast('Could not read backup file', 'error'); }
     };
     reader.readAsText(file);
   };
 
   const handleLoadDemo = () => {
     const existing = loadPFStore();
-    if (existing.transactions.length > 0) {
-      if (!confirm('This will replace your current data with demo data. Continue?')) return;
-    }
+    if (existing.transactions.length > 0 && !confirm('Replace your current data with demo data?')) return;
     savePFStore(getDemoPFStore());
-    setIntegrity(getIntegrityReport());
-    setAccounts(getAccounts());
+    reload();
     activateDemoJourney();
     toast('3 months of demo data loaded — explore all 27 tools!', 'success');
+    setWizardStep('banks'); // refresh to show accounts
+  };
+
+  const resetWizard = () => {
+    setWizardStep('banks');
+    setSelectedPreset(null);
+    setCustomBankName('');
+    setSelectedAccountId('');
+    setRawHeaders([]); setRawRows([]); setFileName('');
   };
 
   if (!mounted) return null;
 
-  // ── Render ───────────────────────────────────────────────────────────────────
-  return (
-    <div className="space-y-4">
-      <SAPHeader
-        fullWidth
-        title="Statement Manager"
-        subtitle="Upload bank statements, manage accounts, and monitor data integrity"
-        kpis={integrity ? [
-          { label: 'Accounts',     value: integrity.totalAccounts,     color: 'primary' },
-          { label: 'Statements',   value: integrity.totalStatements,   color: 'neutral' },
-          { label: 'Transactions', value: integrity.totalTransactions, color: 'neutral' },
-          { label: 'Integrity',    value: `${integrity.overallIntegrityScore}%`, color: integrity.overallIntegrityScore >= 80 ? 'success' : integrity.overallIntegrityScore >= 60 ? 'warning' : 'error' },
-        ] : undefined}
-      />
-    <div className="space-y-4 px-4 pb-4">
+  // ══════════════════════════════════════════════════════════════════════════
+  // RENDER
+  // ══════════════════════════════════════════════════════════════════════════
 
-      {/* ── STEP: List ────────────────────────────────────────────────────── */}
-      {step === 'list' && (
-        <>
-          {/* Toolbar */}
-          <div className="flex flex-wrap gap-2 items-center justify-between bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-600 rounded-xl px-4 py-3">
-            <div className="flex gap-2 items-center flex-wrap">
-              <select
-                value={selectedAccountId}
-                onChange={e => setSelectedAccountId(e.target.value)}
-                className="text-sm border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200"
-              >
-                <option value="">— Select account —</option>
-                {accounts.map(a => (
-                  <option key={a.id} value={a.id}>{a.name} ({a.type.replace('_', ' ')})</option>
-                ))}
-              </select>
-              {selectedAccountId && (
-                <label className="cursor-pointer">
-                  <span className="flex items-center gap-1.5 bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                    <Upload size={14} /> Upload Statement
-                  </span>
+  return (
+    <div className="min-h-screen bg-[#f5f6f8] dark:bg-[#0F111A]">
+      <div className="max-w-xl mx-auto px-4 pt-8 pb-20">
+
+        {/* Title */}
+        <div className="mb-6">
+          <h1 className="text-[22px] font-black text-slate-900 dark:text-white tracking-tight">
+            Statement Manager
+          </h1>
+          <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-1">
+            Import your bank statements · All data stays on your device
+          </p>
+        </div>
+
+        {/* Progress bar — only during wizard */}
+        {wizardStep !== 'banks' && <ProgressBar current={wizardStep} />}
+
+        {/* ── STEP: Banks / Home ─────────────────────────────────────────────── */}
+        {wizardStep === 'banks' && (
+          <div className="space-y-4">
+
+            {/* Existing accounts */}
+            {accounts.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3">
+                  Your Banks
+                </p>
+                {accounts.map(acc => {
+                  const accStmts = statements.filter(s => s.accountId === acc.id);
+                  const isExpanded = expandedAccId === acc.id;
+                  const preset = BANK_PRESETS.find(b => b.label === acc.name);
+                  const color = preset?.color ?? 'bg-indigo-600';
+                  return (
+                    <div key={acc.id} className="bg-white dark:bg-[#151827] rounded-2xl border border-slate-200 dark:border-white/[0.06] overflow-hidden">
+                      <div className="flex items-center gap-3 px-4 py-3.5">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white text-[11px] font-black flex-shrink-0 ${color}`}>
+                          {acc.name.substring(0, 2).toUpperCase()}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[14px] font-bold text-slate-900 dark:text-white leading-tight">{acc.name}</p>
+                          <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
+                            {acc.type.replace('_', ' ')} · {accStmts.length} statement{accStmts.length !== 1 ? 's' : ''}
+                            {accStmts.length > 0 && (() => {
+                              const totalTxns = accStmts.reduce((s, st) => s + st.transactionCount, 0);
+                              return ` · ${totalTxns.toLocaleString('en-IN')} transactions`;
+                            })()}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          <button
+                            onClick={() => uploadToExisting(acc.id)}
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[var(--ot-accent,#6366f1)] hover:opacity-90 text-white text-[12px] font-semibold transition-opacity"
+                          >
+                            <Upload size={12} /> Upload
+                          </button>
+                          <button
+                            onClick={() => setExpandedAccId(isExpanded ? null : acc.id)}
+                            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors"
+                          >
+                            {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                          </button>
+                          <button
+                            onClick={() => { if (confirm(`Delete "${acc.name}" and all its data?`)) { deleteAccount(acc.id); reload(); }}}
+                            className="p-1.5 rounded-xl text-slate-300 dark:text-slate-600 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Statements list */}
+                      {isExpanded && accStmts.length > 0 && (
+                        <div className="border-t border-slate-100 dark:border-white/[0.04] divide-y divide-slate-100 dark:divide-white/[0.04]">
+                          {accStmts.map(stmt => (
+                            <div key={stmt.id} className="flex items-center gap-3 px-4 py-2.5">
+                              <FileSpreadsheet size={13} className="text-slate-400 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[12px] font-medium text-slate-700 dark:text-slate-200 truncate">{stmt.fileName}</p>
+                                <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                                  {stmt.transactionCount} txns
+                                  {stmt.periodFrom && stmt.periodTo ? ` · ${stmt.periodFrom} → ${stmt.periodTo}` : ''}
+                                </p>
+                              </div>
+                              <span className={`text-[11px] font-bold ${stmt.integrityScore >= 80 ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                                {stmt.integrityScore}%
+                              </span>
+                              <button
+                                onClick={() => { if (confirm('Delete this statement?')) { deleteStatement(stmt.id); reload(); }}}
+                                className="p-1 text-slate-300 dark:text-slate-600 hover:text-rose-500 transition-colors"
+                              >
+                                <Trash2 size={12} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {isExpanded && accStmts.length === 0 && (
+                        <div className="border-t border-slate-100 dark:border-white/[0.04] px-4 py-3">
+                          <p className="text-[12px] text-slate-400 dark:text-slate-500">No statements uploaded yet. Click Upload.</p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {/* Integrity summary */}
+                {integrity && integrity.totalTransactions > 0 && (
+                  <div className="flex items-center justify-between px-4 py-3 rounded-2xl bg-white dark:bg-[#151827] border border-slate-200 dark:border-white/[0.06]">
+                    <div className="flex items-center gap-2">
+                      {integrity.overallIntegrityScore >= 80
+                        ? <ShieldCheck size={14} className="text-emerald-500" />
+                        : <ShieldAlert size={14} className="text-amber-500" />}
+                      <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-200">
+                        {integrity.totalTransactions.toLocaleString('en-IN')} total transactions
+                      </span>
+                    </div>
+                    <span className={`text-[12px] font-bold ${integrity.overallIntegrityScore >= 80 ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                      {integrity.overallIntegrityScore}% clean
+                    </span>
+                  </div>
+                )}
+
+                {/* Add another */}
+                <button
+                  onClick={() => { setSelectedPreset(null); setCustomBankName(''); }}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed border-slate-200 dark:border-white/[0.07] text-[13px] font-semibold text-slate-400 dark:text-slate-500 hover:text-[var(--ot-accent,#6366f1)] hover:border-[var(--ot-accent,#6366f1)]/40 transition-all"
+                >
+                  <Plus size={14} /> Add Another Bank
+                </button>
+              </div>
+            )}
+
+            {/* First time OR adding new bank */}
+            {(accounts.length === 0 || selectedPreset !== null) && (
+              <div>
+                {accounts.length === 0 && (
+                  <div className="text-center mb-8">
+                    <div className="w-14 h-14 rounded-2xl bg-[var(--ot-accent,#6366f1)]/10 flex items-center justify-center mx-auto mb-4">
+                      <FileSpreadsheet size={26} className="text-[var(--ot-accent,#6366f1)]" />
+                    </div>
+                    <h2 className="text-[18px] font-black text-slate-900 dark:text-white mb-2">
+                      Which bank are you importing from?
+                    </h2>
+                    <p className="text-[13px] text-slate-500 dark:text-slate-400 max-w-xs mx-auto leading-relaxed">
+                      Pick your bank and upload a CSV from net banking. Takes 2 minutes.
+                    </p>
+                  </div>
+                )}
+
+                {/* Bank picker grid */}
+                <div className="grid grid-cols-5 gap-2 mb-4">
+                  {BANK_PRESETS.map(preset => (
+                    <button
+                      key={preset.label}
+                      onClick={() => handleSelectBank(preset)}
+                      className={`flex flex-col items-center gap-1.5 py-3 px-1 rounded-2xl border-2 transition-all ${
+                        selectedPreset?.label === preset.label
+                          ? 'border-[var(--ot-accent,#6366f1)] bg-[var(--ot-accent,#6366f1)]/5'
+                          : 'border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#151827] hover:border-[var(--ot-accent,#6366f1)]/40'
+                      }`}
+                    >
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-white text-[11px] font-black ${preset.color}`}>
+                        {preset.short}
+                      </div>
+                      <span className="text-[10px] font-semibold text-slate-600 dark:text-slate-300 text-center leading-tight">
+                        {preset.label.replace(' Bank', '')}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Custom name for "Other" */}
+                {selectedPreset?.label === 'Other' && (
                   <input
-                    type="file"
-                    accept=".csv,.xlsx,.xls"
-                    className="hidden"
-                    onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])}
+                    type="text"
+                    placeholder="Enter your bank name"
+                    value={customBankName}
+                    onChange={e => setCustomBankName(e.target.value)}
+                    autoFocus
+                    className="w-full h-10 px-4 text-[13px] rounded-xl bg-white dark:bg-[#151827] border border-slate-200 dark:border-white/[0.06] focus:outline-none focus:border-[var(--ot-accent,#6366f1)]/60 text-slate-800 dark:text-white placeholder:text-slate-400 mb-4 transition-colors"
                   />
-                </label>
-              )}
-            </div>
-            <button
-              onClick={() => setShowAddAccount(v => !v)}
-              className="flex items-center gap-1.5 text-sm text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 px-3 py-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors font-semibold"
-            >
-              <Plus size={14} /> Add Account
-            </button>
-            <div className="flex gap-2 ml-auto flex-wrap">
+                )}
+
+                {/* Continue button */}
+                {selectedPreset && (
+                  <button
+                    onClick={handleConfirmBank}
+                    disabled={selectedPreset.label === 'Other' && !customBankName.trim()}
+                    className="w-full h-11 rounded-xl bg-[var(--ot-accent,#6366f1)] hover:opacity-90 disabled:opacity-40 text-white text-[14px] font-bold flex items-center justify-center gap-2 transition-opacity shadow-sm mb-4"
+                  >
+                    Continue with {selectedPreset.label === 'Other' ? (customBankName || 'your bank') : selectedPreset.label}
+                    <ArrowRight size={15} />
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Demo + Backup options */}
+            <div className="pt-2 border-t border-slate-200 dark:border-white/[0.06] flex flex-wrap gap-2">
               <button
                 onClick={handleLoadDemo}
-                title="Load 3 months of realistic demo data to explore all tools"
-                className="flex items-center gap-1.5 text-sm text-violet-600 dark:text-violet-400 border border-violet-200 dark:border-violet-800 px-3 py-2 rounded-lg hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors font-semibold"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-[#151827] border border-slate-200 dark:border-white/[0.06] text-[12px] font-semibold text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-colors"
               >
-                ✨ Load Demo Data
+                <Sparkles size={13} /> Try with Demo Data
               </button>
               <button
                 onClick={handleExport}
-                title="Export all financial data as a JSON backup"
-                className="flex items-center gap-1.5 text-sm text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 px-3 py-2 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors font-semibold"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-[#151827] border border-slate-200 dark:border-white/[0.06] text-[12px] font-semibold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors"
               >
-                <Download size={14} /> Backup
+                <Download size={13} /> Backup
               </button>
               <label className="cursor-pointer">
-                <span className="flex items-center gap-1.5 text-sm text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800 px-3 py-2 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors font-semibold">
-                  <FolderInput size={14} /> Restore
+                <span className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-[#151827] border border-slate-200 dark:border-white/[0.06] text-[12px] font-semibold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors">
+                  <FolderInput size={13} /> Restore
                 </span>
-                <input
-                  type="file"
-                  accept=".json"
-                  className="hidden"
-                  onChange={e => e.target.files?.[0] && handleImport(e.target.files[0])}
-                />
+                <input type="file" accept=".json" className="hidden" onChange={e => e.target.files?.[0] && handleImport(e.target.files[0])} />
               </label>
             </div>
           </div>
+        )}
 
-          {/* Add Account Form */}
-          {showAddAccount && (
-            <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-4 space-y-3">
-              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">New Account</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <input
-                  value={accName}
-                  onChange={e => setAccName(e.target.value)}
-                  placeholder="Account name (e.g. HDFC Salary)"
-                  className="text-sm border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200"
-                />
-                <select
-                  value={accType}
-                  onChange={e => setAccType(e.target.value as PFAccount['type'])}
-                  className="text-sm border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200"
-                >
-                  {ACCOUNT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-                </select>
-                <select
-                  value={accCurrency}
-                  onChange={e => setAccCurrency(e.target.value)}
-                  className="text-sm border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200"
-                >
-                  {['INR', 'USD', 'EUR', 'GBP', 'AED', 'SGD'].map(c => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex gap-2">
-                <button onClick={handleAddAccount} className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                  Create Account
-                </button>
-                <button onClick={() => setShowAddAccount(false)} className="text-sm text-slate-500 px-4 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                  Cancel
-                </button>
+        {/* ── STEP: Upload ────────────────────────────────────────────────────── */}
+        {wizardStep === 'upload' && (
+          <div className="space-y-5">
+            <div>
+              <h2 className="text-[18px] font-black text-slate-900 dark:text-white">
+                Upload your bank statement
+              </h2>
+              <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-1">
+                Export a CSV or Excel file from your bank's net banking portal and upload it here.
+              </p>
+            </div>
+
+            {/* PDF not supported notice */}
+            <div className="flex items-start gap-3 px-4 py-3 rounded-2xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-700/50">
+              <AlertCircle size={14} className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-[12px] font-bold text-amber-700 dark:text-amber-300">PDF statements are not supported</p>
+                <p className="text-[11px] text-amber-600/80 dark:text-amber-400/80 mt-0.5 leading-relaxed">
+                  Export your statement as <strong>CSV or Excel</strong> from your bank's net banking portal — not the PDF that arrives by email.
+                </p>
               </div>
             </div>
-          )}
 
-          {/* Account List */}
-          {accounts.length === 0 ? (
-            <ToolEmptyState
-              icon={Database}
-              iconColorClass="text-blue-600 dark:text-blue-400"
-              iconBgClass="bg-blue-100 dark:bg-blue-900/40"
-              title="No accounts yet"
-              description="Add a bank account or credit card to start importing your statements and unlocking all Personal Finance tools."
-              steps={[
-                { label: 'Click "Add Account"', detail: 'Give it a name, type (Bank / Credit Card / Cash), and currency.' },
-                { label: 'Upload a CSV or Excel file', detail: 'Export your statement from net banking and drag & drop it here.' },
-                { label: 'Map columns & import', detail: 'Tell the tool which column is Date, Amount, and Description — then confirm.' },
-              ]}
-              cta={{ label: 'Add Account', onClick: () => setShowAddAccount(true) }}
-            />
-          ) : (
-            <div className="space-y-3">
-              {accounts.map(acc => {
-                const accStmts = statements.filter(s => s.accountId === acc.id);
-                const isOpen = expandedAccounts.has(acc.id);
-                const accTypeColor = acc.type === 'bank' ? 'bg-blue-600' : acc.type === 'credit_card' ? 'bg-orange-500' : 'bg-slate-500';
-                return (
-                  <div key={acc.id} className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
-                    <div
-                      className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                      onClick={() => toggleAccount(acc.id)}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold ${accTypeColor}`}>
-                          {acc.name.substring(0, 2).toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-slate-800 dark:text-slate-100">{acc.name}</p>
-                          <p className="text-xs text-slate-500">{acc.type.replace('_', ' ')} · {acc.currency} · {accStmts.length} statement{accStmts.length !== 1 ? 's' : ''}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={e => {
-                            e.stopPropagation();
-                            if (confirm(`Delete account "${acc.name}" and all its data?`)) deleteAccount(acc.id);
-                          }}
-                          className="p-1.5 text-slate-400 hover:text-red-500 transition-colors rounded"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                        {isOpen ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
-                      </div>
+            {/* How to export guide — bank-specific */}
+            <div className="bg-white dark:bg-[#151827] rounded-2xl border border-slate-200 dark:border-white/[0.06] p-4">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3">
+                How to export from your bank
+              </p>
+              <div className="space-y-2 mb-4">
+                {[
+                  { step: '1', text: 'Login to your bank\'s net banking portal (not mobile app — CSV download is usually only on desktop)' },
+                  { step: '2', text: 'Go to Account Statement or Transaction History' },
+                  { step: '3', text: 'Select your date range, then look for "Download as CSV" or "Export to Excel" — avoid the PDF option' },
+                ].map(s => (
+                  <div key={s.step} className="flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full bg-[var(--ot-accent,#6366f1)]/10 flex items-center justify-center text-[11px] font-bold text-[var(--ot-accent,#6366f1)] flex-shrink-0 mt-0.5">
+                      {s.step}
                     </div>
+                    <p className="text-[12px] text-slate-600 dark:text-slate-300">{s.text}</p>
+                  </div>
+                ))}
+              </div>
+              {/* Bank-specific quick paths */}
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Bank-specific path</p>
+              <div className="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+                {[
+                  { bank: 'HDFC',    path: 'NetBanking → Accounts → Account Statement → Download (XLS/CSV)' },
+                  { bank: 'ICICI',   path: 'iMobile / NetBanking → Accounts → Account Statement → Download CSV' },
+                  { bank: 'SBI',     path: 'OnlineSBI → Account Statement → Download (XLS)' },
+                  { bank: 'Axis',    path: 'Internet Banking → Account → Statements → Download Excel' },
+                  { bank: 'Kotak',   path: 'Net Banking → Account → View Statement → Download (CSV)' },
+                ].map(b => (
+                  <div key={b.bank} className="flex items-start gap-2">
+                    <span className="font-bold text-slate-600 dark:text-slate-300 w-10 shrink-0">{b.bank}</span>
+                    <span className="leading-relaxed">{b.path}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-                    {isOpen && (
-                      <div className="border-t border-slate-100 dark:border-slate-800">
-                        {accStmts.length === 0 ? (
-                          <p className="text-xs text-slate-400 px-4 py-3">No statements uploaded yet.</p>
-                        ) : (
-                          <table className="w-full text-xs">
-                            <thead>
-                              <tr className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 uppercase tracking-wide text-[10px]">
-                                <th className="px-4 py-2 text-left font-semibold">File</th>
-                                <th className="px-4 py-2 text-left font-semibold">Period</th>
-                                <th className="px-4 py-2 text-right font-semibold">Txns</th>
-                                <th className="px-4 py-2 text-right font-semibold">Integrity</th>
-                                <th className="px-4 py-2 text-left font-semibold">Issues</th>
-                                <th className="px-2 py-2" />
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {accStmts.map(stmt => (
-                                <tr key={stmt.id} className="border-t border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                  <td className="px-4 py-2.5 font-medium text-slate-700 dark:text-slate-200 max-w-[160px] truncate">{stmt.fileName}</td>
-                                  <td className="px-4 py-2.5 text-slate-500">
-                                    {stmt.periodFrom && stmt.periodTo
-                                      ? `${stmt.periodFrom} → ${stmt.periodTo}`
-                                      : '—'}
-                                  </td>
-                                  <td className="px-4 py-2.5 text-right text-slate-700 dark:text-slate-200">{stmt.transactionCount}</td>
-                                  <td className="px-4 py-2.5 text-right">
-                                    <span className={`font-bold ${stmt.integrityScore >= 80 ? 'text-emerald-600' : stmt.integrityScore >= 60 ? 'text-amber-600' : 'text-red-600'}`}>
-                                      {stmt.integrityScore}%
-                                    </span>
-                                  </td>
-                                  <td className="px-4 py-2.5">
-                                    {stmt.missingDataFlags.length > 0 ? (
-                                      <span className="flex items-center gap-1 text-amber-600">
-                                        <AlertCircle size={11} />
-                                        {stmt.missingDataFlags.length} flag{stmt.missingDataFlags.length !== 1 ? 's' : ''}
-                                      </span>
-                                    ) : (
-                                      <span className="flex items-center gap-1 text-emerald-600">
-                                        <CheckCircle2 size={11} /> Clean
-                                      </span>
-                                    )}
-                                  </td>
-                                  <td className="px-2 py-2.5">
-                                    <button
-                                      onClick={() => { if (confirm('Delete this statement and all its transactions?')) deleteStatement(stmt.id); }}
-                                      className="p-1 text-slate-400 hover:text-red-500 transition-colors"
-                                    >
-                                      <Trash2 size={13} />
-                                    </button>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        )}
-                      </div>
+            {/* Drop zone */}
+            <label
+              onDragOver={e => { e.preventDefault(); setIsDragging(true); }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={onDrop}
+              className={`flex flex-col items-center justify-center gap-4 w-full py-14 rounded-2xl border-2 border-dashed cursor-pointer transition-all ${
+                isDragging
+                  ? 'border-[var(--ot-accent,#6366f1)] bg-[var(--ot-accent,#6366f1)]/5'
+                  : 'border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#151827] hover:border-[var(--ot-accent,#6366f1)]/50 hover:bg-[var(--ot-accent,#6366f1)]/[0.02]'
+              }`}
+            >
+              <div className="w-14 h-14 rounded-2xl bg-[var(--ot-accent,#6366f1)]/10 flex items-center justify-center">
+                <Upload size={24} className="text-[var(--ot-accent,#6366f1)]" />
+              </div>
+              <div className="text-center">
+                <p className="text-[14px] font-bold text-slate-800 dark:text-slate-100">
+                  Drop your file here
+                </p>
+                <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-1">
+                  or click to browse · CSV and Excel supported
+                </p>
+              </div>
+              <input
+                type="file"
+                accept=".csv,.xlsx,.xls"
+                className="hidden"
+                onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])}
+              />
+            </label>
+
+            <button
+              onClick={resetWizard}
+              className="flex items-center gap-1.5 text-[12px] text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+            >
+              <ArrowLeft size={13} /> Back
+            </button>
+          </div>
+        )}
+
+        {/* ── STEP: Column Mapping ─────────────────────────────────────────────── */}
+        {wizardStep === 'mapping' && (
+          <div className="space-y-5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-[18px] font-black text-slate-900 dark:text-white">
+                  Verify the columns
+                </h2>
+                <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-1">
+                  We auto-detected your columns. Review and correct if anything looks wrong.
+                </p>
+              </div>
+              <button onClick={() => { setWizardStep('upload'); setRawHeaders([]); setRawRows([]); }} className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors flex-shrink-0">
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* File info */}
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06]">
+              <FileSpreadsheet size={14} className="text-slate-400" />
+              <p className="text-[12px] text-slate-600 dark:text-slate-300 font-medium truncate">{fileName}</p>
+              <span className="ml-auto text-[11px] text-slate-400 dark:text-slate-500 flex-shrink-0">{rawRows.length} rows</span>
+            </div>
+
+            {/* Required columns */}
+            <div className="bg-white dark:bg-[#151827] rounded-2xl border border-slate-200 dark:border-white/[0.06] p-4 space-y-4">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                Required columns
+              </p>
+
+              {([
+                { key: 'date'        as keyof DetectedColumns, label: 'Date',        hint: 'The transaction date column' },
+                { key: 'description' as keyof DetectedColumns, label: 'Description', hint: 'What the transaction was for' },
+                { key: 'amount'      as keyof DetectedColumns, label: 'Amount',       hint: 'Transaction amount (combined credit & debit)' },
+              ] as { key: keyof DetectedColumns; label: string; hint: string }[]).map(f => {
+                const isMapped = Boolean(columns[f.key]);
+                const sample = sampleFor(columns[f.key]);
+                const isRequired = true;
+                return (
+                  <div key={f.key} className="space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <label className="text-[12px] font-semibold text-slate-700 dark:text-slate-200">
+                        {f.label}
+                      </label>
+                      {isMapped
+                        ? <CheckCircle2 size={12} className="text-emerald-500" />
+                        : <span className="text-[10px] text-rose-500 font-semibold">Required</span>}
+                    </div>
+                    <select
+                      value={columns[f.key] ?? ''}
+                      onChange={e => setColumns(prev => ({ ...prev, [f.key]: e.target.value || null }))}
+                      className={`w-full h-9 px-3 text-[13px] rounded-xl transition-colors focus:outline-none ${
+                        isRequired && !isMapped
+                          ? 'border border-rose-300 dark:border-rose-500/50 bg-rose-50 dark:bg-rose-500/[0.06]'
+                          : 'border border-slate-200 dark:border-white/[0.06] bg-slate-50 dark:bg-white/[0.03]'
+                      } text-slate-800 dark:text-white focus:border-[var(--ot-accent,#6366f1)]/60`}
+                    >
+                      <option value="">(not mapped)</option>
+                      {rawHeaders.map(h => <option key={h} value={h}>{h}</option>)}
+                    </select>
+                    {sample && (
+                      <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                        Sample: <span className="font-medium text-slate-600 dark:text-slate-300">{sample}</span>
+                      </p>
+                    )}
+                    {!isMapped && (
+                      <p className="text-[11px] text-slate-400 dark:text-slate-500 italic">{f.hint}</p>
                     )}
                   </div>
                 );
               })}
             </div>
-          )}
 
-          {/* Overall Integrity Panel */}
-          {integrity && integrity.totalTransactions > 0 && (
-            <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800">
-                <div className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-200">
-                  {integrity.overallIntegrityScore >= 80
-                    ? <ShieldCheck size={15} className="text-emerald-600" />
-                    : <ShieldAlert size={15} className="text-amber-600" />
-                  }
-                  Data Integrity Panel
-                </div>
-                <span className={`text-sm font-black ${integrity.overallIntegrityScore >= 80 ? 'text-emerald-600' : integrity.overallIntegrityScore >= 60 ? 'text-amber-600' : 'text-red-600'}`}>
-                  Score: {integrity.overallIntegrityScore}%
-                </span>
-              </div>
-
-              {integrity.overallIntegrityScore < 80 && (
-                <div className="px-4 py-2.5 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-100 dark:border-amber-800 flex items-center gap-2 text-xs text-amber-700 dark:text-amber-300">
-                  <AlertCircle size={12} className="shrink-0" />
-                  Some calculations may be incomplete due to data issues.
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-slate-100 dark:divide-slate-800">
-                {[
-                  { label: 'Missing Dates',       value: integrity.missingDateCount,    bad: integrity.missingDateCount > 0 },
-                  { label: 'Duplicate Txns',       value: integrity.duplicateCount,      bad: false },
-                  { label: 'Unclassified Txns',    value: integrity.unclassifiedCount,   bad: integrity.unclassifiedCount > 0 },
-                  { label: 'Invalid Amount Rows',  value: integrity.invalidAmountCount,  bad: integrity.invalidAmountCount > 0 },
-                ].map(s => (
-                  <div key={s.label} className="px-4 py-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">{s.label}</p>
-                    <p className={`text-xl font-black mt-0.5 ${s.bad ? 'text-amber-600' : 'text-slate-700 dark:text-slate-200'}`}>
-                      {s.value}
-                    </p>
-                  </div>
-                ))}
-              </div>
-
-              {integrity.parseErrors.length > 0 && (
-                <div className="px-4 pb-3 space-y-1 border-t border-slate-100 dark:border-slate-800 pt-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Parsing Issues</p>
-                  {integrity.parseErrors.map(e => (
-                    <div key={e.statementId} className="text-xs text-amber-700 dark:text-amber-400">
-                      <span className="font-semibold">{e.fileName}:</span>{' '}
-                      {e.flags.join(' · ')}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* User Override Count */}
-          {integrity && integrity.userOverrideCount > 0 && (
-            <div className="flex items-center gap-2 text-xs text-slate-500 px-1">
-              <RefreshCw size={11} />
-              {integrity.userOverrideCount} transaction{integrity.userOverrideCount !== 1 ? 's' : ''} have manually overridden categories.
-            </div>
-          )}
-
-          {/* Drop zone */}
-          {selectedAccountId && (
-            <div
-              onDragOver={e => { e.preventDefault(); setIsDragging(true); }}
-              onDragLeave={() => setIsDragging(false)}
-              onDrop={onDrop}
-              className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
-                isDragging
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                  : 'border-slate-200 dark:border-slate-700'
-              }`}
+            {/* Advanced / optional */}
+            <button
+              onClick={() => setShowAdvancedMapping(v => !v)}
+              className="flex items-center gap-1.5 text-[12px] text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
             >
-              <FileSpreadsheet size={28} className="mx-auto mb-2 text-slate-300 dark:text-slate-600" />
-              <p className="text-sm text-slate-400">Drag & drop a CSV or Excel file, or use the Upload button above</p>
-            </div>
-          )}
-        </>
-      )}
-
-      {/* ── STEP: Column Mapping + Integrity Preview ────────────────────── */}
-      {step === 'mapping' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">
-                Column Mapping
-              </h2>
-              <p className="text-xs text-slate-500 mt-0.5">{fileName} · {rawRows.length} rows</p>
-            </div>
-            <button onClick={resetUpload} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-              <X size={18} />
+              {showAdvancedMapping ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+              {showAdvancedMapping ? 'Hide' : 'Show'} optional columns (Credit, Debit, Balance)
             </button>
-          </div>
 
-          {/* Mapping requirement notice */}
-          <div className={`flex items-start gap-2 rounded-xl p-3 text-xs border ${
-            canSave
-              ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300'
-              : 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-300'
-          }`}>
-            {canSave ? <CheckCircle2 size={13} className="mt-0.5 shrink-0" /> : <AlertCircle size={13} className="mt-0.5 shrink-0" />}
-            <span>
-              {!dateOk && <strong>Date column is required. </strong>}
-              {!amountOk && <strong>Amount column (or Credit/Debit columns) is required. </strong>}
-              {!descOk && <strong>Description column is required. </strong>}
-              {canSave && 'All required columns are mapped. Review the preview and import.'}
-            </span>
-          </div>
-
-          {/* Column mapping grid */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {(
-              [
-                ['date',         'Date',             true],
-                ['description',  'Description',      true],
-                ['amount',       'Amount (single)',   false],
-                ['creditAmount', 'Credit Amount',     false],
-                ['debitAmount',  'Debit Amount',      false],
-                ['balance',      'Balance',           false],
-              ] as [keyof DetectedColumns, string, boolean][]
-            ).map(([key, label, required]) => {
-              const isMapped = Boolean(columns[key]);
-              const isRequired = required;
-              return (
-                <div key={key}>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">
-                    {label}
-                    {isRequired && <span className="text-red-500 ml-0.5">*</span>}
-                    {isMapped && <CheckCircle2 size={10} className="inline ml-1 text-emerald-500" />}
-                  </label>
-                  <select
-                    value={columns[key] ?? ''}
-                    onChange={e => setColumns(prev => ({ ...prev, [key]: e.target.value || null }))}
-                    className={`w-full text-sm border rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 ${
-                      isRequired && !isMapped
-                        ? 'border-amber-400 dark:border-amber-600'
-                        : 'border-slate-200 dark:border-slate-700'
-                    }`}
-                  >
-                    <option value="">(not mapped)</option>
-                    {rawHeaders.map(h => <option key={h} value={h}>{h}</option>)}
-                  </select>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Live Data Integrity Panel */}
-          {liveIntegrity && (
-            <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800">
-                <div className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-200">
-                  {liveIntegrity.score >= 80
-                    ? <ShieldCheck size={14} className="text-emerald-600" />
-                    : <ShieldAlert size={14} className="text-amber-600" />
-                  }
-                  Data Integrity Preview
-                </div>
-                <span className={`text-sm font-black ${liveIntegrity.score >= 80 ? 'text-emerald-600' : liveIntegrity.score >= 60 ? 'text-amber-600' : 'text-red-600'}`}>
-                  {liveIntegrity.score}% integrity
-                </span>
+            {showAdvancedMapping && (
+              <div className="bg-white dark:bg-[#151827] rounded-2xl border border-slate-200 dark:border-white/[0.06] p-4 space-y-4">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Optional columns</p>
+                {([
+                  { key: 'creditAmount' as keyof DetectedColumns, label: 'Credit Amount', hint: 'Use if your bank has separate credit/debit columns' },
+                  { key: 'debitAmount'  as keyof DetectedColumns, label: 'Debit Amount',  hint: 'Use if your bank has separate credit/debit columns' },
+                  { key: 'balance'      as keyof DetectedColumns, label: 'Balance',        hint: 'Running account balance after each transaction' },
+                ] as { key: keyof DetectedColumns; label: string; hint: string }[]).map(f => {
+                  const sample = sampleFor(columns[f.key]);
+                  return (
+                    <div key={f.key} className="space-y-1.5">
+                      <label className="text-[12px] font-semibold text-slate-600 dark:text-slate-300">{f.label}</label>
+                      <select
+                        value={columns[f.key] ?? ''}
+                        onChange={e => setColumns(prev => ({ ...prev, [f.key]: e.target.value || null }))}
+                        className="w-full h-9 px-3 text-[13px] rounded-xl border border-slate-200 dark:border-white/[0.06] bg-slate-50 dark:bg-white/[0.03] text-slate-800 dark:text-white focus:outline-none focus:border-[var(--ot-accent,#6366f1)]/60 transition-colors"
+                      >
+                        <option value="">(not mapped)</option>
+                        {rawHeaders.map(h => <option key={h} value={h}>{h}</option>)}
+                      </select>
+                      {sample && <p className="text-[11px] text-slate-400">Sample: <span className="font-medium text-slate-600 dark:text-slate-300">{sample}</span></p>}
+                      {!columns[f.key] && <p className="text-[11px] text-slate-400 dark:text-slate-500 italic">{f.hint}</p>}
+                    </div>
+                  );
+                })}
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-slate-100 dark:divide-slate-800">
-                {[
-                  { label: 'Total Rows',          value: liveIntegrity.total,         warn: false },
-                  { label: 'Missing Dates',        value: liveIntegrity.missingDate,   warn: liveIntegrity.missingDate > 0 },
-                  { label: 'Invalid Amounts',      value: liveIntegrity.invalidAmount, warn: liveIntegrity.invalidAmount > 0 },
-                  { label: 'Unclassified',         value: liveIntegrity.unclassified,  warn: false },
-                ].map(s => (
-                  <div key={s.label} className="px-4 py-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">{s.label}</p>
-                    <p className={`text-xl font-black mt-0.5 ${s.warn ? 'text-amber-600' : 'text-slate-700 dark:text-slate-200'}`}>
-                      {s.value}
-                    </p>
-                  </div>
-                ))}
-              </div>
-              {liveIntegrity.score < 80 && (
-                <div className="px-4 py-2.5 bg-amber-50 dark:bg-amber-900/20 border-t border-amber-100 dark:border-amber-800 flex items-center gap-2 text-xs text-amber-700 dark:text-amber-300">
-                  <AlertCircle size={12} className="shrink-0" />
-                  Integrity below 80%. Some financial calculations may be incomplete after import.
-                </div>
-              )}
-            </div>
-          )}
+            )}
 
-          {/* Preview table (first 10 rows) */}
-          {previewTxns.length > 0 && (
-            <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
-              <div className="px-4 py-2.5 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-500 uppercase tracking-wide border-b border-slate-100 dark:border-slate-800">
-                Preview — first {previewTxns.length} of {rawRows.length} rows
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs">
-                  <thead>
-                    <tr className="text-slate-400 uppercase text-[10px] tracking-wide">
-                      <th className="px-4 py-2 text-left">Date</th>
-                      <th className="px-4 py-2 text-left">Description</th>
-                      <th className="px-4 py-2 text-right">Amount</th>
-                      <th className="px-4 py-2 text-left">Type</th>
-                      <th className="px-4 py-2 text-left">Category</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {previewTxns.map(t => (
-                      <tr key={t.id} className={`border-t border-slate-100 dark:border-slate-800 ${!t.date ? 'bg-amber-50 dark:bg-amber-900/10' : ''}`}>
-                        <td className={`px-4 py-2 ${!t.date ? 'text-amber-600 font-semibold' : 'text-slate-500'}`}>
-                          {t.date || '⚠ missing'}
-                        </td>
-                        <td className="px-4 py-2 text-slate-700 dark:text-slate-200 max-w-[200px] truncate">{t.description}</td>
-                        <td className="px-4 py-2 text-right font-mono font-semibold text-slate-700 dark:text-slate-200">{fmtINR(t.amount)}</td>
-                        <td className="px-4 py-2">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${t.type === 'credit' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'}`}>
-                            {t.type}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2 text-slate-500">{t.category}</td>
+            {/* Preview table */}
+            {previewTxns.length > 0 && (
+              <div className="bg-white dark:bg-[#151827] rounded-2xl border border-slate-200 dark:border-white/[0.06] overflow-hidden">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 px-4 pt-3 pb-2">
+                  Preview — first {previewTxns.length} rows
+                </p>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-[12px]">
+                    <thead>
+                      <tr className="bg-slate-50 dark:bg-white/[0.03]">
+                        {['Date', 'Description', 'Amount', 'Type'].map(h => (
+                          <th key={h} className="px-3 py-2 text-left text-[10px] font-bold uppercase tracking-wide text-slate-400">{h}</th>
+                        ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {previewTxns.map(t => (
+                        <tr key={t.id} className={`border-t border-slate-100 dark:border-white/[0.04] ${!t.date ? 'bg-amber-50 dark:bg-amber-500/[0.05]' : ''}`}>
+                          <td className={`px-3 py-2 ${!t.date ? 'text-amber-600 font-semibold' : 'text-slate-500 dark:text-slate-400'}`}>
+                            {t.date || '⚠ missing'}
+                          </td>
+                          <td className="px-3 py-2 text-slate-700 dark:text-slate-200 max-w-[180px] truncate">{t.description}</td>
+                          <td className="px-3 py-2 font-semibold text-slate-800 dark:text-slate-100">{fmtINR(t.amount)}</td>
+                          <td className="px-3 py-2">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              t.type === 'credit'
+                                ? 'bg-emerald-100 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400'
+                                : 'bg-rose-100 dark:bg-rose-500/15 text-rose-700 dark:text-rose-400'
+                            }`}>
+                              {t.type === 'credit' ? '↓ in' : '↑ out'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Import controls */}
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={skipDuplicates}
-                onChange={e => setSkipDuplicates(e.target.checked)}
-                className="rounded"
-              />
-              Skip duplicate transactions
-            </label>
-            <div className="flex gap-2">
-              <button onClick={resetUpload} className="text-sm text-slate-500 px-4 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                Cancel
-              </button>
+            {/* Validation status */}
+            {!canSave && (
+              <div className="flex items-start gap-2 px-3 py-3 rounded-xl bg-amber-50 dark:bg-amber-500/[0.07] border border-amber-200 dark:border-amber-500/20">
+                <AlertCircle size={14} className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                <p className="text-[12px] text-amber-700 dark:text-amber-300">
+                  {!dateOk && 'Select the Date column. '}
+                  {!amountOk && 'Select an Amount column. '}
+                  {!descOk && 'Select a Description column. '}
+                </p>
+              </div>
+            )}
+
+            {/* Options + Import button */}
+            <div className="space-y-3">
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={skipDuplicates}
+                  onChange={e => setSkipDuplicates(e.target.checked)}
+                  className="w-4 h-4 rounded accent-[var(--ot-accent,#6366f1)]"
+                />
+                <span className="text-[13px] text-slate-600 dark:text-slate-300">
+                  Skip duplicate transactions
+                </span>
+              </label>
+
               <button
                 onClick={handleSaveRequest}
                 disabled={!canSave}
-                title={!canSave ? 'Map required columns (Date, Description, Amount) first' : undefined}
-                className="text-sm bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="w-full h-12 rounded-xl bg-[var(--ot-accent,#6366f1)] hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed text-white text-[14px] font-bold flex items-center justify-center gap-2 transition-opacity shadow-sm"
               >
-                Import {rawRows.length} Transactions
+                Import {rawRows.length.toLocaleString('en-IN')} Transactions <ArrowRight size={16} />
               </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ── Missing Date Blocking Modal ─────────────────────────────────── */}
-      {showMissingDateModal && liveIntegrity && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-700 rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
-                <ShieldAlert size={20} className="text-amber-600" />
+        {/* ── STEP: Done ──────────────────────────────────────────────────────── */}
+        {wizardStep === 'done' && (
+          <div className="text-center space-y-6">
+            <div>
+              <div className="w-20 h-20 rounded-3xl bg-emerald-500 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-emerald-500/25">
+                <CheckCircle2 size={40} className="text-white" />
               </div>
-              <div>
-                <p className="font-bold text-slate-800 dark:text-slate-100">Date Integrity Issue</p>
-                <p className="text-xs text-slate-500 mt-0.5">Import blocked — review required</p>
-              </div>
-            </div>
-
-            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4 space-y-2 text-sm">
-              <p className="font-semibold text-amber-800 dark:text-amber-200">
-                {liveIntegrity.missingDate} transactions ({liveIntegrity.missingDatePct.toFixed(1)}%) are missing dates.
-              </p>
-              <p className="text-amber-700 dark:text-amber-300 text-xs">
-                Bank statements always include transaction dates. Missing dates likely indicate an incorrect column mapping. Financial reports cannot be computed reliably without complete date data.
+              <h2 className="text-[24px] font-black text-slate-900 dark:text-white mb-2">
+                {importedCount.toLocaleString('en-IN')} transactions imported
+              </h2>
+              <p className="text-[13px] text-slate-500 dark:text-slate-400">
+                From {importedBankName} · All 27 tools are now unlocked
               </p>
             </div>
 
-            <div className="space-y-2">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">What would you like to do?</p>
-              <div className="grid grid-cols-2 gap-3">
+            {/* Next tools */}
+            <div className="text-left">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3">
+                Explore your finances
+              </p>
+              <div className="grid grid-cols-3 gap-2">
+                {NEXT_TOOLS.map(t => (
+                  <Link key={t.href} href={t.href}
+                    className="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl bg-white dark:bg-[#151827] border border-slate-200 dark:border-white/[0.06] hover:border-[var(--ot-accent,#6366f1)]/40 hover:bg-[var(--ot-accent,#6366f1)]/[0.02] transition-all group"
+                  >
+                    <span className="text-[22px] leading-none">{t.emoji}</span>
+                    <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 group-hover:text-[var(--ot-accent,#6366f1)] text-center">{t.label}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={resetWizard}
+                className="flex-1 h-11 rounded-xl border border-slate-200 dark:border-white/[0.07] text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors"
+              >
+                Import Another
+              </button>
+              <Link
+                href="/tools/personal-finance/pf-financial-snapshot"
+                className="flex-1 h-11 rounded-xl bg-[var(--ot-accent,#6366f1)] hover:opacity-90 text-white text-[13px] font-bold flex items-center justify-center gap-1.5 transition-opacity"
+              >
+                View Summary <ArrowRight size={14} />
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* ── Missing date blocking modal ─────────────────────────────────────── */}
+        {showMissingDateModal && liveIntegrity && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+            <div className="bg-white dark:bg-[#151827] rounded-2xl shadow-2xl border border-slate-200 dark:border-white/[0.07] max-w-sm w-full p-6 space-y-5">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-amber-100 dark:bg-amber-500/15 flex items-center justify-center flex-shrink-0">
+                  <ShieldAlert size={20} className="text-amber-600 dark:text-amber-400" />
+                </div>
+                <div>
+                  <p className="text-[14px] font-bold text-slate-900 dark:text-white">Check your Date column</p>
+                  <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    {liveIntegrity.missingDate} rows ({liveIntegrity.missingDatePct.toFixed(1)}%) have no date
+                  </p>
+                </div>
+              </div>
+              <p className="text-[12px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                Bank statements always have dates for every transaction. Missing dates usually mean the wrong column is selected — go back and fix the mapping.
+              </p>
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => setShowMissingDateModal(false)}
-                  className="flex flex-col items-center gap-1 bg-blue-600 text-white px-4 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors text-sm"
+                  className="h-10 rounded-xl bg-[var(--ot-accent,#6366f1)] text-white text-[13px] font-bold hover:opacity-90 transition-opacity"
                 >
-                  <Info size={16} />
                   Fix Mapping
-                  <span className="text-[10px] font-normal opacity-80">Re-check column mapping</span>
                 </button>
                 <button
                   onClick={doSave}
-                  className="flex flex-col items-center gap-1 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 px-4 py-3 rounded-xl font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-sm"
+                  className="h-10 rounded-xl border border-slate-200 dark:border-white/[0.07] text-[13px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors"
                 >
-                  <Upload size={16} />
                   Import Anyway
-                  <span className="text-[10px] font-normal opacity-80">Accept incomplete data</span>
                 </button>
               </div>
             </div>
-
-            <button onClick={() => setShowMissingDateModal(false)} className="w-full text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
-              Cancel import
-            </button>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+
+      </div>
     </div>
   );
 }

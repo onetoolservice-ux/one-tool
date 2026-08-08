@@ -11,7 +11,7 @@
  */
 
 import { ALL_TOOLS } from '@/app/lib/tools-data';
-import { getIconNameFromComponent } from './tools-helper';
+import { getIconNameFromComponent } from './static-tool-helpers';
 
 export interface Tool {
   id: string;

@@ -39,7 +39,7 @@ const ALL_CATS = Object.keys(CATS) as CategoryKey[];
 // ─── Conversion Logic ─────────────────────────────────────────────────────────
 function convert(cat: CategoryKey, fromU: string, toU: string, val: number, baseSize = 16): number | null {
   if (isNaN(val)) return null;
-  const def = CATS[cat];
+  const def = CATS[cat] as CatDef;
 
   if (def.type === 'temp') {
     if (fromU === toU) return val;
@@ -122,7 +122,7 @@ export const UnitConverter = () => {
   }, [cat, fromU, toU, baseSize]);
 
   const allResults = useMemo(() => {
-    const def = CATS[cat];
+    const def = CATS[cat] as CatDef;
     if (def.type) return [];
     return units.map(u => ({ unit: u, result: fmt(convert(cat, fromU, u, val, baseSize)) }));
   }, [cat, fromU, val, units, baseSize]);

@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, Play, ToggleLeft, ToggleRight, Info } from 'lucide-react';
 import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
-import { PFButton, PFBadge } from './pf-ui';
-import { useToast } from '@/app/components/ui/toast-system';
+import { PFButton, PFBadge } from './PfUi';
+import { useToast } from '@/app/components/ui/ToastSystem';
 import {
   loadPFStore, addRule, deleteRule, toggleRule, applyAllRules, getAllCategories, fmtINR,
   type PFRule,
@@ -79,9 +79,35 @@ export function CategoryRules() {
     reload();
   };
 
+  const [applyPreview, setApplyPreview] = useState<{ count: number; preview: { rule: string; matches: number }[] } | null>(null);
+
+  const buildApplyPreview = () => {
+    const store = loadPFStore();
+    const txns = Object.values(store.transactions);
+    const activeRules = rules.filter(r => r.active);
+
+    let totalAffected = 0;
+    const perRule: { rule: string; matches: number }[] = activeRules.map(rule => {
+      const matches = txns.filter(t => {
+        if (t.manualCategoryOverride) return false; // skipped
+        switch (rule.conditionType) {
+          case 'merchant_contains': return t.description.toLowerCase().includes(rule.conditionValue.toLowerCase());
+          case 'amount_min': return t.amount >= parseFloat(rule.conditionValue);
+          case 'amount_max': return t.amount <= parseFloat(rule.conditionValue);
+          case 'type_is': return t.type === rule.conditionValue;
+          default: return false;
+        }
+      }).length;
+      totalAffected += matches;
+      return { rule: `${CONDITION_LABELS[rule.conditionType]} "${rule.conditionValue}" → ${rule.assignedCategory}`, matches };
+    });
+    setApplyPreview({ count: totalAffected, preview: perRule });
+  };
+
   const handleApplyAll = () => {
     applyAllRules();
     toast('All rules re-applied to transactions', 'success');
+    setApplyPreview(null);
   };
 
   const activeCount   = rules.filter(r => r.active).length;
@@ -108,14 +134,41 @@ export function CategoryRules() {
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <PFButton variant="primary" icon={<Plus size={13} />} onClick={() => setShowForm(v => !v)}>
             Add Rule
           </PFButton>
-          <PFButton icon={<Play size={13} />} onClick={handleApplyAll}>
+          <PFButton icon={<Play size={13} />} onClick={buildApplyPreview} disabled={activeCount === 0}>
             Re-apply All Rules
           </PFButton>
         </div>
+
+        {/* Preview confirmation panel */}
+        {applyPreview && (
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Info size={14} className="text-amber-600 dark:text-amber-400 shrink-0" />
+              <p className="text-xs font-bold text-amber-700 dark:text-amber-300">
+                This will re-categorize up to {applyPreview.count.toLocaleString('en-IN')} transaction{applyPreview.count !== 1 ? 's' : ''} across {activeCount} active rule{activeCount !== 1 ? 's' : ''}.
+              </p>
+            </div>
+            {applyPreview.preview.filter(r => r.matches > 0).length > 0 && (
+              <div className="space-y-1">
+                {applyPreview.preview.filter(r => r.matches > 0).map((r, i) => (
+                  <div key={i} className="flex items-center justify-between text-[11px] text-amber-600 dark:text-amber-400">
+                    <span className="truncate mr-2">{r.rule}</span>
+                    <span className="font-bold shrink-0">{r.matches} txn{r.matches !== 1 ? 's' : ''}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            <p className="text-[11px] text-amber-600/80 dark:text-amber-400/80">Transactions with manual overrides are not changed. This cannot be undone.</p>
+            <div className="flex gap-2">
+              <PFButton variant="active" icon={<Play size={12} />} onClick={handleApplyAll}>Apply Now</PFButton>
+              <PFButton onClick={() => setApplyPreview(null)}>Cancel</PFButton>
+            </div>
+          </div>
+        )}
 
         {/* Add rule form */}
         {showForm && (

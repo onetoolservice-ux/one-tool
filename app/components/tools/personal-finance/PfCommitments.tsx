@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { RefreshCw, Plus, Check, X, Info, ChevronDown, RotateCcw } from 'lucide-react';
-import { PFButton, PFBadge, PFFilterBarHeader, PFSmartTableBar } from './pf-ui';
-import { useToast } from '@/app/components/ui/toast-system';
+import { PFButton, PFBadge, PFFilterBarHeader, PFSmartTableBar } from './PfUi';
+import { useToast } from '@/app/components/ui/ToastSystem';
 import {
   getCommitments, confirmCommitment, dismissCommitment,
   addManualCommitment, rerunRecurringDetection,

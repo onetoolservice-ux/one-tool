@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Search, X, Check, Pin } from 'lucide-react';
 import { ALL_TOOLS } from '@/app/lib/tools-data';
 import { addPin, removePin, getPinsForSpace } from '@/app/lib/home-store';
-import { getIconComponent, type IconName } from '@/app/lib/utils/icon-mapper';
+import { getIconComponent, type IconName } from '@/app/lib/utils/IconMapper';
 import { getTheme } from '@/app/lib/theme-config';
 
 import { TOOL_ICON_BG } from '@/app/lib/tool-icon-bg';

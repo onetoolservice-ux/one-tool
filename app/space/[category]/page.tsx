@@ -64,7 +64,7 @@ export default async function SpacePage({ params }: { params: Promise<{ category
         </nav>
 
         {/* ── Space header ────────────────────────────────────────────────── */}
-        <div className="mb-8">
+        <div className="mb-4">
           <div className="flex items-center gap-3 mb-2">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${meta.sectionIconBg}`}>
               <meta.Icon size={20} className={meta.sectionIconText} />
@@ -84,7 +84,7 @@ export default async function SpacePage({ params }: { params: Promise<{ category
         </div>
 
         {/* ── Sections ────────────────────────────────────────────────────── */}
-        <div className="space-y-8">
+        <div className="space-y-4">
           {tiers.map(tier => {
             const tools = tier.tools.map(getTool).filter(Boolean) as NonNullable<ReturnType<typeof getTool>>[];
             if (tools.length === 0) return null;
@@ -126,7 +126,7 @@ export default async function SpacePage({ params }: { params: Promise<{ category
         </div>
 
         {/* ── Footer ──────────────────────────────────────────────────────── */}
-        <div className="mt-10 pt-6 border-t border-slate-200 dark:border-white/[0.06] flex items-center justify-between">
+        <div className="mt-6 pt-4 border-t border-slate-200 dark:border-white/[0.06] flex items-center justify-between">
           <p className="text-xs text-slate-400 dark:text-slate-500">
             All data stays in your browser — nothing is sent to any server.
           </p>
