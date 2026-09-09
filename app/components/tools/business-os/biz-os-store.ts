@@ -1,5 +1,8 @@
 'use client';
 
+import { createClient } from '@/app/lib/supabase/client';
+import { logger } from '@/app/lib/utils/logger';
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // BUSINESS OS STORE
 // 3-Anchor data model: Party Register + Master Ledger + Product Catalog
@@ -8,6 +11,100 @@
 
 const STORE_KEY = 'otsd-biz-os-store';
 const STORE_EVENT = 'biz-os-store-updated';
+
+// ── CLOUD SYNC ──────────────────────────────────────────────────────────────────
+// localStorage stays the source of truth for reads (loadBizStore/saveBizStore stay
+// synchronous — every call site in every Biz*.tsx component depends on that).
+// Signed-in users additionally get a debounced background backup to Supabase, via
+// the existing `user_tool_data` table (see docs/DATABASE_SCHEMA.sql). Guests are
+// unaffected — this is purely additive.
+const SYNC_TOOL_ID = 'biz-os-store';
+const SYNC_DEBOUNCE_MS = 2000;
+let syncDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+async function getSyncUserId(): Promise<string | null> {
+  if (typeof window === 'undefined') return null;
+  try {
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    return session?.user?.id ?? null;
+  } catch {
+    return null; // Supabase env vars missing, or offline — fall back to guest mode
+  }
+}
+
+function scheduleCloudPush(data: BizOSStore): void {
+  if (typeof window === 'undefined') return;
+  if (syncDebounceTimer) clearTimeout(syncDebounceTimer);
+  syncDebounceTimer = setTimeout(async () => {
+    const userId = await getSyncUserId();
+    if (!userId) return;
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from('user_tool_data')
+        .upsert(
+          { user_id: userId, tool_id: SYNC_TOOL_ID, data },
+          { onConflict: 'user_id,tool_id' },
+        );
+      if (error) {
+        logger.error('Business OS cloud backup failed:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+        });
+      }
+    } catch (err) {
+      logger.error('Business OS cloud backup failed:', err instanceof Error ? err.message : err);
+    }
+  }, SYNC_DEBOUNCE_MS);
+}
+
+/**
+ * Reconciles local (localStorage) data with the signed-in user's cloud backup.
+ * Call once on sign-in / app mount for a Business OS page. No-ops for guests.
+ * Last-write-wins by `lastUpdated` — fine for the single-device-per-owner case
+ * this is built for; multi-device/multi-staff conflict resolution is future work.
+ */
+export async function syncBizStoreFromCloud(): Promise<void> {
+  const userId = await getSyncUserId();
+  if (!userId) return;
+
+  try {
+    const supabase = createClient();
+    const { data: row, error } = await supabase
+      .from('user_tool_data')
+      .select('data')
+      .eq('user_id', userId)
+      .eq('tool_id', SYNC_TOOL_ID)
+      .maybeSingle();
+    if (error) throw error;
+
+    const local = loadBizStore();
+    const remote = row?.data as BizOSStore | undefined;
+    const localIsEmpty = local.transactions.length === 0 && Object.keys(local.parties).length === 0;
+
+    if (!remote) {
+      // First sign-in for this account — push whatever local data exists up.
+      if (!localIsEmpty) scheduleCloudPush(local);
+      return;
+    }
+
+    if (localIsEmpty || new Date(remote.lastUpdated) > new Date(local.lastUpdated)) {
+      localStorage.setItem(STORE_KEY, JSON.stringify(remote));
+      window.dispatchEvent(new CustomEvent(STORE_EVENT));
+    } else if (new Date(local.lastUpdated) > new Date(remote.lastUpdated)) {
+      scheduleCloudPush(local);
+    }
+  } catch (err) {
+    logger.error('Business OS cloud sync failed:', err);
+  }
+}
+
+export async function isBizStoreBackedUp(): Promise<boolean> {
+  return (await getSyncUserId()) !== null;
+}
 
 // ── ANCHOR 1: Party Register ───────────────────────────────────────────────────
 export interface BizParty {
@@ -177,6 +274,7 @@ export function saveBizStore(data: BizOSStore): void {
   data.schemaVersion = CURRENT_BIZ_SCHEMA_VERSION;
   localStorage.setItem(STORE_KEY, JSON.stringify(data));
   window.dispatchEvent(new CustomEvent(STORE_EVENT));
+  scheduleCloudPush(data);
 }
 
 export function onBizStoreUpdate(cb: () => void): () => void {

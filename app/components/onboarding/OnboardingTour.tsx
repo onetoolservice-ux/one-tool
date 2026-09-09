@@ -52,7 +52,7 @@ const TOUR_STEPS: TourStep[] = [
       'Get a Financial Health Score (0–100) with personalized improvement tips',
       'Detect hidden subscriptions, identify top merchants, analyze spending DNA',
     ],
-    cta: { label: 'Go to Statement Manager (try demo data)', href: '/tools/personal-finance/pf-statement-manager' },
+    cta: { label: 'Go to Statement Manager (try demo data)', href: '/my-finance/pf-statement-manager' },
   },
   {
     emoji: '🏪',
@@ -68,7 +68,7 @@ const TOUR_STEPS: TourStep[] = [
       'Dashboard: real-time CEO view — today\'s sales, profit, outstanding dues, alerts',
       'Reports: full Profit & Loss statement for any date range',
     ],
-    cta: { label: 'Open Business Dashboard', href: '/tools/business-os/biz-dashboard' },
+    cta: { label: 'Open Business Dashboard', href: '/my-business/biz-dashboard' },
   },
   {
     emoji: '✍️',

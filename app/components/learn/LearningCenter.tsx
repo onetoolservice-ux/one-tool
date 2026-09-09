@@ -57,31 +57,31 @@ const LEARNING_PATHS: LearningPath[] = [
       {
         title: 'Upload your bank statement',
         desc: 'Export a CSV from your bank\'s net banking portal and upload it in Statement Manager. Transactions are auto-parsed and categorized — this single step unlocks all 19 finance tools.',
-        href: '/tools/personal-finance/pf-statement-manager',
+        href: '/my-finance/pf-statement-manager',
         tool: 'Statement Manager',
       },
       {
         title: 'Understand where your money goes',
         desc: 'Open Expenditure Distribution to see a live pie chart of your spending — automatically split into categories like Food, Travel, Shopping, Subscriptions, and EMIs.',
-        href: '/tools/personal-finance/pf-expenditure',
+        href: '/my-finance/pf-expenditure',
         tool: 'Expenditure Distribution',
       },
       {
         title: 'Track income vs expenses over time',
         desc: 'The Cash Flow tool shows month-by-month income and expense trends with your savings rate calculated automatically. Spot months where spending spiked.',
-        href: '/tools/personal-finance/pf-cash-flow',
+        href: '/my-finance/pf-cash-flow',
         tool: 'Cash Flow',
       },
       {
         title: 'Compare your budget against reality',
         desc: 'Set a monthly budget for each category, then see exactly how much you overspent or saved versus your plan — with a category-wise breakdown chart.',
-        href: '/tools/personal-finance/pf-budget-vs-actual',
+        href: '/my-finance/pf-budget-vs-actual',
         tool: 'Budget vs Actual',
       },
       {
         title: 'Check your Financial Health Score',
         desc: 'Get a score from 0–100 based on your savings rate, emergency fund coverage, debt-to-income ratio, and investment consistency — with actionable improvement tips.',
-        href: '/tools/personal-finance/pf-health-score',
+        href: '/my-finance/pf-health-score',
         tool: 'Health Score',
       },
     ],
@@ -102,31 +102,31 @@ const LEARNING_PATHS: LearningPath[] = [
       {
         title: 'Add your customers and vendors',
         desc: 'In the Party Register, add each customer and vendor with their name, phone number, and GSTIN. This becomes your digital ledger — every invoice and transaction is linked to a party automatically.',
-        href: '/tools/business-os/biz-parties',
+        href: '/my-business/biz-parties',
         tool: 'Party Register',
       },
       {
         title: 'Set up your product catalog',
         desc: 'Add products or services in Inventory with HSN/SAC code, unit price, and opening stock. These items appear automatically when you create invoices, saving you time on every bill.',
-        href: '/tools/business-os/biz-inventory',
+        href: '/my-business/biz-inventory',
         tool: 'Inventory',
       },
       {
         title: 'Create your first GST invoice',
         desc: 'Select a party, pick your products, enter quantities — CGST, SGST, and IGST are calculated automatically based on the tax rate. Download as a print-ready PDF instantly.',
-        href: '/tools/business-os/biz-invoices',
+        href: '/my-business/biz-invoices',
         tool: 'GST Invoices',
       },
       {
         title: 'Record daily income and expenses',
         desc: 'Use the Daybook to log every transaction — cash sales, bank transfers, UPI payments, and expenses. Each entry updates your running balance and feeds into the P&L report.',
-        href: '/tools/business-os/biz-daybook',
+        href: '/my-business/biz-daybook',
         tool: 'Daybook',
       },
       {
         title: 'Monitor business health on the Dashboard',
         desc: 'The Dashboard gives you a real-time CEO view — today\'s sales, total expenses, gross profit, outstanding receivables from parties, and low stock alerts. Everything at a glance.',
-        href: '/tools/business-os/biz-dashboard',
+        href: '/my-business/biz-dashboard',
         tool: 'Dashboard',
       },
     ],
@@ -237,31 +237,31 @@ const LEARNING_PATHS: LearningPath[] = [
       {
         title: 'Calculate your exact tax liability',
         desc: 'Enter your salary, other income sources, and eligible deductions — the Income Tax Calculator shows your tax payable under both the Old and New regimes side-by-side, so you can pick the one that saves you more.',
-        href: '/tools/gst-tax/income-tax-calc',
+        href: '/my-finance/income-tax-calc',
         tool: 'Income Tax Calculator',
       },
       {
         title: 'Track every deduction through the year',
         desc: 'The Deduction Tracker helps you log 80C investments (LIC, PPF, ELSS), 80D health insurance premiums, home loan interest, and other eligible deductions — so nothing gets missed at filing time.',
-        href: '/tools/gst-tax/deduction-tracker',
+        href: '/my-finance/deduction-tracker',
         tool: 'Deduction Tracker',
       },
       {
         title: 'Calculate advance tax installments',
         desc: 'Freelancers and business owners are required to pay advance tax quarterly. Use the Advance Tax Calculator to figure out how much to pay by each deadline — avoiding the 1% monthly interest penalty.',
-        href: '/tools/gst-tax/advance-tax-calc',
+        href: '/my-finance/advance-tax-calc',
         tool: 'Advance Tax Calculator',
       },
       {
         title: 'Never miss a tax deadline',
         desc: 'The Tax Calendar shows all critical dates in one view — advance tax quarters, TDS return due dates, GST filing deadlines, and ITR filing cutoffs. Missing these can result in significant penalties.',
-        href: '/tools/gst-tax/tax-calendar',
+        href: '/my-finance/tax-calendar',
         tool: 'Tax Calendar',
       },
       {
         title: 'Run through the ITR filing checklist',
         desc: 'Before you file, go through this checklist to make sure you have everything — Form 16, AIS/26AS, bank statements, investment proofs, and capital gains statements. Check off each item as you gather it.',
-        href: '/tools/gst-tax/itr-checklist',
+        href: '/my-finance/itr-checklist',
         tool: 'ITR Checklist',
       },
     ],
@@ -561,10 +561,10 @@ export function LearningCenter() {
             <Sparkles size={14} /> Take the Guided Tour
           </button>
           <Link
-            href="/home"
+            href="/"
             className="flex items-center gap-2 px-4 py-2 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg text-sm font-medium transition-colors"
           >
-            <Zap size={14} /> Browse all tools
+            <Zap size={14} /> Go to your dashboard
           </Link>
         </div>
       </div>
@@ -641,10 +641,10 @@ export function LearningCenter() {
           </p>
           <div className="flex items-center gap-3 flex-wrap">
             <Link
-              href="/home"
+              href="/"
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
             >
-              <Zap size={14} /> Browse all tools
+              <Zap size={14} /> Go to your dashboard
             </Link>
             <a
               href="https://github.com/anthropics/claude-code/issues"

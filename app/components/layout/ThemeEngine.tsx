@@ -15,21 +15,12 @@ export default function ThemeEngine() {
     let bgGradient = "radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.08), transparent 70%)";
 
     // Category Specific (Keep these as they are "Perfect")
-    if (pathname.includes("/finance")) {
+    if (pathname.includes("finance")) {
       accentColor = "16 185 129"; // Emerald
       bgGradient = "radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.1), transparent 60%)";
-    } else if (pathname.includes("/developer")) {
+    } else if (pathname.includes("business")) {
       accentColor = "59 130 246"; // Blue
       bgGradient = "radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.1), transparent 60%)";
-    } else if (pathname.includes("/health")) {
-      accentColor = "244 63 94"; // Rose
-      bgGradient = "radial-gradient(circle at 50% 0%, rgba(244, 63, 94, 0.1), transparent 60%)";
-    } else if (pathname.includes("/documents")) {
-      accentColor = "245 158 11"; // Amber
-      bgGradient = "radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.08), transparent 60%)";
-    } else if (pathname.includes("/ai")) {
-      accentColor = "139 92 246"; // Violet
-      bgGradient = "radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.1), transparent 60%)";
     }
 
     root.style.setProperty("--primary-rgb", accentColor);

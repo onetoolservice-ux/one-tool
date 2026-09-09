@@ -17,27 +17,27 @@ const DEMO_ACTIVE_KEY = 'ot-demo-journey-active';
 const JOURNEY_STEPS = [
   {
     label: 'Statement Manager',
-    href: '/tools/personal-finance/pf-statement-manager',
+    href: '/my-finance/pf-statement-manager',
     hint: 'Click "✨ Load Demo Data" to start',
   },
   {
     label: 'Financial Snapshot',
-    href: '/tools/personal-finance/pf-financial-snapshot',
+    href: '/my-finance/pf-financial-snapshot',
     hint: '3-month money picture at a glance',
   },
   {
     label: 'Spending Heatmap',
-    href: '/tools/personal-finance/pf-heatmap',
+    href: '/my-finance/pf-heatmap',
     hint: 'See your yearly spend pattern',
   },
   {
     label: 'Health Score',
-    href: '/tools/personal-finance/pf-health-score',
+    href: '/my-finance/pf-health-score',
     hint: 'Get your financial fitness score',
   },
   {
     label: 'Budget vs Actual',
-    href: '/tools/personal-finance/pf-budget-vs-actual',
+    href: '/my-finance/pf-budget-vs-actual',
     hint: 'See how you tracked against budget',
   },
 ];

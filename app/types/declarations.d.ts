@@ -1,4 +1,5 @@
 declare module 'lodash.debounce';
+declare module 'downloadjs';
 // Manual declaration for react-quill since @types/react-quill failed to install
 declare module 'react-quill' {
     import React from 'react';

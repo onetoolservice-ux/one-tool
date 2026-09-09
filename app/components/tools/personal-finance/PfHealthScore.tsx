@@ -7,24 +7,24 @@ import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
 // Action deep-links per metric area
 const METRIC_ACTIONS: Record<string, { label: string; href: string }[]> = {
   savings: [
-    { label: 'View Spending Breakdown', href: '/tools/personal-finance/pf-expenditure' },
-    { label: 'Set Up Budget', href: '/tools/personal-finance/pf-budget-vs-actual' },
+    { label: 'View Spending Breakdown', href: '/my-finance/pf-expenditure' },
+    { label: 'Set Up Budget', href: '/my-finance/pf-budget-vs-actual' },
   ],
   emergency: [
-    { label: 'FD Calculator', href: '/tools/finance/fd-calculator' },
-    { label: 'Budget Planner', href: '/tools/finance/smart-budget' },
+    { label: 'FD Calculator', href: '/my-finance/fd-calculator' },
+    { label: 'Budget Planner', href: '/my-finance/smart-budget' },
   ],
   debt: [
-    { label: 'Debt Snowball / Avalanche', href: '/tools/finance/debt-planner' },
+    { label: 'Debt Snowball / Avalanche', href: '/my-finance/debt-planner' },
     { label: 'Home Loan Prepayment', href: '/tools/real-estate/home-loan-emi' },
   ],
   insurance: [
-    { label: 'Tax Saving (80D)', href: '/tools/gst-tax/deduction-tracker' },
+    { label: 'Tax Saving (80D)', href: '/my-finance/deduction-tracker' },
   ],
   investment: [
-    { label: 'SIP Calculator', href: '/tools/finance/smart-sip' },
-    { label: 'Investment Tracker', href: '/tools/personal-finance/pf-investment-tracker' },
-    { label: 'NPS Calculator', href: '/tools/finance/nps-calculator' },
+    { label: 'SIP Calculator', href: '/my-finance/smart-sip' },
+    { label: 'Investment Tracker', href: '/my-finance/pf-investment-tracker' },
+    { label: 'NPS Calculator', href: '/my-finance/nps-calculator' },
   ],
 };
 

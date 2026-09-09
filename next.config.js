@@ -59,6 +59,23 @@ const nextConfig = {
     }
     return config;
   },
+  // Old per-category tool/space URLs collapsed into the 2 workspaces (My Finance, My Business)
+  async redirects() {
+    return [
+      { source: '/tools/personal-finance/:id', destination: '/my-finance/:id', permanent: true },
+      { source: '/tools/finance/:id', destination: '/my-finance/:id', permanent: true },
+      { source: '/tools/gst-tax/:id', destination: '/my-finance/:id', permanent: true },
+      { source: '/tools/business-os/:id', destination: '/my-business/:id', permanent: true },
+      { source: '/tools/personal-finance', destination: '/my-finance', permanent: true },
+      { source: '/tools/finance', destination: '/my-finance', permanent: true },
+      { source: '/tools/gst-tax', destination: '/my-finance', permanent: true },
+      { source: '/tools/business-os', destination: '/my-business', permanent: true },
+      { source: '/space/personal-finance', destination: '/my-finance', permanent: true },
+      { source: '/space/finance', destination: '/my-finance', permanent: true },
+      { source: '/space/gst-tax', destination: '/my-finance', permanent: true },
+      { source: '/space/business-os', destination: '/my-business', permanent: true },
+    ];
+  },
   // Headers are handled by middleware.ts to avoid conflicts
   // Only DNS prefetch is set here as it doesn't conflict
   async headers() {

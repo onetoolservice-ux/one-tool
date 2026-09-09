@@ -39,12 +39,12 @@ const BANK_PRESETS = [
 // ── Quick tool links post-import ──────────────────────────────────────────────
 
 const NEXT_TOOLS = [
-  { emoji: '💸', label: 'Cash Flow',    href: '/tools/personal-finance/pf-cash-flow'     },
-  { emoji: '📊', label: 'Expenses',     href: '/tools/personal-finance/pf-expenses'      },
-  { emoji: '🧠', label: 'Behavior',     href: '/tools/personal-finance/pf-behavior'      },
-  { emoji: '❤️', label: 'Health Score', href: '/tools/personal-finance/pf-health-score'  },
-  { emoji: '🗓️', label: 'Heatmap',      href: '/tools/personal-finance/pf-heatmap'       },
-  { emoji: '🏪', label: 'Merchants',    href: '/tools/personal-finance/pf-top-merchants' },
+  { emoji: '💸', label: 'Cash Flow',    href: '/my-finance/pf-cash-flow'     },
+  { emoji: '📊', label: 'Expenses',     href: '/my-finance/pf-expenses'      },
+  { emoji: '🧠', label: 'Behavior',     href: '/my-finance/pf-behavior'      },
+  { emoji: '❤️', label: 'Health Score', href: '/my-finance/pf-health-score'  },
+  { emoji: '🗓️', label: 'Heatmap',      href: '/my-finance/pf-heatmap'       },
+  { emoji: '🏪', label: 'Merchants',    href: '/my-finance/pf-top-merchants' },
 ];
 
 // ── Wizard step type ──────────────────────────────────────────────────────────
@@ -100,6 +100,7 @@ export function StatementManager() {
   const [selectedPreset, setSelectedPreset] = useState<typeof BANK_PRESETS[0] | null>(null);
   const [customBankName, setCustomBankName] = useState('');
   const [selectedAccountId, setSelectedAccountId] = useState('');
+  const [showBankPicker, setShowBankPicker] = useState(false);
 
   // Upload state
   const [rawHeaders, setRawHeaders] = useState<string[]>([]);
@@ -276,6 +277,7 @@ export function StatementManager() {
     const acc = addAccount({ name, type: selectedPreset?.type ?? 'bank', currency: 'INR' });
     setSelectedAccountId(acc.id);
     reload();
+    setShowBankPicker(false);
     setWizardStep('upload');
   };
 
@@ -328,6 +330,7 @@ export function StatementManager() {
     setSelectedPreset(null);
     setCustomBankName('');
     setSelectedAccountId('');
+    setShowBankPicker(false);
     setRawHeaders([]); setRawRows([]); setFileName('');
   };
 
@@ -460,18 +463,33 @@ export function StatementManager() {
                 )}
 
                 {/* Add another */}
-                <button
-                  onClick={() => { setSelectedPreset(null); setCustomBankName(''); }}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed border-slate-200 dark:border-white/[0.07] text-[13px] font-semibold text-slate-400 dark:text-slate-500 hover:text-[var(--ot-accent,#6366f1)] hover:border-[var(--ot-accent,#6366f1)]/40 transition-all"
-                >
-                  <Plus size={14} /> Add Another Bank
-                </button>
+                {!showBankPicker && (
+                  <button
+                    onClick={() => { setShowBankPicker(true); setSelectedPreset(null); setCustomBankName(''); }}
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed border-slate-200 dark:border-white/[0.07] text-[13px] font-semibold text-slate-400 dark:text-slate-500 hover:text-[var(--ot-accent,#6366f1)] hover:border-[var(--ot-accent,#6366f1)]/40 transition-all"
+                  >
+                    <Plus size={14} /> Add Another Bank
+                  </button>
+                )}
               </div>
             )}
 
             {/* First time OR adding new bank */}
-            {(accounts.length === 0 || selectedPreset !== null) && (
+            {(accounts.length === 0 || showBankPicker) && (
               <div>
+                {accounts.length > 0 && showBankPicker && (
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                      Add a bank
+                    </p>
+                    <button
+                      onClick={() => { setShowBankPicker(false); setSelectedPreset(null); setCustomBankName(''); }}
+                      className="flex items-center gap-1 text-[11px] font-semibold text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                    >
+                      <X size={12} /> Cancel
+                    </button>
+                  </div>
+                )}
                 {accounts.length === 0 && (
                   <div className="text-center mb-8">
                     <div className="w-14 h-14 rounded-2xl bg-[var(--ot-accent,#6366f1)]/10 flex items-center justify-center mx-auto mb-4">
@@ -884,7 +902,7 @@ export function StatementManager() {
                 Import Another
               </button>
               <Link
-                href="/tools/personal-finance/pf-financial-snapshot"
+                href="/my-finance/pf-financial-snapshot"
                 className="flex-1 h-11 rounded-xl bg-[var(--ot-accent,#6366f1)] hover:opacity-90 text-white text-[13px] font-bold flex items-center justify-center gap-1.5 transition-opacity"
               >
                 View Summary <ArrowRight size={14} />

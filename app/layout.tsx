@@ -3,9 +3,10 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "./globals.css";
 
-import { GoogleAnalytics } from "@/app/components/analytics/GoogleAnalytics"; 
+import { GoogleAnalytics } from "@/app/components/analytics/GoogleAnalytics";
 import { UIProvider } from "@/app/lib/ui-context";
 import { ToastProvider } from "@/app/components/ui/ToastSystem";
+import { AuthProvider } from "@/app/contexts/auth-context";
 
 import GlobalHeader from "@/app/components/layout/GlobalHeader";
 import ScrollToTop from "@/app/components/layout/ScrollToTop";
@@ -137,26 +138,28 @@ export default function RootLayout({
       </head>
       <body>
         <ErrorBoundary>
-          <UIProvider>
-            <ToastProvider>
-              <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-[#0F111A]">
-                 <ScrollToTop />
-                 <GlobalHeader />
-                 <main className="flex-1 w-full">
-                   <ErrorBoundary>
-                     {children}
-                   </ErrorBoundary>
-                 </main>
-              </div>
-              <Toast />
-              <OnboardingTour />
-              <PWAInstallPrompt />
-              <DemoJourneyBanner />
-              <StorageQuotaToast />
-              {/* Google Analytics */}
-              {process.env.NEXT_PUBLIC_GA_ID && <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />}
-            </ToastProvider>
-          </UIProvider>
+          <AuthProvider>
+            <UIProvider>
+              <ToastProvider>
+                <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-[#0F111A]">
+                   <ScrollToTop />
+                   <GlobalHeader />
+                   <main className="flex-1 w-full">
+                     <ErrorBoundary>
+                       {children}
+                     </ErrorBoundary>
+                   </main>
+                </div>
+                <Toast />
+                <OnboardingTour />
+                <PWAInstallPrompt />
+                <DemoJourneyBanner />
+                <StorageQuotaToast />
+                {/* Google Analytics */}
+                {process.env.NEXT_PUBLIC_GA_ID && <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />}
+              </ToastProvider>
+            </UIProvider>
+          </AuthProvider>
         </ErrorBoundary>
       </body>
     </html>

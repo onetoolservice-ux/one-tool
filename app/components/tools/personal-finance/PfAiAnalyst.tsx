@@ -10,7 +10,7 @@ import {
   getPFTransactions, getAvailableMonths, getPeriodRange, fmtINR,
   type PFTransaction,
 } from './finance-store';
-import type { MonthlyData } from '../analytics/analytics-store';
+import type { MonthlyData, Transaction, DetectedColumns } from '../analytics/analytics-store';
 import {
   generateFinancialIntelligence,
   type FinancialIntelligence,
@@ -37,7 +37,7 @@ function buildMonthlyDataFromPF(
       const range = getPeriodRange(m.key);
       if (!range) return null;
 
-      const txns = allTxns
+      const txns: Transaction[] = allTxns
         .filter((t) => !t.isTransfer && t.date >= range.from && t.date <= range.to)
         .map((t) => ({
           id: t.id,
@@ -64,7 +64,7 @@ function buildMonthlyDataFromPF(
         detectedColumns: {
           date: null, amount: null, creditAmount: null,
           debitAmount: null, description: null, category: null, balance: null,
-        },
+        } as DetectedColumns,
         summary: {
           totalCredits,
           totalDebits,

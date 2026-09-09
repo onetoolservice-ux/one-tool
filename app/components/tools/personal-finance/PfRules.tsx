@@ -89,7 +89,7 @@ export function CategoryRules() {
     let totalAffected = 0;
     const perRule: { rule: string; matches: number }[] = activeRules.map(rule => {
       const matches = txns.filter(t => {
-        if (t.manualCategoryOverride) return false; // skipped
+        if (t.userOverrideFlag) return false; // skipped
         switch (rule.conditionType) {
           case 'merchant_contains': return t.description.toLowerCase().includes(rule.conditionValue.toLowerCase());
           case 'amount_min': return t.amount >= parseFloat(rule.conditionValue);

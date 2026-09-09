@@ -15,7 +15,7 @@ interface AuthContextType {
   isAdmin: boolean;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (email: string, password: string, fullName?: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, fullName?: string) => Promise<{ error: Error | null; hasSession: boolean }>;
   signOut: () => Promise<void>;
   signInWithOAuth: (provider: 'google' | 'github') => Promise<void>;
 }
@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // If env vars are missing, gracefully run in guest-only mode (no auth)
   const supabase = useMemo(() => {
     if (typeof window === 'undefined') {
-      return null as any;
+      return null;
     }
     try {
       return createClient();
@@ -95,6 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const refreshTime = Math.max(timeUntilExpiry - 5 * 60 * 1000, 60000); // At least 1 minute
       
       refreshTimer = setTimeout(async () => {
+        if (!supabase) return;
         try {
           const { data, error } = await supabase.auth.refreshSession();
           if (error) {
@@ -198,10 +199,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string, fullName?: string) => {
     if (!supabase) {
-      return { error: new Error('Supabase client not initialized') };
+      return { error: new Error('Supabase client not initialized'), hasSession: false };
     }
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -212,12 +213,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       if (error) {
         const appError = parseSupabaseError(error);
-        return { error: new Error(appError.userMessage) };
+        return { error: new Error(appError.userMessage), hasSession: false };
       }
-      return { error: null };
+      // If email confirmation is off in Supabase, signUp() returns an active
+      // session immediately — the caller can skip the "check your email" copy.
+      return { error: null, hasSession: !!data.session };
     } catch (error) {
       const appError = parseSupabaseError(error);
-      return { error: new Error(appError.userMessage) };
+      return { error: new Error(appError.userMessage), hasSession: false };
     }
   };
 

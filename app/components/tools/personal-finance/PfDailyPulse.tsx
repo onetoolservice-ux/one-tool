@@ -294,7 +294,7 @@ export function DailyTransactionPulse() {
             iconBgClass="bg-amber-100 dark:bg-amber-900/40"
             title="No transactions found"
             description="No debit transactions for the selected period. Try a different period or account filter."
-            secondaryCta={{ label: 'Go to Statement Manager', href: '/tools/personal-finance/pf-statement-manager' }}
+            secondaryCta={{ label: 'Go to Statement Manager', href: '/my-finance/pf-statement-manager' }}
           />
         ) : (
           <>
@@ -329,7 +329,7 @@ export function DailyTransactionPulse() {
                   </p>
                   <p className="text-[10px] text-slate-400 mt-0.5">
                     {fmtINR(budgetData.dailyBudget)}/day budget · from{' '}
-                    <Link href="/tools/personal-finance/pf-budget-vs-actual" className="underline hover:text-slate-600">Budget vs Actual</Link>
+                    <Link href="/my-finance/pf-budget-vs-actual" className="underline hover:text-slate-600">Budget vs Actual</Link>
                   </p>
                 </div>
                 <div className="text-right shrink-0">
@@ -352,7 +352,7 @@ export function DailyTransactionPulse() {
                   Your heaviest spending day is{' '}
                   <span className="font-bold">{dowInsight.label}</span> — avg{' '}
                   <span className="font-bold">{fmtINR(dowInsight.avg)}</span> across {dowInsight.days} active {dowInsight.label}s.{' '}
-                  <Link href="/tools/personal-finance/pf-behavior" className="underline font-medium">
+                  <Link href="/my-finance/pf-behavior" className="underline font-medium">
                     See full DOW breakdown →
                   </Link>
                 </p>
@@ -509,7 +509,7 @@ export function DailyTransactionPulse() {
                             <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
                               {d.count} transaction{d.count !== 1 ? 's' : ''}
                             </span>
-                            <Link href="/tools/personal-finance/pf-tx-explorer"
+                            <Link href="/my-finance/pf-tx-explorer"
                               className="text-[10px] text-blue-500 hover:text-blue-700 font-medium">
                               View all in Explorer →
                             </Link>
@@ -559,7 +559,7 @@ export function DailyTransactionPulse() {
                           <td className="px-4 py-2.5 text-right font-mono text-slate-700 dark:text-slate-200">{fmtINR(m.totalSpend)}</td>
                           <td className="px-4 py-2.5 text-right font-bold font-mono text-orange-600 dark:text-orange-400">{fmtINR(m.avgDailySpend)}</td>
                           <td className="px-4 py-2.5 text-right">
-                            <Link href="/tools/personal-finance/pf-month-compare"
+                            <Link href="/my-finance/pf-month-compare"
                               className="text-[10px] text-blue-500 hover:text-blue-700 font-medium whitespace-nowrap">
                               Compare →
                             </Link>
@@ -579,10 +579,10 @@ export function DailyTransactionPulse() {
               </div>
               <div className="grid grid-cols-2 gap-px bg-slate-100 dark:bg-slate-700">
                 {[
-                  { href: '/tools/personal-finance/pf-heatmap',       label: 'Spending Heatmap',     desc: 'Calendar view of daily spend intensity' },
-                  { href: '/tools/personal-finance/pf-behavior',      label: 'Spending Behavior',    desc: 'Day-of-week & day-of-month patterns'    },
-                  { href: '/tools/personal-finance/pf-month-compare', label: 'Month Comparison',     desc: 'Side-by-side category breakdown'        },
-                  { href: '/tools/personal-finance/pf-tx-explorer',   label: 'Transaction Explorer', desc: 'Full searchable transaction ledger'      },
+                  { href: '/my-finance/pf-heatmap',       label: 'Spending Heatmap',     desc: 'Calendar view of daily spend intensity' },
+                  { href: '/my-finance/pf-behavior',      label: 'Spending Behavior',    desc: 'Day-of-week & day-of-month patterns'    },
+                  { href: '/my-finance/pf-month-compare', label: 'Month Comparison',     desc: 'Side-by-side category breakdown'        },
+                  { href: '/my-finance/pf-tx-explorer',   label: 'Transaction Explorer', desc: 'Full searchable transaction ledger'      },
                 ].map(tool => (
                   <Link key={tool.href} href={tool.href}
                     className="bg-white dark:bg-slate-900 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">

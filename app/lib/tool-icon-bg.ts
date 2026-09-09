@@ -1,5 +1,4 @@
-// Single source of truth for per-tool icon gradient backgrounds.
-// Import this in ToolCard, MyHomePage, SpaceToolPicker — do NOT duplicate.
+// Single source of truth for per-tool icon gradient backgrounds. Do NOT duplicate.
 export const TOOL_ICON_BG: Record<string, string> = {
   // Analytics
   analyticsreport:               'bg-gradient-to-br from-blue-600 to-cyan-500',

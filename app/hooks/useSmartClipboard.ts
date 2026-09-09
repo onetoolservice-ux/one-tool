@@ -1,6 +1,7 @@
 "use client";
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { safeLocalStorage } from "@/app/lib/utils/storage";
 
 export type ToolSuggestion = {
   id: string;

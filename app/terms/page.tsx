@@ -9,12 +9,15 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <ToolShell
-      title="Terms of Service"
-      description="Last Updated: December 2024"
-      category="Legal"
-      icon={<FileText className="w-5 h-5 text-blue-500" />}
-    >
+    <ToolShell>
+      <div className="max-w-3xl mx-auto px-4 pt-8">
+        <div className="flex items-center gap-2 mb-2">
+          <FileText className="w-5 h-5 text-blue-500" />
+          <span className="text-sm text-slate-400">Legal</span>
+        </div>
+        <h1 className="text-2xl font-semibold">Terms of Service</h1>
+        <p className="text-sm text-slate-400">Last Updated: December 2024</p>
+      </div>
       <div className="prose dark:prose-invert max-w-3xl mx-auto bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
         <h3>1. Acceptance of Terms</h3>
         <p>

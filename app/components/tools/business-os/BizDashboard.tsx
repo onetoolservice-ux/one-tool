@@ -3,22 +3,75 @@
 import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import {
-  TrendingUp, TrendingDown, AlertTriangle, Clock, Users, Package,
+  TrendingUp, TrendingDown, AlertTriangle, Clock, Users,
   ArrowRight, Plus, Settings, LayoutDashboard, Download, FolderInput,
+  Receipt, Landmark, CloudCheck, CloudOff,
 } from 'lucide-react';
 import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
 import { useToast } from '@/app/components/ui/ToastSystem';
+import { useAuth } from '@/app/contexts/auth-context';
 import {
   loadBizStore, saveBizStore, onBizStoreUpdate, getDashboardKPIs, getLast7DaysData,
-  fmtCurrency, updateSettings, type BizOSStore,
+  getPurchaseBills, getLoans, getEMIPayments, syncBizStoreFromCloud,
+  fmtCurrency, updateSettings, todayISO, type BizOSStore,
 } from './biz-os-store';
+import { QuickAddTransactionModal } from './QuickAddTransactionModal';
+
+// ── Alert widget helpers ────────────────────────────────────────────────────
+
+function addDaysISO(dateStr: string, days: number): string {
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().split('T')[0];
+}
+
+function monthsBetween(a: string, b: string): number {
+  const [ay, am] = a.split('-').map(Number);
+  const [by, bm] = b.split('-').map(Number);
+  return (by - ay) * 12 + (bm - am);
+}
+
+type AlertTone = 'danger' | 'warn' | 'ok';
+
+const ALERT_TONE_CLASSES: Record<AlertTone, string> = {
+  danger: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300',
+  warn: 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300',
+  ok: 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300',
+};
+
+function AlertWidget({ icon, label, value, sublabel, href, tone }: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  sublabel: string;
+  href: string;
+  tone: AlertTone;
+}) {
+  return (
+    <a
+      href={href}
+      className={`rounded-2xl border p-4 flex flex-col gap-1.5 hover:opacity-90 transition-opacity ${ALERT_TONE_CLASSES[tone]}`}
+    >
+      <div className="flex items-center justify-between">
+        <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide">
+          {icon} {label}
+        </span>
+        <ArrowRight size={12} />
+      </div>
+      <span className="text-xl font-black">{value}</span>
+      <span className="text-xs opacity-80">{sublabel}</span>
+    </a>
+  );
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function BizDashboard() {
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
   const [store, setStore] = useState<BizOSStore | null>(null);
   const [showSetup, setShowSetup] = useState(false);
+  const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [bizName, setBizName] = useState('');
   const [gstin, setGstin] = useState('');
 
@@ -34,6 +87,12 @@ export function BizDashboard() {
     return onBizStoreUpdate(load);
   }, []);
 
+  // Reconcile local data with the cloud backup whenever sign-in state resolves —
+  // covers first load with an existing session and a fresh sign-in mid-session.
+  useEffect(() => {
+    if (user) syncBizStoreFromCloud();
+  }, [user?.id]);
+
   if (!store) return null;
 
   const kpis = getDashboardKPIs(store);
@@ -47,6 +106,30 @@ export function BizDashboard() {
   const pendingInvoices = Object.values(store.invoices).filter(
     inv => inv.status === 'sent' || inv.status === 'draft' || inv.status === 'overdue',
   );
+
+  // ── Alert widgets — actionable, not just navigation ──────────────────────
+  const today = todayISO();
+  const currentMonth = today.slice(0, 7);
+
+  const overdueInvoices = Object.values(store.invoices).filter(
+    inv => inv.status === 'overdue' || (inv.status === 'sent' && !!inv.dueDate && inv.dueDate < today),
+  );
+  const overdueReceivablesTotal = overdueInvoices.reduce((s, inv) => s + inv.total, 0);
+
+  const purchaseBills = Object.values(getPurchaseBills(store));
+  const duePayables = purchaseBills.filter(
+    b => b.status !== 'paid' && (!b.dueDate || b.dueDate <= addDaysISO(today, 7)),
+  );
+  const payablesDueTotal = duePayables.reduce((s, b) => s + (b.total - b.paidAmount), 0);
+
+  const loans = Object.values(getLoans(store));
+  const emiPayments = getEMIPayments(store);
+  const emisDueThisMonth = loans.filter(loan => {
+    const monthsIn = monthsBetween(loan.startDate.slice(0, 7), currentMonth);
+    if (monthsIn < 0 || monthsIn >= loan.tenure) return false;
+    return !emiPayments[`${loan.id}-${currentMonth}`]?.paid;
+  });
+  const emiDueTotal = emisDueThisMonth.reduce((s, loan) => s + loan.emiAmount, 0);
 
   // Top 5 customers by total income transactions
   const customerRevenue: Record<string, number> = {};
@@ -101,6 +184,20 @@ export function BizDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+      {/* Quick Add Modal — logging a sale should never require leaving the dashboard */}
+      {showQuickAdd && (
+        <QuickAddTransactionModal store={store} onClose={() => setShowQuickAdd(false)} />
+      )}
+
+      {/* Floating quick-add button */}
+      <button
+        onClick={() => setShowQuickAdd(true)}
+        className="fixed bottom-5 right-5 z-40 flex items-center gap-2 px-5 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg shadow-blue-600/30 text-sm font-bold transition-colors"
+        title="Add a sale or expense"
+      >
+        <Plus size={18} /> Add Entry
+      </button>
+
       {/* Setup Modal */}
       {showSetup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
@@ -165,6 +262,24 @@ export function BizDashboard() {
         ]}
         actions={
           <div className="flex items-center gap-1">
+            {!authLoading && (
+              user ? (
+                <span
+                  className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-emerald-600 dark:text-emerald-400"
+                  title="Your data is backed up to the cloud"
+                >
+                  <CloudCheck size={13} /> Backed up
+                </span>
+              ) : (
+                <a
+                  href="/auth/login?redirect=/my-business/biz-dashboard"
+                  className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                  title="Sign in so your business data is never lost if this device is reset"
+                >
+                  <CloudOff size={13} /> Sign in to back up
+                </a>
+              )
+            )}
             <button
               onClick={handleExport}
               className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
@@ -202,10 +317,10 @@ export function BizDashboard() {
               Start by adding your first transaction in the Daybook, or add your customers in the Party Register.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <a href="/tools/business-os/biz-daybook" className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors">
+              <a href="/my-business/biz-daybook" className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors">
                 <Plus size={16} /> Add Transaction
               </a>
-              <a href="/tools/business-os/biz-parties" className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl text-sm font-bold transition-colors hover:bg-slate-200 dark:hover:bg-slate-700">
+              <a href="/my-business/biz-parties" className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl text-sm font-bold transition-colors hover:bg-slate-200 dark:hover:bg-slate-700">
                 <Users size={16} /> Add Customer
               </a>
             </div>
@@ -220,7 +335,7 @@ export function BizDashboard() {
               <span className="font-bold text-amber-800 dark:text-amber-300 text-sm">
                 {lowStockItems.length} item{lowStockItems.length > 1 ? 's' : ''} running low on stock
               </span>
-              <a href="/tools/business-os/biz-inventory" className="ml-auto text-xs font-semibold text-amber-700 dark:text-amber-400 hover:underline flex items-center gap-1">
+              <a href="/my-business/biz-inventory" className="ml-auto text-xs font-semibold text-amber-700 dark:text-amber-400 hover:underline flex items-center gap-1">
                 Manage Inventory <ArrowRight size={12} />
               </a>
             </div>
@@ -270,7 +385,7 @@ export function BizDashboard() {
               <h2 className="text-sm font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
                 <Users size={14} /> Top Customers
               </h2>
-              <a href="/tools/business-os/biz-parties" className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+              <a href="/my-business/biz-parties" className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
                 View All <ArrowRight size={12} />
               </a>
             </div>
@@ -298,7 +413,7 @@ export function BizDashboard() {
               <h2 className="text-sm font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
                 <Clock size={14} /> Pending Invoices
               </h2>
-              <a href="/tools/business-os/biz-invoices" className="text-xs font-semibold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1">
+              <a href="/my-business/biz-invoices" className="text-xs font-semibold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1">
                 View All <ArrowRight size={12} />
               </a>
             </div>
@@ -339,7 +454,7 @@ export function BizDashboard() {
               <h2 className="text-sm font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider">
                 Recent Transactions
               </h2>
-              <a href="/tools/business-os/biz-daybook" className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+              <a href="/my-business/biz-daybook" className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
                 Open Daybook <ArrowRight size={12} />
               </a>
             </div>
@@ -365,22 +480,45 @@ export function BizDashboard() {
           </div>
         )}
 
-        {/* Quick Nav */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {[
-            { href: '/tools/business-os/biz-daybook', icon: <Plus size={20} />, label: 'Add Entry', color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' },
-            { href: '/tools/business-os/biz-parties', icon: <Users size={20} />, label: `Parties (${Object.keys(store.parties).length})`, color: 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300' },
-            { href: '/tools/business-os/biz-inventory', icon: <Package size={20} />, label: `Products (${Object.keys(store.products).length})`, color: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' },
-            { href: '/tools/business-os/biz-invoices', icon: <Clock size={20} />, label: `Invoices (${Object.keys(store.invoices).length})`, color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' },
-            { href: '/tools/business-os/biz-reports', icon: <TrendingUp size={20} />, label: 'Reports', color: 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300' },
-            { href: '/tools/business-os/biz-daybook', icon: <TrendingDown size={20} />, label: 'Month Net', color: kpis.monthNet >= 0 ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' : 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300' },
-          ].map(item => (
-            <a key={item.href + item.label} href={item.href}
-              className={`${item.color} rounded-xl p-4 flex flex-col items-center justify-center gap-2 text-center hover:opacity-80 transition-opacity`}>
-              {item.icon}
-              <span className="text-xs font-bold leading-tight">{item.label}</span>
-            </a>
-          ))}
+        {/* Alerts & Insights — what needs attention today, not just navigation */}
+        <div>
+          <h2 className="text-sm font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-3">
+            Needs Your Attention
+          </h2>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <AlertWidget
+              icon={<Clock size={13} />}
+              label="Overdue Receivables"
+              value={overdueInvoices.length > 0 ? fmtCurrency(overdueReceivablesTotal) : 'None'}
+              sublabel={overdueInvoices.length > 0 ? `${overdueInvoices.length} invoice${overdueInvoices.length > 1 ? 's' : ''} past due` : 'All invoices on track'}
+              href="/my-business/biz-outstanding"
+              tone={overdueInvoices.length > 0 ? 'danger' : 'ok'}
+            />
+            <AlertWidget
+              icon={<Receipt size={13} />}
+              label="Payables Due"
+              value={duePayables.length > 0 ? fmtCurrency(payablesDueTotal) : 'None'}
+              sublabel={duePayables.length > 0 ? `${duePayables.length} bill${duePayables.length > 1 ? 's' : ''} due within 7 days` : 'Nothing due this week'}
+              href="/my-business/biz-purchases"
+              tone={duePayables.length > 0 ? 'warn' : 'ok'}
+            />
+            <AlertWidget
+              icon={<Landmark size={13} />}
+              label="EMI Due This Month"
+              value={emisDueThisMonth.length > 0 ? fmtCurrency(emiDueTotal) : 'None'}
+              sublabel={emisDueThisMonth.length > 0 ? `${emisDueThisMonth.length} loan${emisDueThisMonth.length > 1 ? 's' : ''} pending payment` : 'All EMIs paid'}
+              href="/my-business/biz-loans"
+              tone={emisDueThisMonth.length > 0 ? 'warn' : 'ok'}
+            />
+            <AlertWidget
+              icon={kpis.monthNet >= 0 ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
+              label="Month Net"
+              value={fmtCurrency(kpis.monthNet)}
+              sublabel={kpis.monthNet >= 0 ? 'Profitable so far this month' : 'Spending more than earning this month'}
+              href="/my-business/biz-reports"
+              tone={kpis.monthNet >= 0 ? 'ok' : 'danger'}
+            />
+          </div>
         </div>
       </div>
     </div>

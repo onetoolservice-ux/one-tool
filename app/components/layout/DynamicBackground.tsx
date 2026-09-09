@@ -11,7 +11,7 @@ export default function DynamicBackground() {
   useEffect(() => {
     if (!pathname) return;
     
-    // Extract category from URL (e.g., /tools/finance/smart-budget -> finance)
+    // Extract category from URL (e.g., /my-finance/smart-budget -> finance)
     const parts = pathname.split("/");
     if (parts[1] === "tools" && parts[2]) {
       setCategory(parts[2]);

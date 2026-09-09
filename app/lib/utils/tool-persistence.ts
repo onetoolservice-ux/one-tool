@@ -12,7 +12,7 @@ export function saveToolData(toolId: string, data: Record<string, unknown>): voi
 
 export function loadToolData<T extends Record<string, unknown>>(toolId: string, defaults: T): T {
   try {
-    const raw = safeLocalStorage.getItem(`${TOOL_PREFIX}${toolId}`);
+    const raw = safeLocalStorage.getItem<string>(`${TOOL_PREFIX}${toolId}`);
     if (!raw) return defaults;
     return { ...defaults, ...JSON.parse(raw) };
   } catch {
@@ -22,7 +22,7 @@ export function loadToolData<T extends Record<string, unknown>>(toolId: string, 
 
 export function exportToolData(toolId: string): string | null {
   try {
-    return safeLocalStorage.getItem(`${TOOL_PREFIX}${toolId}`);
+    return safeLocalStorage.getItem<string>(`${TOOL_PREFIX}${toolId}`);
   } catch {
     return null;
   }

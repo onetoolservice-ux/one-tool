@@ -245,7 +245,7 @@ export function RecurringPayments() {
         {/* Cross-link banner */}
         <div className="flex items-center gap-2 px-3 py-2 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-700 rounded-lg text-xs text-violet-700 dark:text-violet-300">
           <span className="flex-1">Shows <strong>all</strong> repeat transactions regardless of amount consistency. For fixed-amount subscriptions (Netflix, SIPs, insurance) only →</span>
-          <Link href="/tools/personal-finance/pf-subscriptions" className="flex items-center gap-1 font-semibold whitespace-nowrap hover:underline">
+          <Link href="/my-finance/pf-subscriptions" className="flex items-center gap-1 font-semibold whitespace-nowrap hover:underline">
             Subscription Finder <ArrowRight size={11} />
           </Link>
         </div>

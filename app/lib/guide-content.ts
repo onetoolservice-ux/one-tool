@@ -11,14 +11,14 @@ export interface GuideData {
 }
 
 export const GUIDE_CONTENT: Record<string, GuideData> = {
-  "/tools/finance/smart-budget": {
+  "/my-finance/smart-budget": {
     title: "Budgeting 101",
     status: "Live",
     desc: "Use the 50/30/20 rule: 50% Needs, 30% Wants, 20% Savings. Track every expense to identify leaks.",
     steps: ["Calculate your total monthly income", "Categorize your fixed and variable expenses", "Set limits for discretionary spending"],
     tips: ["Use the 50/30/20 rule as a baseline", "Review your budget weekly, not just monthly"]
   },
-  "/tools/finance/smart-loan": {
+  "/my-finance/smart-loan": {
     title: "Amortization Strategy",
     status: "Live",
     desc: "Paying even one extra EMI per year reduces your tenure significantly. Interest is front-loaded in early years.",
@@ -32,7 +32,7 @@ export const GUIDE_CONTENT: Record<string, GuideData> = {
     steps: ["List all debts by interest rate and balance", "Choose Avalanche or Snowball method", "Automate minimum payments for all debts"],
     tips: ["Focus on high-interest debt first (Avalanche method)", "Consolidate debts if you can get a lower rate"]
   },
-  "/tools/finance/smart-net-worth": {
+  "/my-finance/smart-net-worth": {
     title: "Asset Allocation",
     status: "Live",
     desc: "Assets put money in your pocket (Stocks, Real Estate). Liabilities take money out (Loans, Credit Card debt).",

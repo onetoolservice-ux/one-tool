@@ -8,7 +8,63 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ==========================================
--- 1. TOOLS TABLE (Global Catalog)
+-- 1. USER PROFILES TABLE (Extended User Info)
+-- ==========================================
+-- Created before `tools` because the tools table's admin policies below
+-- reference user_profiles — Postgres needs it to already exist.
+CREATE TABLE IF NOT EXISTS user_profiles (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE NOT NULL,
+  email TEXT,
+  full_name TEXT,
+  avatar_url TEXT,
+  role TEXT DEFAULT 'user' CHECK (role IN ('user', 'admin')),
+  preferences JSONB DEFAULT '{}',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
+
+-- Users can read their own profile
+CREATE POLICY "Users can view own profile"
+  ON user_profiles FOR SELECT
+  USING (auth.uid() = user_id);
+
+-- Users can update their own profile
+-- (role immutability is enforced by the prevent_role_self_escalation trigger
+-- below — OLD/NEW row references aren't valid inside RLS policy expressions,
+-- only inside trigger functions)
+CREATE POLICY "Users can update own profile"
+  ON user_profiles FOR UPDATE
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- Users can insert their own profile
+CREATE POLICY "Users can insert own profile"
+  ON user_profiles FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+-- Prevent a user from escalating their own role via a self-update.
+-- (Admin-driven role changes should go through a service-role/server context,
+-- which bypasses RLS and this trigger's auth.uid() check entirely.)
+CREATE OR REPLACE FUNCTION public.prevent_role_self_escalation()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.role IS DISTINCT FROM OLD.role AND auth.uid() = OLD.user_id THEN
+    RAISE EXCEPTION 'You cannot change your own role';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS prevent_role_change_on_own_profile ON user_profiles;
+CREATE TRIGGER prevent_role_change_on_own_profile
+  BEFORE UPDATE ON user_profiles
+  FOR EACH ROW EXECUTE FUNCTION public.prevent_role_self_escalation();
+
+-- ==========================================
+-- 2. TOOLS TABLE (Global Catalog)
 -- ==========================================
 CREATE TABLE IF NOT EXISTS tools (
   id TEXT PRIMARY KEY,
@@ -64,43 +120,6 @@ CREATE POLICY "Admins can delete tools"
       AND user_profiles.role = 'admin'
     )
   );
-
--- ==========================================
--- 2. USER PROFILES TABLE (Extended User Info)
--- ==========================================
-CREATE TABLE IF NOT EXISTS user_profiles (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE NOT NULL,
-  email TEXT,
-  full_name TEXT,
-  avatar_url TEXT,
-  role TEXT DEFAULT 'user' CHECK (role IN ('user', 'admin')),
-  preferences JSONB DEFAULT '{}',
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
-
--- Users can read their own profile
-CREATE POLICY "Users can view own profile"
-  ON user_profiles FOR SELECT
-  USING (auth.uid() = user_id);
-
--- Users can update their own profile (but not role)
-CREATE POLICY "Users can update own profile"
-  ON user_profiles FOR UPDATE
-  USING (auth.uid() = user_id)
-  WITH CHECK (
-    auth.uid() = user_id AND
-    -- Prevent users from changing their own role
-    (OLD.role = NEW.role OR OLD.role IS NULL)
-  );
-
--- Users can insert their own profile
-CREATE POLICY "Users can insert own profile"
-  ON user_profiles FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
 
 -- ==========================================
 -- 3. USER FAVORITES TABLE
@@ -160,10 +179,12 @@ CREATE POLICY "Users can delete own recents"
 -- ==========================================
 -- 5. USER TOOL DATA TABLE (For tool-specific data like budget)
 -- ==========================================
+-- tool_id is NOT a foreign key into `tools` here: this table also stores
+-- data for internal store keys (e.g. 'biz-os-store') that have no catalog entry.
 CREATE TABLE IF NOT EXISTS user_tool_data (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
-  tool_id TEXT REFERENCES tools(id) ON DELETE CASCADE NOT NULL,
+  tool_id TEXT NOT NULL,
   data JSONB NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),

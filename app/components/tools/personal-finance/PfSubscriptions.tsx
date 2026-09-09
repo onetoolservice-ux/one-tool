@@ -156,7 +156,7 @@ export function SubscriptionFinder() {
         {/* Cross-link banner */}
         <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg text-xs text-amber-700 dark:text-amber-300">
           <span className="flex-1">Shows only recurring payments with <strong>consistent amounts</strong> (low variance). For all repeat transactions including variable ones →</span>
-          <Link href="/tools/personal-finance/pf-recurring-payments" className="flex items-center gap-1 font-semibold whitespace-nowrap hover:underline">
+          <Link href="/my-finance/pf-recurring-payments" className="flex items-center gap-1 font-semibold whitespace-nowrap hover:underline">
             Recurring Payments <ArrowRight size={11} />
           </Link>
         </div>

@@ -140,28 +140,28 @@ export const PFFinancialSnapshot = () => {
       score: data.savingsRate >= 30 ? 100 : data.savingsRate >= 20 ? 75 : data.savingsRate >= 10 ? 50 : 25,
       color: '#10b981', bgColor: 'bg-emerald-50 dark:bg-emerald-900/20', borderColor: 'border-emerald-200 dark:border-emerald-800',
       metric: `${data.savingsRate.toFixed(0)}%`, label2: 'Savings Rate',
-      href: '/tools/personal-finance/pf-financial-position', linkLabel: 'View Position',
+      href: '/my-finance/pf-financial-position', linkLabel: 'View Position',
     },
     {
       id: 'investments', label: 'Investments', icon: TrendingUp,
       score: data.totalInvested > 0 ? (data.portfolioGain >= 0 ? 80 : 40) : 20,
       color: '#3b82f6', bgColor: 'bg-blue-50 dark:bg-blue-900/20', borderColor: 'border-blue-200 dark:border-blue-800',
       metric: fmtL(data.currentPortfolioValue), label2: 'Portfolio Value',
-      href: '/tools/personal-finance/pf-investment-tracker', linkLabel: 'View Portfolio',
+      href: '/my-finance/pf-investment-tracker', linkLabel: 'View Portfolio',
     },
     {
       id: 'budget', label: 'Budget', icon: Wallet,
       score: data.budgetAdherence,
       color: '#f59e0b', bgColor: 'bg-amber-50 dark:bg-amber-900/20', borderColor: 'border-amber-200 dark:border-amber-800',
       metric: `${data.budgetAdherence.toFixed(0)}%`, label2: 'Budget Adherence',
-      href: '/tools/personal-finance/pf-budget-vs-actual', linkLabel: 'View Budget',
+      href: '/my-finance/pf-budget-vs-actual', linkLabel: 'View Budget',
     },
     {
       id: 'health', label: 'Health Score', icon: ShieldCheck,
       score: 0, // from health score tool
       color: '#8b5cf6', bgColor: 'bg-violet-50 dark:bg-violet-900/20', borderColor: 'border-violet-200 dark:border-violet-800',
       metric: '—', label2: 'Run Assessment',
-      href: '/tools/personal-finance/pf-health-score', linkLabel: 'Check Score',
+      href: '/my-finance/pf-health-score', linkLabel: 'Check Score',
     },
   ], [data]);
 
@@ -334,14 +334,14 @@ export const PFFinancialSnapshot = () => {
           <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">Quick Access</h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {[
-              { label: 'Statements', href: '/tools/personal-finance/pf-statement-manager' },
-              { label: 'Investments', href: '/tools/personal-finance/pf-investment-tracker' },
-              { label: 'Budget vs Actual', href: '/tools/personal-finance/pf-budget-vs-actual' },
-              { label: 'Health Score', href: '/tools/personal-finance/pf-health-score' },
-              { label: 'FIRE Calculator', href: '/tools/finance/fire-calc' },
-              { label: 'Tax Calculator', href: '/tools/gst-tax/income-tax-calc' },
-              { label: 'Business OS', href: '/tools/business-os/biz-dashboard' },
-              { label: 'Net Worth', href: '/tools/finance/smart-net-worth' },
+              { label: 'Statements', href: '/my-finance/pf-statement-manager' },
+              { label: 'Investments', href: '/my-finance/pf-investment-tracker' },
+              { label: 'Budget vs Actual', href: '/my-finance/pf-budget-vs-actual' },
+              { label: 'Health Score', href: '/my-finance/pf-health-score' },
+              { label: 'FIRE Calculator', href: '/my-finance/fire-calc' },
+              { label: 'Tax Calculator', href: '/my-finance/income-tax-calc' },
+              { label: 'Business OS', href: '/my-business/biz-dashboard' },
+              { label: 'Net Worth', href: '/my-finance/smart-net-worth' },
             ].map(link => (
               <a key={link.href} href={link.href}
                 className="text-xs text-center py-2 px-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-400 hover:text-blue-500 hover:border-blue-300 transition-all font-medium">

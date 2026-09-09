@@ -19,7 +19,7 @@ export interface Tool {
   description?: string;
   category: string;
   subcategory?: string;
-  icon_name?: string;
+  icon_name?: string | null;
   color?: string;
   href: string;
   popular: boolean;
@@ -35,7 +35,7 @@ export function getAllTools(): Tool[] {
   return ALL_TOOLS.map(tool => ({
     id: tool.id,
     name: tool.name,
-    description: tool.desc || tool.description,
+    description: tool.desc,
     category: tool.category,
     href: tool.href,
     icon_name: getIconNameFromComponent(tool.icon),
@@ -55,7 +55,7 @@ export function getToolById(id: string): Tool | null {
   return {
     id: tool.id,
     name: tool.name,
-    description: tool.desc || tool.description,
+    description: tool.desc,
     category: tool.category,
     href: tool.href,
     icon_name: getIconNameFromComponent(tool.icon),
@@ -74,7 +74,7 @@ export function getToolsByCategory(category: string): Tool[] {
     .map(tool => ({
       id: tool.id,
       name: tool.name,
-      description: tool.desc || tool.description,
+      description: tool.desc,
       category: tool.category,
       href: tool.href,
       icon_name: getIconNameFromComponent(tool.icon),
@@ -93,7 +93,7 @@ export function getPopularTools(): Tool[] {
     .map(tool => ({
       id: tool.id,
       name: tool.name,
-      description: tool.desc || tool.description,
+      description: tool.desc,
       category: tool.category,
       href: tool.href,
       icon_name: getIconNameFromComponent(tool.icon),
@@ -120,7 +120,7 @@ export function searchTools(query: string): Tool[] {
     .map(tool => ({
       id: tool.id,
       name: tool.name,
-      description: tool.desc || tool.description,
+      description: tool.desc,
       category: tool.category,
       href: tool.href,
       icon_name: getIconNameFromComponent(tool.icon),

@@ -105,7 +105,7 @@ export function AdvanceTaxCalc() {
         fullWidth
         title="Advance Tax Calculator"
         subtitle="Quarterly advance tax instalments — FY 2025-26"
-        kpis={kpis}
+        kpis={kpis as unknown as import('@/app/components/tools/analytics/shared/SAPHeader').KPICard[]}
       />
       <TaxDisclaimer />
       <div className="p-4 space-y-4">

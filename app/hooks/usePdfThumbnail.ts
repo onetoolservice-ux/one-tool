@@ -30,7 +30,7 @@ export const usePdfThumbnail = (file: File) => {
         canvas.width = viewport.width;
 
         if (context) {
-          await page.render({ canvasContext: context, viewport }).promise;
+          await page.render({ canvasContext: context, viewport, canvas }).promise;
           if (isActive) setThumbnail(canvas.toDataURL());
         }
       } catch (err) {

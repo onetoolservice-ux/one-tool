@@ -135,14 +135,14 @@ function ManualEntryForm({ onDone }: { onDone: () => void }) {
 // ── Quick tool links (shown after data loaded) ────────────────────────────────
 
 const QUICK_TOOLS = [
-  { label: 'Income',        href: '/tools/personal-finance/pf-cash-flow',         emoji: '💰' },
-  { label: 'Expenses',      href: '/tools/personal-finance/pf-expenses',           emoji: '📊' },
-  { label: 'Behavior',      href: '/tools/personal-finance/pf-behavior',           emoji: '🧠' },
-  { label: 'Health Score',  href: '/tools/personal-finance/pf-health-score',       emoji: '❤️' },
-  { label: 'Heatmap',       href: '/tools/personal-finance/pf-heatmap',            emoji: '🗓️' },
-  { label: 'Top Merchants', href: '/tools/personal-finance/pf-top-merchants',      emoji: '🏪' },
-  { label: 'Savings Trend', href: '/tools/personal-finance/pf-savings-trend',      emoji: '📈' },
-  { label: 'Spending DNA',  href: '/tools/personal-finance/pf-spending-dna',       emoji: '🧬' },
+  { label: 'Income',        href: '/my-finance/pf-cash-flow',         emoji: '💰' },
+  { label: 'Expenses',      href: '/my-finance/pf-expenses',           emoji: '📊' },
+  { label: 'Behavior',      href: '/my-finance/pf-behavior',           emoji: '🧠' },
+  { label: 'Health Score',  href: '/my-finance/pf-health-score',       emoji: '❤️' },
+  { label: 'Heatmap',       href: '/my-finance/pf-heatmap',            emoji: '🗓️' },
+  { label: 'Top Merchants', href: '/my-finance/pf-top-merchants',      emoji: '🏪' },
+  { label: 'Savings Trend', href: '/my-finance/pf-savings-trend',      emoji: '📈' },
+  { label: 'Spending DNA',  href: '/my-finance/pf-spending-dna',       emoji: '🧬' },
 ];
 
 // ── Main ──────────────────────────────────────────────────────────────────────
@@ -213,7 +213,7 @@ export function PfBankConnect() {
                 </div>
                 <div className="flex items-center gap-2 mt-1">
                   <Link
-                    href="/tools/personal-finance/pf-statement-manager"
+                    href="/my-finance/pf-statement-manager"
                     className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-[12px] font-semibold transition-colors border border-white/10"
                   >
                     Analyze <ArrowRight size={13} />
@@ -311,7 +311,7 @@ export function PfBankConnect() {
             </div>
 
             <Link
-              href="/tools/personal-finance/pf-statement-manager"
+              href="/my-finance/pf-statement-manager"
               className="flex items-center justify-center gap-2 w-full h-11 rounded-xl bg-[var(--ot-accent,#6366f1)] hover:opacity-90 text-white text-[14px] font-bold transition-opacity shadow-sm"
             >
               {status ? 'Import More' : 'Upload Statement'} <ArrowRight size={15} />

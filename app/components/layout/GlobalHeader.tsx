@@ -4,12 +4,14 @@ import React, { useState, useRef, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
-  Search, X, Home, LayoutGrid, ArrowLeft,
+  Search, X, ArrowLeft, User, LogOut, LogIn,
 } from 'lucide-react';
 import { fuzzySearch } from '@/app/lib/search-utils';
 import { trackSearch } from '@/app/lib/telemetry';
 import { ALL_TOOLS, type ToolHelpConfig } from '@/app/lib/tools-data';
+import { categoryToSpaceHref } from '@/app/lib/space-config';
 import { ToolHelpPanel } from '@/app/components/tools/shared/ToolHelpPanel';
+import { useAuth } from '@/app/contexts/auth-context';
 import {
   loadThemeSettings, applyAllTheme,
   type ThemeSettings,
@@ -26,37 +28,15 @@ const SEARCH_TOOLS = ALL_TOOLS.map(tool => ({
   category: tool.category.toLowerCase(),
 }));
 
+// Resolves a tool id to its real workspace route (/my-finance/{id} or /my-business/{id})
+function toolHref(toolId: string): string {
+  const tool = ALL_TOOLS.find(t => t.id === toolId);
+  if (!tool) return '/';
+  return `${categoryToSpaceHref(tool.category)}/${tool.id}`;
+}
+
 // ── Page help configs ─────────────────────────────────────────────────────────
-const PAGE_HELP_CONFIGS: Record<string, ToolHelpConfig> = {
-  '/home': {
-    title: 'All Tools',
-    description: 'Browse 150+ free tools across Personal Finance, Business OS, Developer, Health, Documents, and more — all running locally in your browser with no account required.',
-    steps: [
-      { title: 'Browse by category', description: 'Use the category strip to jump to a specific group.' },
-      { title: 'Search for a tool', description: 'Use the search bar (⌘K) to instantly find any tool by name or keyword.' },
-      { title: 'Pin your favourites', description: 'Click the pin icon on any tool card to pin it. Pinned tools appear on My Home for quick access.' },
-      { title: 'Open a tool', description: 'Click any tool card to open it. All data is saved locally — your work persists between sessions.' },
-    ],
-    tips: [
-      { text: 'Pinned tools are stored in your browser — they stay even after you close the tab.' },
-      { text: 'Personal Finance tools share one data store — upload once and every analytics tool updates automatically.' },
-      { text: 'Business OS tools share one store too — add a party once and it appears in Daybook, Invoices, and Reports.' },
-    ],
-  },
-  '/my-home': {
-    title: 'My Home',
-    description: 'Your personal dashboard — pin tools for quick access and create custom Spaces to group tools by context.',
-    steps: [
-      { title: 'Pin tools from the catalog', description: 'Go to All Tools (/home) and click the pin icon on any tool card to add it here.' },
-      { title: 'Create custom Spaces', description: 'Click "+ New Space" to create a named workspace and pin tools to it.' },
-      { title: 'Switch between Spaces', description: 'Click any Space tab at the top to switch contexts.' },
-    ],
-    tips: [
-      { text: 'Pins are saved in localStorage — they persist across sessions but are device-specific.' },
-      { text: 'Use My Home as your daily starting point if you regularly use the same set of tools.' },
-    ],
-  },
-};
+const PAGE_HELP_CONFIGS: Record<string, ToolHelpConfig> = {};
 
 // ── Mobile search overlay ─────────────────────────────────────────────────────
 function MobileSearchOverlay({ onClose }: { onClose: () => void }) {
@@ -73,7 +53,7 @@ function MobileSearchOverlay({ onClose }: { onClose: () => void }) {
   }, [query]);
 
   const handleSelect = (tool: typeof SEARCH_TOOLS[0]) => {
-    router.push(`/tools/${tool.category}/${tool.id}`);
+    router.push(toolHref(tool.id));
     onClose();
   };
 
@@ -81,7 +61,7 @@ function MobileSearchOverlay({ onClose }: { onClose: () => void }) {
     if (e.key === 'Enter') {
       const q = query.trim().replace(/[<>"']/g, '');
       trackSearch(q, suggestions.length);
-      router.push(`/home?search=${encodeURIComponent(q)}`);
+      if (suggestions[0]) router.push(toolHref(suggestions[0].id));
       onClose();
     }
     if (e.key === 'Escape') onClose();
@@ -128,6 +108,66 @@ function MobileSearchOverlay({ onClose }: { onClose: () => void }) {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// ── Account menu (sign in / sign out) ─────────────────────────────────────────
+function AccountMenu() {
+  const { user, loading, signOut } = useAuth();
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  if (loading) return null;
+
+  if (!user) {
+    return (
+      <Link
+        href="/auth/login"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-semibold transition-colors duration-150 whitespace-nowrap text-white/70 hover:text-white hover:bg-white/10"
+        title="Sign in"
+      >
+        <LogIn size={14} />
+        <span className="hidden sm:inline">Sign In</span>
+      </Link>
+    );
+  }
+
+  const initial = (user.email ?? '?').charAt(0).toUpperCase();
+
+  return (
+    <div className="relative" ref={menuRef}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[12px] font-semibold transition-colors duration-150 text-white/70 hover:text-white hover:bg-white/10"
+        title={user.email ?? 'Account'}
+      >
+        <span className="w-6 h-6 rounded-full bg-white/15 border border-white/20 flex items-center justify-center text-[11px] font-black text-white">
+          {initial}
+        </span>
+      </button>
+      {open && (
+        <div className="absolute right-2 top-full mt-2 w-56 bg-white dark:bg-[#1A1D2E] border border-slate-200 dark:border-white/10 rounded-xl shadow-xl shadow-black/20 overflow-hidden z-50">
+          <div className="px-3 py-2.5 border-b border-slate-100 dark:border-white/[0.05]">
+            <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-0.5">Signed in as</p>
+            <p className="text-[12px] font-medium text-slate-700 dark:text-slate-200 truncate">{user.email}</p>
+          </div>
+          <button
+            onClick={() => { setOpen(false); signOut(); }}
+            className="w-full flex items-center gap-2 px-3 py-2.5 text-[13px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+          >
+            <LogOut size={14} /> Sign Out
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -191,8 +231,6 @@ function HeaderContent() {
   const currentTool   = toolId ? ALL_TOOLS.find(t => t.id === toolId) : undefined;
   const toolName      = currentTool?.name ?? (toolId ? toolId.replace(/-/g, ' ') : undefined);
   const isOnToolPage  = pathname?.startsWith('/tools/');
-  const isMyHome      = pathname === '/' || pathname === '/my-home';
-  const isCatalog     = pathname === '/home';
 
   const toolHelpConfig: ToolHelpConfig | undefined =
     PAGE_HELP_CONFIGS[pathname] ??
@@ -210,27 +248,17 @@ function HeaderContent() {
     if (e.key === 'Enter') {
       const q = query.trim().replace(/[<>"']/g, '');
       trackSearch(q, suggestions.length);
-      router.push(`/home?search=${encodeURIComponent(q)}`);
-      setIsFocused(false);
+      if (suggestions[0]) router.push(toolHref(suggestions[0].id));
+      setQuery(''); setIsFocused(false);
     }
   };
 
   const clearSearch = () => { setQuery(''); setSuggestions([]); searchInputRef.current?.focus(); };
 
   const handleSuggestionClick = (tool: typeof SEARCH_TOOLS[0]) => {
-    router.push(`/tools/${tool.category}/${tool.id}`);
+    router.push(toolHref(tool.id));
     setQuery(''); setIsFocused(false);
   };
-
-  // ── Nav item classes ───────────────────────────────────────────────────────
-  const navItem = (active: boolean) => `
-    flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-semibold
-    transition-colors duration-150 whitespace-nowrap
-    ${active
-      ? 'bg-white/15 text-white'
-      : 'text-white/70 hover:text-white hover:bg-white/10'
-    }
-  `;
 
   return (
     <>
@@ -285,7 +313,8 @@ function HeaderContent() {
           )}
         </div>
 
-        {/* ── CENTER: Search bar ────────────────────────────────────────── */}
+        {/* ── CENTER: Search bar (hidden on the workspace picker) ─────────── */}
+        {pathname !== '/' && (
         <div className="absolute left-1/2 -translate-x-1/2 w-full max-w-md px-2 hidden md:block" ref={searchRef}>
           <div className="relative">
             <Search
@@ -345,30 +374,21 @@ function HeaderContent() {
             </div>
           )}
         </div>
+        )}
 
         {/* ── RIGHT: Nav links + mobile search ──────────────────────────── */}
         <div className="flex items-center gap-1 ml-auto z-10">
 
           {/* Mobile search trigger */}
-          <button
-            onClick={() => setShowMobileSearch(true)}
-            className="md:hidden p-2 rounded-lg transition-colors text-white/70 hover:text-white hover:bg-white/10"
-            aria-label="Search"
-          >
-            <Search size={16} />
-          </button>
-
-          {/* My Home */}
-          <Link href="/" className={navItem(isMyHome)} title="My Home">
-            <Home size={14} />
-            <span className="hidden sm:inline">My Home</span>
-          </Link>
-
-          {/* All Tools */}
-          <Link href="/home" className={navItem(isCatalog)} title="All Tools">
-            <LayoutGrid size={14} />
-            <span className="hidden sm:inline">All Tools</span>
-          </Link>
+          {pathname !== '/' && (
+            <button
+              onClick={() => setShowMobileSearch(true)}
+              className="md:hidden p-2 rounded-lg transition-colors text-white/70 hover:text-white hover:bg-white/10"
+              aria-label="Search"
+            >
+              <Search size={16} />
+            </button>
+          )}
 
           {/* Tool help */}
           {toolHelpConfig && (
@@ -376,6 +396,9 @@ function HeaderContent() {
               <ToolHelpPanel config={toolHelpConfig} />
             </div>
           )}
+
+          {/* Account */}
+          <AccountMenu />
 
         </div>
       </header>

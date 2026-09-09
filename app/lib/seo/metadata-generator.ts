@@ -912,11 +912,9 @@ const TOOL_KEYWORDS: Record<string, string[]> = {
 
 // Category-level fallback keywords (used when no tool-specific entry exists)
 const CATEGORY_KEYWORDS: Record<string, string[]> = {
-  'Personal Finance': ['personal finance India', 'bank statement analysis', 'financial tracker India', 'money management India free'],
+  'My Finance': ['personal finance India', 'bank statement analysis', 'financial tracker India', 'money management India free', 'financial calculator India', 'savings calculator India', 'GST calculator India', 'income tax India', 'tax compliance tool India', 'ITR filing India'],
   Analytics:    ['data analytics tool', 'bank statement analysis', 'transaction analytics', 'financial insights'],
-  Finance:      ['personal finance India', 'financial calculator India', 'money management tool', 'savings calculator India'],
-  'GST & Tax':  ['GST calculator India', 'income tax India', 'tax compliance tool India', 'ITR filing India'],
-  'Business OS':['small business accounting India', 'GST billing India', 'Khata app India', 'business management India free'],
+  'My Business':['small business accounting India', 'GST billing India', 'Khata app India', 'business management India free'],
   Business:     ['business document generator India', 'GST compliant India', 'professional document India', 'small business tool free'],
   Documents:    ['PDF tool online free', 'document converter browser', 'file converter online', 'convert files browser'],
   Developer:    ['developer tool online free', 'coding utility browser', 'web developer tool free', 'programming tool browser'],
