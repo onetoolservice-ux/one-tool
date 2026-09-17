@@ -87,7 +87,7 @@ function ManualEntryForm({ onDone }: { onDone: () => void }) {
   };
 
   return (
-    <div className="mt-4 p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.07] space-y-3">
+    <div className="mt-4 p-4 rounded-lg bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.07] space-y-3">
       <div className="flex items-center justify-between">
         <p className="text-[12px] font-semibold text-slate-700 dark:text-slate-200">Add a transaction</p>
         <button onClick={onDone} className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"><X size={13} /></button>
@@ -97,8 +97,8 @@ function ManualEntryForm({ onDone }: { onDone: () => void }) {
       <div className="grid grid-cols-2 gap-1.5 text-[12px] font-semibold">
         {(['debit', 'credit'] as const).map(t => (
           <button key={t} onClick={() => setForm(f => ({ ...f, type: t }))}
-            className={`py-2 rounded-xl transition-all ${form.type === t
-              ? t === 'debit' ? 'bg-rose-500 text-white shadow-sm' : 'bg-emerald-500 text-white shadow-sm'
+            className={`py-2 rounded-lg transition-all ${form.type === t
+              ? t === 'debit' ? 'bg-negative text-white' : 'bg-positive text-white'
               : 'bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.06] text-slate-500 dark:text-slate-400'}`}>
             {t === 'debit' ? '↑ Expense' : '↓ Income'}
           </button>
@@ -116,16 +116,16 @@ function ManualEntryForm({ onDone }: { onDone: () => void }) {
           <input type={f.type} placeholder={f.placeholder}
             value={(form as any)[f.key]}
             onChange={e => setForm(prev => ({ ...prev, [f.key]: e.target.value }))}
-            className="w-full h-9 px-3 text-[13px] rounded-xl bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.06] focus:outline-none focus:border-[var(--ot-accent,#6366f1)]/60 text-slate-800 dark:text-white placeholder:text-slate-400 transition-colors"
+            className="w-full h-9 px-3 text-[13px] rounded-lg bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.06] focus:outline-none focus:border-fin-accent/60 text-slate-800 dark:text-white placeholder:text-slate-400 transition-colors"
           />
         </div>
       ))}
 
       <button onClick={handleSave}
         disabled={!form.description.trim() || !form.amount}
-        className={`w-full h-10 rounded-xl text-[13px] font-bold transition-all ${saved
-          ? 'bg-emerald-500 text-white'
-          : 'bg-[var(--ot-accent,#6366f1)] hover:opacity-90 disabled:opacity-40 text-white shadow-sm'}`}>
+        className={`w-full h-10 rounded-lg text-[13px] font-bold transition-all ${saved
+          ? 'bg-positive text-white'
+          : 'bg-fin-accent hover:opacity-90 disabled:opacity-40 text-white'}`}>
         {saved ? '✓ Saved' : 'Save Transaction'}
       </button>
     </div>
@@ -198,7 +198,7 @@ export function PfBankConnect() {
 
         {/* ── Loaded: Data summary ────────────────────────────────────────────── */}
         {status && (
-          <div className="mb-6 rounded-2xl overflow-hidden border border-slate-200 dark:border-white/[0.06] shadow-sm">
+          <div className="mb-6 rounded-lg overflow-hidden border border-slate-200 dark:border-white/[0.06] shadow-sm">
             {/* Top: stats */}
             <div className="bg-[#1e1b4b] dark:bg-[#13102e] px-5 py-5">
               <div className="flex items-start justify-between gap-4">
@@ -214,13 +214,13 @@ export function PfBankConnect() {
                 <div className="flex items-center gap-2 mt-1">
                   <Link
                     href="/my-finance/pf-statement-manager"
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-[12px] font-semibold transition-colors border border-white/10"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[12px] font-semibold transition-colors border border-white/10"
                   >
                     Analyze <ArrowRight size={13} />
                   </Link>
                   <button
                     onClick={() => setConfirmClear(true)}
-                    className="p-2 rounded-xl bg-white/5 hover:bg-rose-500/20 text-white/40 hover:text-rose-300 border border-white/10 transition-colors"
+                    className="p-2 rounded-lg bg-white/5 hover:bg-negative/20 text-white/40 hover:text-negative border border-white/10 transition-colors"
                     title="Clear data"
                   >
                     <Trash2 size={13} />
@@ -234,7 +234,7 @@ export function PfBankConnect() {
                   <span className="flex items-center gap-1 text-emerald-300/80 font-medium">
                     <TrendingUp size={10} /> Income {fmtCrore(status.credits)}
                   </span>
-                  <span className="flex items-center gap-1 text-rose-300/80 font-medium">
+                  <span className="flex items-center gap-1 text-negative font-medium">
                     Expense {fmtCrore(status.debits)} <TrendingDown size={10} />
                   </span>
                 </div>
@@ -253,10 +253,10 @@ export function PfBankConnect() {
               <div className="grid grid-cols-4 gap-2">
                 {QUICK_TOOLS.map(t => (
                   <Link key={t.href} href={t.href}
-                    className="flex flex-col items-center gap-1.5 py-2.5 px-1 rounded-xl bg-slate-50 dark:bg-white/[0.04] hover:bg-[var(--ot-accent,#6366f1)]/5 dark:hover:bg-[var(--ot-accent,#6366f1)]/10 border border-slate-200 dark:border-white/[0.06] hover:border-[var(--ot-accent,#6366f1)]/30 transition-all group"
+                    className="flex flex-col items-center gap-1.5 py-2.5 px-1 rounded-lg bg-slate-50 dark:bg-white/[0.04] hover:bg-fin-accent/5 dark:hover:bg-fin-accent/10 border border-slate-200 dark:border-white/[0.06] hover:border-fin-accent/30 transition-all group"
                   >
                     <span className="text-[16px] leading-none">{t.emoji}</span>
-                    <span className="text-[10px] font-medium text-slate-600 dark:text-slate-400 group-hover:text-[var(--ot-accent,#6366f1)] text-center leading-tight">{t.label}</span>
+                    <span className="text-[10px] font-medium text-slate-600 dark:text-slate-400 group-hover:text-fin-accent text-center leading-tight">{t.label}</span>
                   </Link>
                 ))}
               </div>
@@ -266,31 +266,31 @@ export function PfBankConnect() {
 
         {/* ── Clear confirm ───────────────────────────────────────────────────── */}
         {confirmClear && (
-          <div className="mb-4 p-4 rounded-2xl border border-rose-200 dark:border-rose-500/20 bg-rose-50 dark:bg-rose-500/[0.05] flex items-center justify-between gap-3">
+          <div className="mb-4 p-4 rounded-lg border border-negative/30 bg-negative-tint flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <AlertCircle size={14} className="text-rose-500 flex-shrink-0" />
-              <p className="text-[12px] text-rose-700 dark:text-rose-300 font-medium">Delete all transactions? Cannot be undone.</p>
+              <AlertCircle size={14} className="text-negative flex-shrink-0" />
+              <p className="text-[12px] text-negative font-medium">Delete all transactions? Cannot be undone.</p>
             </div>
             <div className="flex gap-1.5 flex-shrink-0">
               <button onClick={() => setConfirmClear(false)} className="px-2.5 py-1 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition-colors">Cancel</button>
-              <button onClick={handleClear} className="px-2.5 py-1 text-[11px] font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition-colors">Delete</button>
+              <button onClick={handleClear} className="px-2.5 py-1 text-[11px] font-bold bg-negative hover:opacity-90 text-white rounded-lg transition-colors">Delete</button>
             </div>
           </div>
         )}
 
         {/* ── PRIMARY: CSV Upload ──────────────────────────────────────────────── */}
-        <div className="relative rounded-2xl overflow-hidden border-2 border-[var(--ot-accent,#6366f1)] bg-white dark:bg-[#151827] shadow-lg shadow-[var(--ot-accent,#6366f1)]/10 mb-3">
+        <div className="relative rounded-lg overflow-hidden border-2 border-fin-accent bg-white dark:bg-[#151827] mb-3">
           {/* Recommended pill */}
           <div className="absolute top-4 right-4">
-            <span className="px-2 py-0.5 rounded-full bg-[var(--ot-accent,#6366f1)] text-white text-[10px] font-bold tracking-wide">
+            <span className="px-2 py-0.5 rounded-full bg-fin-accent text-white text-[10px] font-bold tracking-wide">
               RECOMMENDED
             </span>
           </div>
 
           <div className="p-5">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-11 h-11 rounded-2xl bg-[var(--ot-accent,#6366f1)]/10 flex items-center justify-center flex-shrink-0">
-                <FileSpreadsheet size={20} className="text-[var(--ot-accent,#6366f1)]" />
+              <div className="w-11 h-11 rounded-lg bg-fin-accent/10 flex items-center justify-center flex-shrink-0">
+                <FileSpreadsheet size={20} className="text-fin-accent" />
               </div>
               <div>
                 <h2 className="text-[15px] font-bold text-slate-900 dark:text-white">Upload Bank Statement</h2>
@@ -312,7 +312,7 @@ export function PfBankConnect() {
 
             <Link
               href="/my-finance/pf-statement-manager"
-              className="flex items-center justify-center gap-2 w-full h-11 rounded-xl bg-[var(--ot-accent,#6366f1)] hover:opacity-90 text-white text-[14px] font-bold transition-opacity shadow-sm"
+              className="flex items-center justify-center gap-2 w-full h-11 rounded-lg bg-fin-accent hover:opacity-90 text-white text-[14px] font-bold transition-opacity"
             >
               {status ? 'Import More' : 'Upload Statement'} <ArrowRight size={15} />
             </Link>
@@ -327,12 +327,12 @@ export function PfBankConnect() {
         <div className="grid grid-cols-2 gap-3 mb-3">
 
           {/* Account Aggregator */}
-          <div className="rounded-2xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#151827] p-4 opacity-70">
+          <div className="rounded-lg border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#151827] p-4 opacity-70">
             <div className="flex items-center justify-between mb-3">
-              <div className="w-9 h-9 rounded-xl bg-violet-500/10 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-lg bg-violet-500/10 flex items-center justify-center">
                 <Link2 size={16} className="text-violet-600 dark:text-violet-400" />
               </div>
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400">
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-warning-tint text-warning">
                 SOON
               </span>
             </div>
@@ -343,14 +343,14 @@ export function PfBankConnect() {
           </div>
 
           {/* SMS Sync */}
-          <div className="rounded-2xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#151827] p-4 opacity-70">
+          <div className="rounded-lg border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#151827] p-4 opacity-70">
             <div className="flex items-center justify-between mb-3">
-              <div className="w-9 h-9 rounded-xl bg-green-500/10 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-lg bg-green-500/10 flex items-center justify-center">
                 <MessageSquare size={16} className="text-green-600 dark:text-green-400" />
               </div>
               <div className="flex items-center gap-1">
                 <Smartphone size={9} className="text-slate-400" />
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400">
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-warning-tint text-warning">
                   SOON
                 </span>
               </div>
@@ -363,13 +363,13 @@ export function PfBankConnect() {
         </div>
 
         {/* ── Manual entry ────────────────────────────────────────────────────── */}
-        <div className="rounded-2xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#151827]">
+        <div className="rounded-lg border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#151827]">
           <button
             onClick={() => setShowManual(v => !v)}
             className="w-full flex items-center justify-between px-4 py-3.5 text-left"
           >
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-white/[0.05] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/[0.05] flex items-center justify-center">
                 <PenLine size={14} className="text-slate-500 dark:text-slate-400" />
               </div>
               <div>

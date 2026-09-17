@@ -76,7 +76,7 @@ function GoalForm({
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border-2 border-blue-200 dark:border-blue-800 p-5 space-y-4">
+    <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-5 space-y-4">
       <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
         {initial?.name ? 'Edit Goal' : 'New Savings Goal'}
       </p>
@@ -86,12 +86,12 @@ function GoalForm({
         <div className="relative">
           <button
             onClick={() => setShowEmojiPicker(x => !x)}
-            className="w-12 h-12 text-2xl rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-400 transition-colors flex items-center justify-center bg-slate-50 dark:bg-slate-800"
+            className="w-12 h-12 text-2xl rounded-lg border border-slate-200 dark:border-slate-700 hover:border-fin-accent transition-colors flex items-center justify-center bg-slate-50 dark:bg-slate-800"
           >
             {emoji}
           </button>
           {showEmojiPicker && (
-            <div className="absolute top-14 left-0 z-10 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 grid grid-cols-5 gap-2 shadow-xl">
+            <div className="absolute top-14 left-0 z-10 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-3 grid grid-cols-5 gap-2 shadow-xl">
               {GOAL_EMOJIS.map(e => (
                 <button key={e} onClick={() => { setEmoji(e); setShowEmojiPicker(false); }}
                   className="w-8 h-8 text-lg rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center">
@@ -155,13 +155,13 @@ function GoalForm({
 
       {/* Live ETA preview */}
       {preview && (
-        <div className="flex items-center gap-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl px-4 py-3">
-          <Calendar className="w-4 h-4 text-blue-500 shrink-0" />
+        <div className="flex items-center gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3">
+          <Calendar className="w-4 h-4 text-fin-accent shrink-0" />
           <div>
-            <p className="text-xs font-bold text-blue-800 dark:text-blue-200">
+            <p className="text-xs font-bold text-slate-700 dark:text-slate-200">
               At {fmt(monthlyContribution)}/month → Goal reached by {preview.date}
             </p>
-            <p className="text-[10px] text-blue-600 dark:text-blue-400">
+            <p className="text-[10px] text-slate-500 dark:text-slate-400">
               {preview.months} months · {fmt(Math.max(0, targetAmount - currentSaved))} remaining
             </p>
           </div>
@@ -170,11 +170,11 @@ function GoalForm({
 
       <div className="flex gap-2">
         <button onClick={handleSave}
-          className="px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors">
+          className="px-5 py-2 bg-fin-accent text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-colors">
           <Check className="w-4 h-4 inline -mt-0.5 mr-1" />Save Goal
         </button>
         <button onClick={onCancel}
-          className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-sm font-semibold">
+          className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-semibold">
           Cancel
         </button>
       </div>
@@ -192,29 +192,29 @@ function WhatIfSimulator({ goal }: { goal: SavingsGoal }) {
   const remaining = Math.max(0, goal.targetAmount - goal.currentSaved);
 
   return (
-    <div className="mt-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-3">
+    <div className="mt-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 space-y-3">
       <div className="flex items-center gap-2">
-        <Zap className="w-4 h-4 text-amber-500" />
+        <Zap className="w-4 h-4 text-slate-500" />
         <span className="text-xs font-bold text-slate-700 dark:text-slate-300">What If Simulator</span>
       </div>
       <div>
         <div className="flex items-center justify-between mb-1">
           <label className={labelCls}>Monthly Contribution</label>
-          <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{fmt(contribution)}</span>
+          <span className="text-sm font-bold text-neutral-value">{fmt(contribution)}</span>
         </div>
         <input
           type="range" min={100} max={max} step={500} value={contribution}
           onChange={e => setContribution(parseInt(e.target.value))}
-          className="w-full h-2 accent-blue-600 cursor-pointer"
+          className="w-full h-2 accent-fin-accent cursor-pointer"
         />
-        <div className="flex justify-between text-[9px] text-slate-400 mt-0.5">
+        <div className="flex justify-between text-[9px] text-slate-500 mt-0.5">
           <span>{fmt(100)}</span><span>{fmt(max)}</span>
         </div>
       </div>
-      <div className={`flex items-center gap-3 rounded-lg px-3 py-2 ${eta.canAchieve ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-red-100 dark:bg-red-900/30'}`}>
-        <Calendar className={`w-4 h-4 shrink-0 ${eta.canAchieve ? 'text-emerald-600' : 'text-red-500'}`} />
+      <div className={`flex items-center gap-3 rounded-lg px-3 py-2 ${eta.canAchieve ? 'bg-positive-tint' : 'bg-negative-tint'}`}>
+        <Calendar className={`w-4 h-4 shrink-0 ${eta.canAchieve ? 'text-positive' : 'text-negative'}`} />
         <div>
-          <p className={`text-xs font-bold ${eta.canAchieve ? 'text-emerald-800 dark:text-emerald-200' : 'text-red-800 dark:text-red-200'}`}>
+          <p className={`text-xs font-bold ${eta.canAchieve ? 'text-positive' : 'text-negative'}`}>
             {eta.date}
           </p>
           <p className="text-[10px] text-slate-500 dark:text-slate-400">
@@ -222,16 +222,16 @@ function WhatIfSimulator({ goal }: { goal: SavingsGoal }) {
           </p>
         </div>
         {!eta.canAchieve && goal.targetDate && (
-          <span className="ml-auto text-[10px] text-red-600 dark:text-red-400 font-semibold">Misses deadline</span>
+          <span className="ml-auto text-[10px] text-negative font-semibold">Misses deadline</span>
         )}
         {eta.canAchieve && goal.targetDate && (
-          <span className="ml-auto text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">On track</span>
+          <span className="ml-auto text-[10px] text-positive font-semibold">On track</span>
         )}
       </div>
       {contribution !== goal.monthlyContribution && (
         <button
           onClick={() => updateGoal(goal.id, { monthlyContribution: contribution })}
-          className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold"
+          className="text-xs text-fin-accent hover:underline font-semibold"
         >
           Apply {fmt(contribution)}/month as this goal's contribution →
         </button>
@@ -256,8 +256,8 @@ function GoalCard({ goal, onEdit }: { goal: SavingsGoal; onEdit: () => void }) {
   const isComplete = remaining === 0;
 
   return (
-    <div className={`relative rounded-2xl overflow-hidden border transition-all ${
-      isComplete ? 'border-emerald-300 dark:border-emerald-700' : 'border-slate-200 dark:border-slate-700'
+    <div className={`relative rounded-lg overflow-hidden border transition-all ${
+      isComplete ? 'border-positive/40' : 'border-slate-200 dark:border-slate-700'
     } bg-white dark:bg-slate-900`}>
       {/* Color header */}
       <div className={`bg-gradient-to-r ${goal.color} px-5 py-4 text-white`}>
@@ -291,25 +291,25 @@ function GoalCard({ goal, onEdit }: { goal: SavingsGoal; onEdit: () => void }) {
       {/* Body */}
       <div className="px-5 py-4 space-y-3">
         {isComplete ? (
-          <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+          <div className="flex items-center gap-2 text-positive">
             <Check className="w-5 h-5" />
             <p className="text-sm font-bold">Goal Achieved!</p>
           </div>
         ) : (
           <div className="grid grid-cols-3 gap-3 text-center">
             <div>
-              <p className="text-sm font-bold tabular-nums text-slate-800 dark:text-slate-100">{fmt(remaining)}</p>
-              <p className="text-[10px] text-slate-400 uppercase tracking-wide">Remaining</p>
+              <p className="text-sm font-bold tabular-nums text-neutral-value">{fmt(remaining)}</p>
+              <p className="text-[10px] text-slate-500 uppercase tracking-wide">Remaining</p>
             </div>
             <div>
-              <p className="text-sm font-bold tabular-nums text-blue-600 dark:text-blue-400">{fmt(goal.monthlyContribution)}</p>
-              <p className="text-[10px] text-slate-400 uppercase tracking-wide">Monthly</p>
+              <p className="text-sm font-bold tabular-nums text-neutral-value">{fmt(goal.monthlyContribution)}</p>
+              <p className="text-[10px] text-slate-500 uppercase tracking-wide">Monthly</p>
             </div>
             <div>
-              <p className={`text-sm font-bold tabular-nums ${eta.canAchieve ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+              <p className={`text-sm font-bold tabular-nums ${eta.canAchieve ? 'text-positive' : 'text-negative'}`}>
                 {eta.date}
               </p>
-              <p className="text-[10px] text-slate-400 uppercase tracking-wide">ETA</p>
+              <p className="text-[10px] text-slate-500 uppercase tracking-wide">ETA</p>
             </div>
           </div>
         )}
@@ -317,7 +317,7 @@ function GoalCard({ goal, onEdit }: { goal: SavingsGoal; onEdit: () => void }) {
         {/* Target date */}
         {goal.targetDate && !isComplete && (
           <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs ${
-            eta.canAchieve ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300' : 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400'
+            eta.canAchieve ? 'bg-positive-tint text-positive' : 'bg-negative-tint text-negative'
           }`}>
             <Calendar className="w-3.5 h-3.5 shrink-0" />
             <span>
@@ -332,7 +332,7 @@ function GoalCard({ goal, onEdit }: { goal: SavingsGoal; onEdit: () => void }) {
         {!isComplete && (
           <button
             onClick={() => setShowSim(x => !x)}
-            className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold"
+            className="flex items-center gap-2 text-xs text-fin-accent hover:underline font-semibold"
           >
             <Zap className="w-3.5 h-3.5" />
             {showSim ? 'Hide' : 'Show'} What-If Simulator
@@ -343,7 +343,7 @@ function GoalCard({ goal, onEdit }: { goal: SavingsGoal; onEdit: () => void }) {
         {/* Log savings */}
         {!showAdd ? (
           <button onClick={() => setShowAdd(true)}
-            className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline font-semibold">
+            className="text-xs text-fin-accent hover:underline font-semibold">
             + Log a contribution
           </button>
         ) : (
@@ -356,7 +356,7 @@ function GoalCard({ goal, onEdit }: { goal: SavingsGoal; onEdit: () => void }) {
               onClick={() => {
                 if (addAmount > 0) { updateGoal(goal.id, { currentSaved: goal.currentSaved + addAmount }); setAddAmount(0); setShowAdd(false); }
               }}
-              className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold"
+              className="px-3 py-1.5 bg-fin-accent text-white rounded-lg text-xs font-semibold"
             >Save</button>
             <button onClick={() => setShowAdd(false)} className="text-slate-400 hover:text-slate-600 text-xs px-2">✕</button>
           </div>
@@ -369,7 +369,7 @@ function GoalCard({ goal, onEdit }: { goal: SavingsGoal; onEdit: () => void }) {
             <Edit2 className="w-3 h-3" /> Edit
           </button>
           <button onClick={() => { if (window.confirm(`Delete goal "${goal.name}"?`)) deleteGoal(goal.id); }}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold text-red-500 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold text-negative border border-negative/30 rounded-lg hover:bg-negative-tint transition-colors">
             <Trash2 className="w-3 h-3" /> Delete
           </button>
         </div>
@@ -398,15 +398,15 @@ function GoalsSummary({ goals }: { goals: SavingsGoal[] }) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       {[
-        { label: 'Total Goals', value: goals.length, sub: `${complete} completed`, color: 'text-blue-600 dark:text-blue-400', isCount: true },
-        { label: 'Total Target', value: fmt(totalTarget), sub: 'Across all goals', color: 'text-slate-700 dark:text-slate-300' },
-        { label: 'Total Saved', value: fmt(totalSaved), sub: `${totalTarget > 0 ? ((totalSaved / totalTarget) * 100).toFixed(0) : 0}% of all targets`, color: 'text-emerald-600 dark:text-emerald-400' },
-        { label: 'Monthly Outflow', value: fmt(totalMonthly), sub: 'Toward all goals', color: 'text-violet-600 dark:text-violet-400' },
-      ].map(({ label, value, sub, color, isCount }) => (
-        <div key={label} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-3">
-          <p className={`text-xl font-black ${color} tabular-nums`}>{value}</p>
+        { label: 'Total Goals', value: goals.length, sub: `${complete} completed` },
+        { label: 'Total Target', value: fmt(totalTarget), sub: 'Across all goals' },
+        { label: 'Total Saved', value: fmt(totalSaved), sub: `${totalTarget > 0 ? ((totalSaved / totalTarget) * 100).toFixed(0) : 0}% of all targets` },
+        { label: 'Monthly Outflow', value: fmt(totalMonthly), sub: 'Toward all goals' },
+      ].map(({ label, value, sub }) => (
+        <div key={label} className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+          <p className="text-xl font-black text-neutral-value tabular-nums">{value}</p>
           <p className="text-[11px] font-semibold text-slate-600 dark:text-slate-300">{label}</p>
-          <p className="text-[10px] text-slate-400">{sub}</p>
+          <p className="text-[10px] text-slate-500">{sub}</p>
         </div>
       ))}
     </div>
@@ -478,7 +478,7 @@ export function GoalsEngine() {
         <div className="ml-auto">
           <button
             onClick={() => { setShowForm(true); setEditingGoal(null); }}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-semibold hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-fin-accent text-white rounded-lg text-xs font-semibold hover:opacity-90 transition-colors"
           >
             <Plus className="w-4 h-4" /> New Goal
           </button>
@@ -496,7 +496,7 @@ export function GoalsEngine() {
 
       {/* Goals grid */}
       {sorted.length === 0 ? (
-        <div className="text-center py-14 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+        <div className="text-center py-14 bg-white dark:bg-slate-900 rounded-lg border border-dashed border-slate-200 dark:border-slate-700">
           <Target className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
           <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-1">No savings goals yet</p>
           <p className="text-xs text-slate-400 dark:text-slate-500 max-w-xs mx-auto mb-4">
@@ -504,7 +504,7 @@ export function GoalsEngine() {
           </p>
           <button
             onClick={() => setShowForm(true)}
-            className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors"
+            className="px-5 py-2.5 bg-fin-accent text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-colors"
           >
             Create First Goal
           </button>
@@ -523,7 +523,7 @@ export function GoalsEngine() {
 
       {/* Goal category guide */}
       {goals.length > 0 && (
-        <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4">
+        <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4">
           <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">Financial Goal Priorities</p>
           <div className="space-y-2">
             {[

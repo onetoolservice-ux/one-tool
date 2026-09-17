@@ -395,6 +395,7 @@ export function BizCashflow() {
         title="Cash Flow"
         subtitle="30 · 60 · 90 Day Forecast"
         kpis={kpis}
+        kpiVariant="strip"
         actions={actions}
         sticky
       />
@@ -403,7 +404,7 @@ export function BizCashflow() {
       <div className="flex-1 overflow-y-auto">
 
         {/* ── Section 1: Forecast Chart ─────────────────────────────────────── */}
-        <div className="mx-4 mt-4 mb-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div className="mx-4 mt-4 mb-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
           <div className="px-5 pt-4 pb-2 flex items-center justify-between">
             <div>
               <h2 className="text-base font-bold text-slate-900 dark:text-white">
@@ -415,7 +416,7 @@ export function BizCashflow() {
             </div>
             {hasDangerZone && (
               <div className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 dark:bg-red-900/30
-                border border-red-200 dark:border-red-800 rounded-xl text-xs font-semibold text-red-700 dark:text-red-400">
+                border border-red-200 dark:border-red-800 rounded-lg text-xs font-semibold text-red-700 dark:text-red-400">
                 <AlertTriangle size={13} />
                 Danger Zone Ahead
               </div>
@@ -513,7 +514,7 @@ export function BizCashflow() {
         <div className="mx-4 mb-4 grid grid-cols-1 lg:grid-cols-2 gap-3">
 
           {/* Left: Expected Inflows */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
             <div className="px-5 py-3.5 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
               <div className="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
                 <ArrowUpRight size={15} className="text-emerald-600 dark:text-emerald-400" />
@@ -522,7 +523,7 @@ export function BizCashflow() {
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white">Expected Inflows</h3>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">Unpaid invoices sorted by due date</p>
               </div>
-              <div className="ml-auto text-xs font-bold text-emerald-600 dark:text-emerald-400">
+              <div className="ml-auto text-xs font-bold text-neutral-value">
                 {fmtCurrency(enrichedInvoices.reduce((s, e) => s + e.invoice.total, 0))}
               </div>
             </div>
@@ -582,11 +583,11 @@ export function BizCashflow() {
                     ))}
                   </tbody>
                   <tfoot>
-                    <tr className="bg-emerald-50 dark:bg-emerald-900/20 border-t border-emerald-100 dark:border-emerald-800">
-                      <td colSpan={3} className="px-4 py-2.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                    <tr className="bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700">
+                      <td colSpan={3} className="px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-300">
                         Total Expected ({enrichedInvoices.length} invoices)
                       </td>
-                      <td className="px-4 py-2.5 text-right text-xs font-black text-emerald-700 dark:text-emerald-400">
+                      <td className="px-4 py-2.5 text-right text-xs font-black text-neutral-value">
                         {fmtCurrency(enrichedInvoices.reduce((s, e) => s + e.invoice.total, 0))}
                       </td>
                       <td />
@@ -598,7 +599,7 @@ export function BizCashflow() {
           </div>
 
           {/* Right: Expected Outflows */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
             <div className="px-5 py-3.5 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
               <div className="w-7 h-7 rounded-lg bg-red-100 dark:bg-red-900/40 flex items-center justify-center">
                 <ArrowDownRight size={15} className="text-red-600 dark:text-red-400" />
@@ -607,7 +608,7 @@ export function BizCashflow() {
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white">Expected Outflows</h3>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">Pending purchase bills sorted by due date</p>
               </div>
-              <div className="ml-auto text-xs font-bold text-red-600 dark:text-red-400">
+              <div className="ml-auto text-xs font-bold text-neutral-value">
                 {fmtCurrency(enrichedBills.reduce((s, e) => s + (e.bill.total - e.bill.paidAmount), 0))}
               </div>
             </div>
@@ -667,11 +668,11 @@ export function BizCashflow() {
                     ))}
                   </tbody>
                   <tfoot>
-                    <tr className="bg-red-50 dark:bg-red-900/20 border-t border-red-100 dark:border-red-800">
-                      <td colSpan={3} className="px-4 py-2.5 text-xs font-bold text-red-700 dark:text-red-400">
+                    <tr className="bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700">
+                      <td colSpan={3} className="px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-300">
                         Total Outstanding ({enrichedBills.length} bills)
                       </td>
-                      <td className="px-4 py-2.5 text-right text-xs font-black text-red-700 dark:text-red-400">
+                      <td className="px-4 py-2.5 text-right text-xs font-black text-neutral-value">
                         {fmtCurrency(enrichedBills.reduce((s, e) => s + (e.bill.total - e.bill.paidAmount), 0))}
                       </td>
                       <td />
@@ -684,9 +685,9 @@ export function BizCashflow() {
         </div>
 
         {/* ── Info strip ────────────────────────────────────────────────────── */}
-        <div className="mx-4 mb-6 px-4 py-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800
-          rounded-xl flex items-start gap-2.5 text-xs text-blue-700 dark:text-blue-300">
-          <Info size={14} className="mt-0.5 shrink-0" />
+        <div className="mx-4 mb-6 px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700
+          rounded-lg flex items-start gap-2.5 text-xs text-slate-600 dark:text-slate-300">
+          <Info size={14} className="mt-0.5 shrink-0 text-slate-500" />
           <span>
             <strong>Forecast methodology:</strong> Confirmed invoice inflows and purchase bill outflows are placed in their exact due-date week.
             Historical averages from the last 30 days (total income/expense divided by 4) are added to every week to account for recurring cash flows.

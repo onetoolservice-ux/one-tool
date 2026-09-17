@@ -169,6 +169,7 @@ export const BizReconcile = () => {
     <div>
       <SAPHeader
         fullWidth
+        kpiVariant="strip"
         title="Bank Reconciliation"
         subtitle="Match bank statement against daybook entries"
         kpis={[
@@ -181,25 +182,25 @@ export const BizReconcile = () => {
 
       <div className="p-4 space-y-4">
         {usingSample && (
-          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 border border-blue-200 dark:border-blue-800 flex gap-2">
-            <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
-            <p className="text-xs text-blue-700 dark:text-blue-300">Showing sample data. Upload your bank statement CSV to reconcile with your Business OS Daybook.</p>
+          <div className="bg-white dark:bg-slate-900 rounded-lg p-3 border border-slate-200 dark:border-slate-700 flex gap-2">
+            <Info className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
+            <p className="text-xs text-slate-600 dark:text-slate-300">Showing sample data. Upload your bank statement CSV to reconcile with your Business OS Daybook.</p>
           </div>
         )}
 
         {/* Upload + Auto-Match */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <label className="flex items-center gap-3 p-4 bg-white dark:bg-slate-900 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 cursor-pointer hover:border-blue-300 transition-colors">
-            <FileSpreadsheet className="w-5 h-5 text-slate-400" />
+          <label className="flex items-center gap-3 p-4 bg-white dark:bg-slate-900 rounded-lg border-2 border-dashed border-slate-200 dark:border-slate-700 cursor-pointer hover:border-fin-accent transition-colors">
+            <FileSpreadsheet className="w-5 h-5 text-slate-500" />
             <div>
               <div className="text-sm font-semibold text-slate-700 dark:text-slate-300">Upload Bank Statement</div>
-              <div className="text-xs text-slate-400">CSV: date, description, amount</div>
+              <div className="text-xs text-slate-500">CSV: date, description, amount</div>
             </div>
             <input type="file" accept=".csv" className="hidden" onChange={handleBankUpload} />
           </label>
 
           <button onClick={runAutoMatch}
-            className="flex items-center justify-center gap-3 p-4 bg-blue-500 text-white rounded-xl font-semibold hover:bg-blue-600 transition-colors">
+            className="flex items-center justify-center gap-3 p-4 bg-fin-accent text-white rounded-lg font-semibold hover:opacity-90 transition-colors">
             <RefreshCw className="w-5 h-5" />
             <div className="text-left">
               <div className="text-sm font-semibold">Auto-Match Entries</div>
@@ -230,7 +231,7 @@ export const BizReconcile = () => {
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Matched ({stats.matched})
             </h3>
             {matchedPairs.map(({ bank, book }) => (
-              <div key={bank.id} className="bg-emerald-50 dark:bg-emerald-900/10 rounded-xl p-3 border border-emerald-200 dark:border-emerald-800">
+              <div key={bank.id} className="bg-emerald-50 dark:bg-emerald-900/10 rounded-lg p-3 border border-emerald-200 dark:border-emerald-800">
                 <div className="flex items-center justify-between">
                   <div className="flex-1 grid grid-cols-2 gap-3">
                     <div>
@@ -259,7 +260,7 @@ export const BizReconcile = () => {
               <AlertTriangle className="w-3.5 h-3.5 text-amber-500" /> Bank Only — Not in Daybook ({stats.bankOnly})
             </h3>
             {bankEntries.filter(b => b.status === 'unmatched_bank').map(b => (
-              <div key={b.id} className="bg-amber-50 dark:bg-amber-900/10 rounded-xl p-3 border border-amber-200 dark:border-amber-800 flex items-center justify-between">
+              <div key={b.id} className="bg-amber-50 dark:bg-amber-900/10 rounded-lg p-3 border border-amber-200 dark:border-amber-800 flex items-center justify-between">
                 <div>
                   <div className="text-sm text-slate-700 dark:text-slate-300">{b.description}</div>
                   <div className="text-xs text-slate-400 mt-0.5">{b.date} · <span className={b.type === 'credit' ? 'text-emerald-600' : 'text-red-500'}>{b.type === 'credit' ? '+' : '-'}{fmt(b.amount)}</span></div>
@@ -276,7 +277,7 @@ export const BizReconcile = () => {
               <AlertTriangle className="w-3.5 h-3.5 text-red-500" /> Books Only — Not in Bank ({stats.bookOnly})
             </h3>
             {bookEntries.filter(k => k.status === 'unmatched_book').map(k => (
-              <div key={k.id} className="bg-red-50 dark:bg-red-900/10 rounded-xl p-3 border border-red-200 dark:border-red-800 flex items-center justify-between">
+              <div key={k.id} className="bg-red-50 dark:bg-red-900/10 rounded-lg p-3 border border-red-200 dark:border-red-800 flex items-center justify-between">
                 <div>
                   <div className="text-sm text-slate-700 dark:text-slate-300">{k.description}</div>
                   <div className="text-xs text-slate-400 mt-0.5">{k.date} · <span className={k.type === 'income' ? 'text-emerald-600' : 'text-red-500'}>{fmt(k.amount)}</span></div>
@@ -288,7 +289,7 @@ export const BizReconcile = () => {
         )}
 
         {stats.bankOnly === 0 && stats.bookOnly === 0 && stats.matched > 0 && (
-          <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-4 border border-emerald-200 dark:border-emerald-800 flex gap-3">
+          <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4 border border-emerald-200 dark:border-emerald-800 flex gap-3">
             <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
             <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
               Fully reconciled! All bank entries match your daybook. Books are in order.

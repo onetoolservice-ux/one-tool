@@ -197,7 +197,7 @@ function StaffForm({ initial, onSave, onCancel }: StaffFormProps) {
         <button
           onClick={handleSave}
           disabled={!form.name.trim() || !form.role.trim() || !form.salary}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors"
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-fin-accent hover:opacity-90 disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors"
         >
           <Save size={14} />
           {initial ? 'Update' : 'Add Staff'}
@@ -350,7 +350,7 @@ function StaffDetail({ staff, store, onEdit, onDelete }: StaffDetailProps) {
         <div className="flex gap-2">
           <button
             onClick={onEdit}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-semibold rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
           >
             <Edit2 size={12} /> Edit
           </button>
@@ -364,19 +364,19 @@ function StaffDetail({ staff, store, onEdit, onDelete }: StaffDetailProps) {
       </div>
 
       <div className="grid grid-cols-2 gap-3 mb-4">
-        <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
+        <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
           <p className="text-xs text-slate-400 mb-0.5">Monthly Salary</p>
           <p className="text-base font-bold text-slate-900 dark:text-white">{fmtCurrency(staff.salary)}</p>
         </div>
-        <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
+        <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
           <p className="text-xs text-slate-400 mb-0.5">Phone</p>
           <p className="text-base font-bold text-slate-900 dark:text-white">{staff.phone || '—'}</p>
         </div>
-        <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
+        <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
           <p className="text-xs text-slate-400 mb-0.5">Joining Date</p>
           <p className="text-base font-bold text-slate-900 dark:text-white">{staff.joiningDate}</p>
         </div>
-        <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
+        <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
           <p className="text-xs text-slate-400 mb-0.5">Status</p>
           <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${staff.active ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-slate-200 dark:bg-slate-700 text-slate-500'}`}>
             {staff.active ? 'Active' : 'Inactive'}
@@ -394,8 +394,8 @@ function StaffDetail({ staff, store, onEdit, onDelete }: StaffDetailProps) {
       </div>
 
       {staff.notes && (
-        <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-          <p className="text-xs text-yellow-800 dark:text-yellow-400">{staff.notes}</p>
+        <div className="mb-4 p-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
+          <p className="text-xs text-slate-600 dark:text-slate-300">{staff.notes}</p>
         </div>
       )}
 
@@ -442,7 +442,7 @@ function RosterMode({ store }: RosterModeProps) {
           </span>
           <button
             onClick={() => { setIsAdding(true); setIsEditing(false); setSelectedId(null); }}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-fin-accent hover:opacity-90 text-white text-xs font-bold rounded-lg transition-colors"
           >
             <Plus size={13} /> Add Staff
           </button>
@@ -461,7 +461,7 @@ function RosterMode({ store }: RosterModeProps) {
               onClick={() => { setSelectedId(s.id); setIsAdding(false); setIsEditing(false); }}
               className={`p-3 rounded-xl cursor-pointer transition-colors border ${
                 selectedId === s.id
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                  ? 'border-fin-accent bg-fin-accent/10'
                   : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700'
               }`}
             >
@@ -837,11 +837,11 @@ function PayrollMode({ store }: PayrollModeProps) {
             </div>
             <div>
               <p className="text-xs text-slate-500 dark:text-slate-400">Total Net Payable</p>
-              <p className="text-base font-black text-emerald-600 dark:text-emerald-400">{fmtCurrency(totalNet)}</p>
+              <p className="text-base font-black text-neutral-value">{fmtCurrency(totalNet)}</p>
             </div>
             <div>
               <p className="text-xs text-slate-500 dark:text-slate-400">Already Paid</p>
-              <p className="text-base font-black text-blue-600 dark:text-blue-400">{paidIds.size} / {rows.length}</p>
+              <p className="text-base font-black text-neutral-value">{paidIds.size} / {rows.length}</p>
             </div>
           </div>
         </div>
@@ -913,6 +913,7 @@ export function BizStaff() {
       <SAPHeader
         title="Staff & Payroll"
         subtitle="Employees · Attendance · Salary"
+        kpiVariant="strip"
         kpis={kpis}
         modes={[
           {

@@ -50,26 +50,26 @@ const GUIDE_KEY = 'pf-income-guide-seen';
 function IncomeGuide({ onEnter }: { onEnter: () => void }) {
   const features = [
     {
-      icon: <TrendingUp size={18} className="text-emerald-600 dark:text-emerald-400" />,
-      bg: 'bg-emerald-50 dark:bg-emerald-900/20',
+      icon: <TrendingUp size={18} className="text-slate-500" />,
+      bg: 'bg-slate-100 dark:bg-slate-800',
       title: 'Only credit transactions',
       desc: 'This page shows every money-in entry — salary credits, freelance payments, UPI received, bank interest, refunds. Debits are not shown here.',
     },
     {
-      icon: <Filter size={18} className="text-blue-600 dark:text-blue-400" />,
-      bg: 'bg-blue-50 dark:bg-blue-900/20',
+      icon: <Filter size={18} className="text-slate-500" />,
+      bg: 'bg-slate-100 dark:bg-slate-800',
       title: 'Filter by account, date, merchant',
       desc: 'Filter by which bank account, date range, or search a merchant name. Useful when you want to verify a specific salary credit or refund landed.',
     },
     {
-      icon: <Tag size={18} className="text-violet-600 dark:text-violet-400" />,
-      bg: 'bg-violet-50 dark:bg-violet-900/20',
+      icon: <Tag size={18} className="text-slate-500" />,
+      bg: 'bg-slate-100 dark:bg-slate-800',
       title: 'Fix wrong categories',
       desc: 'Click any category badge to change it. If a transfer was wrongly detected as income, mark it as "Transfer" using the bulk action — it will be excluded from totals.',
     },
     {
-      icon: <Search size={18} className="text-amber-600 dark:text-amber-400" />,
-      bg: 'bg-amber-50 dark:bg-amber-900/20',
+      icon: <Search size={18} className="text-slate-500" />,
+      bg: 'bg-slate-100 dark:bg-slate-800',
       title: 'Verify your actual income',
       desc: 'The total at the top is your gross income for the filtered period. Cross-check it against what you expected — if it looks low, check if your salary account was uploaded.',
     },
@@ -83,7 +83,7 @@ function IncomeGuide({ onEnter }: { onEnter: () => void }) {
         subtitle="All credit transactions — salary, freelance, refunds, interest, UPI received"
       />
       <div className="px-4 pb-6 space-y-4">
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-5 py-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-5 py-4">
           <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">What does this page show?</p>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
             This is your income ledger — only the money that came <span className="font-semibold text-emerald-600 dark:text-emerald-400">into</span> your accounts. Every credit entry from every statement you uploaded, in one filterable list. Use it to verify salaries landed, spot extra income sources, and fix miscategorised credits.
@@ -92,7 +92,7 @@ function IncomeGuide({ onEnter }: { onEnter: () => void }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {features.map((f, i) => (
-            <div key={i} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 flex gap-3">
+            <div key={i} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4 flex gap-3">
               <div className={`w-9 h-9 rounded-lg ${f.bg} flex items-center justify-center shrink-0`}>
                 {f.icon}
               </div>
@@ -104,15 +104,15 @@ function IncomeGuide({ onEnter }: { onEnter: () => void }) {
           ))}
         </div>
 
-        <div className="flex items-start gap-2.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl px-4 py-3">
-          <AlertTriangle size={14} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-          <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
+        <div className="flex items-start gap-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3">
+          <AlertTriangle size={14} className="text-warning shrink-0 mt-0.5" />
+          <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
             <span className="font-bold">Self-transfers inflate income.</span> If you moved money between your own accounts (wallet top-up, savings transfer), those show as credits here. Select them and mark as Transfer so they don't count as real income.
           </p>
         </div>
 
         <button onClick={onEnter}
-          className="w-full h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold transition-colors flex items-center justify-center gap-2 shadow-sm">
+          className="w-full h-12 rounded-lg bg-fin-accent hover:opacity-90 text-white text-sm font-bold transition-colors flex items-center justify-center gap-2">
           View Income Ledger →
         </button>
         <p className="text-center text-[11px] text-slate-400 dark:text-slate-500">Re-open this guide anytime from the toolbar</p>
@@ -519,8 +519,8 @@ export function Income() {
   const SortIcon = ({ col }: { col: SortCol }) => {
     if (sortCol !== col) return <ChevronUp size={10} className="text-slate-300 ml-1 inline" />;
     return sortDir === 'asc'
-      ? <ChevronUp   size={10} className="text-blue-500 ml-1 inline" />
-      : <ChevronDown size={10} className="text-blue-500 ml-1 inline" />;
+      ? <ChevronUp   size={10} className="text-fin-accent ml-1 inline" />
+      : <ChevronDown size={10} className="text-fin-accent ml-1 inline" />;
   };
 
   if (!mounted) return null;
@@ -551,14 +551,14 @@ export function Income() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl shadow-2xl w-80 p-5 flex flex-col gap-4">
             <div className="flex items-center gap-2.5">
-              <span className="text-amber-500 text-lg">⚠</span>
+              <span className="text-warning text-lg">⚠</span>
               <span className="text-sm font-bold text-slate-800 dark:text-slate-100">Change Category?</span>
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
               This transaction is already categorised as{' '}
               <span className="font-semibold text-slate-800 dark:text-slate-200">{pendingCatChange.from}</span>.
               {' '}Are you sure you want to change it to{' '}
-              <span className="font-semibold text-blue-600 dark:text-blue-400">{pendingCatChange.to}</span>?
+              <span className="font-semibold text-fin-accent">{pendingCatChange.to}</span>?
             </p>
             <div className="flex items-center justify-end gap-2">
               <button
@@ -572,7 +572,7 @@ export function Income() {
                   updatePFTransaction(pendingCatChange.txnId, { category: pendingCatChange.to });
                   setPendingCatChange(null);
                 }}
-                className="text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white px-4 py-1.5 rounded-lg"
+                className="text-xs font-semibold bg-warning hover:opacity-90 text-white px-4 py-1.5 rounded-lg"
               >
                 Yes, Change
               </button>
@@ -608,7 +608,7 @@ export function Income() {
                 onChange={e => setBulkCatInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') confirmBulkCatDialog(); if (e.key === 'Escape') setShowBulkCatDialog(false); }}
                 placeholder="e.g. Freelance Income, Rental…"
-                className="text-sm border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 outline-none focus:border-blue-400 dark:focus:border-blue-500"
+                className="text-sm border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 outline-none focus:border-fin-accent"
               />
             </div>
 
@@ -624,7 +624,7 @@ export function Income() {
                         <button
                           key={c}
                           onClick={() => setBulkCatInput(c)}
-                          className={`text-left text-xs px-2 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors ${bulkCatInput === c ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 font-medium' : 'text-slate-700 dark:text-slate-300'}`}
+                          className={`text-left text-xs px-2 py-1 rounded hover:bg-fin-accent/10 transition-colors ${bulkCatInput === c ? 'bg-fin-accent/10 text-fin-accent font-medium' : 'text-slate-700 dark:text-slate-300'}`}
                         >
                           {c}
                         </button>
@@ -638,7 +638,7 @@ export function Income() {
                         <button
                           key={c}
                           onClick={() => setBulkCatInput(c)}
-                          className={`text-left text-xs px-2 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors ${bulkCatInput === c ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 font-medium' : 'text-slate-700 dark:text-slate-300'}`}
+                          className={`text-left text-xs px-2 py-1 rounded hover:bg-fin-accent/10 transition-colors ${bulkCatInput === c ? 'bg-fin-accent/10 text-fin-accent font-medium' : 'text-slate-700 dark:text-slate-300'}`}
                         >
                           {c}
                         </button>
@@ -660,7 +660,7 @@ export function Income() {
               <button
                 disabled={!bulkCatInput.trim()}
                 onClick={confirmBulkCatDialog}
-                className="text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed"
+                className="text-xs font-semibold bg-fin-accent hover:opacity-90 text-white px-4 py-1.5 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Apply
               </button>
@@ -687,7 +687,7 @@ export function Income() {
         {/* Filter bar header — SAP style: white bar, Go + Hide Filter Bar + Filters (N) on right */}
         <div className="flex items-center justify-end gap-3 px-4 py-2 border-b border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
 
-          <span className="text-sm font-semibold text-blue-600 dark:text-blue-400 mr-auto">
+          <span className="text-sm font-semibold text-fin-accent mr-auto">
             Filters
             {dynamicColumns.length > 0 && (
               <span className="text-xs font-normal text-slate-400 dark:text-slate-500 ml-2">
@@ -699,7 +699,7 @@ export function Income() {
           {anyFilterActive && (
             <button
               onClick={clearAllFilters}
-              className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
+              className="text-xs text-fin-accent hover:underline font-medium"
             >
               Clear All
             </button>
@@ -707,14 +707,14 @@ export function Income() {
 
           <button
             onClick={() => setShowAdaptDialog(true)}
-            className="text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:underline font-medium"
+            className="text-xs text-slate-500 dark:text-slate-400 hover:text-fin-accent hover:underline font-medium"
           >
             Adapt Filters
           </button>
 
           <button
             onClick={() => setShowGuide(true)}
-            className="flex items-center gap-1 text-xs text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
+            className="flex items-center gap-1 text-xs text-slate-400 hover:text-fin-accent transition-colors font-medium"
             title="How to use"
           >
             <BookOpen size={12} /> Guide
@@ -722,19 +722,19 @@ export function Income() {
 
           <button
             onClick={() => setShowFilterBar(v => !v)}
-            className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
+            className="text-xs text-fin-accent hover:underline font-medium"
           >
             {showFilterBar ? 'Hide Filter Bar' : 'Show Filter Bar'}
           </button>
 
           {activeFilterCount > 0 && (
-            <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
+            <span className="text-xs font-medium text-fin-accent">
               Filters ({activeFilterCount})
             </span>
           )}
 
           <button
-            className="text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-full transition-colors"
+            className="text-xs font-semibold bg-fin-accent hover:opacity-90 text-white px-4 py-1.5 rounded-full transition-colors"
             onClick={() => setPage(1)}
           >
             Go
@@ -750,7 +750,7 @@ export function Income() {
               <label className="text-xs font-normal text-slate-700 dark:text-slate-300">Statement:</label>
               <button
                 onClick={() => setShowStmtVH(v => !v)}
-                className={`flex items-center justify-between ${inputCls} hover:border-blue-400 dark:hover:border-blue-500 transition-colors text-left w-full`}
+                className={`flex items-center justify-between ${inputCls} hover:border-fin-accent transition-colors text-left w-full`}
               >
                 <span className="truncate">{selectedStmtLabel}</span>
                 <ChevronDown size={14} className="shrink-0 text-slate-400 ml-1" />
@@ -775,7 +775,7 @@ export function Income() {
                   <div className="max-h-48 overflow-y-auto py-1">
                     <button
                       onClick={() => { setStatementId('all'); setShowStmtVH(false); setPage(1); }}
-                      className={`w-full text-left px-4 py-2 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${statementId === 'all' ? 'text-blue-600 font-semibold bg-blue-50 dark:bg-blue-900/10' : 'text-slate-700 dark:text-slate-200'}`}
+                      className={`w-full text-left px-4 py-2 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${statementId === 'all' ? 'text-fin-accent font-semibold bg-fin-accent/10' : 'text-slate-700 dark:text-slate-200'}`}
                     >
                       All Statements
                     </button>
@@ -783,7 +783,7 @@ export function Income() {
                       <button
                         key={s.id}
                         onClick={() => { setStatementId(s.id); setShowStmtVH(false); setPage(1); }}
-                        className={`w-full text-left px-4 py-2 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${statementId === s.id ? 'text-blue-600 font-semibold bg-blue-50 dark:bg-blue-900/10' : 'text-slate-700 dark:text-slate-200'}`}
+                        className={`w-full text-left px-4 py-2 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${statementId === s.id ? 'text-fin-accent font-semibold bg-fin-accent/10' : 'text-slate-700 dark:text-slate-200'}`}
                       >
                         <span className="block truncate">{s.fileName}</span>
                         {accounts.length > 1 && (
@@ -827,7 +827,7 @@ export function Income() {
             {!hiddenFilters.has('name') && (
               <div className="flex flex-col gap-1 col-span-2 sm:col-span-1">
                 <label className="text-xs font-normal text-slate-700 dark:text-slate-300">Name:</label>
-                <div className="flex border border-slate-400 dark:border-slate-600 rounded-lg overflow-hidden bg-white dark:bg-slate-900 focus-within:border-blue-500 dark:focus-within:border-blue-500 transition-colors">
+                <div className="flex border border-slate-400 dark:border-slate-600 rounded-lg overflow-hidden bg-white dark:bg-slate-900 focus-within:border-fin-accent transition-colors">
                   <input
                     type="text"
                     placeholder="Quick search…"
@@ -838,7 +838,7 @@ export function Income() {
                   <button
                     onClick={() => setVhField('name')}
                     title="Value Help — select values or define conditions"
-                    className="px-2 bg-slate-50 dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700 text-slate-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors shrink-0"
+                    className="px-2 bg-slate-50 dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700 text-slate-400 hover:text-fin-accent transition-colors shrink-0"
                   >
                     <Copy size={11} />
                   </button>
@@ -913,7 +913,7 @@ export function Income() {
 
           {/* Left — Title / KPI (SAP "Line Items (N)" style) */}
           <div className="flex items-center gap-2.5 shrink-0">
-            <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+            <span className="text-sm font-bold text-fin-accent">
               Income
               {hasData && (
                 <span className="font-normal text-slate-400 dark:text-slate-500 ml-1">
@@ -924,7 +924,7 @@ export function Income() {
             {hasData && (
               <>
                 <span className="h-4 w-px bg-slate-200 dark:bg-slate-700 shrink-0" />
-                <span className="text-xs font-semibold text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 px-2 py-0.5 rounded">
+                <span className="text-xs font-semibold text-neutral-value bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded">
                   {fmtINR(kpi.income)}
                 </span>
                 {kpi.selfTransferCount > 0 && (
@@ -943,27 +943,27 @@ export function Income() {
               {/* Selection indicator */}
               {selectedIds.size > 0 && (
                 <>
-                  <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 px-2 py-1 rounded-lg">
+                  <span className="text-xs font-semibold text-fin-accent bg-fin-accent/10 border border-fin-accent/30 px-2 py-1 rounded-lg">
                     {selectedIds.size} selected
                   </span>
                   {/* Direct action buttons */}
                   <button
                     onClick={openBulkCatDialog}
-                    className="flex items-center gap-1.5 text-xs font-medium border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-1 rounded-lg hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors h-7"
+                    className="flex items-center gap-1.5 text-xs font-medium border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-1 rounded-lg hover:border-fin-accent hover:text-fin-accent transition-colors h-7"
                   >
                     <Tag size={11} />
                     Set Category
                   </button>
                   <button
                     onClick={handleBulkTransfer}
-                    className="flex items-center gap-1.5 text-xs font-medium border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-1 rounded-lg hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors h-7"
+                    className="flex items-center gap-1.5 text-xs font-medium border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-1 rounded-lg hover:border-fin-accent hover:text-fin-accent transition-colors h-7"
                   >
                     <ArrowLeftRight size={11} />
                     Self Transfer
                   </button>
                   <button
                     onClick={handleBulkTransferToFriend}
-                    className="flex items-center gap-1.5 text-xs font-medium border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-1 rounded-lg hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors h-7"
+                    className="flex items-center gap-1.5 text-xs font-medium border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-1 rounded-lg hover:border-fin-accent hover:text-fin-accent transition-colors h-7"
                   >
                     <CreditCard size={11} />
                     Transferred to Friend
@@ -972,7 +972,7 @@ export function Income() {
                   <button
                     onClick={() => { setSelectedIds(new Set()); setBulkCat(''); setBulkCatInput(''); }}
                     title="Clear selection"
-                    className="p-1.5 rounded-lg text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors"
+                    className="p-1.5 rounded-lg text-fin-accent hover:opacity-80 hover:bg-fin-accent/10 transition-colors"
                   >
                     <X size={13} />
                   </button>
@@ -1013,7 +1013,7 @@ export function Income() {
         ) : filtered.length === 0 ? (
           <div className="text-center py-16 text-slate-400">
             <p className="text-sm font-medium">No matching transactions.</p>
-            <button onClick={clearAllFilters} className="text-xs text-blue-500 hover:underline mt-1">
+            <button onClick={clearAllFilters} className="text-xs text-fin-accent hover:underline mt-1">
               Clear filters
             </button>
           </div>
@@ -1042,7 +1042,7 @@ export function Income() {
                     <th
                       key={col}
                       onClick={() => handleSort(col)}
-                      className={`px-4 py-3 text-left cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 whitespace-nowrap transition-colors ${col === 'amount' ? 'text-right' : ''}`}
+                      className={`px-4 py-3 text-left cursor-pointer hover:text-fin-accent whitespace-nowrap transition-colors ${col === 'amount' ? 'text-right' : ''}`}
                     >
                       {label}
                       <SortIcon col={col} />
@@ -1063,7 +1063,7 @@ export function Income() {
                       key={txn.id}
                       className={`border-t border-slate-100 dark:border-slate-800 text-sm transition-colors ${
                         isSelected
-                          ? 'bg-blue-50 dark:bg-blue-950/30'
+                          ? 'bg-fin-accent/10'
                           : isSelfTransfer
                           ? 'opacity-50 hover:opacity-80'
                           : 'bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/40'
@@ -1093,12 +1093,12 @@ export function Income() {
                               if (e.key === 'Enter')  commitDescription(txn.id);
                               if (e.key === 'Escape') cancelEdit();
                             }}
-                            className="w-full text-sm border border-blue-400 dark:border-blue-500 rounded px-2 py-0.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 outline-none"
+                            className="w-full text-sm border border-fin-accent rounded px-2 py-0.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 outline-none"
                           />
                         ) : (
                           <span
                             onClick={() => setEditingCell({ id: txn.id, field: 'description' })}
-                            className="cursor-text hover:text-blue-600 dark:hover:text-blue-400 truncate block"
+                            className="cursor-text hover:text-fin-accent truncate block"
                             title={txn.description}
                           >
                             {txn.description || '—'}
@@ -1123,7 +1123,7 @@ export function Income() {
                             }}
                             onBlur={cancelEdit}
                             onKeyDown={e => { if (e.key === 'Escape') cancelEdit(); }}
-                            className="text-xs border border-blue-400 dark:border-blue-500 rounded px-2 py-0.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 outline-none"
+                            className="text-xs border border-fin-accent rounded px-2 py-0.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 outline-none"
                           >
                             {catGroups.inData.length > 0 && (
                               <optgroup label="From Your Data">
@@ -1140,7 +1140,7 @@ export function Income() {
                           <span
                             onClick={() => setEditingCell({ id: txn.id, field: 'category' })}
                             title={txn.userOverrideFlag ? 'Manually assigned — click to change' : 'Click to change category'}
-                            className={`text-sm cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors ${
+                            className={`text-sm cursor-pointer hover:text-fin-accent hover:underline transition-colors ${
                               txn.userOverrideFlag
                                 ? 'text-slate-700 dark:text-slate-200 font-medium'
                                 : 'text-slate-700 dark:text-slate-200'
@@ -1156,7 +1156,7 @@ export function Income() {
                       <td className={`px-4 py-2.5 text-right font-mono font-semibold text-sm whitespace-nowrap ${
                         isSelfTransfer
                           ? 'text-slate-400 dark:text-slate-500 line-through'
-                          : 'text-[#107E3E] dark:text-green-400'
+                          : 'text-neutral-value'
                       }`}>
                         +{fmtINR(txn.amount)}
                       </td>
@@ -1183,7 +1183,7 @@ export function Income() {
                   <td colSpan={3} className="px-4 py-2.5 text-slate-500 dark:text-slate-400">
                     Total ({sorted.length.toLocaleString()} transactions)
                   </td>
-                  <td className="px-4 py-2.5 text-right font-mono text-[#107E3E] dark:text-green-400 whitespace-nowrap">
+                  <td className="px-4 py-2.5 text-right font-mono text-neutral-value whitespace-nowrap">
                     +{fmtINR(sorted.reduce((sum, t) => sum + t.amount, 0))}
                   </td>
                   <td colSpan={2} className="px-4 py-2.5 text-slate-400 dark:text-slate-500 text-[10px] font-normal">

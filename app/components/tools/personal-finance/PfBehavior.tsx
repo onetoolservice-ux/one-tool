@@ -85,6 +85,7 @@ export function SpendingBehavior() {
     <div className="space-y-4">
       <SAPHeader
         fullWidth
+        kpiVariant="strip"
         title="Spending Behavior"
         subtitle="When do you spend most? Day-of-week and day-of-month patterns."
         kpis={txns.length > 0 ? [
@@ -95,7 +96,7 @@ export function SpendingBehavior() {
       />
       <div className="space-y-4 px-4 pb-4">
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
           <PFFilterBarHeader
             activeCount={activeFilters}
             onClearAll={() => { setAccountFilter('all'); setPeriod('all'); }}
@@ -136,11 +137,11 @@ export function SpendingBehavior() {
         </div>
 
         {txns.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-12 text-center">
+          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg p-12 text-center">
             <p className="text-sm text-slate-400">No debit transactions found.</p>
           </div>
         ) : (
-          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
             <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <span className="text-xs text-slate-500 font-medium">
                 {view === 'dow' ? 'Spending by Day of Week' : 'Spending by Day of Month'}

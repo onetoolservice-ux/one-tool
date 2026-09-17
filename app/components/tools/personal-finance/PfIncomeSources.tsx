@@ -93,7 +93,7 @@ export function IncomeSources() {
 
   const SI = ({ col }: { col: SortCol }) =>
     sortCol === col
-      ? (sortDir === 'asc' ? <ChevronUp size={11} className="text-blue-500" /> : <ChevronDown size={11} className="text-blue-500" />)
+      ? (sortDir === 'asc' ? <ChevronUp size={11} className="text-fin-accent" /> : <ChevronDown size={11} className="text-fin-accent" />)
       : <ChevronDown size={11} className="text-slate-300 dark:text-slate-600" />;
 
   const totalTxns = rows.reduce((s, r) => s + r.count, 0);
@@ -105,6 +105,7 @@ export function IncomeSources() {
     <div className="space-y-4">
       <SAPHeader
         fullWidth
+        kpiVariant="strip"
         title="Income Sources"
         subtitle="Credit transactions broken down by category"
         kpis={rows.length > 0 ? [
@@ -116,7 +117,7 @@ export function IncomeSources() {
       />
       <div className="space-y-4 px-4 pb-4">
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
           <PFFilterBarHeader
             activeCount={activeFilters}
             onClearAll={() => { setAccountFilter('all'); setPeriod('all'); setShowTransfers(false); }}
@@ -143,7 +144,7 @@ export function IncomeSources() {
               </div>
               <div className="col-span-2 flex items-center gap-2 pt-1">
                 <input type="checkbox" id="show-transfers" checked={showTransfers}
-                  onChange={e => setShowTransfers(e.target.checked)} className="accent-blue-500" />
+                  onChange={e => setShowTransfers(e.target.checked)} className="accent-fin-accent" />
                 <label htmlFor="show-transfers" className="text-xs text-slate-600 dark:text-slate-300 cursor-pointer">
                   Include inter-account transfers
                   <span className="ml-1 text-[10px] text-slate-400">(off by default to avoid inflating income)</span>
@@ -154,15 +155,15 @@ export function IncomeSources() {
         </div>
 
         {sorted.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-12 text-center">
+          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg p-12 text-center">
             <TrendingUp size={36} className="mx-auto mb-3 text-slate-300 dark:text-slate-600" />
             <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">No credit transactions found.</p>
           </div>
         ) : (
-          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
             <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-between">
               <span className="text-xs text-slate-500">{sorted.length} income categories</span>
-              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{fmtINR(grandTotal)} total</span>
+              <span className="text-xs font-semibold text-neutral-value">{fmtINR(grandTotal)} total</span>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
@@ -181,7 +182,7 @@ export function IncomeSources() {
                       <td className="px-4 py-3 font-semibold text-slate-800 dark:text-slate-100">{row.category}</td>
                       <td className="px-4 py-3 text-right text-slate-600 dark:text-slate-300 font-mono">{row.count}</td>
                       <td className="px-4 py-3 text-right font-mono text-slate-600 dark:text-slate-300">{fmtINR(row.avg)}</td>
-                      <td className="px-4 py-3 text-right font-mono font-bold text-emerald-600 dark:text-emerald-400">{fmtINR(row.total)}</td>
+                      <td className="px-4 py-3 text-right font-mono font-bold text-neutral-value">{fmtINR(row.total)}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <div className="flex-1 bg-slate-100 dark:bg-slate-700 rounded-full h-1.5">

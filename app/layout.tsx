@@ -86,6 +86,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Brand typeface — IBM Plex Sans/Mono, see one-tool-brand style guide */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+        />
         {/* Dark mode initialiser — runs before paint to prevent flash of wrong theme */}
         <script
           dangerouslySetInnerHTML={{

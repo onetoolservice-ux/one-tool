@@ -157,6 +157,7 @@ export const BudgetVsActual = () => {
     <div>
       <SAPHeader
         fullWidth
+        kpiVariant="strip"
         title="Budget vs Actual"
         subtitle={`Month: ${month}`}
         kpis={[
@@ -181,18 +182,18 @@ export const BudgetVsActual = () => {
           </div>
           <div className="ml-auto flex items-center gap-2">
             <button onClick={buildSyncPreview}
-              className="flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-xl text-sm font-semibold hover:bg-emerald-600 transition-colors">
+              className="flex items-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
               <RefreshCw className="w-4 h-4" /> Sync Actuals
             </button>
             <button onClick={() => setShowAdd(!showAdd)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-xl text-sm font-semibold hover:bg-blue-600 transition-colors">
+              className="flex items-center gap-2 px-4 py-2 bg-fin-accent text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-colors">
               <Plus className="w-4 h-4" /> Add Category
             </button>
           </div>
         </div>
 
         {showAdd && (
-          <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-blue-200 dark:border-blue-800 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="bg-white dark:bg-slate-900 rounded-lg p-4 border border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="space-y-1">
               <label className={labelCls}>Category Name</label>
               <input type="text" className={inputCls} placeholder="e.g. Dining Out" value={newCat.category}
@@ -209,31 +210,31 @@ export const BudgetVsActual = () => {
                 onChange={e => setNewCat(n => ({ ...n, actual: +e.target.value }))} />
             </div>
             <div className="sm:col-span-3 flex gap-2">
-              <button onClick={addCategory} className="px-4 py-2 bg-blue-500 text-white rounded-xl text-sm font-semibold">Add</button>
-              <button onClick={() => setShowAdd(false)} className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-sm font-semibold">Cancel</button>
+              <button onClick={addCategory} className="px-4 py-2 bg-fin-accent text-white rounded-lg text-sm font-semibold">Add</button>
+              <button onClick={() => setShowAdd(false)} className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-semibold">Cancel</button>
             </div>
           </div>
         )}
 
         {/* ── Sync Actuals Preview ─────────────────────────────────────────── */}
         {showSync && (
-          <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 rounded-xl overflow-hidden">
-            <div className="px-4 py-3 border-b border-emerald-200 dark:border-emerald-700 flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+            <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-200">Sync Actuals from Transactions — {month}</p>
-                <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5">Matched using PF category names. Review and apply per row or all at once.</p>
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Sync Actuals from Transactions — {month}</p>
+                <p className="text-[10px] text-slate-500 mt-0.5">Matched using PF category names. Review and apply per row or all at once.</p>
               </div>
               <div className="flex items-center gap-2">
                 <button onClick={applyAllSync}
-                  className="text-xs font-semibold px-3 py-1.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
+                  className="text-xs font-semibold px-3 py-1.5 bg-fin-accent text-white rounded-lg hover:opacity-90 transition-colors">
                   Apply All
                 </button>
-                <button onClick={() => setShowSync(false)} className="text-emerald-600 hover:text-emerald-800 dark:hover:text-emerald-200">
+                <button onClick={() => setShowSync(false)} className="text-slate-400 hover:text-slate-600">
                   <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
-            <div className="divide-y divide-emerald-100 dark:divide-emerald-800">
+            <div className="divide-y divide-slate-100 dark:divide-slate-800">
               {syncPreview.map(row => (
                 <div key={row.id} className="px-4 py-2.5 flex items-center gap-3">
                   <div className="flex-1 min-w-0">
@@ -244,12 +245,12 @@ export const BudgetVsActual = () => {
                         : 'No PF category match found'}
                     </p>
                   </div>
-                  <span className="text-sm font-bold font-mono text-emerald-700 dark:text-emerald-300 shrink-0">
+                  <span className="text-sm font-bold font-mono text-neutral-value shrink-0">
                     {row.suggested > 0 ? `₹${row.suggested.toLocaleString('en-IN')}` : '—'}
                   </span>
                   {row.suggested > 0 && (
                     <button onClick={() => applySyncRow(row.id, row.suggested)}
-                      className="text-[10px] font-semibold px-2.5 py-1 bg-emerald-100 dark:bg-emerald-800 text-emerald-700 dark:text-emerald-300 rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-700 transition-colors shrink-0">
+                      className="text-[10px] font-semibold px-2.5 py-1 bg-fin-accent/10 text-fin-accent rounded-lg hover:bg-fin-accent/20 transition-colors shrink-0">
                       Use
                     </button>
                   )}
@@ -266,15 +267,15 @@ export const BudgetVsActual = () => {
               const pct = cat.budget > 0 ? (cat.actual / cat.budget) * 100 : 0;
               const over = cat.actual > cat.budget;
               return (
-                <div key={cat.id} className={`bg-white dark:bg-slate-900 rounded-xl p-4 border transition-all ${over ? 'border-red-200 dark:border-red-800' : 'border-slate-200 dark:border-slate-700'}`}>
+                <div key={cat.id} className={`bg-white dark:bg-slate-900 rounded-lg p-4 border transition-all ${over ? 'border-negative/30' : 'border-slate-200 dark:border-slate-700'}`}>
                   <div className="flex items-center gap-3 mb-2">
                     <input type="text" value={cat.category}
                       onChange={e => updateCategory(cat.id, 'category', e.target.value)}
                       className="flex-1 text-sm font-medium text-slate-700 dark:text-slate-300 bg-transparent border-none outline-none" />
                     {over ? (
-                      <span className="text-xs text-red-500 font-semibold shrink-0">+{fmt(cat.actual - cat.budget)} over</span>
+                      <span className="text-xs text-negative font-semibold shrink-0">+{fmt(cat.actual - cat.budget)} over</span>
                     ) : (
-                      <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold shrink-0">{fmt(cat.budget - cat.actual)} left</span>
+                      <span className="text-xs text-positive font-semibold shrink-0">{fmt(cat.budget - cat.actual)} left</span>
                     )}
                     <button onClick={() => removeCategory(cat.id)} className="p-1 text-slate-300 hover:text-red-500 transition-colors">
                       <Trash2 className="w-3.5 h-3.5" />
@@ -282,7 +283,7 @@ export const BudgetVsActual = () => {
                   </div>
                   {/* Progress bar */}
                   <div className="h-2 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden mb-2">
-                    <div className={`h-full rounded-full transition-all ${over ? 'bg-red-500' : pct > 80 ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                    <div className={`h-full rounded-full transition-all ${over ? 'bg-negative' : pct > 80 ? 'bg-warning' : 'bg-positive'}`}
                       style={{ width: `${Math.min(pct, 100)}%` }} />
                   </div>
                   <div className="flex gap-3">
@@ -302,12 +303,12 @@ export const BudgetVsActual = () => {
             })}
 
             {/* Totals */}
-            <div className={`rounded-xl p-4 border-2 font-semibold ${stats.totalActual > stats.totalBudget ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-800' : 'border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-800'}`}>
-              <div className="flex justify-between text-sm mb-1">
-                <span>Total Budget: <strong>{fmt(stats.totalBudget)}</strong></span>
-                <span>Total Actual: <strong>{fmt(stats.totalActual)}</strong></span>
+            <div className={`rounded-lg p-4 border-2 font-semibold bg-white dark:bg-slate-900 ${stats.totalActual > stats.totalBudget ? 'border-negative/40' : 'border-positive/40'}`}>
+              <div className="flex justify-between text-sm mb-1 text-slate-700 dark:text-slate-300">
+                <span>Total Budget: <strong className="text-neutral-value">{fmt(stats.totalBudget)}</strong></span>
+                <span>Total Actual: <strong className="text-neutral-value">{fmt(stats.totalActual)}</strong></span>
               </div>
-              <div className={`text-sm ${stats.variance >= 0 ? 'text-emerald-700 dark:text-emerald-300' : 'text-red-700 dark:text-red-300'}`}>
+              <div className={`text-sm ${stats.variance >= 0 ? 'text-positive' : 'text-negative'}`}>
                 {stats.variance >= 0 ? `✓ ${fmt(stats.variance)} under budget` : `✗ ${fmt(Math.abs(stats.variance))} over budget`}
               </div>
             </div>
@@ -315,7 +316,7 @@ export const BudgetVsActual = () => {
 
           {/* Chart */}
           <div className="space-y-4">
-            <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+            <div className="bg-white dark:bg-slate-900 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
               <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Budget vs Actual</h3>
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={chartData} layout="vertical" margin={{ top: 0, right: 10, bottom: 0, left: 0 }}>
@@ -330,15 +331,15 @@ export const BudgetVsActual = () => {
             </div>
 
             {/* Savings summary */}
-            <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700 space-y-2">
+            <div className="bg-white dark:bg-slate-900 rounded-lg p-4 border border-slate-200 dark:border-slate-700 space-y-2">
               <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Savings Summary</h3>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-500">Planned Savings</span>
-                <span className="font-semibold text-emerald-600 dark:text-emerald-400">{fmt(stats.budgetSavings)}</span>
+                <span className="font-semibold text-neutral-value">{fmt(stats.budgetSavings)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-500">Actual Savings</span>
-                <span className={`font-semibold ${stats.actualSavings >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>{fmt(stats.actualSavings)}</span>
+                <span className={`font-semibold ${stats.actualSavings >= 0 ? 'text-positive' : 'text-negative'}`}>{fmt(stats.actualSavings)}</span>
               </div>
               <div className="flex justify-between text-sm border-t border-slate-100 dark:border-slate-700 pt-2">
                 <span className="text-slate-500">Savings Rate</span>

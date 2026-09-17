@@ -6,11 +6,29 @@
   --foreground-rgb: 15, 23, 42;
   --background-start-rgb: 248, 250, 252;
   --background-end-rgb: 241, 245, 249;
-  /* User-customizable theme — all updated via JS */
-  --ot-accent:     #6366f1;
-  --ot-accent-rgb: 99, 102, 241;  /* RGB triplet of --ot-accent for Tailwind opacity modifiers */
-  --ot-logo-bg:    #f59e0b;   /* amber — warm complement to teal navbar */
-  --ot-logo-text:  #1e293b;   /* dark letter auto-contrasts on amber */
+  /* User-customizable theme — all updated via JS, defaults are the brand palette */
+  --ot-accent:     #1F2E5C;  /* brand indigo */
+  --ot-accent-rgb: 31, 46, 92;  /* RGB triplet of --ot-accent for Tailwind opacity modifiers */
+  --ot-logo-bg:    #1F2E5C;
+  --ot-logo-text:  #ffffff;
+
+  /* Fixed semantic colors — meaning is constant everywhere, never user-customizable */
+  --ot-positive:      #0F9D58;  /* inflow, savings growth, completed obligations */
+  --ot-positive-tint: #E5F5EC;
+  --ot-negative:      #D93025;  /* outflow, overdue, over-budget */
+  --ot-negative-tint: #FBEAE9;
+  --ot-warning:       #F59E0B;  /* Autopilot attention nudges */
+  --ot-warning-tint:  #FEF3E0;
+  --ot-neutral-value: #1E293B; /* KPI/figure text — always this, never green/red/orange */
+
+  /* Finance/Biz content accent — links, primary buttons, active states WITHIN
+     finance & business tool pages only. Distinct from --ot-accent (navbar/logo
+     brand color), which stays app-wide chrome and is not part of this token. */
+  --ot-fin-accent:     #4F46E5;
+  --ot-fin-accent-rgb: 79, 70, 229;  /* RGB triplet of --ot-fin-accent for Tailwind opacity modifiers (hover/active shades) */
+
+  --font-sans: 'IBM Plex Sans', -apple-system, 'Segoe UI', Arial, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Consolas, monospace;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -18,17 +36,34 @@
     --foreground-rgb: 255, 255, 255;
     --background-start-rgb: 2, 6, 23;
     --background-end-rgb: 2, 6, 23;
+    --ot-accent:     #7c8fd6;
+    --ot-accent-rgb: 124, 143, 214;
+    --ot-positive:      #34D399;
+    --ot-positive-tint: #0F2A20;
+    --ot-negative:      #F87171;
+    --ot-negative-tint: #2E1615;
+    --ot-warning:       #FBBF24;
+    --ot-warning-tint:  #2E2408;
+    --ot-neutral-value: #E2E8F0;
+    --ot-fin-accent:     #818CF8;
+    --ot-fin-accent-rgb: 129, 140, 248;
   }
 }
 
 body {
-  font-family: 'Calibri', 'Carlito', 'Trebuchet MS', 'Segoe UI', Arial, sans-serif;
+  font-family: var(--font-sans);
   color: rgb(var(--foreground-rgb));
   background: transparent;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+}
+
+/* Numeric figures (amounts, balances) align on a mono grid — apply with .font-tabular */
+.font-tabular {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 /* Mobile Performance Optimizations */

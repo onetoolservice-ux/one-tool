@@ -120,6 +120,7 @@ export const PFInvestmentTracker = () => {
     <div>
       <SAPHeader
         fullWidth
+        kpiVariant="strip"
         title="Investment Tracker"
         subtitle="Portfolio overview · Asset allocation · XIRR"
         kpis={[
@@ -135,14 +136,14 @@ export const PFInvestmentTracker = () => {
         <div className="flex justify-between items-center">
           <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Holdings</h2>
           <button onClick={() => setShowAdd(!showAdd)}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-xl text-sm font-semibold hover:bg-emerald-600 transition-colors">
+            className="flex items-center gap-2 px-4 py-2 bg-fin-accent text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-colors">
             <Plus className="w-4 h-4" /> Add Investment
           </button>
         </div>
 
         {/* Add Form */}
         {showAdd && (
-          <div className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-emerald-200 dark:border-emerald-800 space-y-3">
+          <div className="bg-white dark:bg-slate-900 rounded-lg p-5 border border-slate-200 dark:border-slate-700 space-y-3">
             <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">New Investment</h3>
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2 space-y-1">
@@ -174,11 +175,11 @@ export const PFInvestmentTracker = () => {
             </div>
             <div className="flex gap-2 pt-1">
               <button onClick={addInvestment}
-                className="px-4 py-2 bg-emerald-500 text-white rounded-xl text-sm font-semibold hover:bg-emerald-600 transition-colors">
+                className="px-4 py-2 bg-fin-accent text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-colors">
                 Add to Portfolio
               </button>
               <button onClick={() => setShowAdd(false)}
-                className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-sm font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
                 Cancel
               </button>
             </div>
@@ -189,12 +190,12 @@ export const PFInvestmentTracker = () => {
           {/* Holdings Table */}
           <div className="lg:col-span-2 space-y-3">
             {withXIRR.length === 0 ? (
-              <div className="bg-white dark:bg-slate-900 rounded-xl p-8 border border-slate-200 dark:border-slate-700 text-center">
+              <div className="bg-white dark:bg-slate-900 rounded-lg p-8 border border-slate-200 dark:border-slate-700 text-center">
                 <TrendingUp className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
                 <p className="text-sm text-slate-400">No investments added yet. Click "Add Investment" to get started.</p>
               </div>
             ) : withXIRR.map(inv => (
-              <div key={inv.id} className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+              <div key={inv.id} className="bg-white dark:bg-slate-900 rounded-lg p-5 border border-slate-200 dark:border-slate-700">
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
@@ -204,29 +205,29 @@ export const PFInvestmentTracker = () => {
                     </div>
                     <div className="grid grid-cols-4 gap-2 mt-2">
                       <div>
-                        <div className="text-[10px] text-slate-400">Invested</div>
-                        <div className="text-sm font-medium text-slate-700 dark:text-slate-300">{fmtL(inv.investedAmount)}</div>
+                        <div className="text-[10px] text-slate-500">Invested</div>
+                        <div className="text-sm font-medium text-neutral-value">{fmtL(inv.investedAmount)}</div>
                       </div>
                       <div>
-                        <div className="text-[10px] text-slate-400">Current</div>
-                        <div className="text-sm font-medium text-slate-700 dark:text-slate-300">{fmtL(inv.currentValue)}</div>
+                        <div className="text-[10px] text-slate-500">Current</div>
+                        <div className="text-sm font-medium text-neutral-value">{fmtL(inv.currentValue)}</div>
                       </div>
                       <div>
-                        <div className="text-[10px] text-slate-400">Gain / Loss</div>
-                        <div className={`text-sm font-semibold ${inv.gain >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                        <div className="text-[10px] text-slate-500">Gain / Loss</div>
+                        <div className={`text-sm font-semibold ${inv.gain >= 0 ? 'text-positive' : 'text-negative'}`}>
                           {inv.gain >= 0 ? '+' : ''}{fmtL(inv.gain)} ({inv.gainPct >= 0 ? '+' : ''}{inv.gainPct.toFixed(1)}%)
                         </div>
                       </div>
                       <div>
-                        <div className="text-[10px] text-slate-400">XIRR</div>
-                        <div className={`text-sm font-semibold ${inv.xirr >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-red-500'}`}>
+                        <div className="text-[10px] text-slate-500">XIRR</div>
+                        <div className={`text-sm font-semibold ${inv.xirr >= 0 ? 'text-positive' : 'text-negative'}`}>
                           {inv.xirr >= 0 ? '+' : ''}{inv.xirr.toFixed(1)}%
                         </div>
                       </div>
                     </div>
                   </div>
                   <button onClick={() => removeInvestment(inv.id)}
-                    className="p-1.5 text-slate-400 hover:text-red-500 transition-colors ml-2 shrink-0">
+                    className="p-1.5 text-slate-400 hover:text-negative transition-colors ml-2 shrink-0">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -237,7 +238,7 @@ export const PFInvestmentTracker = () => {
           {/* Right: Charts */}
           <div className="space-y-4">
             {/* Pie Chart */}
-            <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+            <div className="bg-white dark:bg-slate-900 rounded-lg p-5 border border-slate-200 dark:border-slate-700">
               <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Asset Allocation</h3>
               {stats.pieData.length > 0 ? (
                 <>
@@ -270,9 +271,9 @@ export const PFInvestmentTracker = () => {
               )}
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 border border-blue-200 dark:border-blue-800 flex gap-2">
-              <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
-              <p className="text-xs text-blue-600 dark:text-blue-400">
+            <div className="bg-white dark:bg-slate-900 rounded-lg p-3 border border-slate-200 dark:border-slate-700 flex gap-2">
+              <Info className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
+              <p className="text-xs text-slate-600 dark:text-slate-400">
                 XIRR is the annualised return rate based on investment date. Update current values periodically for accurate tracking.
               </p>
             </div>

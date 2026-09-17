@@ -115,18 +115,18 @@ export function FinancialPosition() {
   }) => (
     <button
       onClick={() => setDrillDown(drillDown === id ? null : id)}
-      className={`text-left w-full bg-white dark:bg-slate-900 border rounded-xl p-4 transition-all hover:shadow-sm group ${
+      className={`text-left w-full bg-white dark:bg-slate-900 border rounded-lg p-4 transition-all hover:shadow-sm group ${
         drillDown === id
-          ? 'border-blue-400 ring-2 ring-blue-200 dark:ring-blue-800'
+          ? 'border-fin-accent ring-2 ring-fin-accent/20'
           : 'border-slate-200 dark:border-slate-700'
       }`}
     >
       <div className="flex items-start justify-between mb-2">
-        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">{label}</p>
+        <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">{label}</p>
         <Icon size={14} className={`${colorClass} opacity-60`} />
       </div>
-      <p className={`text-2xl font-black ${colorClass} mb-0.5`}>{value}</p>
-      {subtitle && <p className="text-xs text-slate-400 mt-1">{subtitle}</p>}
+      <p className="text-2xl font-black text-neutral-value mb-0.5">{value}</p>
+      {subtitle && <p className="text-xs text-slate-500 mt-1">{subtitle}</p>}
       <p className="text-[10px] text-slate-300 dark:text-slate-600 mt-1.5 group-hover:text-slate-400 transition-colors">
         Click for breakdown
       </p>
@@ -140,21 +140,20 @@ export function FinancialPosition() {
     id: string; label: string; value: number;
     good: number; bad: number;
   }) => {
-    const colorClass = value <= good ? 'text-emerald-600' : value <= bad ? 'text-amber-600' : 'text-red-600';
-    const barColor   = value <= good ? 'bg-emerald-500'  : value <= bad ? 'bg-amber-500'  : 'bg-red-500';
+    const barColor = value <= good ? 'bg-positive' : value <= bad ? 'bg-warning' : 'bg-negative';
     const f = RATIO_FORMULAS[id as keyof typeof RATIO_FORMULAS];
     return (
-      <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-4">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4">
         <div className="flex items-center justify-between mb-2">
           <button
             onClick={() => setDrillDown(drillDown === id ? null : id)}
-            className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider hover:text-slate-600 dark:hover:text-slate-200 transition-colors text-left"
+            className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider hover:text-slate-600 dark:hover:text-slate-200 transition-colors text-left"
           >
             {label}
           </button>
           <button
             onClick={e => { e.stopPropagation(); setFormulaPopover(formulaPopover === id ? null : id); }}
-            className="p-1 text-slate-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors rounded"
+            className="p-1 text-slate-300 hover:text-fin-accent transition-colors rounded"
             title="Show formula"
           >
             <Info size={13} />
@@ -164,26 +163,26 @@ export function FinancialPosition() {
           onClick={() => setDrillDown(drillDown === id ? null : id)}
           className="w-full text-left"
         >
-          <p className={`text-3xl font-black ${colorClass} mb-1.5`}>{fmtPct(value)}</p>
+          <p className="text-3xl font-black text-neutral-value mb-1.5">{fmtPct(value)}</p>
           <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 mb-1">
             <div
               className={`h-1.5 rounded-full ${barColor} transition-all`}
               style={{ width: `${Math.min(value, 100)}%` }}
             />
           </div>
-          <p className="text-[10px] text-slate-400">
+          <p className="text-[10px] text-slate-500">
             Good: &lt;{good}% · Caution: {good}–{bad}% · High: &gt;{bad}%
           </p>
         </button>
 
         {/* Inline formula popover */}
         {formulaPopover === id && f && (
-          <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-300 dark:border-slate-600">
+          <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1">
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Formula</p>
-                <p className="text-xs font-mono text-blue-600 dark:text-blue-400 break-words">{f.formula}</p>
-                <p className="text-[11px] text-slate-400 mt-1.5">{f.note}</p>
+                <p className="text-xs font-mono text-slate-600 dark:text-slate-300 break-words">{f.formula}</p>
+                <p className="text-[11px] text-slate-500 mt-1.5">{f.note}</p>
               </div>
               <button onClick={() => setFormulaPopover(null)} className="text-slate-300 hover:text-slate-500 shrink-0">
                 <X size={12} />
@@ -199,6 +198,7 @@ export function FinancialPosition() {
     <div className="space-y-4">
       <SAPHeader
         fullWidth
+        kpiVariant="strip"
         title="Financial Position"
         subtitle={`Period: ${periodRange}`}
         kpis={hasData && hasIncome ? [
@@ -212,27 +212,27 @@ export function FinancialPosition() {
 
       {/* Validation banners */}
       {hasData && !validation.valid && validation.errors.map((err, i) => (
-        <div key={i} className="flex items-start gap-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-xl px-4 py-3 text-xs text-red-700 dark:text-red-300">
+        <div key={i} className="flex items-start gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-xs text-negative">
           <Info size={13} className="mt-0.5 shrink-0" />
           {err}
         </div>
       ))}
       {hasData && validation.warnings.map((w, i) => (
-        <div key={i} className="flex items-start gap-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl px-4 py-3 text-xs text-amber-700 dark:text-amber-300">
+        <div key={i} className="flex items-start gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-xs text-warning">
           <Info size={13} className="mt-0.5 shrink-0" />
           {w}
         </div>
       ))}
 
       {/* SAP Filter Bar */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
           <div className="flex items-center gap-2">
             <SlidersHorizontal size={13} className="text-slate-400" />
             <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">Filters</p>
           </div>
           <button onClick={() => setShowFilterBar(v => !v)}
-            className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold">
+            className="text-xs text-fin-accent hover:underline font-semibold">
             {showFilterBar ? 'Hide Filter Bar' : 'Show Filter Bar'}
           </button>
         </div>
@@ -292,7 +292,7 @@ export function FinancialPosition() {
           <p className="text-xs mt-1">Upload a bank statement in Statement Manager to begin.</p>
         </div>
       ) : !hasIncome ? (
-        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-8 text-center">
+        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg p-8 text-center">
           <TrendingUp size={32} className="mx-auto mb-3 opacity-25" />
           <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
             No income transactions detected in the selected period.
@@ -309,7 +309,7 @@ export function FinancialPosition() {
               id="income"
               label="Total Income"
               value={fmtINR(metrics.totalIncome)}
-              colorClass="text-emerald-600 dark:text-emerald-400"
+              colorClass="text-positive"
               icon={TrendingUp}
               subtitle={`Salary: ${fmtINR(metrics.salary)}`}
             />
@@ -317,14 +317,14 @@ export function FinancialPosition() {
               id="outflow"
               label="Total Outflow"
               value={fmtINR(metrics.totalOutflow)}
-              colorClass="text-slate-700 dark:text-slate-200"
+              colorClass="text-slate-400"
               icon={TrendingDown}
             />
             <MetricCard
               id="surplus"
               label="Net Surplus"
               value={fmtINR(Math.abs(metrics.netSurplus))}
-              colorClass={metrics.netSurplus >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}
+              colorClass={metrics.netSurplus >= 0 ? 'text-positive' : 'text-negative'}
               icon={DollarSign}
               subtitle={metrics.netSurplus < 0 ? 'Deficit' : 'Surplus'}
             />
@@ -332,7 +332,7 @@ export function FinancialPosition() {
               id="savings"
               label="Savings Rate"
               value={fmtPct(metrics.savingsRate)}
-              colorClass={metrics.savingsRate >= 20 ? 'text-emerald-600 dark:text-emerald-400' : metrics.savingsRate >= 10 ? 'text-amber-600' : 'text-red-600'}
+              colorClass={metrics.savingsRate >= 20 ? 'text-positive' : metrics.savingsRate >= 10 ? 'text-warning' : 'text-negative'}
               icon={Percent}
               subtitle="(Surplus ÷ Income) × 100"
             />
@@ -347,9 +347,9 @@ export function FinancialPosition() {
 
           {/* Drill-down panel */}
           {drillDown && drillTxns.length > 0 && (
-            <div className="bg-white dark:bg-slate-900 border border-blue-300 dark:border-blue-700 rounded-xl overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-3 bg-blue-50 dark:bg-blue-900/20">
-                <p className="text-sm font-bold text-blue-700 dark:text-blue-300">
+            <div className="bg-white dark:bg-slate-900 border border-fin-accent/30 rounded-lg overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 bg-fin-accent/10">
+                <p className="text-sm font-bold text-fin-accent">
                   {drillTxns.length} transactions · {fmtINR(drillTxns.reduce((a, t) => a + t.amount, 0))}
                 </p>
                 <button onClick={() => setDrillDown(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
@@ -395,7 +395,7 @@ export function FinancialPosition() {
           )}
 
           {drillDown && drillTxns.length === 0 && (
-            <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-300 dark:border-slate-600 rounded-xl p-6 text-center">
+            <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-300 dark:border-slate-600 rounded-lg p-6 text-center">
               <p className="text-sm text-slate-400">
                 No transactions match this category in the selected period.
               </p>
@@ -403,12 +403,12 @@ export function FinancialPosition() {
           )}
 
           {/* Savings Rate formula (always visible) */}
-          <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-300 dark:border-slate-600 rounded-xl p-4">
+          <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-300 dark:border-slate-600 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-3">
               <Info size={13} className="text-slate-400" />
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">Savings Rate Formula</p>
             </div>
-            <p className="text-xs font-mono text-blue-600 dark:text-blue-400">
+            <p className="text-xs font-mono text-slate-600 dark:text-slate-300">
               Savings Rate = (Net Surplus ÷ Total Income) × 100
             </p>
             <p className="text-xs text-slate-400 mt-1">

@@ -17,6 +17,7 @@ export interface ThemeSettings {
 // ── Presets ───────────────────────────────────────────────────────────────────
 
 export const LOGO_PRESETS = [
+  { name: 'Brand Indigo', value: '#1F2E5C' },
   { name: 'Indigo',  value: '#6366f1' },
   { name: 'Violet',  value: '#8b5cf6' },
   { name: 'Blue',    value: '#3b82f6' },
@@ -44,6 +45,7 @@ export const NAVBAR_BG_PRESETS = [
 ];
 
 export const FONT_OPTIONS = [
+  { id: 'plex',    label: 'Brand',  stack: "'IBM Plex Sans', -apple-system, 'Segoe UI', sans-serif" },
   { id: 'inter',   label: 'Sans',   stack: "'Inter', system-ui, sans-serif" },
   { id: 'serif',   label: 'Serif',  stack: "Georgia, 'Times New Roman', serif" },
   { id: 'mono',    label: 'Mono',   stack: "'Courier New', Courier, monospace" },
@@ -61,11 +63,11 @@ const KEYS = {
 } as const;
 
 export const DEFAULTS: ThemeSettings = {
-  accent:     '#6366f1',   // indigo — search ring, "Tool" text, active states
-  logo:       '#14b8a6',   // teal — matches navbar
-  navbar:     '#096464',   // teal — rgb(9, 100, 100)
-  navbarText: '#f8fafc',   // light text — white on dark teal navbar
-  font:       'rounded',   // Trebuchet MS rounded sans
+  accent:     '#1F2E5C',   // brand indigo — search ring, "Tool" text, active states
+  logo:       '#1F2E5C',   // brand indigo — matches navbar
+  navbar:     '#1F2E5C',   // brand indigo — matches GlobalHeader NAV_BG
+  navbarText: '#f8fafc',   // light text — white on dark indigo navbar
+  font:       'plex',      // IBM Plex Sans — brand default
 };
 
 // ── Color helpers ─────────────────────────────────────────────────────────────

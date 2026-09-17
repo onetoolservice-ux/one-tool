@@ -120,6 +120,7 @@ export function SubscriptionFinder() {
     <div className="space-y-4">
       <SAPHeader
         fullWidth
+        kpiVariant="strip"
         title="Subscription Finder"
         subtitle="Recurring payments with consistent amounts — likely subscriptions & SIPs"
         kpis={subs.length > 0 ? [
@@ -131,7 +132,7 @@ export function SubscriptionFinder() {
       <div className="space-y-4 px-4 pb-4">
 
         {/* Controls */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg p-4">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div className="flex flex-col gap-1">
               <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Account</label>
@@ -154,24 +155,24 @@ export function SubscriptionFinder() {
         </div>
 
         {/* Cross-link banner */}
-        <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg text-xs text-amber-700 dark:text-amber-300">
+        <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-600 dark:text-slate-300">
           <span className="flex-1">Shows only recurring payments with <strong>consistent amounts</strong> (low variance). For all repeat transactions including variable ones →</span>
-          <Link href="/my-finance/pf-recurring-payments" className="flex items-center gap-1 font-semibold whitespace-nowrap hover:underline">
+          <Link href="/my-finance/pf-recurring-payments" className="flex items-center gap-1 font-semibold whitespace-nowrap hover:underline text-fin-accent">
             Recurring Payments <ArrowRight size={11} />
           </Link>
         </div>
 
         {subs.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-12 text-center">
+          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg p-12 text-center">
             <Repeat2 size={36} className="mx-auto mb-3 text-slate-300 dark:text-slate-600" />
             <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">No subscriptions detected.</p>
             <p className="text-xs text-slate-400 mt-1">Try increasing the consistency threshold, or upload more statement data.</p>
           </div>
         ) : (
-          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
             <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-between">
               <span className="text-xs text-slate-500">{subs.length} detected · consistency ≤{maxCV}% variation</span>
-              <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">{fmtINR(totalAnnual)} / year</span>
+              <span className="text-xs font-semibold text-neutral-value">{fmtINR(totalAnnual)} / year</span>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
@@ -209,19 +210,19 @@ export function SubscriptionFinder() {
                                 className="text-xs border border-slate-300 dark:border-slate-600 rounded px-2 py-1 bg-white dark:bg-slate-900" />
                               <div className="flex gap-1">
                                 <button onClick={() => saveCategory(row, newCat || editCat)} disabled={!editCat && !newCat.trim()}
-                                  className="flex-1 text-[10px] font-semibold bg-blue-600 text-white rounded px-2 py-1 disabled:opacity-40">Apply</button>
+                                  className="flex-1 text-[10px] font-semibold bg-fin-accent text-white rounded px-2 py-1 disabled:opacity-40">Apply</button>
                                 <button onClick={() => { setEditMerchant(null); setNewCat(''); }}
                                   className="text-[10px] px-2 py-1 rounded border border-slate-300 dark:border-slate-600 text-slate-500">✕</button>
                               </div>
                             </div>
-                          ) : <PFBadge color="blue">{row.category}</PFBadge>}
+                          ) : <PFBadge color="slate">{row.category}</PFBadge>}
                         </td>
                         <td className="px-4 py-3 text-right font-mono text-slate-600 dark:text-slate-300">{row.count}</td>
                         <td className="px-4 py-3 text-right font-mono text-slate-600 dark:text-slate-300">{fmtINR(row.avgAmount)}</td>
-                        <td className="px-4 py-3 text-right font-mono font-semibold text-amber-600 dark:text-amber-400">{fmtINR(row.monthlyEst)}</td>
-                        <td className="px-4 py-3 text-right font-mono font-bold text-orange-600 dark:text-orange-400">{fmtINR(row.annualEst)}</td>
+                        <td className="px-4 py-3 text-right font-mono font-semibold text-neutral-value">{fmtINR(row.monthlyEst)}</td>
+                        <td className="px-4 py-3 text-right font-mono font-bold text-neutral-value">{fmtINR(row.annualEst)}</td>
                         <td className="px-4 py-3 text-right">
-                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${row.variance < 5 ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'}`}>
+                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${row.variance < 5 ? 'bg-positive-tint text-positive' : 'bg-warning-tint text-warning'}`}>
                             {row.variance.toFixed(1)}% CV
                           </span>
                         </td>

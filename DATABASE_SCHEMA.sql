@@ -244,3 +244,74 @@ CREATE TRIGGER update_user_profiles_updated_at BEFORE UPDATE ON user_profiles
 
 CREATE TRIGGER update_user_tool_data_updated_at BEFORE UPDATE ON user_tool_data
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+-- ==========================================
+-- 9. FEEDBACK SUBMISSIONS TABLE (Nav bar "Feedback" form)
+-- ==========================================
+CREATE TABLE IF NOT EXISTS feedback_submissions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  user_email TEXT,
+  page_path TEXT NOT NULL, -- e.g. "/my-finance/pf-expenses"
+  page_label TEXT NOT NULL, -- e.g. "Expenses" — human-readable, picked from the form dropdown
+  category TEXT NOT NULL DEFAULT 'other', -- 'bug' | 'suggestion' | 'question' | 'other'
+  description TEXT NOT NULL,
+  attachment_url TEXT, -- path in the feedback-attachments storage bucket
+  status TEXT DEFAULT 'new', -- 'new' | 'seen' | 'resolved' — for admin triage
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE feedback_submissions ENABLE ROW LEVEL SECURITY;
+
+-- Anyone (including guests) can submit feedback
+CREATE POLICY "Anyone can submit feedback"
+  ON feedback_submissions FOR INSERT
+  WITH CHECK (true);
+
+-- Only admins can read/triage submitted feedback
+CREATE POLICY "Admins can view feedback"
+  ON feedback_submissions FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE user_profiles.user_id = auth.uid()
+      AND user_profiles.role = 'admin'
+    )
+  );
+
+CREATE POLICY "Admins can update feedback"
+  ON feedback_submissions FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE user_profiles.user_id = auth.uid()
+      AND user_profiles.role = 'admin'
+    )
+  );
+
+CREATE INDEX IF NOT EXISTS idx_feedback_submissions_created_at ON feedback_submissions(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_feedback_submissions_status ON feedback_submissions(status);
+
+-- ==========================================
+-- 10. STORAGE BUCKET: feedback-attachments
+-- ==========================================
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('feedback-attachments', 'feedback-attachments', false)
+ON CONFLICT (id) DO NOTHING;
+
+-- Anyone (including guests) can upload an attachment
+CREATE POLICY "Anyone can upload feedback attachments"
+  ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = 'feedback-attachments');
+
+-- Only admins can view/download attachments
+CREATE POLICY "Admins can view feedback attachments"
+  ON storage.objects FOR SELECT
+  USING (
+    bucket_id = 'feedback-attachments'
+    AND EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE user_profiles.user_id = auth.uid()
+      AND user_profiles.role = 'admin'
+    )
+  );

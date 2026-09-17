@@ -16,7 +16,7 @@ export default function BrandLogo({ size = 36, className = '' }: BrandLogoProps)
         height: size,
         fontSize: size * 0.42,
         borderRadius: size * 0.22,
-        background: 'var(--ot-logo-bg, linear-gradient(135deg, #6366f1 0%, #7c3aed 100%))',
+        background: 'var(--ot-logo-bg, #1F2E5C)',
         color: 'var(--ot-logo-text, #ffffff)',
         boxShadow: '0 0 0 1.5px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.18)',
       }}

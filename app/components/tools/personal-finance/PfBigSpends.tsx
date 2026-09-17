@@ -85,7 +85,7 @@ export function BigSpends() {
 
   const SI = ({ col }: { col: SortCol }) =>
     sortCol === col
-      ? (sortDir === 'asc' ? <ChevronUp size={11} className="text-blue-500" /> : <ChevronDown size={11} className="text-blue-500" />)
+      ? (sortDir === 'asc' ? <ChevronUp size={11} className="text-fin-accent" /> : <ChevronDown size={11} className="text-fin-accent" />)
       : <ChevronDown size={11} className="text-slate-300 dark:text-slate-600" />;
 
   if (!mounted) return null;
@@ -94,6 +94,7 @@ export function BigSpends() {
     <div className="space-y-4">
       <SAPHeader
         fullWidth
+        kpiVariant="strip"
         title="Big Spends"
         subtitle={`Transactions above ${fmtINR(threshold)}`}
         kpis={filtered.length > 0 ? [
@@ -106,7 +107,7 @@ export function BigSpends() {
       <div className="space-y-4 px-4 pb-4">
 
         {/* Filter Bar */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
           <PFFilterBarHeader
             activeCount={activeFilters}
             onClearAll={() => { setCatFilter('all'); setAccountFilter('all'); setPeriod('all'); }}
@@ -122,7 +123,7 @@ export function BigSpends() {
                   {THRESHOLD_PRESETS.map(p => (
                     <button key={p} onClick={() => { setThreshold(p); setThresholdInput(String(p)); }}
                       className={`text-xs px-3 py-1 rounded-lg border font-semibold transition-colors
-                        ${threshold === p ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                        ${threshold === p ? 'bg-fin-accent border-fin-accent text-white' : 'border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
                       {fmtINR(p)}
                     </button>
                   ))}
@@ -177,13 +178,13 @@ export function BigSpends() {
         </div>
 
         {sorted.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-12 text-center">
+          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg p-12 text-center">
             <AlertCircle size={36} className="mx-auto mb-3 text-slate-300 dark:text-slate-600" />
             <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">No transactions above {fmtINR(threshold)}.</p>
             <p className="text-xs text-slate-400 mt-1">Try lowering the threshold.</p>
           </div>
         ) : (
-          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
             <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-between">
               <span className="text-xs text-slate-500">{sorted.length} transactions</span>
               <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{fmtINR(totalSpend)} total</span>
@@ -206,7 +207,7 @@ export function BigSpends() {
                       <td className="px-4 py-3">
                         <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">{t.category}</span>
                       </td>
-                      <td className="px-4 py-3 text-right font-mono font-bold text-red-600 dark:text-red-400">{fmtINR(t.amount)}</td>
+                      <td className="px-4 py-3 text-right font-mono font-bold text-neutral-value">{fmtINR(t.amount)}</td>
                     </tr>
                   ))}
                 </tbody>

@@ -296,6 +296,7 @@ export function BizQuotations() {
       <SAPHeader
         fullWidth
         sticky
+        kpiVariant="strip"
         title="Quotations"
         subtitle="Estimates · Proposals · Win Rate"
         kpis={[
@@ -360,7 +361,7 @@ export function BizQuotations() {
                   onClick={() => setFilter(tab.key)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-colors ${
                     filter === tab.key
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-fin-accent text-white'
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                   }`}
                 >
@@ -370,7 +371,7 @@ export function BizQuotations() {
             </div>
             <button
               onClick={openNewForm}
-              className="shrink-0 flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors"
+              className="shrink-0 flex items-center gap-1.5 px-4 py-2 bg-fin-accent hover:opacity-90 text-white rounded-lg text-sm font-bold transition-colors"
             >
               <Plus size={15} /> New Quote
             </button>
@@ -386,7 +387,7 @@ export function BizQuotations() {
                 </p>
                 <button
                   onClick={openNewForm}
-                  className="text-sm text-blue-600 dark:text-blue-400 font-bold hover:underline"
+                  className="text-sm text-fin-accent font-bold hover:underline"
                 >
                   Create your first quote →
                 </button>
@@ -543,7 +544,7 @@ export function BizQuotations() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* ── Left: Customer + Dates + Notes ───────────────────────── */}
               <div className="space-y-4">
-                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 space-y-4">
+                <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-5 space-y-4">
                   <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Quote Details</p>
 
                   {/* Customer */}
@@ -648,7 +649,7 @@ export function BizQuotations() {
 
               {/* ── Right: Line Items + Summary ───────────────────────────── */}
               <div className="space-y-4">
-                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-5">
+                <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-5">
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                       Line Items *
@@ -656,7 +657,7 @@ export function BizQuotations() {
                     <button
                       type="button"
                       onClick={addItem}
-                      className="flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                      className="flex items-center gap-1 text-xs font-bold text-fin-accent hover:underline"
                     >
                       <Plus size={12} /> Add Row
                     </button>
@@ -776,7 +777,7 @@ export function BizQuotations() {
                 </div>
 
                 {/* Summary */}
-                <div className="bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 space-y-2">
+                <div className="bg-slate-50 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700 p-5 space-y-2">
                   <div className="flex justify-between text-sm text-slate-600 dark:text-slate-300">
                     <span>Subtotal</span>
                     <span className="font-bold">{fmtCurrency(subtotal)}</span>
@@ -803,7 +804,7 @@ export function BizQuotations() {
                   <button
                     type="submit"
                     disabled={!formCustomerId || formItems.length === 0 || formItems.every(it => !it.name)}
-                    className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-bold transition-colors"
+                    className="flex-1 py-3 rounded-lg bg-fin-accent hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-bold transition-colors"
                   >
                     {editingId ? 'Update Quote' : 'Create Quote'}
                   </button>

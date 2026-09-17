@@ -213,10 +213,10 @@ export function DailyTransactionPulse() {
     const p75 = vals[Math.floor(vals.length * 0.75)] ?? 0;
     const p90 = vals[Math.floor(vals.length * 0.9)] ?? 0;
     const buckets = [
-      { label: 'Light',    range: `< ${fmtINR(p50)}`,                count: 0, color: 'bg-emerald-400' },
-      { label: 'Moderate', range: `${fmtINR(p50)} – ${fmtINR(p75)}`, count: 0, color: 'bg-amber-400'   },
-      { label: 'Heavy',    range: `${fmtINR(p75)} – ${fmtINR(p90)}`, count: 0, color: 'bg-orange-500'  },
-      { label: 'Splurge',  range: `> ${fmtINR(p90)}`,                count: 0, color: 'bg-red-500'     },
+      { label: 'Light',    range: `< ${fmtINR(p50)}`,                count: 0, color: 'bg-positive' },
+      { label: 'Moderate', range: `${fmtINR(p50)} – ${fmtINR(p75)}`, count: 0, color: 'bg-warning'  },
+      { label: 'Heavy',    range: `${fmtINR(p75)} – ${fmtINR(p90)}`, count: 0, color: 'bg-warning'  },
+      { label: 'Splurge',  range: `> ${fmtINR(p90)}`,                count: 0, color: 'bg-negative' },
     ];
     for (const v of vals) {
       if (v < p50)      buckets[0].count++;
@@ -240,6 +240,7 @@ export function DailyTransactionPulse() {
     <div className="space-y-4">
       <SAPHeader
         fullWidth
+        kpiVariant="strip"
         title="Daily Transaction Pulse"
         subtitle="Average daily spend, transaction frequency, and day-level patterns"
         kpis={hasData ? [
@@ -257,7 +258,7 @@ export function DailyTransactionPulse() {
       <div className="space-y-4 px-4 pb-4">
 
         {/* Filters */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
           <PFFilterBarHeader
             activeCount={activeFilters}
             onClearAll={() => { setAccountFilter('all'); setPeriod('last-3-months'); }}
@@ -290,8 +291,8 @@ export function DailyTransactionPulse() {
           <ToolEmptyState
             compact
             icon={Activity}
-            iconColorClass="text-amber-600 dark:text-amber-400"
-            iconBgClass="bg-amber-100 dark:bg-amber-900/40"
+            iconColorClass="text-slate-500"
+            iconBgClass="bg-slate-100 dark:bg-slate-800"
             title="No transactions found"
             description="No debit transactions for the selected period. Try a different period or account filter."
             secondaryCta={{ label: 'Go to Statement Manager', href: '/my-finance/pf-statement-manager' }}
@@ -300,10 +301,7 @@ export function DailyTransactionPulse() {
           <>
             {/* ── Month-end Forecast ── */}
             {forecast && (
-              <div className={`rounded-xl px-4 py-3 border flex items-center justify-between gap-4
-                ${budgetData.totalBudget > 0 && forecast.projected > budgetData.totalBudget
-                  ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700'
-                  : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700'}`}>
+              <div className="rounded-lg px-4 py-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 flex items-center justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Month-end Forecast</p>
                   <p className="text-[10px] text-slate-400 mt-0.5">
@@ -311,7 +309,7 @@ export function DailyTransactionPulse() {
                   </p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-lg font-bold text-slate-800 dark:text-slate-100 font-mono">{fmtINR(forecast.projected)}</p>
+                  <p className={`text-lg font-bold font-mono ${budgetData.totalBudget > 0 && forecast.projected > budgetData.totalBudget ? 'text-negative' : 'text-neutral-value'}`}>{fmtINR(forecast.projected)}</p>
                   <p className="text-[10px] text-slate-400">projected this month</p>
                 </div>
               </div>
@@ -319,10 +317,7 @@ export function DailyTransactionPulse() {
 
             {/* ── Budget vs Avg Spend comparison ── */}
             {budgetData.dailyBudget > 0 && (
-              <div className={`rounded-xl px-4 py-3 border flex items-center justify-between gap-4
-                ${avgDailySpend > budgetData.dailyBudget
-                  ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700'
-                  : 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-700'}`}>
+              <div className="rounded-lg px-4 py-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 flex items-center justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
                     {avgDailySpend > budgetData.dailyBudget ? 'Over Daily Budget' : 'Within Daily Budget'}
@@ -335,8 +330,8 @@ export function DailyTransactionPulse() {
                 <div className="text-right shrink-0">
                   <p className={`text-sm font-bold font-mono
                     ${avgDailySpend > budgetData.dailyBudget
-                      ? 'text-red-600 dark:text-red-400'
-                      : 'text-emerald-600 dark:text-emerald-400'}`}>
+                      ? 'text-negative'
+                      : 'text-positive'}`}>
                     {avgDailySpend > budgetData.dailyBudget ? '+' : '-'}{fmtINR(Math.abs(avgDailySpend - budgetData.dailyBudget))}/day
                   </p>
                   <p className="text-[10px] text-slate-400">vs avg daily spend</p>
@@ -346,13 +341,13 @@ export function DailyTransactionPulse() {
 
             {/* ── Peak DOW insight ── */}
             {dowInsight && (
-              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl px-4 py-3 flex items-center gap-3">
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 flex items-center gap-3">
                 <span className="text-base">📅</span>
-                <p className="text-xs text-amber-800 dark:text-amber-200">
+                <p className="text-xs text-slate-600 dark:text-slate-300">
                   Your heaviest spending day is{' '}
-                  <span className="font-bold">{dowInsight.label}</span> — avg{' '}
+                  <span className="font-bold text-warning">{dowInsight.label}</span> — avg{' '}
                   <span className="font-bold">{fmtINR(dowInsight.avg)}</span> across {dowInsight.days} active {dowInsight.label}s.{' '}
-                  <Link href="/my-finance/pf-behavior" className="underline font-medium">
+                  <Link href="/my-finance/pf-behavior" className="underline font-medium text-fin-accent">
                     See full DOW breakdown →
                   </Link>
                 </p>
@@ -361,12 +356,12 @@ export function DailyTransactionPulse() {
 
             {/* ── Longest spend-free streak ── */}
             {longestStreak && (
-              <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 rounded-xl px-4 py-3 flex items-center gap-3">
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 flex items-center gap-3">
                 <span className="text-base">🏆</span>
-                <p className="text-xs text-emerald-800 dark:text-emerald-200">
+                <p className="text-xs text-slate-600 dark:text-slate-300">
                   Longest spend-free streak:{' '}
-                  <span className="font-bold">{longestStreak.length} consecutive days</span>
-                  <span className="text-emerald-600 dark:text-emerald-400">
+                  <span className="font-bold text-positive">{longestStreak.length} consecutive days</span>
+                  <span className="text-slate-400">
                     {' '}({new Date(longestStreak.from + 'T12:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} – {new Date(longestStreak.to + 'T12:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })})
                   </span>
                 </p>
@@ -375,7 +370,7 @@ export function DailyTransactionPulse() {
 
             {/* ── Monthly Avg Daily Spend Chart ── */}
             {monthlyStats.length > 1 && (
-              <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
+              <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
                 <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
                   <span className="text-xs text-slate-500 font-medium">Avg Daily Spend — Month over Month</span>
                 </div>
@@ -402,7 +397,7 @@ export function DailyTransactionPulse() {
             {/* ── Weekday vs Weekend + Intensity Distribution ── */}
             <div className="grid grid-cols-2 gap-4">
 
-              <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
+              <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
                 <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
                   <span className="text-xs text-slate-500 font-medium">Weekday vs Weekend</span>
                 </div>
@@ -427,7 +422,7 @@ export function DailyTransactionPulse() {
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
+              <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
                 <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
                   <span className="text-xs text-slate-500 font-medium">Day Intensity Split</span>
                 </div>
@@ -455,7 +450,7 @@ export function DailyTransactionPulse() {
             </div>
 
             {/* ── Top 5 Highest Spend Days — expandable ── */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
               <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
                 <span className="text-xs text-slate-500 font-medium">Top 5 Highest Spend Days — click to expand</span>
               </div>
@@ -497,7 +492,7 @@ export function DailyTransactionPulse() {
                           )}
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                          <span className="text-sm font-bold text-red-600 dark:text-red-400 font-mono">{fmtINR(d.total)}</span>
+                          <span className="text-sm font-bold text-neutral-value font-mono">{fmtINR(d.total)}</span>
                           <span className={`text-[10px] text-slate-400 transition-transform inline-block ${isOpen ? 'rotate-180' : ''}`}>▼</span>
                         </div>
                       </button>
@@ -510,7 +505,7 @@ export function DailyTransactionPulse() {
                               {d.count} transaction{d.count !== 1 ? 's' : ''}
                             </span>
                             <Link href="/my-finance/pf-tx-explorer"
-                              className="text-[10px] text-blue-500 hover:text-blue-700 font-medium">
+                              className="text-[10px] text-fin-accent hover:opacity-80 font-medium">
                               View all in Explorer →
                             </Link>
                           </div>
@@ -521,7 +516,7 @@ export function DailyTransactionPulse() {
                                 <p className="text-xs text-slate-700 dark:text-slate-200 truncate">{t.description}</p>
                                 <p className="text-[10px] text-slate-400">{t.category}</p>
                               </div>
-                              <span className="text-xs font-bold text-red-600 dark:text-red-400 font-mono shrink-0 ml-3">
+                              <span className="text-xs font-bold text-neutral-value font-mono shrink-0 ml-3">
                                 {fmtINR(t.amount)}
                               </span>
                             </div>
@@ -536,7 +531,7 @@ export function DailyTransactionPulse() {
 
             {/* ── Monthly Breakdown Table ── */}
             {monthlyStats.length > 0 && (
-              <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
+              <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
                 <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
                   <span className="text-xs text-slate-500 font-medium">Monthly Breakdown</span>
                 </div>
@@ -557,10 +552,10 @@ export function DailyTransactionPulse() {
                           <td className="px-4 py-2.5 font-medium text-slate-700 dark:text-slate-200">{m.label}</td>
                           <td className="px-4 py-2.5 text-right text-slate-500">{m.activeDays}</td>
                           <td className="px-4 py-2.5 text-right font-mono text-slate-700 dark:text-slate-200">{fmtINR(m.totalSpend)}</td>
-                          <td className="px-4 py-2.5 text-right font-bold font-mono text-orange-600 dark:text-orange-400">{fmtINR(m.avgDailySpend)}</td>
+                          <td className="px-4 py-2.5 text-right font-bold font-mono text-neutral-value">{fmtINR(m.avgDailySpend)}</td>
                           <td className="px-4 py-2.5 text-right">
                             <Link href="/my-finance/pf-month-compare"
-                              className="text-[10px] text-blue-500 hover:text-blue-700 font-medium whitespace-nowrap">
+                              className="text-[10px] text-fin-accent hover:opacity-80 font-medium whitespace-nowrap">
                               Compare →
                             </Link>
                           </td>
@@ -573,7 +568,7 @@ export function DailyTransactionPulse() {
             )}
 
             {/* ── Related Tools ── */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
               <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
                 <span className="text-xs text-slate-500 font-medium">Related Tools</span>
               </div>
@@ -586,7 +581,7 @@ export function DailyTransactionPulse() {
                 ].map(tool => (
                   <Link key={tool.href} href={tool.href}
                     className="bg-white dark:bg-slate-900 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                    <p className="text-xs font-semibold text-blue-600 dark:text-blue-400">{tool.label} →</p>
+                    <p className="text-xs font-semibold text-fin-accent">{tool.label} →</p>
                     <p className="text-[10px] text-slate-400 mt-0.5">{tool.desc}</p>
                   </Link>
                 ))}

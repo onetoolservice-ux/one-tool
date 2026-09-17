@@ -67,7 +67,7 @@ export function FeedbackWidget({ toolId }: FeedbackWidgetProps) {
   };
 
   return (
-    <div ref={panelRef} className="fixed bottom-6 left-6 z-40">
+    <div ref={panelRef} className="fixed bottom-24 right-6 z-40">
       {/* Floating trigger button */}
       {!isOpen && (
         <button

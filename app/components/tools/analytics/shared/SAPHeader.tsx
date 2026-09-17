@@ -18,6 +18,9 @@ export interface KPICard {
   subtitle?: string;
   onClick?: () => void;
   active?: boolean;
+  /** Strip variant only: delta vs prior period, e.g. "+2.1%" or "-0.4%". Rendered as a colored pill, not on the value itself. */
+  delta?: string;
+  deltaTrend?: 'up' | 'down';
 }
 
 export interface SAPHeaderProps {
@@ -35,9 +38,13 @@ export interface SAPHeaderProps {
   compact?: boolean;
   sticky?: boolean;
   fullWidth?: boolean;
+  /** 'strip' = borderless SAP/IBCS-style KPI strip (finance/biz design system): equal-width tiles,
+   * vertical dividers only, values always neutral, optional delta pill. Max 5 KPIs, never wraps.
+   * Default 'boxed' keeps the existing card-grid look used elsewhere. */
+  kpiVariant?: 'boxed' | 'strip';
 }
 
-export function SAPHeader({ title, subtitle, modes, kpis, actions, compact = false, sticky = false, fullWidth = false }: SAPHeaderProps) {
+export function SAPHeader({ title, subtitle, modes, kpis, actions, compact = false, sticky = false, fullWidth = false, kpiVariant = 'boxed' }: SAPHeaderProps) {
   return (
     <div className={`bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden ${fullWidth ? 'rounded-none' : compact ? 'rounded-xl' : 'rounded-2xl'} ${sticky ? 'sticky top-0 z-10' : ''}`}>
       {/* Header Content */}
@@ -45,7 +52,9 @@ export function SAPHeader({ title, subtitle, modes, kpis, actions, compact = fal
         {/* Title Section */}
         <div className={`flex items-start justify-between ${compact ? 'mb-2' : 'mb-4'}`}>
           <div>
-            <h1 className={`font-black text-slate-900 dark:text-white ${compact ? 'text-lg mb-0.5' : 'text-2xl mb-1'}`}>{title}</h1>
+            <h1 className={kpiVariant === 'strip'
+              ? `text-slate-900 dark:text-white font-semibold ${compact ? 'text-lg mb-0.5' : 'text-[28px] mb-1'}`
+              : `font-black text-slate-900 dark:text-white ${compact ? 'text-lg mb-0.5' : 'text-2xl mb-1'}`}>{title}</h1>
             {subtitle && <p className={`text-slate-500 dark:text-slate-400 font-medium ${compact ? 'text-xs' : 'text-sm'}`}>{subtitle}</p>}
           </div>
           {actions && <div className="flex items-center gap-2">{actions}</div>}
@@ -88,9 +97,37 @@ export function SAPHeader({ title, subtitle, modes, kpis, actions, compact = fal
           </div>
         )}
 
+        {/* KPI Strip — SAP/IBCS style: borderless, equal-width, vertical dividers, neutral values */}
+        {kpis && kpis.length > 0 && kpiVariant === 'strip' && (
+          <div className="flex items-stretch divide-x divide-slate-200 dark:divide-slate-700 -mx-1">
+            {kpis.slice(0, 5).map((kpi, index) => (
+              <div
+                key={index}
+                onClick={kpi.onClick}
+                className={`flex-1 min-w-0 px-4 first:pl-1 last:pr-1 ${kpi.onClick ? 'cursor-pointer' : ''}`}
+              >
+                <p className="text-[11px] font-medium uppercase tracking-[0.5px] text-slate-500 dark:text-slate-400 truncate">
+                  {kpi.label}
+                </p>
+                <p className="text-[30px] leading-tight font-semibold text-neutral-value truncate">
+                  {kpi.value}
+                </p>
+                {kpi.delta && (
+                  <span className={`inline-flex items-center gap-0.5 text-xs font-semibold ${kpi.deltaTrend === 'down' ? 'text-negative' : 'text-positive'}`}>
+                    {kpi.deltaTrend === 'down' ? '▼' : '▲'} {kpi.delta}
+                  </span>
+                )}
+                {kpi.subtitle && (
+                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">{kpi.subtitle}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* KPI Cards */}
-        {kpis && kpis.length > 0 && (
-          <div className={`grid grid-cols-2 sm:grid-cols-4 gap-2 ${compact ? 'lg:grid-cols-4' : 'lg:grid-cols-4 xl:grid-cols-6 gap-3'}`}>
+        {kpis && kpis.length > 0 && kpiVariant === 'boxed' && (
+          <div className={getKPIGridClass(kpis.length, compact)}>
             {kpis.map((kpi, index) => {
               const Icon = kpi.icon;
               const colorClass = getKPIColorClass(kpi.color);
@@ -102,7 +139,7 @@ export function SAPHeader({ title, subtitle, modes, kpis, actions, compact = fal
                   className={`rounded-lg border transition-colors ${compact ? 'p-2.5' : 'p-4 rounded-xl'} ${kpi.onClick ? 'cursor-pointer' : ''} ${kpi.active ? 'bg-slate-900 dark:bg-white border-slate-900 dark:border-white' : 'bg-slate-50 dark:bg-white/10 border-slate-200 dark:border-white/20 hover:bg-slate-100 dark:hover:bg-white/15'}`}
                 >
                   <div className={`flex items-start justify-between ${compact ? 'mb-1' : 'mb-2'}`}>
-                    <p className={`font-semibold uppercase tracking-wider ${compact ? 'text-[10px]' : 'text-xs'} ${kpi.active ? 'text-white/70 dark:text-slate-500' : 'text-slate-500 dark:text-white/70'}`}>
+                    <p className={`font-semibold uppercase tracking-wider leading-tight ${compact ? 'text-[10px] min-h-[1.5em]' : 'text-xs min-h-[2em]'} ${kpi.active ? 'text-white/70 dark:text-slate-500' : 'text-slate-500 dark:text-white/70'}`}>
                       {kpi.label}
                     </p>
                     {Icon && <Icon size={compact ? 13 : 16} className={kpi.active ? 'text-white/60 dark:text-slate-400' : 'text-slate-400 dark:text-white/60'} />}
@@ -121,6 +158,16 @@ export function SAPHeader({ title, subtitle, modes, kpis, actions, compact = fal
       </div>
     </div>
   );
+}
+
+// Picks a grid column count that exactly fits the number of KPI cards, so the
+// row never leaves empty trailing columns (which made it look narrower than
+// the content below it).
+function getKPIGridClass(count: number, compact: boolean): string {
+  if (compact) return 'grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-2';
+  if (count <= 4) return 'grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-3';
+  if (count === 5) return 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3';
+  return 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3';
 }
 
 // Helper function to get KPI color classes

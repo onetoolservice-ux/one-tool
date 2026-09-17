@@ -60,6 +60,7 @@ export function BizDaybook() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <SAPHeader
         fullWidth sticky
+        kpiVariant="strip"
         title="Daybook"
         subtitle="Daily income and expense log"
         kpis={[
@@ -71,7 +72,7 @@ export function BizDaybook() {
         actions={
           <button
             onClick={() => setShowForm(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-fin-accent hover:opacity-90 text-white rounded-lg text-sm font-bold transition-colors"
           >
             <Plus size={16} /> Add Entry
           </button>
@@ -118,11 +119,11 @@ export function BizDaybook() {
 
         {/* Transactions grouped by date */}
         {sortedDates.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-12 text-center">
+          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-12 text-center">
             <p className="text-slate-400 dark:text-slate-500 text-sm font-medium mb-3">No entries found</p>
             <button
               onClick={() => setShowForm(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-fin-accent hover:opacity-90 text-white rounded-lg text-sm font-bold transition-colors"
             >
               <Plus size={15} /> Add First Entry
             </button>
@@ -135,7 +136,7 @@ export function BizDaybook() {
               const dayExpense = dayTxs.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
               const isToday = date === today;
               return (
-                <div key={date} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <div key={date} className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
                   {/* Day Header */}
                   <div className="flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
                     <div className="flex items-center gap-2">

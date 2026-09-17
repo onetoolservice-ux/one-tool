@@ -273,6 +273,7 @@ export function BizPurchases() {
       <SAPHeader
         fullWidth
         sticky
+        kpiVariant="strip"
         title="Purchase Bills"
         subtitle="Vendor Invoices · ITC · Payables"
         kpis={[
@@ -299,7 +300,7 @@ export function BizPurchases() {
           mode === 'bills' ? (
             <button
               onClick={startNew}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-fin-accent hover:opacity-90 text-white rounded-lg text-sm font-bold transition-colors"
             >
               <Plus size={16} /> New Bill
             </button>
@@ -382,7 +383,7 @@ export function BizPurchases() {
                   {!search && filterStatus === 'all' && (
                     <button
                       onClick={startNew}
-                      className="mt-1 flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors"
+                      className="mt-1 flex items-center gap-2 px-4 py-2 bg-fin-accent hover:opacity-90 text-white rounded-lg text-sm font-bold transition-colors"
                     >
                       <Plus size={15} /> Add First Bill
                     </button>
@@ -506,7 +507,7 @@ export function BizPurchases() {
 
                 {/* ── Left Column ── */}
                 <div className="space-y-4">
-                  <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 space-y-4">
+                  <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-5 space-y-4">
                     <h2 className="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                       Bill Details
                     </h2>
@@ -629,7 +630,7 @@ export function BizPurchases() {
 
                 {/* ── Right Column ── */}
                 <div className="space-y-4">
-                  <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-5">
+                  <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-5">
                     {/* Items header */}
                     <div className="flex items-center justify-between mb-3">
                       <h2 className="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">
@@ -638,7 +639,7 @@ export function BizPurchases() {
                       <button
                         type="button"
                         onClick={addItem}
-                        className="flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                        className="flex items-center gap-1 text-xs font-bold text-fin-accent hover:underline"
                       >
                         <Plus size={13} /> Add Row
                       </button>
@@ -750,14 +751,14 @@ export function BizPurchases() {
                     <button
                       type="button"
                       onClick={addItem}
-                      className="mt-3 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-400 dark:text-slate-500 hover:border-blue-400 dark:hover:border-blue-600 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                      className="mt-3 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-400 dark:text-slate-500 hover:border-fin-accent hover:text-fin-accent transition-colors"
                     >
                       <Plus size={13} /> Add Row
                     </button>
                   </div>
 
                   {/* Summary */}
-                  <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 space-y-2">
+                  <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-5 space-y-2">
                     <div className="flex justify-between text-sm text-slate-600 dark:text-slate-300">
                       <span>Subtotal</span>
                       <span className="font-bold tabular-nums">{fmtCurrency(formSubtotal)}</span>
@@ -786,7 +787,7 @@ export function BizPurchases() {
                     <button
                       type="submit"
                       disabled={!form.vendorId || form.items.length === 0 || form.items.every(it => !it.name)}
-                      className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-bold transition-colors"
+                      className="flex-1 py-3 rounded-lg bg-fin-accent hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-bold transition-colors"
                     >
                       {editingId ? 'Update Bill' : 'Save Bill'}
                     </button>

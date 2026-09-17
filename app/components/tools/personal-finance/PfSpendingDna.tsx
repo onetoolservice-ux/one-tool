@@ -158,6 +158,7 @@ export const SpendingDNA = () => {
     <div>
       <SAPHeader
         fullWidth
+        kpiVariant="strip"
         title="Spending DNA"
         subtitle="Decode your money personality from spending patterns"
         kpis={[
@@ -172,11 +173,11 @@ export const SpendingDNA = () => {
         {/* Data source */}
         <div className="flex gap-2">
           <button onClick={() => setDataSource('manual')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border transition-all ${dataSource === 'manual' ? 'bg-violet-500 text-white border-violet-500' : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'}`}>
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-all ${dataSource === 'manual' ? 'bg-fin-accent text-white border-fin-accent' : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'}`}>
             <BarChart2 className="w-4 h-4" /> Enter Manually
           </button>
           <button onClick={() => setDataSource('statement')} disabled={!hasStatements}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border transition-all ${dataSource === 'statement' ? 'bg-violet-500 text-white border-violet-500' : hasStatements ? 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700' : 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700'}`}>
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-all ${dataSource === 'statement' ? 'bg-fin-accent text-white border-fin-accent' : hasStatements ? 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700' : 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700'}`}>
             <Upload className="w-4 h-4" />
             {hasStatements ? 'Load from Statements' : 'No Statement Data'}
           </button>
@@ -184,7 +185,7 @@ export const SpendingDNA = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {/* Input sliders */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-700 space-y-3">
+          <div className="bg-white dark:bg-slate-900 rounded-lg p-5 border border-slate-200 dark:border-slate-700 space-y-3">
             <h2 className="font-semibold text-slate-800 dark:text-slate-200 text-sm">Monthly Spend by Category</h2>
             {categories.map(cat => (
               <div key={cat} className="space-y-1">
@@ -203,7 +204,7 @@ export const SpendingDNA = () => {
           {/* Results */}
           <div className="lg:col-span-2 space-y-4">
             {/* Archetype card */}
-            <div className="rounded-xl p-6 border-2 text-white" style={{ background: result.archetype.color, borderColor: result.archetype.color }}>
+            <div className="rounded-lg p-6 border-2 text-white" style={{ background: result.archetype.color, borderColor: result.archetype.color }}>
               <div className="text-4xl mb-2">{result.archetype.emoji}</div>
               <div className="text-2xl font-bold mb-1">{result.archetype.name}</div>
               <p className="text-sm opacity-90 mb-3">{result.archetype.description}</p>
@@ -217,7 +218,7 @@ export const SpendingDNA = () => {
             {/* Charts */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Radar */}
-              <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+              <div className="bg-white dark:bg-slate-900 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
                 <h3 className="text-xs font-semibold text-slate-500 mb-3 uppercase">Spending Dimensions</h3>
                 <ResponsiveContainer width="100%" height={180}>
                   <RadarChart data={result.dimensions} cx="50%" cy="50%" outerRadius={65}>
@@ -230,7 +231,7 @@ export const SpendingDNA = () => {
               </div>
 
               {/* Pie */}
-              <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+              <div className="bg-white dark:bg-slate-900 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
                 <h3 className="text-xs font-semibold text-slate-500 mb-3 uppercase">Category Breakdown</h3>
                 <ResponsiveContainer width="100%" height={120}>
                   <PieChart>
@@ -254,11 +255,11 @@ export const SpendingDNA = () => {
 
             {/* Insights */}
             {result.insights.length > 0 && (
-              <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+              <div className="bg-white dark:bg-slate-900 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
                 <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Insights</h3>
                 <div className="space-y-2">
                   {result.insights.map((ins, i) => (
-                    <div key={i} className={`flex items-start gap-2 text-sm p-2 rounded-lg ${ins.type === 'warn' ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300' : ins.type === 'good' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
+                    <div key={i} className={`flex items-start gap-2 text-sm p-2 rounded-lg ${ins.type === 'warn' ? 'bg-warning-tint text-warning' : ins.type === 'good' ? 'bg-positive-tint text-positive' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
                       {ins.type === 'warn' && <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />}
                       {ins.type === 'good' && <span className="shrink-0">✓</span>}
                       {ins.type === 'info' && <span className="shrink-0">→</span>}
@@ -270,7 +271,7 @@ export const SpendingDNA = () => {
             )}
 
             {/* Category breakdown table */}
-            <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+            <div className="bg-white dark:bg-slate-900 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
               <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Full Breakdown</h3>
               <div className="space-y-2">
                 {result.pie.map((d, i) => (

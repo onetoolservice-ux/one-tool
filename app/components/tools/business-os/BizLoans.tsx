@@ -216,6 +216,7 @@ export function BizLoans() {
       <SAPHeader
         title="Loans & EMI"
         subtitle="Repayment · Schedule · Tracking"
+        kpiVariant="strip"
         kpis={[
           {
             label: 'Total Debt',
@@ -426,7 +427,7 @@ function LoansMode({
                       <p className="text-[10px] text-slate-400 dark:text-slate-500">
                         Started {loan.startDate} · {loan.tenure} mo tenure
                       </p>
-                      <p className="text-[10px] font-semibold text-red-500 dark:text-red-400">
+                      <p className="text-[10px] font-semibold text-neutral-value">
                         {fmtCurrency(remaining)} left
                       </p>
                     </div>
@@ -547,7 +548,7 @@ function LoanForm({ editingId, form, setField, computedEMI, emiOverride, setEmiO
 
   return (
     <div className="p-6 max-w-xl mx-auto">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
         <h2 className="text-base font-black text-slate-900 dark:text-white mb-5">
           {editingId ? 'Edit Loan' : 'Add New Loan'}
         </h2>
@@ -665,7 +666,7 @@ function LoanForm({ editingId, form, setField, computedEMI, emiOverride, setEmiO
             </div>
             {!emiOverride ? (
               <div className="flex items-center justify-between">
-                <p className="text-lg font-black text-emerald-600 dark:text-emerald-400">
+                <p className="text-lg font-semibold text-neutral-value">
                   {fmtCurrency(computedEMI)}
                 </p>
                 <p className="text-xs text-slate-400 dark:text-slate-500">per month</p>
@@ -753,7 +754,7 @@ function ScheduleMode({
       <div className="p-6 max-w-5xl mx-auto flex flex-col gap-5 pb-10">
 
         {/* Loan Selector */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm">
+        <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
           <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 uppercase tracking-wider">
             Select Loan
           </label>
@@ -782,7 +783,7 @@ function ScheduleMode({
         ) : (
           <>
             {/* Loan Summary Card */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm">
+            <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-5">
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-4">
                 <SummaryCell label="Lender" value={scheduleLoan.lender} />
                 <SummaryCell label="Principal" value={fmtCurrency(scheduleLoan.principal)} />
@@ -814,7 +815,7 @@ function ScheduleMode({
             </div>
 
             {/* Schedule Table */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-xs">
                   <thead>
@@ -898,7 +899,7 @@ function ScheduleMode({
                   <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">
                     Interest Paid
                   </p>
-                  <p className="text-sm font-black text-red-600 dark:text-red-400">
+                  <p className="text-sm font-semibold text-neutral-value">
                     {fmtCurrency(totalInterestPaid)}
                   </p>
                 </div>
@@ -906,7 +907,7 @@ function ScheduleMode({
                   <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">
                     Principal Paid
                   </p>
-                  <p className="text-sm font-black text-emerald-600 dark:text-emerald-400">
+                  <p className="text-sm font-semibold text-neutral-value">
                     {fmtCurrency(totalPrincipalPaid)}
                   </p>
                 </div>
@@ -914,7 +915,7 @@ function ScheduleMode({
                   <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">
                     Outstanding Balance
                   </p>
-                  <p className="text-sm font-black text-slate-900 dark:text-white">
+                  <p className="text-sm font-semibold text-neutral-value">
                     {fmtCurrency(outstandingBalance)}
                   </p>
                 </div>
@@ -937,7 +938,7 @@ function SummaryCell({ label, value, accent }: { label: string; value: string; a
       <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">
         {label}
       </p>
-      <p className={`text-sm font-bold ${accent ? 'text-blue-600 dark:text-blue-400' : 'text-slate-900 dark:text-white'}`}>
+      <p className={`text-sm font-semibold ${accent ? 'text-neutral-value' : 'text-slate-900 dark:text-white'}`}>
         {value}
       </p>
     </div>

@@ -33,43 +33,34 @@ const GUIDE_KEY = 'pf-expenditure-guide-seen';
 const GUIDE_CARDS = [
   {
     icon: PieChartIcon,
-    color: 'blue' as const,
     title: 'Category breakdown',
     desc: 'The donut chart shows exactly where your money goes — each slice is a spending category. Bigger slice = bigger share of your wallet.',
   },
   {
     icon: BarChart3,
-    color: 'violet' as const,
     title: 'Monthly trend',
     desc: 'The bar chart reveals your spending pattern month-over-month. Bars above the average line are months you overspent.',
   },
   {
     icon: TrendingDown,
-    color: 'emerald' as const,
     title: 'Drill into any category',
     desc: 'Click any row in the table or any slice in the donut to see every transaction that makes up that category.',
   },
   {
     icon: Merge,
-    color: 'amber' as const,
     title: 'Clean up categories',
     desc: 'Bank statements often tag things wrong. Rename a category or merge two into one — your changes are saved and reflected everywhere.',
   },
 ];
 
-const COLOR_MAP: Record<string, string> = {
-  blue: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-800',
-  violet: 'bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400 border-violet-100 dark:border-violet-800',
-  emerald: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-800',
-  amber: 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-800',
-};
+const CARD_ICON_CLS = 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700';
 
 function GuideView({ onEnter }: { onEnter: () => void }) {
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center px-4 py-12 max-w-3xl mx-auto">
       {/* Icon + title */}
-      <div className="w-14 h-14 rounded-2xl bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800 flex items-center justify-center mb-4">
-        <PieChartIcon size={26} className="text-orange-500" />
+      <div className="w-14 h-14 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center mb-4">
+        <PieChartIcon size={26} className="text-slate-500" />
       </div>
       <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-1 text-center">Spend by Category</h2>
       <p className="text-sm text-slate-500 dark:text-slate-400 mb-8 text-center max-w-md">
@@ -80,10 +71,9 @@ function GuideView({ onEnter }: { onEnter: () => void }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full mb-6">
         {GUIDE_CARDS.map(card => {
           const Icon = card.icon;
-          const cls = COLOR_MAP[card.color];
           return (
-            <div key={card.title} className="flex gap-3 p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
-              <div className={`w-9 h-9 rounded-lg border flex items-center justify-center shrink-0 ${cls}`}>
+            <div key={card.title} className="flex gap-3 p-4 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+              <div className={`w-9 h-9 rounded-lg border flex items-center justify-center shrink-0 ${CARD_ICON_CLS}`}>
                 <Icon size={16} />
               </div>
               <div>
@@ -96,16 +86,16 @@ function GuideView({ onEnter }: { onEnter: () => void }) {
       </div>
 
       {/* Warning */}
-      <div className="flex gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 w-full mb-8">
-        <AlertTriangle size={15} className="text-amber-500 shrink-0 mt-0.5" />
-        <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+      <div className="flex gap-3 p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 w-full mb-8">
+        <AlertTriangle size={15} className="text-warning shrink-0 mt-0.5" />
+        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
           <span className="font-bold">Tip:</span> Internal transfers (e.g. moving money between your own accounts) may appear as "debits" and inflate your spend numbers. Mark those as transfers in Transaction Explorer first for accurate analysis.
         </p>
       </div>
 
       <button
         onClick={onEnter}
-        className="flex items-center gap-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-colors shadow-sm text-sm"
+        className="flex items-center gap-2 px-6 py-3 bg-fin-accent hover:opacity-90 text-white font-bold rounded-lg transition-colors text-sm"
       >
         View Spend by Category
         <ArrowRight size={15} />
@@ -482,6 +472,7 @@ export function ExpenditureDistribution() {
             Guide
           </button>
         }
+        kpiVariant="strip"
         kpis={hasData ? [
           {
             label: 'Total Spend',
@@ -519,7 +510,7 @@ export function ExpenditureDistribution() {
         <PFFilterBarHeader
           actions={
             <button onClick={() => setShowAddCat(v => !v)}
-              className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold">
+              className="flex items-center gap-1 text-xs text-fin-accent hover:underline font-semibold">
               <Plus size={11} /> Add Category
             </button>
           }
@@ -553,7 +544,7 @@ export function ExpenditureDistribution() {
             <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Statement</label>
             <button
               onClick={() => setShowStmtVH(v => !v)}
-              className="flex items-center justify-between text-sm border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-1.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:border-[#0070F3] transition-colors text-left w-full"
+              className="flex items-center justify-between text-sm border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-1.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:border-fin-accent transition-colors text-left w-full"
             >
               <span className="truncate">{selectedStmtLabel}</span>
               <ChevronDown size={14} className="shrink-0 text-slate-400 ml-1" />
@@ -572,12 +563,12 @@ export function ExpenditureDistribution() {
                 )}
                 <div className="max-h-48 overflow-y-auto py-1">
                   <button onClick={() => { setStatementId('all'); setShowStmtVH(false); }}
-                    className={`w-full text-left px-4 py-2 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${statementId === 'all' ? 'text-[#0070F3] font-semibold bg-blue-50 dark:bg-blue-900/10' : 'text-slate-700 dark:text-slate-200'}`}>
+                    className={`w-full text-left px-4 py-2 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${statementId === 'all' ? 'text-fin-accent font-semibold bg-fin-accent/10' : 'text-slate-700 dark:text-slate-200'}`}>
                     All Statements
                   </button>
                   {filteredStmts.map(s => (
                     <button key={s.id} onClick={() => { setStatementId(s.id); setShowStmtVH(false); }}
-                      className={`w-full text-left px-4 py-2 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${statementId === s.id ? 'text-[#0070F3] font-semibold bg-blue-50 dark:bg-blue-900/10' : 'text-slate-700 dark:text-slate-200'}`}>
+                      className={`w-full text-left px-4 py-2 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${statementId === s.id ? 'text-fin-accent font-semibold bg-fin-accent/10' : 'text-slate-700 dark:text-slate-200'}`}>
                       <span className="block truncate">{s.fileName}</span>
                       {accounts.length > 1 && (
                         <span className="text-[10px] text-slate-400">{accounts.find(a => a.id === s.accountId)?.name ?? s.accountId}</span>
@@ -615,7 +606,7 @@ export function ExpenditureDistribution() {
                   className="text-sm border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-1.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200"
                   onKeyDown={e => { if (e.key === 'Enter') handleAddCategory(); }} />
               </div>
-              <button onClick={handleAddCategory} className="mt-5 text-sm bg-[#0070F3] text-white px-4 py-1.5 rounded-lg font-semibold hover:bg-[#005DD1] transition-colors">Add</button>
+              <button onClick={handleAddCategory} className="mt-5 text-sm bg-fin-accent text-white px-4 py-1.5 rounded-lg font-semibold hover:opacity-90 transition-colors">Add</button>
               <button onClick={() => setShowAddCat(false)} className="mt-5 text-slate-400 hover:text-slate-600"><X size={16} /></button>
             </div>
           </div>
@@ -769,7 +760,7 @@ export function ExpenditureDistribution() {
                   <div className="flex border border-slate-300 dark:border-slate-600 rounded-lg p-0.5 bg-slate-50 dark:bg-slate-800">
                     {(['category', 'merchant', 'month', 'label'] as ViewBy[]).map(v => (
                       <button key={v} onClick={() => { setViewBy(v); setDrillKey(null); setActiveDonut(null); }}
-                        className={`text-xs font-semibold px-2.5 py-1 rounded-md transition-colors ${viewBy === v ? 'bg-[#0070F3] text-white' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-200'}`}>
+                        className={`text-xs font-semibold px-2.5 py-1 rounded-md transition-colors ${viewBy === v ? 'bg-fin-accent text-white' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-200'}`}>
                         {v === 'category' ? 'Category' : v === 'merchant' ? 'Merchant' : v === 'month' ? 'Month' : 'Label'}
                       </button>
                     ))}
@@ -793,11 +784,11 @@ export function ExpenditureDistribution() {
             />
 
             {drillKey && (
-              <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/10 border-b border-blue-200 dark:border-blue-800 text-xs text-blue-700 dark:text-blue-300">
+              <div className="flex items-center gap-2 px-4 py-2 bg-fin-accent/10 border-b border-fin-accent/20 text-xs text-fin-accent">
                 <span className="font-semibold">Drilling into: {drillKey}</span>
-                <span className="text-blue-400">·</span>
+                <span className="text-fin-accent/60">·</span>
                 <span>{drillTxns.length} transactions</span>
-                <button onClick={() => { setDrillKey(null); setActiveDonut(null); }} className="ml-auto flex items-center gap-1 hover:text-blue-900 dark:hover:text-blue-100">
+                <button onClick={() => { setDrillKey(null); setActiveDonut(null); }} className="ml-auto flex items-center gap-1 hover:opacity-80">
                   <X size={12} /> Clear
                 </button>
               </div>
@@ -828,7 +819,7 @@ export function ExpenditureDistribution() {
                   return (
                     <React.Fragment key={r.key}>
                       <tr
-                        className={`border-t border-slate-100 dark:border-slate-800 transition-colors cursor-pointer ${isDrilled ? 'bg-blue-50 dark:bg-blue-900/10' : 'hover:bg-slate-50 dark:hover:bg-slate-800/30'}`}
+                        className={`border-t border-slate-100 dark:border-slate-800 transition-colors cursor-pointer ${isDrilled ? 'bg-fin-accent/10' : 'hover:bg-slate-50 dark:hover:bg-slate-800/30'}`}
                         onClick={() => { if (!isRenaming && !isMerging) { setDrillKey(isDrilled ? null : r.key); setActiveDonut(isDrilled ? null : i); } }}
                       >
                         <td className="px-4 py-3">
@@ -837,10 +828,10 @@ export function ExpenditureDistribution() {
                             {isRenaming ? (
                               <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
                                 <input value={renameValue} onChange={e => setRenameValue(e.target.value)}
-                                  className="text-sm border border-[#0070F3] rounded px-2 py-1 bg-white dark:bg-slate-900 w-36"
+                                  className="text-sm border border-fin-accent rounded px-2 py-1 bg-white dark:bg-slate-900 w-36"
                                   autoFocus
                                   onKeyDown={e => { if (e.key === 'Enter') handleRename(r.key); if (e.key === 'Escape') setRenamingKey(null); }} />
-                                <button onClick={() => handleRename(r.key)} className="text-[#107E3E]"><Check size={13} /></button>
+                                <button onClick={() => handleRename(r.key)} className="text-positive"><Check size={13} /></button>
                                 <button onClick={() => setRenamingKey(null)} className="text-slate-400"><X size={13} /></button>
                               </div>
                             ) : (
@@ -857,7 +848,7 @@ export function ExpenditureDistribution() {
                             <div className="w-16 bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 hidden sm:block overflow-hidden">
                               <div className="h-1.5 rounded-full" style={{ width: `${Math.min(r.pct, 100)}%`, backgroundColor: rowColor }} />
                             </div>
-                            <span className={`font-semibold ${r.pct >= 30 ? 'text-[#C62828]' : r.pct >= 15 ? 'text-[#E76500]' : 'text-slate-600 dark:text-slate-300'}`}>
+                            <span className={`font-semibold ${r.pct >= 30 ? 'text-negative' : r.pct >= 15 ? 'text-warning' : 'text-slate-600 dark:text-slate-300'}`}>
                               {fmtPct(r.pct)}
                             </span>
                           </div>
@@ -865,7 +856,7 @@ export function ExpenditureDistribution() {
                         {showMoM && (
                           <>
                             <td className="px-4 py-3 text-right text-slate-500 font-mono hidden md:table-cell">{r.prevAmount > 0 ? fmtINR(r.prevAmount) : '—'}</td>
-                            <td className={`px-4 py-3 text-right font-mono font-semibold hidden md:table-cell ${change > 0 ? 'text-[#C62828]' : change < 0 ? 'text-[#107E3E]' : 'text-slate-400'}`}>
+                            <td className={`px-4 py-3 text-right font-mono font-semibold hidden md:table-cell ${change > 0 ? 'text-negative' : change < 0 ? 'text-positive' : 'text-slate-400'}`}>
                               {r.prevAmount > 0 ? (change >= 0 ? '+' : '') + fmtINR(change) : '—'}
                             </td>
                           </>
@@ -875,12 +866,12 @@ export function ExpenditureDistribution() {
                             <div className="flex items-center justify-center gap-1">
                               <button title="Rename"
                                 onClick={() => { setRenamingKey(r.key); setRenameValue(r.key); setMergingKey(null); }}
-                                className="p-1 text-slate-300 hover:text-[#0070F3] transition-colors">
+                                className="p-1 text-slate-300 hover:text-fin-accent transition-colors">
                                 <Pencil size={12} />
                               </button>
                               <button title="Merge into another category"
                                 onClick={() => { setMergingKey(isMerging ? null : r.key); setMergeTarget(''); setRenamingKey(null); }}
-                                className="p-1 text-slate-300 hover:text-[#E76500] transition-colors">
+                                className="p-1 text-slate-300 hover:text-fin-accent transition-colors">
                                 <Merge size={12} />
                               </button>
                             </div>
@@ -889,17 +880,17 @@ export function ExpenditureDistribution() {
                       </tr>
 
                       {isMerging && (
-                        <tr className="bg-orange-50 dark:bg-orange-900/10 border-t border-orange-200 dark:border-orange-800">
+                        <tr className="bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700">
                           <td colSpan={showMoM ? 7 : 5} className="px-4 py-2">
                             <div className="flex items-center gap-2 text-sm">
                               <span className="text-slate-600 dark:text-slate-300 font-medium">Merge "{r.key}" into:</span>
                               <select value={mergeTarget} onChange={e => setMergeTarget(e.target.value)}
-                                className="border border-orange-300 dark:border-orange-700 rounded px-2 py-1 text-sm bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200">
+                                className="border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-sm bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200">
                                 <option value="">— select target —</option>
                                 {categories.filter(c => c !== r.key).map(c => <option key={c} value={c}>{c}</option>)}
                               </select>
                               <button onClick={() => handleMerge(r.key)} disabled={!mergeTarget}
-                                className="text-sm bg-[#E76500] text-white px-3 py-1 rounded font-semibold hover:bg-orange-700 disabled:opacity-50 transition-colors">
+                                className="text-sm bg-fin-accent text-white px-3 py-1 rounded font-semibold hover:opacity-90 disabled:opacity-50 transition-colors">
                                 Merge
                               </button>
                               <button onClick={() => setMergingKey(null)} className="text-slate-400 hover:text-slate-600"><X size={14} /></button>
@@ -909,15 +900,15 @@ export function ExpenditureDistribution() {
                       )}
 
                       {isDrilled && drillTxns.length > 0 && !isRenaming && !isMerging && (
-                        <tr className="bg-blue-50 dark:bg-blue-900/10">
+                        <tr className="bg-fin-accent/10">
                           <td colSpan={showMoM ? 7 : viewBy === 'category' ? 5 : 4} className="px-4 py-3">
-                            <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-2">
+                            <p className="text-[10px] font-bold text-fin-accent uppercase tracking-wide mb-2">
                               {drillTxns.length} transactions in {r.key}
                             </p>
-                            <div className="max-h-52 overflow-y-auto rounded-lg border border-blue-100 dark:border-blue-800">
+                            <div className="max-h-52 overflow-y-auto rounded-lg border border-fin-accent/20">
                               <table className="w-full text-xs">
                                 <thead>
-                                  <tr className="bg-blue-100/60 dark:bg-blue-900/30 text-slate-400 uppercase text-[10px]">
+                                  <tr className="bg-fin-accent/10 text-slate-400 uppercase text-[10px]">
                                     <th className="text-left px-3 py-1.5">Date</th>
                                     <th className="text-left px-3 py-1.5">Description</th>
                                     <th className="text-right px-3 py-1.5">Amount</th>
@@ -925,7 +916,7 @@ export function ExpenditureDistribution() {
                                 </thead>
                                 <tbody>
                                   {drillTxns.slice(0, 25).map(t => (
-                                    <tr key={t.id} className="border-t border-blue-100 dark:border-blue-800 hover:bg-blue-100/40 dark:hover:bg-blue-900/20">
+                                    <tr key={t.id} className="border-t border-fin-accent/10 hover:bg-fin-accent/10">
                                       <td className="px-3 py-1.5 text-slate-500 whitespace-nowrap">{t.date}</td>
                                       <td className="px-3 py-1.5 text-slate-600 dark:text-slate-300 max-w-[200px] truncate">{t.description}</td>
                                       <td className="px-3 py-1.5 text-right font-mono font-semibold text-slate-700 dark:text-slate-200">{fmtINR(t.amount)}</td>

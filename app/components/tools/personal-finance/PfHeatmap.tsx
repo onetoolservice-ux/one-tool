@@ -93,6 +93,7 @@ export function SpendingHeatmap() {
     <div className="space-y-4">
       <SAPHeader
         fullWidth
+        kpiVariant="strip"
         title="Spending Heatmap"
         subtitle="Daily spending intensity across the year"
         kpis={yearTotal > 0 ? [
@@ -140,7 +141,7 @@ export function SpendingHeatmap() {
         </div>
 
         {/* Calendar Grid */}
-        <div ref={heatmapRef} className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-4 space-y-3 overflow-x-auto">
+        <div ref={heatmapRef} className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg p-4 space-y-3 overflow-x-auto">
           {MONTH_NAMES.map((mon, mi) => {
             const daysInMonth = new Date(selectedYear, mi + 1, 0).getDate();
             return (
@@ -157,7 +158,7 @@ export function SpendingHeatmap() {
                         key={dd}
                         onClick={() => setSelectedDay(selectedDay === dd ? null : dd)}
                         title={amt > 0 ? `${dd}: ${fmtINR(amt)}` : dd}
-                        className={`w-5 h-5 rounded-sm transition-all ${cls} ${isSelected ? 'ring-2 ring-blue-500 ring-offset-1' : 'hover:ring-1 hover:ring-slate-400'}`}
+                        className={`w-5 h-5 rounded-sm transition-all ${cls} ${isSelected ? 'ring-2 ring-fin-accent ring-offset-1' : 'hover:ring-1 hover:ring-slate-400'}`}
                       />
                     );
                   })}
@@ -169,10 +170,10 @@ export function SpendingHeatmap() {
 
         {/* Selected Day Detail */}
         {selectedDay && (
-          <div className="bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-700 rounded-xl overflow-hidden">
-            <div className="px-4 py-2.5 border-b border-blue-100 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 flex justify-between">
-              <span className="text-xs font-bold text-blue-700 dark:text-blue-300">{selectedDay} · {fmtINR(dailyMap.get(selectedDay) ?? 0)}</span>
-              <button onClick={() => setSelectedDay(null)} className="text-xs text-blue-500 hover:text-blue-700">✕</button>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+            <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-between">
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{selectedDay} · {fmtINR(dailyMap.get(selectedDay) ?? 0)}</span>
+              <button onClick={() => setSelectedDay(null)} className="text-xs text-slate-400 hover:text-slate-600">✕</button>
             </div>
             {selectedTxns.length === 0 ? (
               <p className="px-4 py-3 text-xs text-slate-400">No debit transactions on this day.</p>
@@ -184,7 +185,7 @@ export function SpendingHeatmap() {
                       <p className="text-xs font-medium text-slate-800 dark:text-slate-100 truncate max-w-xs">{t.description}</p>
                       <p className="text-[10px] text-slate-400">{t.category}</p>
                     </div>
-                    <span className="text-xs font-bold text-red-600 dark:text-red-400 font-mono">{fmtINR(t.amount)}</span>
+                    <span className="text-xs font-bold text-neutral-value font-mono">{fmtINR(t.amount)}</span>
                   </div>
                 ))}
               </div>

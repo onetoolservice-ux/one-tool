@@ -63,19 +63,19 @@ function ProgressBar({ current }: { current: WizardStep }) {
         <div key={label} className="flex items-center flex-1 last:flex-none">
           <div className="flex flex-col items-center">
             <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold transition-all ${
-              i < idx  ? 'bg-emerald-500 text-white' :
-              i === idx ? 'bg-[var(--ot-accent,#6366f1)] text-white ring-4 ring-[var(--ot-accent,#6366f1)]/20' :
+              i < idx  ? 'bg-positive text-white' :
+              i === idx ? 'bg-fin-accent text-white ring-4 ring-fin-accent/20' :
                           'bg-slate-100 dark:bg-white/[0.06] text-slate-400'
             }`}>
               {i < idx ? <CheckCircle2 size={13} /> : i + 1}
             </div>
             <span className={`text-[10px] mt-1 font-medium whitespace-nowrap ${
-              i === idx ? 'text-[var(--ot-accent,#6366f1)]' : 'text-slate-400 dark:text-slate-500'
+              i === idx ? 'text-fin-accent' : 'text-slate-400 dark:text-slate-500'
             }`}>{label}</span>
           </div>
           {i < STEPS.length - 1 && (
             <div className={`h-[2px] flex-1 mx-1.5 mb-4 rounded-full transition-all ${
-              i < idx ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-white/[0.06]'
+              i < idx ? 'bg-positive' : 'bg-slate-200 dark:bg-white/[0.06]'
             }`} />
           )}
         </div>
@@ -373,9 +373,9 @@ export function StatementManager() {
                   const preset = BANK_PRESETS.find(b => b.label === acc.name);
                   const color = preset?.color ?? 'bg-indigo-600';
                   return (
-                    <div key={acc.id} className="bg-white dark:bg-[#151827] rounded-2xl border border-slate-200 dark:border-white/[0.06] overflow-hidden">
+                    <div key={acc.id} className="bg-white dark:bg-[#151827] rounded-lg border border-slate-200 dark:border-white/[0.06] overflow-hidden">
                       <div className="flex items-center gap-3 px-4 py-3.5">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white text-[11px] font-black flex-shrink-0 ${color}`}>
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-white text-[11px] font-black flex-shrink-0 ${color}`}>
                           {acc.name.substring(0, 2).toUpperCase()}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -391,19 +391,19 @@ export function StatementManager() {
                         <div className="flex items-center gap-1.5 flex-shrink-0">
                           <button
                             onClick={() => uploadToExisting(acc.id)}
-                            className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[var(--ot-accent,#6366f1)] hover:opacity-90 text-white text-[12px] font-semibold transition-opacity"
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-fin-accent hover:opacity-90 text-white text-[12px] font-semibold transition-opacity"
                           >
                             <Upload size={12} /> Upload
                           </button>
                           <button
                             onClick={() => setExpandedAccId(isExpanded ? null : acc.id)}
-                            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors"
                           >
                             {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                           </button>
                           <button
                             onClick={() => { if (confirm(`Delete "${acc.name}" and all its data?`)) { deleteAccount(acc.id); reload(); }}}
-                            className="p-1.5 rounded-xl text-slate-300 dark:text-slate-600 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors"
+                            className="p-1.5 rounded-lg text-slate-300 dark:text-slate-600 hover:text-negative hover:bg-negative-tint transition-colors"
                           >
                             <Trash2 size={13} />
                           </button>
@@ -423,12 +423,12 @@ export function StatementManager() {
                                   {stmt.periodFrom && stmt.periodTo ? ` · ${stmt.periodFrom} → ${stmt.periodTo}` : ''}
                                 </p>
                               </div>
-                              <span className={`text-[11px] font-bold ${stmt.integrityScore >= 80 ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                              <span className={`text-[11px] font-bold ${stmt.integrityScore >= 80 ? 'text-positive' : 'text-warning'}`}>
                                 {stmt.integrityScore}%
                               </span>
                               <button
                                 onClick={() => { if (confirm('Delete this statement?')) { deleteStatement(stmt.id); reload(); }}}
-                                className="p-1 text-slate-300 dark:text-slate-600 hover:text-rose-500 transition-colors"
+                                className="p-1 text-slate-300 dark:text-slate-600 hover:text-negative transition-colors"
                               >
                                 <Trash2 size={12} />
                               </button>
@@ -447,16 +447,16 @@ export function StatementManager() {
 
                 {/* Integrity summary */}
                 {integrity && integrity.totalTransactions > 0 && (
-                  <div className="flex items-center justify-between px-4 py-3 rounded-2xl bg-white dark:bg-[#151827] border border-slate-200 dark:border-white/[0.06]">
+                  <div className="flex items-center justify-between px-4 py-3 rounded-lg bg-white dark:bg-[#151827] border border-slate-200 dark:border-white/[0.06]">
                     <div className="flex items-center gap-2">
                       {integrity.overallIntegrityScore >= 80
-                        ? <ShieldCheck size={14} className="text-emerald-500" />
-                        : <ShieldAlert size={14} className="text-amber-500" />}
+                        ? <ShieldCheck size={14} className="text-positive" />
+                        : <ShieldAlert size={14} className="text-warning" />}
                       <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-200">
                         {integrity.totalTransactions.toLocaleString('en-IN')} total transactions
                       </span>
                     </div>
-                    <span className={`text-[12px] font-bold ${integrity.overallIntegrityScore >= 80 ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                    <span className={`text-[12px] font-bold ${integrity.overallIntegrityScore >= 80 ? 'text-positive' : 'text-warning'}`}>
                       {integrity.overallIntegrityScore}% clean
                     </span>
                   </div>
@@ -466,7 +466,7 @@ export function StatementManager() {
                 {!showBankPicker && (
                   <button
                     onClick={() => { setShowBankPicker(true); setSelectedPreset(null); setCustomBankName(''); }}
-                    className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed border-slate-200 dark:border-white/[0.07] text-[13px] font-semibold text-slate-400 dark:text-slate-500 hover:text-[var(--ot-accent,#6366f1)] hover:border-[var(--ot-accent,#6366f1)]/40 transition-all"
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-lg border-2 border-dashed border-slate-200 dark:border-white/[0.07] text-[13px] font-semibold text-slate-400 dark:text-slate-500 hover:text-fin-accent hover:border-fin-accent/40 transition-all"
                   >
                     <Plus size={14} /> Add Another Bank
                   </button>
@@ -492,8 +492,8 @@ export function StatementManager() {
                 )}
                 {accounts.length === 0 && (
                   <div className="text-center mb-8">
-                    <div className="w-14 h-14 rounded-2xl bg-[var(--ot-accent,#6366f1)]/10 flex items-center justify-center mx-auto mb-4">
-                      <FileSpreadsheet size={26} className="text-[var(--ot-accent,#6366f1)]" />
+                    <div className="w-14 h-14 rounded-lg bg-fin-accent/10 flex items-center justify-center mx-auto mb-4">
+                      <FileSpreadsheet size={26} className="text-fin-accent" />
                     </div>
                     <h2 className="text-[18px] font-black text-slate-900 dark:text-white mb-2">
                       Which bank are you importing from?
@@ -510,13 +510,13 @@ export function StatementManager() {
                     <button
                       key={preset.label}
                       onClick={() => handleSelectBank(preset)}
-                      className={`flex flex-col items-center gap-1.5 py-3 px-1 rounded-2xl border-2 transition-all ${
+                      className={`flex flex-col items-center gap-1.5 py-3 px-1 rounded-lg border-2 transition-all ${
                         selectedPreset?.label === preset.label
-                          ? 'border-[var(--ot-accent,#6366f1)] bg-[var(--ot-accent,#6366f1)]/5'
-                          : 'border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#151827] hover:border-[var(--ot-accent,#6366f1)]/40'
+                          ? 'border-fin-accent bg-fin-accent/5'
+                          : 'border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#151827] hover:border-fin-accent/40'
                       }`}
                     >
-                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-white text-[11px] font-black ${preset.color}`}>
+                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-white text-[11px] font-black ${preset.color}`}>
                         {preset.short}
                       </div>
                       <span className="text-[10px] font-semibold text-slate-600 dark:text-slate-300 text-center leading-tight">
@@ -534,7 +534,7 @@ export function StatementManager() {
                     value={customBankName}
                     onChange={e => setCustomBankName(e.target.value)}
                     autoFocus
-                    className="w-full h-10 px-4 text-[13px] rounded-xl bg-white dark:bg-[#151827] border border-slate-200 dark:border-white/[0.06] focus:outline-none focus:border-[var(--ot-accent,#6366f1)]/60 text-slate-800 dark:text-white placeholder:text-slate-400 mb-4 transition-colors"
+                    className="w-full h-10 px-4 text-[13px] rounded-lg bg-white dark:bg-[#151827] border border-slate-200 dark:border-white/[0.06] focus:outline-none focus:border-fin-accent/60 text-slate-800 dark:text-white placeholder:text-slate-400 mb-4 transition-colors"
                   />
                 )}
 
@@ -543,7 +543,7 @@ export function StatementManager() {
                   <button
                     onClick={handleConfirmBank}
                     disabled={selectedPreset.label === 'Other' && !customBankName.trim()}
-                    className="w-full h-11 rounded-xl bg-[var(--ot-accent,#6366f1)] hover:opacity-90 disabled:opacity-40 text-white text-[14px] font-bold flex items-center justify-center gap-2 transition-opacity shadow-sm mb-4"
+                    className="w-full h-11 rounded-lg bg-fin-accent hover:opacity-90 disabled:opacity-40 text-white text-[14px] font-bold flex items-center justify-center gap-2 transition-opacity mb-4"
                   >
                     Continue with {selectedPreset.label === 'Other' ? (customBankName || 'your bank') : selectedPreset.label}
                     <ArrowRight size={15} />
@@ -556,18 +556,18 @@ export function StatementManager() {
             <div className="pt-2 border-t border-slate-200 dark:border-white/[0.06] flex flex-wrap gap-2">
               <button
                 onClick={handleLoadDemo}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-[#151827] border border-slate-200 dark:border-white/[0.06] text-[12px] font-semibold text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white dark:bg-[#151827] border border-slate-200 dark:border-white/[0.06] text-[12px] font-semibold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors"
               >
                 <Sparkles size={13} /> Try with Demo Data
               </button>
               <button
                 onClick={handleExport}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-[#151827] border border-slate-200 dark:border-white/[0.06] text-[12px] font-semibold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white dark:bg-[#151827] border border-slate-200 dark:border-white/[0.06] text-[12px] font-semibold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors"
               >
                 <Download size={13} /> Backup
               </button>
               <label className="cursor-pointer">
-                <span className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-[#151827] border border-slate-200 dark:border-white/[0.06] text-[12px] font-semibold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors">
+                <span className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white dark:bg-[#151827] border border-slate-200 dark:border-white/[0.06] text-[12px] font-semibold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors">
                   <FolderInput size={13} /> Restore
                 </span>
                 <input type="file" accept=".json" className="hidden" onChange={e => e.target.files?.[0] && handleImport(e.target.files[0])} />
@@ -589,18 +589,18 @@ export function StatementManager() {
             </div>
 
             {/* PDF not supported notice */}
-            <div className="flex items-start gap-3 px-4 py-3 rounded-2xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-700/50">
-              <AlertCircle size={14} className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3 px-4 py-3 rounded-lg bg-white dark:bg-[#151827] border border-slate-200 dark:border-white/[0.06]">
+              <AlertCircle size={14} className="text-warning flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-[12px] font-bold text-amber-700 dark:text-amber-300">PDF statements are not supported</p>
-                <p className="text-[11px] text-amber-600/80 dark:text-amber-400/80 mt-0.5 leading-relaxed">
+                <p className="text-[12px] font-bold text-warning">PDF statements are not supported</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
                   Export your statement as <strong>CSV or Excel</strong> from your bank's net banking portal — not the PDF that arrives by email.
                 </p>
               </div>
             </div>
 
             {/* How to export guide — bank-specific */}
-            <div className="bg-white dark:bg-[#151827] rounded-2xl border border-slate-200 dark:border-white/[0.06] p-4">
+            <div className="bg-white dark:bg-[#151827] rounded-lg border border-slate-200 dark:border-white/[0.06] p-4">
               <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3">
                 How to export from your bank
               </p>
@@ -611,7 +611,7 @@ export function StatementManager() {
                   { step: '3', text: 'Select your date range, then look for "Download as CSV" or "Export to Excel" — avoid the PDF option' },
                 ].map(s => (
                   <div key={s.step} className="flex items-start gap-3">
-                    <div className="w-5 h-5 rounded-full bg-[var(--ot-accent,#6366f1)]/10 flex items-center justify-center text-[11px] font-bold text-[var(--ot-accent,#6366f1)] flex-shrink-0 mt-0.5">
+                    <div className="w-5 h-5 rounded-full bg-fin-accent/10 flex items-center justify-center text-[11px] font-bold text-fin-accent flex-shrink-0 mt-0.5">
                       {s.step}
                     </div>
                     <p className="text-[12px] text-slate-600 dark:text-slate-300">{s.text}</p>
@@ -641,14 +641,14 @@ export function StatementManager() {
               onDragOver={e => { e.preventDefault(); setIsDragging(true); }}
               onDragLeave={() => setIsDragging(false)}
               onDrop={onDrop}
-              className={`flex flex-col items-center justify-center gap-4 w-full py-14 rounded-2xl border-2 border-dashed cursor-pointer transition-all ${
+              className={`flex flex-col items-center justify-center gap-4 w-full py-14 rounded-lg border-2 border-dashed cursor-pointer transition-all ${
                 isDragging
-                  ? 'border-[var(--ot-accent,#6366f1)] bg-[var(--ot-accent,#6366f1)]/5'
-                  : 'border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#151827] hover:border-[var(--ot-accent,#6366f1)]/50 hover:bg-[var(--ot-accent,#6366f1)]/[0.02]'
+                  ? 'border-fin-accent bg-fin-accent/5'
+                  : 'border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#151827] hover:border-fin-accent/50 hover:bg-fin-accent/[0.02]'
               }`}
             >
-              <div className="w-14 h-14 rounded-2xl bg-[var(--ot-accent,#6366f1)]/10 flex items-center justify-center">
-                <Upload size={24} className="text-[var(--ot-accent,#6366f1)]" />
+              <div className="w-14 h-14 rounded-lg bg-fin-accent/10 flex items-center justify-center">
+                <Upload size={24} className="text-fin-accent" />
               </div>
               <div className="text-center">
                 <p className="text-[14px] font-bold text-slate-800 dark:text-slate-100">
@@ -687,20 +687,20 @@ export function StatementManager() {
                   We auto-detected your columns. Review and correct if anything looks wrong.
                 </p>
               </div>
-              <button onClick={() => { setWizardStep('upload'); setRawHeaders([]); setRawRows([]); }} className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors flex-shrink-0">
+              <button onClick={() => { setWizardStep('upload'); setRawHeaders([]); setRawRows([]); }} className="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors flex-shrink-0">
                 <X size={16} />
               </button>
             </div>
 
             {/* File info */}
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06]">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06]">
               <FileSpreadsheet size={14} className="text-slate-400" />
               <p className="text-[12px] text-slate-600 dark:text-slate-300 font-medium truncate">{fileName}</p>
               <span className="ml-auto text-[11px] text-slate-400 dark:text-slate-500 flex-shrink-0">{rawRows.length} rows</span>
             </div>
 
             {/* Required columns */}
-            <div className="bg-white dark:bg-[#151827] rounded-2xl border border-slate-200 dark:border-white/[0.06] p-4 space-y-4">
+            <div className="bg-white dark:bg-[#151827] rounded-lg border border-slate-200 dark:border-white/[0.06] p-4 space-y-4">
               <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
                 Required columns
               </p>
@@ -720,17 +720,17 @@ export function StatementManager() {
                         {f.label}
                       </label>
                       {isMapped
-                        ? <CheckCircle2 size={12} className="text-emerald-500" />
-                        : <span className="text-[10px] text-rose-500 font-semibold">Required</span>}
+                        ? <CheckCircle2 size={12} className="text-positive" />
+                        : <span className="text-[10px] text-negative font-semibold">Required</span>}
                     </div>
                     <select
                       value={columns[f.key] ?? ''}
                       onChange={e => setColumns(prev => ({ ...prev, [f.key]: e.target.value || null }))}
-                      className={`w-full h-9 px-3 text-[13px] rounded-xl transition-colors focus:outline-none ${
+                      className={`w-full h-9 px-3 text-[13px] rounded-lg transition-colors focus:outline-none ${
                         isRequired && !isMapped
-                          ? 'border border-rose-300 dark:border-rose-500/50 bg-rose-50 dark:bg-rose-500/[0.06]'
+                          ? 'border border-negative/40 bg-negative-tint'
                           : 'border border-slate-200 dark:border-white/[0.06] bg-slate-50 dark:bg-white/[0.03]'
-                      } text-slate-800 dark:text-white focus:border-[var(--ot-accent,#6366f1)]/60`}
+                      } text-slate-800 dark:text-white focus:border-fin-accent/60`}
                     >
                       <option value="">(not mapped)</option>
                       {rawHeaders.map(h => <option key={h} value={h}>{h}</option>)}
@@ -758,7 +758,7 @@ export function StatementManager() {
             </button>
 
             {showAdvancedMapping && (
-              <div className="bg-white dark:bg-[#151827] rounded-2xl border border-slate-200 dark:border-white/[0.06] p-4 space-y-4">
+              <div className="bg-white dark:bg-[#151827] rounded-lg border border-slate-200 dark:border-white/[0.06] p-4 space-y-4">
                 <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Optional columns</p>
                 {([
                   { key: 'creditAmount' as keyof DetectedColumns, label: 'Credit Amount', hint: 'Use if your bank has separate credit/debit columns' },
@@ -772,7 +772,7 @@ export function StatementManager() {
                       <select
                         value={columns[f.key] ?? ''}
                         onChange={e => setColumns(prev => ({ ...prev, [f.key]: e.target.value || null }))}
-                        className="w-full h-9 px-3 text-[13px] rounded-xl border border-slate-200 dark:border-white/[0.06] bg-slate-50 dark:bg-white/[0.03] text-slate-800 dark:text-white focus:outline-none focus:border-[var(--ot-accent,#6366f1)]/60 transition-colors"
+                        className="w-full h-9 px-3 text-[13px] rounded-lg border border-slate-200 dark:border-white/[0.06] bg-slate-50 dark:bg-white/[0.03] text-slate-800 dark:text-white focus:outline-none focus:border-fin-accent/60 transition-colors"
                       >
                         <option value="">(not mapped)</option>
                         {rawHeaders.map(h => <option key={h} value={h}>{h}</option>)}
@@ -787,7 +787,7 @@ export function StatementManager() {
 
             {/* Preview table */}
             {previewTxns.length > 0 && (
-              <div className="bg-white dark:bg-[#151827] rounded-2xl border border-slate-200 dark:border-white/[0.06] overflow-hidden">
+              <div className="bg-white dark:bg-[#151827] rounded-lg border border-slate-200 dark:border-white/[0.06] overflow-hidden">
                 <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 px-4 pt-3 pb-2">
                   Preview — first {previewTxns.length} rows
                 </p>
@@ -802,8 +802,8 @@ export function StatementManager() {
                     </thead>
                     <tbody>
                       {previewTxns.map(t => (
-                        <tr key={t.id} className={`border-t border-slate-100 dark:border-white/[0.04] ${!t.date ? 'bg-amber-50 dark:bg-amber-500/[0.05]' : ''}`}>
-                          <td className={`px-3 py-2 ${!t.date ? 'text-amber-600 font-semibold' : 'text-slate-500 dark:text-slate-400'}`}>
+                        <tr key={t.id} className={`border-t border-slate-100 dark:border-white/[0.04] ${!t.date ? 'bg-negative-tint' : ''}`}>
+                          <td className={`px-3 py-2 ${!t.date ? 'text-negative font-semibold' : 'text-slate-500 dark:text-slate-400'}`}>
                             {t.date || '⚠ missing'}
                           </td>
                           <td className="px-3 py-2 text-slate-700 dark:text-slate-200 max-w-[180px] truncate">{t.description}</td>
@@ -811,8 +811,8 @@ export function StatementManager() {
                           <td className="px-3 py-2">
                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                               t.type === 'credit'
-                                ? 'bg-emerald-100 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400'
-                                : 'bg-rose-100 dark:bg-rose-500/15 text-rose-700 dark:text-rose-400'
+                                ? 'bg-positive-tint text-positive'
+                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
                             }`}>
                               {t.type === 'credit' ? '↓ in' : '↑ out'}
                             </span>
@@ -827,9 +827,9 @@ export function StatementManager() {
 
             {/* Validation status */}
             {!canSave && (
-              <div className="flex items-start gap-2 px-3 py-3 rounded-xl bg-amber-50 dark:bg-amber-500/[0.07] border border-amber-200 dark:border-amber-500/20">
-                <AlertCircle size={14} className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-                <p className="text-[12px] text-amber-700 dark:text-amber-300">
+              <div className="flex items-start gap-2 px-3 py-3 rounded-lg bg-white dark:bg-[#151827] border border-slate-200 dark:border-white/[0.06]">
+                <AlertCircle size={14} className="text-warning flex-shrink-0 mt-0.5" />
+                <p className="text-[12px] text-warning">
                   {!dateOk && 'Select the Date column. '}
                   {!amountOk && 'Select an Amount column. '}
                   {!descOk && 'Select a Description column. '}
@@ -844,7 +844,7 @@ export function StatementManager() {
                   type="checkbox"
                   checked={skipDuplicates}
                   onChange={e => setSkipDuplicates(e.target.checked)}
-                  className="w-4 h-4 rounded accent-[var(--ot-accent,#6366f1)]"
+                  className="w-4 h-4 rounded accent-fin-accent"
                 />
                 <span className="text-[13px] text-slate-600 dark:text-slate-300">
                   Skip duplicate transactions
@@ -854,7 +854,7 @@ export function StatementManager() {
               <button
                 onClick={handleSaveRequest}
                 disabled={!canSave}
-                className="w-full h-12 rounded-xl bg-[var(--ot-accent,#6366f1)] hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed text-white text-[14px] font-bold flex items-center justify-center gap-2 transition-opacity shadow-sm"
+                className="w-full h-12 rounded-lg bg-fin-accent hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed text-white text-[14px] font-bold flex items-center justify-center gap-2 transition-opacity"
               >
                 Import {rawRows.length.toLocaleString('en-IN')} Transactions <ArrowRight size={16} />
               </button>
@@ -866,7 +866,7 @@ export function StatementManager() {
         {wizardStep === 'done' && (
           <div className="text-center space-y-6">
             <div>
-              <div className="w-20 h-20 rounded-3xl bg-emerald-500 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-emerald-500/25">
+              <div className="w-20 h-20 rounded-lg bg-positive flex items-center justify-center mx-auto mb-5">
                 <CheckCircle2 size={40} className="text-white" />
               </div>
               <h2 className="text-[24px] font-black text-slate-900 dark:text-white mb-2">
@@ -885,10 +885,10 @@ export function StatementManager() {
               <div className="grid grid-cols-3 gap-2">
                 {NEXT_TOOLS.map(t => (
                   <Link key={t.href} href={t.href}
-                    className="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl bg-white dark:bg-[#151827] border border-slate-200 dark:border-white/[0.06] hover:border-[var(--ot-accent,#6366f1)]/40 hover:bg-[var(--ot-accent,#6366f1)]/[0.02] transition-all group"
+                    className="flex flex-col items-center gap-2 py-4 px-2 rounded-lg bg-white dark:bg-[#151827] border border-slate-200 dark:border-white/[0.06] hover:border-fin-accent/40 hover:bg-fin-accent/[0.02] transition-all group"
                   >
                     <span className="text-[22px] leading-none">{t.emoji}</span>
-                    <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 group-hover:text-[var(--ot-accent,#6366f1)] text-center">{t.label}</span>
+                    <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 group-hover:text-fin-accent text-center">{t.label}</span>
                   </Link>
                 ))}
               </div>
@@ -897,13 +897,13 @@ export function StatementManager() {
             <div className="flex gap-3">
               <button
                 onClick={resetWizard}
-                className="flex-1 h-11 rounded-xl border border-slate-200 dark:border-white/[0.07] text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors"
+                className="flex-1 h-11 rounded-lg border border-slate-200 dark:border-white/[0.07] text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors"
               >
                 Import Another
               </button>
               <Link
                 href="/my-finance/pf-financial-snapshot"
-                className="flex-1 h-11 rounded-xl bg-[var(--ot-accent,#6366f1)] hover:opacity-90 text-white text-[13px] font-bold flex items-center justify-center gap-1.5 transition-opacity"
+                className="flex-1 h-11 rounded-lg bg-fin-accent hover:opacity-90 text-white text-[13px] font-bold flex items-center justify-center gap-1.5 transition-opacity"
               >
                 View Summary <ArrowRight size={14} />
               </Link>
@@ -914,10 +914,10 @@ export function StatementManager() {
         {/* ── Missing date blocking modal ─────────────────────────────────────── */}
         {showMissingDateModal && liveIntegrity && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-            <div className="bg-white dark:bg-[#151827] rounded-2xl shadow-2xl border border-slate-200 dark:border-white/[0.07] max-w-sm w-full p-6 space-y-5">
+            <div className="bg-white dark:bg-[#151827] rounded-lg shadow-2xl border border-slate-200 dark:border-white/[0.07] max-w-sm w-full p-6 space-y-5">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-2xl bg-amber-100 dark:bg-amber-500/15 flex items-center justify-center flex-shrink-0">
-                  <ShieldAlert size={20} className="text-amber-600 dark:text-amber-400" />
+                <div className="w-11 h-11 rounded-lg bg-warning-tint flex items-center justify-center flex-shrink-0">
+                  <ShieldAlert size={20} className="text-warning" />
                 </div>
                 <div>
                   <p className="text-[14px] font-bold text-slate-900 dark:text-white">Check your Date column</p>
@@ -932,13 +932,13 @@ export function StatementManager() {
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => setShowMissingDateModal(false)}
-                  className="h-10 rounded-xl bg-[var(--ot-accent,#6366f1)] text-white text-[13px] font-bold hover:opacity-90 transition-opacity"
+                  className="h-10 rounded-lg bg-fin-accent text-white text-[13px] font-bold hover:opacity-90 transition-opacity"
                 >
                   Fix Mapping
                 </button>
                 <button
                   onClick={doSave}
-                  className="h-10 rounded-xl border border-slate-200 dark:border-white/[0.07] text-[13px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors"
+                  className="h-10 rounded-lg border border-slate-200 dark:border-white/[0.07] text-[13px] font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-colors"
                 >
                   Import Anyway
                 </button>

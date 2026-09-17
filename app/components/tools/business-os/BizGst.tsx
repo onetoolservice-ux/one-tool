@@ -182,17 +182,17 @@ function GSTR1View({ store, summary, selectedMonth }: {
           {GST_RATE_BANDS.map(rate => {
             const band = summary.rateBands.find(b => b.rate === rate);
             return (
-              <div key={rate} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
-                <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
+              <div key={rate} className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
                   GST {rate}%
                 </p>
                 {band ? (
                   <>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">
-                      Taxable: <span className="font-bold text-slate-800 dark:text-slate-200">{fmtCurrency(band.taxable)}</span>
+                      Taxable: <span className="font-semibold text-neutral-value">{fmtCurrency(band.taxable)}</span>
                     </p>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                      GST: <span className="font-bold text-blue-700 dark:text-blue-400">{fmtCurrency(band.gst)}</span>
+                      GST: <span className="font-semibold text-neutral-value">{fmtCurrency(band.gst)}</span>
                     </p>
                   </>
                 ) : (
@@ -204,24 +204,24 @@ function GSTR1View({ store, summary, selectedMonth }: {
         </div>
 
         {/* Total Row */}
-        <div className="mt-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 flex flex-wrap gap-6">
+        <div className="mt-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4 flex flex-wrap gap-6">
           <div>
-            <p className="text-xs font-semibold text-blue-500 dark:text-blue-400 uppercase tracking-wider mb-0.5">Total Taxable</p>
-            <p className="text-lg font-black text-blue-800 dark:text-blue-300">{fmtCurrency(summary.totalTaxableSales)}</p>
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Total Taxable</p>
+            <p className="text-lg font-semibold text-neutral-value">{fmtCurrency(summary.totalTaxableSales)}</p>
           </div>
           <div>
-            <p className="text-xs font-semibold text-blue-500 dark:text-blue-400 uppercase tracking-wider mb-0.5">Total Output GST</p>
-            <p className="text-lg font-black text-blue-800 dark:text-blue-300">{fmtCurrency(summary.outputGST)}</p>
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Total Output GST</p>
+            <p className="text-lg font-semibold text-neutral-value">{fmtCurrency(summary.outputGST)}</p>
           </div>
           <div>
-            <p className="text-xs font-semibold text-blue-500 dark:text-blue-400 uppercase tracking-wider mb-0.5">Grand Total</p>
-            <p className="text-lg font-black text-blue-800 dark:text-blue-300">{fmtCurrency(summary.totalTaxableSales + summary.outputGST)}</p>
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Grand Total</p>
+            <p className="text-lg font-semibold text-neutral-value">{fmtCurrency(summary.totalTaxableSales + summary.outputGST)}</p>
           </div>
         </div>
       </div>
 
       {/* Invoice-wise Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800">
           <h3 className="text-sm font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider">
             Invoice-wise Outward Supplies
@@ -231,14 +231,14 @@ function GSTR1View({ store, summary, selectedMonth }: {
             <div className="flex gap-1">
               <button
                 onClick={() => setRateFilter('all')}
-                className={`px-2 py-1 rounded-lg text-xs font-bold transition-colors ${rateFilter === 'all' ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+                className={`px-2 py-1 rounded-lg text-xs font-bold transition-colors ${rateFilter === 'all' ? 'bg-fin-accent text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
                 All
               </button>
               {allRates.map(r => (
                 <button
                   key={r}
                   onClick={() => setRateFilter(r)}
-                  className={`px-2 py-1 rounded-lg text-xs font-bold transition-colors ${rateFilter === r ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+                  className={`px-2 py-1 rounded-lg text-xs font-bold transition-colors ${rateFilter === r ? 'bg-fin-accent text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
                   {r}%
                 </button>
               ))}
@@ -318,7 +318,7 @@ function GSTR1View({ store, summary, selectedMonth }: {
 
       {/* HSN Summary */}
       {Object.keys(hsnByRate).length > 0 && (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
           <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800">
             <h3 className="text-sm font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider">
               HSN / Rate Summary
@@ -433,7 +433,7 @@ function GSTR3BView({ store, summary, selectedMonth, from, to }: {
   return (
     <div className="space-y-5">
       {/* Section 1 — Outward Supplies */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800">
           <h3 className="text-sm font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider">
             Section 3.1 — Outward Supplies
@@ -488,7 +488,7 @@ function GSTR3BView({ store, summary, selectedMonth, from, to }: {
       </div>
 
       {/* Section 2 — ITC */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800">
           <h3 className="text-sm font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider">
             Section 4 — Input Tax Credit
@@ -547,34 +547,34 @@ function GSTR3BView({ store, summary, selectedMonth, from, to }: {
       </div>
 
       {/* Section 3 — Net Tax */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-5">
+      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-5">
         <h3 className="text-sm font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-4">
           Net Tax Position
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-          <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-xl p-4">
-            <p className="text-xs font-semibold text-orange-500 dark:text-orange-400 uppercase tracking-wider mb-1">Output Tax</p>
-            <p className="text-2xl font-black text-orange-700 dark:text-orange-300">{fmtCurrency(summary.outputGST)}</p>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4">
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Output Tax</p>
+            <p className="text-2xl font-semibold text-neutral-value">{fmtCurrency(summary.outputGST)}</p>
           </div>
-          <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
-            <p className="text-xs font-semibold text-emerald-500 dark:text-emerald-400 uppercase tracking-wider mb-1">(-) ITC Available</p>
-            <p className="text-2xl font-black text-emerald-700 dark:text-emerald-300">{fmtCurrency(summary.itc)}</p>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4">
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">(-) ITC Available</p>
+            <p className="text-2xl font-semibold text-neutral-value">{fmtCurrency(summary.itc)}</p>
           </div>
-          <div className={`rounded-xl p-4 border ${summary.netPayable > 0
+          <div className={`rounded-lg p-4 border ${summary.netPayable > 0
             ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
             : 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'}`}>
             <p className={`text-xs font-semibold uppercase tracking-wider mb-1 ${summary.netPayable > 0 ? 'text-red-500 dark:text-red-400' : 'text-green-500 dark:text-green-400'}`}>
               (=) {summary.netPayable > 0 ? 'Net Payable' : 'Net Refundable'}
             </p>
-            <p className={`text-2xl font-black ${summary.netPayable > 0 ? 'text-red-700 dark:text-red-300' : 'text-green-700 dark:text-green-300'}`}>
+            <p className="text-2xl font-black text-neutral-value">
               {fmtCurrency(Math.abs(summary.netPayable))}
             </p>
           </div>
         </div>
 
-        <div className="flex items-start gap-2 bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 mb-4">
-          <Info size={14} className="text-blue-500 mt-0.5 shrink-0" />
-          <p className="text-xs text-blue-700 dark:text-blue-300">
+        <div className="flex items-start gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-3 mb-4">
+          <Info size={14} className="text-slate-500 mt-0.5 shrink-0" />
+          <p className="text-xs text-slate-600 dark:text-slate-300">
             This is a preparation summary. Share this with your CA/accountant for actual GSTR-3B filing.
             Figures are based on invoices and purchase bills recorded in the system.
           </p>
@@ -582,7 +582,7 @@ function GSTR3BView({ store, summary, selectedMonth, from, to }: {
 
         <button
           onClick={handleCopySummary}
-          className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 dark:bg-white hover:bg-slate-700 dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-xl text-sm font-bold transition-colors">
+          className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 dark:bg-white hover:bg-slate-700 dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-lg text-sm font-bold transition-colors">
           {copied ? <CheckCircle size={15} /> : <Copy size={15} />}
           {copied ? 'Copied!' : 'Copy Summary for CA'}
         </button>
@@ -635,7 +635,7 @@ function ITCTrackerView({ store }: { store: BizOSStore }) {
   return (
     <div className="space-y-5">
       {!hasBills ? (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-12 text-center">
+        <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-12 text-center">
           <Receipt size={40} className="text-slate-300 dark:text-slate-600 mx-auto mb-3" />
           <p className="text-base font-bold text-slate-500 dark:text-slate-400 mb-1">Add purchase bills to track ITC</p>
           <p className="text-xs text-slate-400 dark:text-slate-500">
@@ -645,7 +645,7 @@ function ITCTrackerView({ store }: { store: BizOSStore }) {
       ) : (
         <>
           {/* Bills Table */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800">
               <h3 className="text-sm font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider">
                 Purchase Bills — ITC Register
@@ -680,7 +680,7 @@ function ITCTrackerView({ store }: { store: BizOSStore }) {
                           <td className="px-5 py-3 font-bold text-slate-800 dark:text-slate-200 text-right whitespace-nowrap">
                             {fmtCurrency(bill.total)}
                           </td>
-                          <td className="px-5 py-3 font-black text-emerald-700 dark:text-emerald-400 text-right whitespace-nowrap">
+                          <td className="px-5 py-3 font-black text-neutral-value text-right whitespace-nowrap">
                             {fmtCurrency(bill.gstAmount)}
                           </td>
                           <td className="px-5 py-3">
@@ -697,7 +697,7 @@ function ITCTrackerView({ store }: { store: BizOSStore }) {
           </div>
 
           {/* Monthly ITC Trend Chart */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-5">
+          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-5">
             <h3 className="text-sm font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-4">
               Monthly ITC Trend (Last 6 Months)
             </h3>
@@ -718,16 +718,16 @@ function ITCTrackerView({ store }: { store: BizOSStore }) {
           </div>
 
           {/* FY ITC Total */}
-          <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-5 flex items-center gap-4">
-            <div className="bg-emerald-100 dark:bg-emerald-900/40 rounded-xl p-3">
-              <TrendingUp size={24} className="text-emerald-700 dark:text-emerald-400" />
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-5 flex items-center gap-4">
+            <div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-3">
+              <TrendingUp size={24} className="text-slate-500" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-0.5">
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">
                 Total ITC Available This FY
               </p>
-              <p className="text-3xl font-black text-emerald-700 dark:text-emerald-300">{fmtCurrency(fyITC)}</p>
-              <p className="text-xs text-emerald-600 dark:text-emerald-500 mt-0.5">
+              <p className="text-3xl font-semibold text-neutral-value">{fmtCurrency(fyITC)}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Apr {fyStart.slice(0, 4)} — Mar {fyEnd.slice(0, 4)} · {allBills.filter(b => b.date >= fyStart && b.date <= fyEnd).length} bills
               </p>
             </div>
@@ -767,6 +767,7 @@ export function BizGST() {
       <SAPHeader
         fullWidth
         sticky
+        kpiVariant="strip"
         title="GST Return Helper"
         subtitle="GSTR-1 · GSTR-3B · ITC Tracker"
         kpis={[
@@ -826,7 +827,7 @@ export function BizGST() {
       <div className="flex-1 overflow-y-auto">
         <div className="p-4 lg:p-6 max-w-7xl mx-auto">
           {/* Prep notice */}
-          <div className="flex items-start gap-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3 mb-5">
+          <div className="flex items-start gap-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-5">
             <AlertCircle size={14} className="text-amber-500 mt-0.5 shrink-0" />
             <p className="text-xs text-amber-700 dark:text-amber-300">
               <span className="font-black">Preparation Tool Only</span> — This tool helps you prepare your GST return data.

@@ -117,7 +117,7 @@ export function PFAIAnalyst() {
         <p className="text-base font-semibold">No financial data yet</p>
         <p className="text-sm text-center max-w-md">
           Upload your bank statements in{' '}
-          <span className="font-bold text-blue-500">Statement Manager</span>{' '}
+          <span className="font-bold text-fin-accent">Statement Manager</span>{' '}
           first. The AI analyst will automatically analyse your data.
         </p>
       </div>
@@ -127,7 +127,7 @@ export function PFAIAnalyst() {
   return (
     <div className="flex flex-col gap-4 p-4">
       {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl p-6 text-white shadow-lg">
+      <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg p-6 text-white shadow-lg">
         <div className="flex items-center gap-3 mb-3">
           <div className="bg-white/20 backdrop-blur-sm rounded-full p-3">
             <Brain size={28} />
@@ -141,7 +141,7 @@ export function PFAIAnalyst() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
             <p className="text-white/70 text-xs font-semibold uppercase tracking-wider mb-1">Current Month Status</p>
             <div className="flex items-center gap-2">
               {intelligence.summary.currentMonthSavings >= 0
@@ -157,7 +157,7 @@ export function PFAIAnalyst() {
             </p>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
             <p className="text-white/70 text-xs font-semibold uppercase tracking-wider mb-1">Spending Trend</p>
             <div className="flex items-center gap-2">
               {intelligence.summary.spendingTrend === 'increasing' && <TrendingUp  size={20} className="text-yellow-300" />}
@@ -170,7 +170,7 @@ export function PFAIAnalyst() {
             </p>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
             <p className="text-white/70 text-xs font-semibold uppercase tracking-wider mb-1">Income Consistency</p>
             <div className="flex items-center gap-2">
               <Activity size={20} className={
@@ -185,7 +185,7 @@ export function PFAIAnalyst() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
         <div className="border-b border-slate-200 dark:border-slate-800 px-4 py-3">
           <div className="flex gap-2 overflow-x-auto">
             {([
@@ -200,14 +200,14 @@ export function PFAIAnalyst() {
                 onClick={() => setActiveTab(tab.key)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all whitespace-nowrap ${
                   activeTab === tab.key
-                    ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300'
+                    ? 'bg-fin-accent/10 text-fin-accent'
                     : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
                 <tab.Icon size={16} />
                 {tab.label}
                 {tab.count > 0 && (
-                  <span className="bg-indigo-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                  <span className="bg-fin-accent text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                     {tab.count}
                   </span>
                 )}
@@ -220,7 +220,7 @@ export function PFAIAnalyst() {
           {/* ── Overview ─────────────────────────────────────────────────── */}
           {activeTab === 'overview' && (
             <>
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-5 border border-blue-200 dark:border-blue-800">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-5 border border-blue-200 dark:border-blue-800">
                 <div className="flex items-start gap-3">
                   <Info size={20} className="text-blue-600 dark:text-blue-400 mt-0.5" />
                   <div>
@@ -330,8 +330,8 @@ export function PFAIAnalyst() {
                 </div>
               ) : (
                 <>
-                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4">
-                    <p className="text-sm text-green-800 dark:text-green-200">
+                  <div className="bg-positive-tint rounded-lg p-4">
+                    <p className="text-sm text-positive">
                       <strong>Total Savings Potential:</strong>{' '}
                       {fmtINR(intelligence.recommendations.reduce((s, r) => s + r.impact, 0))} / month
                     </p>
@@ -376,19 +376,19 @@ export function PFAIAnalyst() {
 
 function InsightCard({ insight, expanded = false }: { insight: AutoInsight; expanded?: boolean }) {
   const iconMap = {
-    positive: <ArrowUpCircle  size={16} className="text-green-500" />,
-    neutral:  <Info           size={16} className="text-blue-500" />,
-    warning:  <AlertTriangle  size={16} className="text-amber-500" />,
-    critical: <Shield         size={16} className="text-red-500" />,
+    positive: <ArrowUpCircle  size={16} className="text-positive" />,
+    neutral:  <Info           size={16} className="text-fin-accent" />,
+    warning:  <AlertTriangle  size={16} className="text-warning" />,
+    critical: <Shield         size={16} className="text-negative" />,
   };
-  const bgMap = {
-    positive: 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800',
-    neutral:  'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800',
-    warning:  'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800',
-    critical: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800',
+  const borderMap = {
+    positive: 'border-positive/30',
+    neutral:  'border-fin-accent/30',
+    warning:  'border-warning/30',
+    critical: 'border-negative/30',
   };
   return (
-    <div className={`border rounded-xl p-4 ${bgMap[insight.type]}`}>
+    <div className={`border rounded-lg p-4 bg-white dark:bg-slate-900 ${borderMap[insight.type]}`}>
       <div className="flex items-start gap-3">
         <div className="mt-0.5">{iconMap[insight.type]}</div>
         <div className="flex-1">
@@ -410,18 +410,18 @@ function InsightCard({ insight, expanded = false }: { insight: AutoInsight; expa
 
 function AnomalyCard({ anomaly }: { anomaly: Anomaly }) {
   const map = {
-    low:    { bg: 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800', color: 'text-yellow-600' },
-    medium: { bg: 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800', color: 'text-orange-600' },
-    high:   { bg: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800',             color: 'text-red-600' },
+    low:    { border: 'border-warning/30',  color: 'text-warning',  badge: 'bg-warning-tint text-warning' },
+    medium: { border: 'border-warning/30',  color: 'text-warning',  badge: 'bg-warning-tint text-warning' },
+    high:   { border: 'border-negative/30', color: 'text-negative', badge: 'bg-negative-tint text-negative' },
   };
   return (
-    <div className={`border rounded-xl p-4 ${map[anomaly.severity].bg}`}>
+    <div className={`border rounded-lg p-4 bg-white dark:bg-slate-900 ${map[anomaly.severity].border}`}>
       <div className="flex items-start gap-3">
         <AlertTriangle size={16} className={`mt-0.5 ${map[anomaly.severity].color}`} />
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
             <h4 className="font-bold text-slate-800 dark:text-white text-sm">{anomaly.title}</h4>
-            <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${map[anomaly.severity].color}`}>
+            <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded-full ${map[anomaly.severity].badge}`}>
               {anomaly.severity}
             </span>
           </div>
@@ -434,17 +434,17 @@ function AnomalyCard({ anomaly }: { anomaly: Anomaly }) {
 
 function PredictionCard({ prediction }: { prediction: Prediction }) {
   const typeMap = {
-    expense: { icon: <TrendingDown size={18} />, color: 'text-rose-600',    bg: 'bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800' },
-    income:  { icon: <TrendingUp   size={18} />, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800' },
-    savings: { icon: <Target       size={18} />, color: 'text-indigo-600',  bg: 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800' },
+    expense: { icon: <TrendingDown size={18} />, color: 'text-negative',  border: 'border-negative/30' },
+    income:  { icon: <TrendingUp   size={18} />, color: 'text-positive',  border: 'border-positive/30' },
+    savings: { icon: <Target       size={18} />, color: 'text-fin-accent', border: 'border-fin-accent/30' },
   };
   const confMap = {
     low:    'text-slate-500',
-    medium: 'text-blue-600',
-    high:   'text-green-600',
+    medium: 'text-warning',
+    high:   'text-positive',
   };
   return (
-    <div className={`border rounded-xl p-5 ${typeMap[prediction.type].bg}`}>
+    <div className={`border rounded-lg p-5 bg-white dark:bg-slate-900 ${typeMap[prediction.type].border}`}>
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
           <div className={typeMap[prediction.type].color}>{typeMap[prediction.type].icon}</div>
@@ -454,7 +454,7 @@ function PredictionCard({ prediction }: { prediction: Prediction }) {
           {prediction.confidence.charAt(0).toUpperCase() + prediction.confidence.slice(1)} Confidence
         </span>
       </div>
-      <p className={`text-3xl font-black ${typeMap[prediction.type].color} mb-2`}>{fmtINR(Math.abs(prediction.amount))}</p>
+      <p className="text-3xl font-black text-neutral-value mb-2">{fmtINR(Math.abs(prediction.amount))}</p>
       <p className="text-sm text-slate-700 dark:text-slate-300 mb-2">{prediction.explanation}</p>
       <p className="text-xs text-slate-500 dark:text-slate-400">{prediction.basis}</p>
     </div>
@@ -468,7 +468,7 @@ function RecommendationCard({ recommendation, expanded = false }: { recommendati
     high:   { label: 'Challenging', color: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' },
   };
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-5">
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
           <Lightbulb size={18} className="text-amber-500" />
@@ -479,13 +479,13 @@ function RecommendationCard({ recommendation, expanded = false }: { recommendati
         </span>
       </div>
       <p className="text-sm text-slate-600 dark:text-slate-300 mb-3">{recommendation.description}</p>
-      <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 mb-3">
+      <div className="bg-positive-tint rounded-lg p-3 mb-3">
         <div className="flex items-center gap-2 mb-1">
-          <Zap size={14} className="text-green-600" />
-          <span className="text-xs font-bold text-green-700 dark:text-green-300 uppercase">Potential Impact</span>
+          <Zap size={14} className="text-positive" />
+          <span className="text-xs font-bold text-positive uppercase">Potential Impact</span>
         </div>
-        <p className="text-lg font-black text-green-600 dark:text-green-400">{fmtINR(recommendation.impact)} / month</p>
-        <p className="text-xs text-green-600 dark:text-green-400 mt-1">{fmtINR(recommendation.impact * 12)} annually</p>
+        <p className="text-lg font-black text-neutral-value">{fmtINR(recommendation.impact)} / month</p>
+        <p className="text-xs text-positive mt-1">{fmtINR(recommendation.impact * 12)} annually</p>
       </div>
       {expanded && (
         <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
@@ -503,7 +503,7 @@ function ComparisonCard({ comparison, current }: { comparison: { period: string;
   const expenseChange = current.totalDebits  - comparison.expenses;
   const incomeChange  = current.totalCredits - comparison.income;
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-5">
       <div className="flex items-center gap-2 mb-4">
         <Clock size={18} className="text-indigo-500" />
         <h4 className="font-bold text-slate-800 dark:text-white">vs {comparison.period}</h4>

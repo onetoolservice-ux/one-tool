@@ -117,6 +117,7 @@ export function CategoryRules() {
     <div className="space-y-4">
       <SAPHeader
         fullWidth
+        kpiVariant="strip"
         title="Category Rules"
         subtitle="Auto-assign categories to transactions based on conditions"
         kpis={rules.length > 0 ? [
@@ -128,8 +129,8 @@ export function CategoryRules() {
       <div className="space-y-4 px-4 pb-4">
 
         {/* Info banner */}
-        <div className="flex items-start gap-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-xl px-4 py-3 text-xs text-blue-700 dark:text-blue-300">
-          <Info size={13} className="mt-0.5 shrink-0" />
+        <div className="flex items-start gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-xs text-slate-600 dark:text-slate-300">
+          <Info size={13} className="text-slate-500 mt-0.5 shrink-0" />
           Rules are applied in order. First matching rule wins. Transactions with manual category overrides are skipped.
         </div>
 
@@ -145,24 +146,24 @@ export function CategoryRules() {
 
         {/* Preview confirmation panel */}
         {applyPreview && (
-          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4 space-y-3">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-3">
             <div className="flex items-center gap-2">
-              <Info size={14} className="text-amber-600 dark:text-amber-400 shrink-0" />
-              <p className="text-xs font-bold text-amber-700 dark:text-amber-300">
+              <Info size={14} className="text-warning shrink-0" />
+              <p className="text-xs font-bold text-warning">
                 This will re-categorize up to {applyPreview.count.toLocaleString('en-IN')} transaction{applyPreview.count !== 1 ? 's' : ''} across {activeCount} active rule{activeCount !== 1 ? 's' : ''}.
               </p>
             </div>
             {applyPreview.preview.filter(r => r.matches > 0).length > 0 && (
               <div className="space-y-1">
                 {applyPreview.preview.filter(r => r.matches > 0).map((r, i) => (
-                  <div key={i} className="flex items-center justify-between text-[11px] text-amber-600 dark:text-amber-400">
+                  <div key={i} className="flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300">
                     <span className="truncate mr-2">{r.rule}</span>
                     <span className="font-bold shrink-0">{r.matches} txn{r.matches !== 1 ? 's' : ''}</span>
                   </div>
                 ))}
               </div>
             )}
-            <p className="text-[11px] text-amber-600/80 dark:text-amber-400/80">Transactions with manual overrides are not changed. This cannot be undone.</p>
+            <p className="text-[11px] text-slate-500">Transactions with manual overrides are not changed. This cannot be undone.</p>
             <div className="flex gap-2">
               <PFButton variant="active" icon={<Play size={12} />} onClick={handleApplyAll}>Apply Now</PFButton>
               <PFButton onClick={() => setApplyPreview(null)}>Cancel</PFButton>
@@ -172,7 +173,7 @@ export function CategoryRules() {
 
         {/* Add rule form */}
         {showForm && (
-          <div className="bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-700 rounded-xl p-4 space-y-3">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-3">
             <p className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wide">New Rule</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="flex flex-col gap-1">
@@ -217,12 +218,12 @@ export function CategoryRules() {
 
         {/* Rules list */}
         {rules.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-12 text-center">
+          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg p-12 text-center">
             <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">No rules yet.</p>
             <p className="text-xs text-slate-400 mt-1">Add a rule to auto-assign categories to future transactions.</p>
           </div>
         ) : (
-          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
             <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <span className="text-xs text-slate-500">{rules.length} rules · applied in order shown</span>
             </div>
@@ -236,16 +237,16 @@ export function CategoryRules() {
                       {rule.conditionType.includes('amount') ? fmtINR(parseFloat(rule.conditionValue)) : rule.conditionValue}
                     </code>
                     <span className="text-xs text-slate-400">→</span>
-                    <PFBadge color="blue">{rule.assignedCategory}</PFBadge>
+                    <PFBadge color="slate">{rule.assignedCategory}</PFBadge>
                     {!rule.active && <PFBadge color="slate">Inactive</PFBadge>}
                   </div>
                   <div className="flex items-center gap-1">
                     <button onClick={() => handleToggle(rule.id)} title={rule.active ? 'Disable rule' : 'Enable rule'}
                       className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
-                      {rule.active ? <ToggleRight size={18} className="text-green-500" /> : <ToggleLeft size={18} />}
+                      {rule.active ? <ToggleRight size={18} className="text-positive" /> : <ToggleLeft size={18} />}
                     </button>
                     <button onClick={() => handleDelete(rule.id)} title="Delete rule"
-                      className="p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-950/30 text-slate-400 hover:text-red-600 transition-colors">
+                      className="p-1.5 rounded hover:bg-negative-tint text-slate-400 hover:text-negative transition-colors">
                       <Trash2 size={14} />
                     </button>
                   </div>

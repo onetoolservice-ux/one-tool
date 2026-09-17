@@ -157,6 +157,7 @@ export function BizParties() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <SAPHeader
         fullWidth sticky
+        kpiVariant="strip"
         title="Party Register"
         subtitle="Customers · Vendors · Employees — Khata-style ledger"
         kpis={[
@@ -168,7 +169,7 @@ export function BizParties() {
         actions={
           <button
             onClick={() => { setForm({ ...EMPTY_PARTY }); setEditParty(null); setShowAdd(true); }}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-fin-accent hover:opacity-90 text-white rounded-lg text-sm font-bold transition-colors"
           >
             <Plus size={16} /> Add Party
           </button>
@@ -195,7 +196,7 @@ export function BizParties() {
                   {(['customer', 'vendor', 'employee', 'other'] as const).map(t => (
                     <button key={t} type="button"
                       onClick={() => setForm(f => ({ ...f, type: t }))}
-                      className={`flex-1 py-2 rounded-xl font-bold text-xs capitalize transition-colors ${form.type === t ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+                      className={`flex-1 py-2 rounded-xl font-bold text-xs capitalize transition-colors ${form.type === t ? 'bg-fin-accent text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
                       {t}
                     </button>
                   ))}
@@ -234,7 +235,7 @@ export function BizParties() {
                   Cancel
                 </button>
                 <button type="submit"
-                  className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition-colors">
+                  className="flex-1 py-2.5 rounded-xl bg-fin-accent hover:opacity-90 text-white text-sm font-bold transition-colors">
                   {editParty ? 'Save Changes' : 'Add Party'}
                 </button>
               </div>
@@ -259,7 +260,7 @@ export function BizParties() {
                 <button key={t}
                   onClick={() => setTab(t)}
                   className={`px-2.5 py-1 rounded-lg text-xs font-bold capitalize whitespace-nowrap transition-colors ${
-                    tab === t ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                    tab === t ? 'bg-fin-accent text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                   }`}>
                   {t}
                 </button>
@@ -273,7 +274,7 @@ export function BizParties() {
               <div className="flex flex-col items-center justify-center h-40 text-center px-4">
                 <p className="text-sm text-slate-400 dark:text-slate-500 mb-2">No parties found</p>
                 <button onClick={() => { setForm({ ...EMPTY_PARTY }); setEditParty(null); setShowAdd(true); }}
-                  className="text-xs text-blue-600 dark:text-blue-400 font-bold hover:underline">
+                  className="text-xs text-fin-accent font-bold hover:underline">
                   Add one →
                 </button>
               </div>
@@ -286,7 +287,7 @@ export function BizParties() {
                     key={p.id}
                     onClick={() => setSelectedPartyId(isSelected ? null : p.id)}
                     className={`flex items-center gap-3 px-4 py-3 cursor-pointer border-b border-slate-100 dark:border-slate-800 transition-colors ${
-                      isSelected ? 'bg-blue-50 dark:bg-blue-900/20' : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'
+                      isSelected ? 'bg-fin-accent/10' : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'
                     }`}
                   >
                     <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-black shrink-0 ${typeBadgeColor(p.type)}`}>
@@ -325,7 +326,7 @@ export function BizParties() {
           ) : (
             <div className="p-5 space-y-4">
               {/* Party Header */}
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-5">
+              <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-5">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-4">
                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-black ${typeBadgeColor(selectedParty.type)}`}>
@@ -375,7 +376,7 @@ export function BizParties() {
                   </div>
                   <button
                     onClick={() => { setTxForm({ ...EMPTY_TX, category: selectedParty.type === 'vendor' ? 'Purchase' : 'Sales', description: '' }); setShowTxForm(true); }}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-fin-accent hover:opacity-90 text-white rounded-lg text-sm font-bold transition-colors"
                   >
                     <Plus size={15} /> Add Transaction
                   </button>
@@ -406,7 +407,7 @@ export function BizParties() {
 
               {/* Add Tx Form */}
               {showTxForm && (
-                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-blue-200 dark:border-blue-800 p-5">
+                <div className="bg-white dark:bg-slate-900 rounded-lg border border-fin-accent/40 p-5">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-sm font-black text-slate-900 dark:text-white">Add Transaction</h3>
                     <button onClick={() => setShowTxForm(false)}><X size={16} className="text-slate-400" /></button>
@@ -474,7 +475,7 @@ export function BizParties() {
               )}
 
               {/* Party Transactions */}
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+              <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
                 <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800">
                   <h3 className="text-sm font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider">
                     Transaction History ({partyTxs.length})

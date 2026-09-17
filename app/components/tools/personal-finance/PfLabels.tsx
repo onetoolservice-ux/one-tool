@@ -99,6 +99,7 @@ export function LabelManager() {
     <div className="space-y-4">
       <SAPHeader
         fullWidth
+        kpiVariant="strip"
         title="Label Manager"
         subtitle="Create custom tags and assign them to transactions"
         kpis={labels.length > 0 ? [
@@ -116,7 +117,7 @@ export function LabelManager() {
         </div>
 
         {showForm && (
-          <div className="bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-700 rounded-xl p-4 space-y-3">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-3">
             <p className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wide">Create Label</p>
             <div className="flex items-center gap-3">
               <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="Label name…"
@@ -144,7 +145,7 @@ export function LabelManager() {
 
         {/* Labels Grid */}
         {labels.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-12 text-center">
+          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg p-12 text-center">
             <Tag size={36} className="mx-auto mb-3 text-slate-300 dark:text-slate-600" />
             <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">No labels yet.</p>
             <p className="text-xs text-slate-400 mt-1">Create labels to tag and group your transactions.</p>
@@ -161,7 +162,7 @@ export function LabelManager() {
                   tabIndex={0}
                   onClick={() => setSelectedLabel(isSelected ? null : lbl.id)}
                   onKeyDown={e => e.key === 'Enter' && setSelectedLabel(isSelected ? null : lbl.id)}
-                  className={`relative bg-white dark:bg-slate-900 border rounded-xl p-3 text-left transition-all cursor-pointer ${isSelected ? 'border-blue-400 dark:border-blue-500 shadow-md' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'}`}
+                  className={`relative bg-white dark:bg-slate-900 border rounded-lg p-3 text-left transition-all cursor-pointer ${isSelected ? 'border-fin-accent' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'}`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2">
@@ -186,7 +187,7 @@ export function LabelManager() {
           const lbl = labels.find(l => l.id === selectedLabel)!;
           if (!lbl) return null;
           return (
-            <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
               <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: lbl.color }} />
@@ -233,7 +234,7 @@ export function LabelManager() {
                           <p className="text-[10px] text-slate-400">{t.date} · {t.category} · {fmtINR(t.amount)}</p>
                         </div>
                         <button onClick={() => handleAssign(t.id, selectedLabel)}
-                          className="text-xs text-blue-600 hover:text-blue-800 font-semibold shrink-0 ml-2">+ Tag</button>
+                          className="text-xs text-fin-accent hover:opacity-80 font-semibold shrink-0 ml-2">+ Tag</button>
                       </div>
                     ))}
                   </div>

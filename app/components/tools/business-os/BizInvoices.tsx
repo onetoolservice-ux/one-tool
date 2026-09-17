@@ -169,6 +169,7 @@ export function BizInvoices() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <SAPHeader
         fullWidth sticky
+        kpiVariant="strip"
         title="Invoice Manager"
         subtitle="Create · Track · Collect — GST invoicing"
         kpis={[
@@ -179,7 +180,7 @@ export function BizInvoices() {
         ]}
         actions={
           <button onClick={() => { resetForm(); setShowForm(true); }}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors">
+            className="flex items-center gap-2 px-4 py-2 bg-fin-accent hover:opacity-90 text-white rounded-lg text-sm font-bold transition-colors">
             <Plus size={16} /> New Invoice
           </button>
         }
@@ -238,7 +239,7 @@ export function BizInvoices() {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Items *</label>
-                    <button type="button" onClick={addItem} className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+                    <button type="button" onClick={addItem} className="text-xs font-bold text-fin-accent hover:underline flex items-center gap-1">
                       <Plus size={12} /> Add Row
                     </button>
                   </div>
@@ -327,7 +328,7 @@ export function BizInvoices() {
                 <button type="button" onClick={() => setShowForm(false)}
                   className="flex-1 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-sm font-bold">Cancel</button>
                 <button type="submit" disabled={!formCustomerId || formItems.length === 0 || formItems.every(it => !it.name)}
-                  className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white text-sm font-bold transition-colors">
+                  className="flex-1 py-2.5 rounded-xl bg-fin-accent hover:opacity-90 disabled:opacity-40 text-white text-sm font-bold transition-colors">
                   Create Invoice (Draft)
                 </button>
               </div>
@@ -355,7 +356,7 @@ export function BizInvoices() {
                 <button key={s}
                   onClick={() => setFilterStatus(s)}
                   className={`px-2 py-1 rounded-lg text-xs font-bold capitalize whitespace-nowrap transition-colors ${
-                    filterStatus === s ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                    filterStatus === s ? 'bg-fin-accent text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                   }`}>
                   {s}
                 </button>
@@ -369,7 +370,7 @@ export function BizInvoices() {
               <div className="flex flex-col items-center justify-center h-40 text-center px-4">
                 <p className="text-sm text-slate-400 dark:text-slate-500 mb-2">No invoices found</p>
                 <button onClick={() => { resetForm(); setShowForm(true); }}
-                  className="text-xs text-blue-600 dark:text-blue-400 font-bold hover:underline">Create one →</button>
+                  className="text-xs text-fin-accent font-bold hover:underline">Create one →</button>
               </div>
             ) : (
               filtered.map(inv => {
@@ -382,7 +383,7 @@ export function BizInvoices() {
                   <div key={inv.id}
                     onClick={() => setSelectedInvoiceId(isSelected ? null : inv.id)}
                     className={`flex items-center gap-3 px-4 py-3 cursor-pointer border-b border-slate-100 dark:border-slate-800 transition-colors ${
-                      isSelected ? 'bg-blue-50 dark:bg-blue-900/20' : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'
+                      isSelected ? 'bg-fin-accent/10' : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'
                     }`}
                   >
                     <div className="flex-1 min-w-0">
@@ -412,7 +413,7 @@ export function BizInvoices() {
           ) : (
             <div className="p-5 max-w-2xl mx-auto space-y-4">
               {/* Invoice Header */}
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6">
+              <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
                 <div className="flex items-start justify-between mb-6">
                   <div>
                     <h2 className="text-2xl font-black text-slate-900 dark:text-white">{selectedInvoice.number}</h2>
@@ -496,7 +497,7 @@ export function BizInvoices() {
                 {selectedInvoice.status === 'draft' && (
                   <button
                     onClick={() => updateInvoice(selectedInvoice.id, { status: 'sent' })}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-fin-accent hover:opacity-90 text-white rounded-lg text-sm font-bold transition-colors"
                   >
                     <Clock size={15} /> Mark as Sent
                   </button>

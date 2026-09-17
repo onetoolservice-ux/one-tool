@@ -137,7 +137,7 @@ export function LiabilityLedger() {
           </div>
           <button
             onClick={() => setShowFilterBar(v => !v)}
-            className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold"
+            className="text-xs text-fin-accent hover:underline font-semibold"
           >
             {showFilterBar ? 'Hide Filter Bar' : 'Show Filter Bar'}
           </button>
@@ -198,18 +198,18 @@ export function LiabilityLedger() {
             <h2 className="text-sm font-bold text-slate-800 dark:text-slate-100">Liability Ledger</h2>
             {hasData && (
               <>
-                <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold px-2 py-0.5 rounded-full">
+                <span className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold px-2 py-0.5 rounded-full">
                   {groups.length} EMI Groups
                 </span>
-                <span className="text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-semibold px-2 py-0.5 rounded-full">
+                <span className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold px-2 py-0.5 rounded-full">
                   Est. {fmtINR(totalMonthlyEMI)}/mo
                 </span>
                 <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                   emiBurdenRatio <= 20
-                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                    ? 'bg-positive-tint text-positive'
                     : emiBurdenRatio <= 40
-                    ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
-                    : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                    ? 'bg-warning-tint text-warning'
+                    : 'bg-negative-tint text-negative'
                 }`}>
                   Burden {fmtPct(emiBurdenRatio)}
                 </span>
@@ -229,15 +229,15 @@ export function LiabilityLedger() {
             {/* Summary Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 border-b border-slate-100 dark:border-slate-800">
               {[
-                { label: 'EMI Burden Ratio', value: fmtPct(emiBurdenRatio), sub: 'EMI / Income × 100', color: emiBurdenRatio <= 20 ? 'text-[#107E3E]' : emiBurdenRatio <= 40 ? 'text-[#E76500]' : 'text-[#BB0000]' },
-                { label: 'Monthly EMI Est.',  value: fmtINR(totalMonthlyEMI), sub: 'Across all groups', color: 'text-[#E76500]' },
-                { label: 'Total EMI Paid',    value: fmtINR(totalEMIPaid),   sub: 'In selected period', color: 'text-slate-800 dark:text-slate-100' },
-                { label: 'CC Spend',          value: fmtINR(ccTotal),        sub: 'Credit card accounts', color: 'text-[#6A1B9A]' },
+                { label: 'EMI Burden Ratio', value: fmtPct(emiBurdenRatio), sub: 'EMI / Income × 100' },
+                { label: 'Monthly EMI Est.',  value: fmtINR(totalMonthlyEMI), sub: 'Across all groups' },
+                { label: 'Total EMI Paid',    value: fmtINR(totalEMIPaid),   sub: 'In selected period' },
+                { label: 'CC Spend',          value: fmtINR(ccTotal),        sub: 'Credit card accounts' },
               ].map(s => (
-                <div key={s.label} className="bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 rounded-xl p-4">
+                <div key={s.label} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-5">
                   <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">{s.label}</p>
-                  <p className={`text-xl font-black ${s.color}`}>{s.value}</p>
-                  <p className="text-xs text-slate-400 mt-0.5">{s.sub}</p>
+                  <p className="text-xl font-black text-neutral-value">{s.value}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{s.sub}</p>
                 </div>
               ))}
             </div>
@@ -277,7 +277,7 @@ export function LiabilityLedger() {
                         </td>
                         <td className="px-4 py-3 text-right text-slate-600 dark:text-slate-300">{g.count}</td>
                         <td className="px-4 py-3 text-right font-mono text-slate-700 dark:text-slate-200">{fmtINR(g.avgPayment)}</td>
-                        <td className="px-4 py-3 text-right font-mono font-semibold text-[#E76500]">{fmtINR(g.monthlyEquiv)}</td>
+                        <td className="px-4 py-3 text-right font-mono font-semibold text-neutral-value">{fmtINR(g.monthlyEquiv)}</td>
                         <td className="px-4 py-3 text-right font-mono font-bold text-slate-800 dark:text-slate-100">{fmtINR(g.totalPaid)}</td>
                         <td className="px-4 py-3 text-xs text-slate-400">{g.firstDate} → {g.lastDate}</td>
                         <td className="px-4 py-3">
@@ -320,7 +320,7 @@ export function LiabilityLedger() {
                 <tfoot>
                   <tr className="bg-slate-50 dark:bg-slate-800 border-t-2 border-slate-200 dark:border-slate-700">
                     <td colSpan={3} className="px-4 py-3 text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-wide">Total</td>
-                    <td className="px-4 py-3 text-right font-mono font-black text-[#E76500]">{fmtINR(totalMonthlyEMI)}</td>
+                    <td className="px-4 py-3 text-right font-mono font-black text-neutral-value">{fmtINR(totalMonthlyEMI)}</td>
                     <td className="px-4 py-3 text-right font-mono font-black text-slate-800 dark:text-slate-100">{fmtINR(totalEMIPaid)}</td>
                     <td colSpan={2} />
                   </tr>

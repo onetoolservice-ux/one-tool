@@ -18,10 +18,10 @@ import { getPFTransactions, fmtINR } from './finance-store';
 const fmt = fmtINR;
 
 const STATUS_CONFIG = {
-  safe:    { bar: 'bg-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/10',  border: 'border-emerald-200 dark:border-emerald-800',  badge: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300', label: 'On Track'  },
-  warning: { bar: 'bg-amber-500',   bg: 'bg-amber-50 dark:bg-amber-900/10',      border: 'border-amber-200 dark:border-amber-800',        badge: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',         label: 'At Risk'   },
-  danger:  { bar: 'bg-orange-500',  bg: 'bg-orange-50 dark:bg-orange-900/10',    border: 'border-orange-200 dark:border-orange-800',      badge: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300',     label: 'Near Limit'},
-  over:    { bar: 'bg-red-500',     bg: 'bg-red-50 dark:bg-red-900/10',          border: 'border-red-300 dark:border-red-700',            badge: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300',                 label: 'Overspent' },
+  safe:    { bar: 'bg-positive', border: 'border-positive/40', badge: 'bg-positive-tint text-positive', label: 'On Track'  },
+  warning: { bar: 'bg-warning',  border: 'border-warning/40',  badge: 'bg-warning-tint text-warning',   label: 'At Risk'   },
+  danger:  { bar: 'bg-warning',  border: 'border-warning/60',  badge: 'bg-warning-tint text-warning',   label: 'Near Limit'},
+  over:    { bar: 'bg-negative', border: 'border-negative/40', badge: 'bg-negative-tint text-negative', label: 'Overspent' },
 };
 
 // ── Transaction Drill-Down ────────────────────────────────────────────────────
@@ -56,7 +56,7 @@ function TransactionDrillDown({ month, category, onClose }: {
                 <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">{t.description}</p>
                 <p className="text-[10px] text-slate-400">{new Date(t.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</p>
               </div>
-              <span className="text-sm font-bold tabular-nums text-red-600 dark:text-red-400">{fmt(t.amount)}</span>
+              <span className="text-sm font-bold tabular-nums text-neutral-value">{fmt(t.amount)}</span>
             </div>
           ))}
         </div>
@@ -89,13 +89,13 @@ function MoveMoney({ month, plan, fromId, onClose }: {
       <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <ArrowLeftRight className="w-5 h-5 text-blue-500" />
+            <ArrowLeftRight className="w-5 h-5 text-slate-500" />
             <p className="font-bold text-slate-800 dark:text-slate-100">Move Money</p>
           </div>
           <button onClick={onClose}><X className="w-5 h-5 text-slate-400" /></button>
         </div>
         <div className="space-y-3">
-          <div className="bg-slate-50 dark:bg-slate-800 rounded-xl px-4 py-3">
+          <div className="bg-slate-50 dark:bg-slate-800 rounded-lg px-4 py-3">
             <p className="text-xs text-slate-500 uppercase tracking-wide">From</p>
             <p className="font-bold text-slate-800 dark:text-slate-100">{from.category}</p>
             <p className="text-xs text-slate-400">Allocated: {fmt(from.allocated)}</p>
@@ -117,11 +117,11 @@ function MoveMoney({ month, plan, fromId, onClose }: {
         </div>
         <div className="flex gap-2">
           <button onClick={handle} disabled={!toId || amount <= 0}
-            className="flex-1 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-40">
+            className="flex-1 py-2.5 bg-fin-accent text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-colors disabled:opacity-40">
             Move {fmt(amount)}
           </button>
           <button onClick={onClose}
-            className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-sm font-semibold">
+            className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-semibold">
             Cancel
           </button>
         </div>
@@ -142,9 +142,9 @@ function EnvelopeCard({
   const envelope = plan.envelopes.find(e => e.category === ea.category);
 
   const velocityIcon = ea.velocity === 'overpacing'
-    ? <TrendingUp className="w-3 h-3 text-red-500" />
+    ? <TrendingUp className="w-3 h-3 text-negative" />
     : ea.velocity === 'underpacing'
-    ? <TrendingDown className="w-3 h-3 text-emerald-500" />
+    ? <TrendingDown className="w-3 h-3 text-positive" />
     : <Minus className="w-3 h-3 text-slate-400" />;
 
   return (
@@ -153,7 +153,7 @@ function EnvelopeCard({
         <TransactionDrillDown month={month} category={ea.category} onClose={() => setShowDrill(false)} />
       )}
 
-      <div className={`rounded-xl border transition-all ${cfg.border} ${cfg.bg}`}>
+      <div className={`rounded-lg border bg-white dark:bg-slate-900 transition-all ${cfg.border}`}>
         {/* Header */}
         <div className="px-4 pt-4 pb-2 flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
@@ -161,7 +161,7 @@ function EnvelopeCard({
               <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">{ea.category}</p>
               <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${cfg.badge}`}>{cfg.label}</span>
               {ea.rollover > 0 && (
-                <span className="text-[9px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-1.5 py-0.5 rounded-full">
+                <span className="text-[9px] font-semibold bg-positive-tint text-positive px-1.5 py-0.5 rounded-full">
                   +{fmt(ea.rollover)} rollover
                 </span>
               )}
@@ -172,24 +172,24 @@ function EnvelopeCard({
             </div>
           </div>
           <div className="text-right shrink-0">
-            <p className={`text-xl font-black tabular-nums ${ea.remaining >= 0 ? 'text-slate-800 dark:text-slate-100' : 'text-red-600 dark:text-red-400'}`}>
+            <p className={`text-xl font-black tabular-nums ${ea.remaining >= 0 ? 'text-neutral-value' : 'text-negative'}`}>
               {ea.remaining >= 0 ? fmt(ea.remaining) : `−${fmt(Math.abs(ea.remaining))}`}
             </p>
-            <p className="text-[10px] text-slate-400">{ea.remaining >= 0 ? 'remaining' : 'over budget'}</p>
+            <p className="text-[10px] text-slate-500">{ea.remaining >= 0 ? 'remaining' : 'over budget'}</p>
           </div>
         </div>
 
         {/* Progress bar */}
         <div className="px-4 pb-2">
-          <div className="h-2.5 rounded-full bg-white/60 dark:bg-slate-800/60 overflow-hidden">
+          <div className="h-2.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
             <div
               className={`h-full rounded-full transition-all ${cfg.bar}`}
               style={{ width: `${Math.min(100, ea.pct)}%` }}
             />
           </div>
           {ea.pct > 100 && (
-            <div className="h-1 rounded-full bg-red-300 dark:bg-red-700 mt-0.5 overflow-hidden">
-              <div className="h-full bg-red-500 rounded-full" style={{ width: `${Math.min(100, ((ea.pct - 100) / 100) * 100)}%` }} />
+            <div className="h-1 rounded-full bg-negative/20 mt-0.5 overflow-hidden">
+              <div className="h-full bg-negative rounded-full" style={{ width: `${Math.min(100, ((ea.pct - 100) / 100) * 100)}%` }} />
             </div>
           )}
         </div>
@@ -202,17 +202,17 @@ function EnvelopeCard({
             { label: 'Projected EOM', value: fmt(ea.projectedEOM) },
           ].map(({ label, value }) => (
             <div key={label} className="text-center">
-              <p className="text-xs font-bold tabular-nums text-slate-700 dark:text-slate-300">{value}</p>
-              <p className="text-[9px] text-slate-400 uppercase tracking-wide">{label}</p>
+              <p className="text-xs font-bold tabular-nums text-neutral-value">{value}</p>
+              <p className="text-[9px] text-slate-500 uppercase tracking-wide">{label}</p>
             </div>
           ))}
         </div>
 
         {/* Overspend projection warning */}
         {ea.projectedEOM > ea.available && ea.available > 0 && (
-          <div className="mx-4 mb-3 flex items-center gap-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
-            <AlertTriangle className="w-3.5 h-3.5 text-red-500 shrink-0" />
-            <p className="text-[10px] text-red-700 dark:text-red-300">
+          <div className="mx-4 mb-3 flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2">
+            <AlertTriangle className="w-3.5 h-3.5 text-warning shrink-0" />
+            <p className="text-[10px] text-slate-600 dark:text-slate-300">
               At current pace, will overspend by {fmt(ea.projectedEOM - ea.available)} by month end
             </p>
           </div>
@@ -222,14 +222,14 @@ function EnvelopeCard({
         <div className="px-4 pb-3 flex gap-2">
           <button
             onClick={() => setShowDrill(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-white dark:hover:bg-slate-800 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
           >
             <ExternalLink className="w-3 h-3" /> {ea.actual > 0 ? 'View Transactions' : 'No Spend Yet'}
           </button>
           {envelope && (
             <button
               onClick={() => onMove(envelope.id)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-700 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold text-fin-accent border border-fin-accent/40 rounded-lg hover:bg-fin-accent/10 transition-colors"
             >
               <ArrowLeftRight className="w-3 h-3" /> Move Money
             </button>
@@ -250,18 +250,18 @@ function OverspendBanners({ warnings }: { warnings: ConsecutiveOverspend[] }) {
   return (
     <div className="space-y-2">
       {active.map(w => (
-        <div key={w.category} className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl px-4 py-3">
-          <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+        <div key={w.category} className="flex items-start gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3">
+          <AlertTriangle className="w-4 h-4 text-warning mt-0.5 shrink-0" />
           <div className="flex-1">
-            <p className="text-xs font-bold text-amber-800 dark:text-amber-200">
+            <p className="text-xs font-bold text-warning">
               {w.category} exceeded budget {w.consecutiveMonths} months in a row
             </p>
-            <p className="text-[11px] text-amber-700 dark:text-amber-300 mt-0.5">
+            <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">
               Avg overspend: {fmt(w.avgOverspend)} · Suggested budget: {fmt(w.suggestion)}
             </p>
           </div>
           <button onClick={() => setDismissed(d => [...d, w.category])}
-            className="text-amber-400 hover:text-amber-700 shrink-0"><X className="w-4 h-4" /></button>
+            className="text-slate-400 hover:text-slate-600 shrink-0"><X className="w-4 h-4" /></button>
         </div>
       ))}
     </div>
@@ -273,24 +273,20 @@ function OverspendBanners({ warnings }: { warnings: ConsecutiveOverspend[] }) {
 function MonthSummaryBar({ month }: { month: string }) {
   const report = useMemo(() => computeMonthHealth(month), [month]);
 
-  const scoreColor = report.healthScore >= 75 ? 'text-emerald-700 dark:text-emerald-300'
-    : report.healthScore >= 50 ? 'text-amber-700 dark:text-amber-400'
-    : 'text-red-700 dark:text-red-400';
-
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+    <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-5">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-4">
           <div className="text-center">
-            <p className={`text-3xl font-black ${scoreColor}`}>{report.healthScore}</p>
-            <p className="text-[10px] text-slate-400 uppercase tracking-wide">Health Score</p>
+            <p className="text-3xl font-black text-neutral-value">{report.healthScore}</p>
+            <p className="text-[10px] text-slate-500 uppercase tracking-wide">Health Score</p>
           </div>
           <div className="h-10 w-px bg-slate-200 dark:bg-slate-700" />
           <div>
             <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
               {report.categoriesOnTrack} / {report.totalCategories} envelopes on track
             </p>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               Savings rate: {report.savingsRate.toFixed(1)}% · Unallocated: {fmt(Math.abs(report.unallocated))}
             </p>
           </div>
@@ -302,8 +298,8 @@ function MonthSummaryBar({ month }: { month: string }) {
             { label: 'Breathing Room', value: fmt(report.breathingRoom) },
           ].map(({ label, value }) => (
             <div key={label}>
-              <p className="text-sm font-bold tabular-nums text-slate-800 dark:text-slate-100">{value}</p>
-              <p className="text-[10px] text-slate-400 uppercase tracking-wide">{label}</p>
+              <p className="text-sm font-bold tabular-nums text-neutral-value">{value}</p>
+              <p className="text-[10px] text-slate-500 uppercase tracking-wide">{label}</p>
             </div>
           ))}
         </div>
@@ -392,7 +388,7 @@ export function EnvelopesBoard({ month }: { month: string }) {
               onClick={() => setFilter(key)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                 filter === key
-                  ? 'bg-slate-800 dark:bg-slate-200 text-white dark:text-slate-900'
+                  ? 'bg-fin-accent text-white'
                   : 'border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'
               }`}
             >
@@ -414,7 +410,7 @@ export function EnvelopesBoard({ month }: { month: string }) {
 
       {/* Envelope cards grid */}
       {filteredActuals.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-slate-900 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
+        <div className="text-center py-12 bg-white dark:bg-slate-900 rounded-lg border border-dashed border-slate-200 dark:border-slate-700">
           <p className="text-sm text-slate-400">
             {actuals.length === 0
               ? 'No envelopes yet. Go to the Canvas tab to add envelopes and set your budget.'
@@ -447,7 +443,7 @@ export function EnvelopesBoard({ month }: { month: string }) {
 
       {/* Spending summary table */}
       {actuals.length > 0 && (
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
           <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
             <p className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">Summary Table</p>
           </div>

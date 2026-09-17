@@ -435,8 +435,8 @@ export function Expenses() {
   const SortIcon = ({ col }: { col: SortCol }) => {
     if (sortCol !== col) return <ChevronUp size={10} className="text-slate-300 ml-1 inline" />;
     return sortDir === 'asc'
-      ? <ChevronUp   size={10} className="text-blue-500 ml-1 inline" />
-      : <ChevronDown size={10} className="text-blue-500 ml-1 inline" />;
+      ? <ChevronUp   size={10} className="text-fin-accent ml-1 inline" />
+      : <ChevronDown size={10} className="text-fin-accent ml-1 inline" />;
   };
 
   if (!mounted) return null;
@@ -469,7 +469,7 @@ export function Expenses() {
               This transaction is already categorised as{' '}
               <span className="font-semibold text-slate-800 dark:text-slate-200">{pendingCatChange.from}</span>.
               {' '}Are you sure you want to change it to{' '}
-              <span className="font-semibold text-blue-600 dark:text-blue-400">{pendingCatChange.to}</span>?
+              <span className="font-semibold text-fin-accent">{pendingCatChange.to}</span>?
             </p>
             <div className="flex items-center justify-end gap-2">
               <button
@@ -514,7 +514,7 @@ export function Expenses() {
                 onChange={e => setBulkCatInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') confirmBulkCatDialog(); if (e.key === 'Escape') setShowBulkCatDialog(false); }}
                 placeholder="e.g. Food, Shopping, Utilities…"
-                className="text-sm border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 outline-none focus:border-blue-400 dark:focus:border-blue-500"
+                className="text-sm border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 outline-none focus:border-fin-accent"
               />
             </div>
             {(catGroups.inData.length > 0 || catGroups.system.length > 0) && (
@@ -526,7 +526,7 @@ export function Expenses() {
                       <span className="text-[10px] text-slate-400 dark:text-slate-500 px-1 pt-1">From your data</span>
                       {catGroups.inData.map(c => (
                         <button key={c} onClick={() => setBulkCatInput(c)}
-                          className={`text-left text-xs px-2 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors ${bulkCatInput === c ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 font-medium' : 'text-slate-700 dark:text-slate-300'}`}>
+                          className={`text-left text-xs px-2 py-1 rounded hover:bg-fin-accent/10 transition-colors ${bulkCatInput === c ? 'bg-fin-accent/10 text-fin-accent font-medium' : 'text-slate-700 dark:text-slate-300'}`}>
                           {c}
                         </button>
                       ))}
@@ -537,7 +537,7 @@ export function Expenses() {
                       <span className="text-[10px] text-slate-400 dark:text-slate-500 px-1 pt-1">System</span>
                       {catGroups.system.map(c => (
                         <button key={c} onClick={() => setBulkCatInput(c)}
-                          className={`text-left text-xs px-2 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors ${bulkCatInput === c ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 font-medium' : 'text-slate-700 dark:text-slate-300'}`}>
+                          className={`text-left text-xs px-2 py-1 rounded hover:bg-fin-accent/10 transition-colors ${bulkCatInput === c ? 'bg-fin-accent/10 text-fin-accent font-medium' : 'text-slate-700 dark:text-slate-300'}`}>
                           {c}
                         </button>
                       ))}
@@ -552,7 +552,7 @@ export function Expenses() {
                 Cancel
               </button>
               <button disabled={!bulkCatInput.trim()} onClick={confirmBulkCatDialog}
-                className="text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed">
+                className="text-xs font-semibold bg-fin-accent hover:opacity-90 text-white px-4 py-1.5 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed">
                 Apply
               </button>
             </div>
@@ -577,7 +577,7 @@ export function Expenses() {
 
         {/* Filter bar header */}
         <div className="flex items-center justify-end gap-3 px-4 py-2 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
-          <span className="text-sm font-semibold text-blue-600 dark:text-blue-400 mr-auto">
+          <span className="text-sm font-semibold text-fin-accent mr-auto">
             Filters
             {dynamicColumns.length > 0 && (
               <span className="text-xs font-normal text-slate-400 dark:text-slate-500 ml-2">
@@ -587,28 +587,28 @@ export function Expenses() {
           </span>
 
           {anyFilterActive && (
-            <button onClick={clearAllFilters} className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium">
+            <button onClick={clearAllFilters} className="text-xs text-fin-accent hover:underline font-medium">
               Clear All
             </button>
           )}
 
           <button onClick={() => setShowAdaptDialog(true)}
-            className="text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:underline font-medium">
+            className="text-xs text-slate-500 dark:text-slate-400 hover:text-fin-accent hover:underline font-medium">
             Adapt Filters
           </button>
 
           <button onClick={() => setShowFilterBar(v => !v)}
-            className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium">
+            className="text-xs text-fin-accent hover:underline font-medium">
             {showFilterBar ? 'Hide Filter Bar' : 'Show Filter Bar'}
           </button>
 
           {activeFilterCount > 0 && (
-            <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
+            <span className="text-xs font-medium text-fin-accent">
               Filters ({activeFilterCount})
             </span>
           )}
 
-          <button className="text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-full transition-colors"
+          <button className="text-xs font-semibold bg-fin-accent hover:opacity-90 text-white px-4 py-1.5 rounded-full transition-colors"
             onClick={() => setPage(1)}>
             Go
           </button>
@@ -623,7 +623,7 @@ export function Expenses() {
               <label className="text-xs font-normal text-slate-700 dark:text-slate-300">Statement:</label>
               <button
                 onClick={() => setShowStmtVH(v => !v)}
-                className={`flex items-center justify-between ${inputCls} hover:border-blue-400 dark:hover:border-blue-500 transition-colors text-left w-full`}
+                className={`flex items-center justify-between ${inputCls} hover:border-fin-accent transition-colors text-left w-full`}
               >
                 <span className="truncate">{selectedStmtLabel}</span>
                 <ChevronDown size={14} className="shrink-0 text-slate-400 ml-1" />
@@ -644,12 +644,12 @@ export function Expenses() {
                   )}
                   <div className="max-h-48 overflow-y-auto py-1">
                     <button onClick={() => { setStatementId('all'); setShowStmtVH(false); setPage(1); }}
-                      className={`w-full text-left px-4 py-2 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${statementId === 'all' ? 'text-blue-600 font-semibold bg-blue-50 dark:bg-blue-900/10' : 'text-slate-700 dark:text-slate-200'}`}>
+                      className={`w-full text-left px-4 py-2 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${statementId === 'all' ? 'text-fin-accent font-semibold bg-fin-accent/10' : 'text-slate-700 dark:text-slate-200'}`}>
                       All Statements
                     </button>
                     {filteredStmts.map(s => (
                       <button key={s.id} onClick={() => { setStatementId(s.id); setShowStmtVH(false); setPage(1); }}
-                        className={`w-full text-left px-4 py-2 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${statementId === s.id ? 'text-blue-600 font-semibold bg-blue-50 dark:bg-blue-900/10' : 'text-slate-700 dark:text-slate-200'}`}>
+                        className={`w-full text-left px-4 py-2 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${statementId === s.id ? 'text-fin-accent font-semibold bg-fin-accent/10' : 'text-slate-700 dark:text-slate-200'}`}>
                         <span className="block truncate">{s.fileName}</span>
                         {accounts.length > 1 && (
                           <span className="text-[10px] text-slate-400">
@@ -682,7 +682,7 @@ export function Expenses() {
             {!hiddenFilters.has('name') && (
               <div className="flex flex-col gap-1 col-span-2 sm:col-span-1">
                 <label className="text-xs font-normal text-slate-700 dark:text-slate-300">Name:</label>
-                <div className="flex border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden bg-white dark:bg-slate-900 focus-within:border-blue-400 dark:focus-within:border-blue-500 transition-colors">
+                <div className="flex border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden bg-white dark:bg-slate-900 focus-within:border-fin-accent transition-colors">
                   <input
                     type="text"
                     placeholder="Quick search…"
@@ -691,7 +691,7 @@ export function Expenses() {
                     className="flex-1 min-w-0 px-3 py-1.5 text-sm bg-transparent text-slate-700 dark:text-slate-200 outline-none"
                   />
                   <button onClick={() => setVhField('name')} title="Value Help"
-                    className="px-2 bg-slate-50 dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700 text-slate-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors shrink-0">
+                    className="px-2 bg-slate-50 dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700 text-slate-400 hover:text-fin-accent transition-colors shrink-0">
                     <Copy size={11} />
                   </button>
                 </div>
@@ -765,7 +765,7 @@ export function Expenses() {
 
           {/* Left — Title / KPI */}
           <div className="flex items-center gap-2.5 shrink-0">
-            <span className="text-sm font-bold text-orange-600 dark:text-orange-400">
+            <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
               Expenses
               {hasData && (
                 <span className="font-normal text-slate-400 dark:text-slate-500 ml-1">
@@ -776,7 +776,7 @@ export function Expenses() {
             {hasData && (
               <>
                 <span className="h-4 w-px bg-slate-200 dark:bg-slate-700 shrink-0" />
-                <span className="text-xs font-semibold text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 px-2 py-0.5 rounded">
+                <span className="text-xs font-semibold text-neutral-value bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded">
                   -{fmtINR(kpi.totalSpend)}
                 </span>
                 {kpi.selfTransferCount > 0 && (
@@ -794,27 +794,27 @@ export function Expenses() {
 
               {selectedIds.size > 0 && (
                 <>
-                  <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 px-2 py-1 rounded-lg">
+                  <span className="text-xs font-semibold text-fin-accent bg-fin-accent/10 border border-fin-accent/30 px-2 py-1 rounded-lg">
                     {selectedIds.size} selected
                   </span>
                   <button onClick={openBulkCatDialog}
-                    className="flex items-center gap-1.5 text-xs font-medium border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-1 rounded-lg hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors h-7">
+                    className="flex items-center gap-1.5 text-xs font-medium border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-1 rounded-lg hover:border-fin-accent hover:text-fin-accent transition-colors h-7">
                     <Tag size={11} />
                     Set Category
                   </button>
                   <button onClick={handleBulkTransfer}
-                    className="flex items-center gap-1.5 text-xs font-medium border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-1 rounded-lg hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors h-7">
+                    className="flex items-center gap-1.5 text-xs font-medium border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-1 rounded-lg hover:border-fin-accent hover:text-fin-accent transition-colors h-7">
                     <ArrowLeftRight size={11} />
                     Self Transfer
                   </button>
                   <button onClick={handleBulkTransferToFriend}
-                    className="flex items-center gap-1.5 text-xs font-medium border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-1 rounded-lg hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors h-7">
+                    className="flex items-center gap-1.5 text-xs font-medium border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-1 rounded-lg hover:border-fin-accent hover:text-fin-accent transition-colors h-7">
                     <CreditCard size={11} />
                     Transferred to Friend
                   </button>
                   <button onClick={() => { setSelectedIds(new Set()); setBulkCat(''); setBulkCatInput(''); }}
                     title="Clear selection"
-                    className="p-1.5 rounded-lg text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors">
+                    className="p-1.5 rounded-lg text-fin-accent hover:opacity-80 hover:bg-fin-accent/10 transition-colors">
                     <X size={13} />
                   </button>
                   <span className="h-4 w-px bg-slate-200 dark:bg-slate-700 shrink-0" />
@@ -844,7 +844,7 @@ export function Expenses() {
         ) : filtered.length === 0 ? (
           <div className="text-center py-16 text-slate-400">
             <p className="text-sm font-medium">No matching expenses.</p>
-            <button onClick={clearAllFilters} className="text-xs text-blue-500 hover:underline mt-1">
+            <button onClick={clearAllFilters} className="text-xs text-fin-accent hover:underline mt-1">
               Clear filters
             </button>
           </div>
@@ -871,7 +871,7 @@ export function Expenses() {
                     ] as [SortCol, string][]
                   ).map(([col, label]) => (
                     <th key={col} onClick={() => handleSort(col)}
-                      className={`px-4 py-3 text-left cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 whitespace-nowrap transition-colors ${col === 'amount' ? 'text-right' : ''}`}>
+                      className={`px-4 py-3 text-left cursor-pointer hover:text-fin-accent whitespace-nowrap transition-colors ${col === 'amount' ? 'text-right' : ''}`}>
                       {label}
                       <SortIcon col={col} />
                     </th>
@@ -890,7 +890,7 @@ export function Expenses() {
                     <tr key={txn.id}
                       className={`border-t border-slate-100 dark:border-slate-800 text-sm transition-colors ${
                         isSelected
-                          ? 'bg-blue-50 dark:bg-blue-950/30'
+                          ? 'bg-fin-accent/10'
                           : isSelfTransfer
                           ? 'opacity-50 hover:opacity-80'
                           : 'bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/40'
@@ -919,11 +919,11 @@ export function Expenses() {
                               if (e.key === 'Enter')  commitDescription(txn.id);
                               if (e.key === 'Escape') cancelEdit();
                             }}
-                            className="w-full text-sm border border-blue-400 dark:border-blue-500 rounded px-2 py-0.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 outline-none"
+                            className="w-full text-sm border border-fin-accent rounded px-2 py-0.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 outline-none"
                           />
                         ) : (
                           <span onClick={() => setEditingCell({ id: txn.id, field: 'description' })}
-                            className="cursor-text hover:text-blue-600 dark:hover:text-blue-400 truncate block"
+                            className="cursor-text hover:text-fin-accent truncate block"
                             title={txn.description}>
                             {txn.description || '—'}
                           </span>
@@ -945,7 +945,7 @@ export function Expenses() {
                             }}
                             onBlur={cancelEdit}
                             onKeyDown={e => { if (e.key === 'Escape') cancelEdit(); }}
-                            className="text-xs border border-blue-400 dark:border-blue-500 rounded px-2 py-0.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 outline-none">
+                            className="text-xs border border-fin-accent rounded px-2 py-0.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 outline-none">
                             {catGroups.inData.length > 0 && (
                               <optgroup label="From Your Data">
                                 {catGroups.inData.map(c => <option key={c} value={c}>{c}</option>)}
@@ -960,7 +960,7 @@ export function Expenses() {
                         ) : (
                           <span onClick={() => setEditingCell({ id: txn.id, field: 'category' })}
                             title={txn.userOverrideFlag ? 'Manually assigned — click to change' : 'Click to change category'}
-                            className="text-sm cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors text-slate-700 dark:text-slate-200">
+                            className="text-sm cursor-pointer hover:text-fin-accent hover:underline transition-colors text-slate-700 dark:text-slate-200">
                             {txn.category}
                             {txn.userOverrideFlag && <span className="text-slate-400 dark:text-slate-500 font-normal ml-1 text-xs">✎</span>}
                           </span>
@@ -971,7 +971,7 @@ export function Expenses() {
                       <td className={`px-4 py-2.5 text-right font-mono font-semibold text-sm whitespace-nowrap ${
                         isSelfTransfer
                           ? 'text-slate-400 dark:text-slate-500 line-through'
-                          : 'text-[#E76500] dark:text-orange-400'
+                          : 'text-neutral-value'
                       }`}>
                         -{fmtINR(txn.amount)}
                       </td>
@@ -998,7 +998,7 @@ export function Expenses() {
                   <td colSpan={3} className="px-4 py-2.5 text-slate-500 dark:text-slate-400">
                     Total ({sorted.length.toLocaleString()} expenses)
                   </td>
-                  <td className="px-4 py-2.5 text-right font-mono text-[#E76500] dark:text-orange-400 whitespace-nowrap">
+                  <td className="px-4 py-2.5 text-right font-mono text-neutral-value whitespace-nowrap">
                     -{fmtINR(sorted.reduce((sum, t) => sum + t.amount, 0))}
                   </td>
                   <td colSpan={2} className="px-4 py-2.5 text-slate-400 dark:text-slate-500 text-[10px] font-normal">

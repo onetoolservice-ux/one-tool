@@ -100,19 +100,19 @@ function DayBlock({ group, today }: { group: DayGroup; today: number }) {
   const isPast = group.day < today;
 
   return (
-    <div className={`rounded-xl border transition-all ${
-      group.isSalaryDay ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/10'
-      : group.isTight ? 'border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/10'
-      : isToday ? 'border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/10'
-      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900'
+    <div className={`rounded-lg border transition-all bg-white dark:bg-slate-900 ${
+      group.isSalaryDay ? 'border-positive/40'
+      : group.isTight ? 'border-warning/40'
+      : isToday ? 'border-fin-accent/40'
+      : 'border-slate-200 dark:border-slate-700'
     }`}>
       {/* Day header */}
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-2">
-          {isToday && <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />}
+          {isToday && <span className="w-1.5 h-1.5 rounded-full bg-fin-accent animate-pulse" />}
           <span className={`text-xs font-bold ${
-            isToday ? 'text-blue-700 dark:text-blue-300'
-            : group.isSalaryDay ? 'text-emerald-700 dark:text-emerald-300'
+            isToday ? 'text-fin-accent'
+            : group.isSalaryDay ? 'text-positive'
             : 'text-slate-600 dark:text-slate-300'
           }`}>
             {group.date}
@@ -120,19 +120,19 @@ function DayBlock({ group, today }: { group: DayGroup; today: number }) {
             {group.isSalaryDay && ' 💰'}
           </span>
           {group.isTight && (
-            <span className="flex items-center gap-1 text-[9px] font-bold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full">
+            <span className="flex items-center gap-1 text-[9px] font-bold bg-warning-tint text-warning px-2 py-0.5 rounded-full">
               <AlertTriangle className="w-2.5 h-2.5" /> Tight
             </span>
           )}
         </div>
         <div className="flex items-center gap-3">
           {group.dayIncome > 0 && (
-            <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">+{fmt(group.dayIncome)}</span>
+            <span className="text-[10px] font-bold text-positive">+{fmt(group.dayIncome)}</span>
           )}
           {group.dayExpense > 0 && (
-            <span className="text-[10px] font-bold text-red-500">−{fmt(group.dayExpense)}</span>
+            <span className="text-[10px] font-bold text-negative">−{fmt(group.dayExpense)}</span>
           )}
-          <div className={`text-right ${group.runningBalance < 0 ? 'text-red-600' : isPast ? 'text-slate-400' : 'text-slate-700 dark:text-slate-300'}`}>
+          <div className={`text-right ${group.runningBalance < 0 ? 'text-negative' : isPast ? 'text-slate-400' : 'text-slate-700 dark:text-slate-300'}`}>
             <p className="text-xs font-black tabular-nums">{fmt(group.runningBalance)}</p>
             <p className="text-[9px] text-slate-400">balance</p>
           </div>
@@ -168,7 +168,7 @@ function BalanceCurve({ groups }: { groups: DayGroup[] }) {
   const zeroY = H - ((0 - minBal) / range) * H;
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+    <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-5">
       <p className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide mb-3">Running Balance</p>
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: 80 }}>
         {/* Zero line */}
@@ -215,13 +215,13 @@ function CommittedSummary({ entries }: { entries: CashFlowEntry[] }) {
   const total = committed.reduce((s, e) => s + e.amount, 0);
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+    <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-5">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Lock className="w-4 h-4 text-slate-500" />
           <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">Committed This Month</span>
         </div>
-        <span className="text-sm font-black text-red-600 dark:text-red-400">{fmt(total)}</span>
+        <span className="text-sm font-black text-neutral-value">{fmt(total)}</span>
       </div>
       <div className="space-y-1.5">
         {committed
@@ -233,7 +233,7 @@ function CommittedSummary({ entries }: { entries: CashFlowEntry[] }) {
                 <span className="text-slate-700 dark:text-slate-300 truncate">{e.label}</span>
                 <span className="text-[9px] text-slate-400">{e.category}</span>
               </div>
-              <span className="font-bold tabular-nums text-red-500 shrink-0">{fmt(e.amount)}</span>
+              <span className="font-bold tabular-nums text-neutral-value shrink-0">{fmt(e.amount)}</span>
             </div>
           ))}
       </div>
@@ -248,11 +248,11 @@ function TightDaysAlert({ groups }: { groups: DayGroup[] }) {
   if (tight.length === 0) return null;
 
   return (
-    <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl px-4 py-3">
-      <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+    <div className="flex items-start gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3">
+      <AlertTriangle className="w-4 h-4 text-warning mt-0.5 shrink-0" />
       <div>
-        <p className="text-xs font-bold text-amber-800 dark:text-amber-200">Tight days detected</p>
-        <p className="text-[11px] text-amber-700 dark:text-amber-300 mt-0.5">
+        <p className="text-xs font-bold text-warning">Tight days detected</p>
+        <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">
           Days {tight.map(g => g.day).join(', ')} — your running balance drops very low.
           Avoid large discretionary purchases on these days.
         </p>
@@ -302,24 +302,23 @@ export function CashFlowCalendar({ month }: { month: string }) {
   return (
     <div className="p-4 space-y-4">
       {/* Summary bar */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Total In',  value: fmt(totalIncome),  color: 'text-emerald-600 dark:text-emerald-400' },
-          { label: 'Total Out', value: fmt(totalExpense), color: 'text-red-600 dark:text-red-400' },
+          { label: 'Total In',  value: fmt(totalIncome),  prefix: '' },
+          { label: 'Total Out', value: fmt(totalExpense), prefix: '' },
           { label: 'Net Flow',  value: fmt(Math.abs(netFlow)),
-            color: netFlow >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400',
             prefix: netFlow < 0 ? '−' : '+' },
-          { label: 'Transactions', value: String(entries.length), color: 'text-blue-600 dark:text-blue-400' },
-        ].map(({ label, value, color, prefix }) => (
-          <div key={label} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-3">
-            <p className={`text-xl font-black tabular-nums ${color}`}>{prefix}{value}</p>
-            <p className="text-[10px] text-slate-400 uppercase tracking-wide">{label}</p>
+          { label: 'Transactions', value: String(entries.length), prefix: '' },
+        ].map(({ label, value, prefix }) => (
+          <div key={label} className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+            <p className="text-xl font-black tabular-nums text-neutral-value">{prefix}{value}</p>
+            <p className="text-[10px] text-slate-500 uppercase tracking-wide">{label}</p>
           </div>
         ))}
       </div>
 
       {/* Starting balance input */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-5">
         <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-2">
             <label className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">Starting Balance</label>
@@ -328,14 +327,14 @@ export function CashFlowCalendar({ month }: { month: string }) {
               <input
                 type="number" step={1000} value={startingBalance}
                 onChange={e => setStartingBalance(parseInt(e.target.value) || 0)}
-                className="w-36 pl-7 text-sm border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-400 font-bold"
+                className="w-36 pl-7 text-sm border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 outline-none focus:border-fin-accent font-bold"
               />
             </div>
           </div>
           <label className="flex items-center gap-2 cursor-pointer ml-auto">
             <div
               onClick={() => setShowCommittedOnly(x => !x)}
-              className={`w-8 h-4 rounded-full transition-colors relative cursor-pointer ${showCommittedOnly ? 'bg-blue-500' : 'bg-slate-200 dark:bg-slate-700'}`}
+              className={`w-8 h-4 rounded-full transition-colors relative cursor-pointer ${showCommittedOnly ? 'bg-fin-accent' : 'bg-slate-200 dark:bg-slate-700'}`}
             >
               <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-all ${showCommittedOnly ? 'left-4' : 'left-0.5'}`} />
             </div>
@@ -355,7 +354,7 @@ export function CashFlowCalendar({ month }: { month: string }) {
 
       {/* Day-by-day list */}
       {dayGroups.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-slate-900 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
+        <div className="text-center py-12 bg-white dark:bg-slate-900 rounded-lg border border-dashed border-slate-200 dark:border-slate-700">
           <Calendar className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
           <p className="text-sm text-slate-400 dark:text-slate-500 mb-1">No transactions found for this month</p>
           <p className="text-xs text-slate-400 dark:text-slate-500">
@@ -368,9 +367,9 @@ export function CashFlowCalendar({ month }: { month: string }) {
             <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
               Daily Timeline — {dayGroups.length} active days
             </p>
-            <div className="flex items-center gap-3 text-[10px] text-slate-400">
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" /> Salary day</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500 inline-block" /> Tight day</span>
+            <div className="flex items-center gap-3 text-[10px] text-slate-500">
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-positive inline-block" /> Salary day</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-warning inline-block" /> Tight day</span>
             </div>
           </div>
           {dayGroups.map(group => (
@@ -380,11 +379,11 @@ export function CashFlowCalendar({ month }: { month: string }) {
       )}
 
       {/* Legend */}
-      <div className="flex flex-wrap gap-4 text-[10px] text-slate-400 pt-2">
-        <span className="flex items-center gap-1.5"><ArrowDownLeft className="w-3 h-3 text-emerald-500" /> Income</span>
-        <span className="flex items-center gap-1.5"><ArrowUpRight className="w-3 h-3 text-red-500" /> Expense</span>
+      <div className="flex flex-wrap gap-4 text-[10px] text-slate-500 pt-2">
+        <span className="flex items-center gap-1.5"><ArrowDownLeft className="w-3 h-3 text-positive" /> Income</span>
+        <span className="flex items-center gap-1.5"><ArrowUpRight className="w-3 h-3 text-negative" /> Expense</span>
         <span className="flex items-center gap-1.5"><Lock className="w-3 h-3" /> Committed (recurring)</span>
-        <span className="flex items-center gap-1.5"><AlertTriangle className="w-3 h-3 text-amber-500" /> Tight day (&lt;15% of starting balance)</span>
+        <span className="flex items-center gap-1.5"><AlertTriangle className="w-3 h-3 text-warning" /> Tight day (&lt;15% of starting balance)</span>
       </div>
     </div>
   );

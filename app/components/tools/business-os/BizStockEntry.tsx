@@ -159,6 +159,7 @@ export function BizStockEntry() {
     <div className="h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 flex flex-col">
       <SAPHeader
         fullWidth sticky
+        kpiVariant="strip"
         title="Stock Entry"
         subtitle="Record goods received and dispatched"
         kpis={[
@@ -177,7 +178,7 @@ export function BizStockEntry() {
                 onClick={() => setMode(opt.key)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   mode === opt.key
-                    ? 'bg-blue-600 text-white shadow-sm'
+                    ? 'bg-fin-accent text-white'
                     : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}>
                 {opt.label}
@@ -209,7 +210,7 @@ export function BizStockEntry() {
               </div>
             )}
 
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Type Toggle */}
                 <div className="flex gap-2">
@@ -454,12 +455,12 @@ export function BizStockEntry() {
             </div>
 
             {histFiltered.length === 0 ? (
-              <div className="flex-1 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center">
+              <div className="flex-1 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center">
                 <Package size={36} className="text-slate-300 dark:text-slate-600 mb-3" />
                 <p className="text-sm text-slate-400 dark:text-slate-500">No stock movements yet</p>
               </div>
             ) : (
-              <div className="flex-1 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col">
+              <div className="flex-1 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col">
                 <div className="overflow-auto flex-1">
                   <table className="w-full text-sm">
                     <thead>

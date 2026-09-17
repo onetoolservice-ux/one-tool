@@ -22,11 +22,10 @@ const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
 // ── Health score to color ─────────────────────────────────────────────────────
 
 function scoreColor(score: number): { bg: string; text: string; ring: string; label: string } {
-  if (score >= 80) return { bg: 'bg-emerald-500', text: 'text-emerald-700 dark:text-emerald-300', ring: 'ring-emerald-400', label: 'Excellent' };
-  if (score >= 60) return { bg: 'bg-blue-500',    text: 'text-blue-700 dark:text-blue-300',       ring: 'ring-blue-400',    label: 'Good'      };
-  if (score >= 40) return { bg: 'bg-amber-500',   text: 'text-amber-700 dark:text-amber-400',     ring: 'ring-amber-400',   label: 'Fair'      };
-  if (score > 0)   return { bg: 'bg-red-500',     text: 'text-red-700 dark:text-red-400',         ring: 'ring-red-400',     label: 'Poor'      };
-  return { bg: 'bg-slate-200 dark:bg-slate-700', text: 'text-slate-400', ring: 'ring-slate-300', label: 'No data' };
+  if (score >= 70) return { bg: 'bg-positive', text: 'text-positive', ring: 'ring-positive/40', label: 'Excellent' };
+  if (score >= 40) return { bg: 'bg-warning',  text: 'text-warning',  ring: 'ring-warning/40',  label: 'Fair'      };
+  if (score > 0)   return { bg: 'bg-negative', text: 'text-negative', ring: 'ring-negative/40', label: 'Poor'      };
+  return { bg: 'bg-slate-200 dark:bg-slate-700', text: 'text-slate-500', ring: 'ring-slate-300', label: 'No data' };
 }
 
 // ── Month Tile ────────────────────────────────────────────────────────────────
@@ -48,7 +47,7 @@ function MonthTile({
   return (
     <button
       onClick={onClick}
-      className={`relative flex flex-col items-center gap-1.5 p-2.5 rounded-xl transition-all border ${
+      className={`relative flex flex-col items-center gap-1.5 p-2.5 rounded-lg transition-all border ${
         isActive
           ? `${col.ring} ring-2 ring-offset-1 border-transparent`
           : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-500'
@@ -58,22 +57,22 @@ function MonthTile({
     >
       {/* Festival indicator */}
       {festivals.length > 0 && (
-        <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-orange-400" title={festivals[0].name} />
+        <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-warning" title={festivals[0].name} />
       )}
 
       {/* Month name */}
       <span className={`text-[10px] font-bold uppercase tracking-wide ${
-        isToday ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'
+        isToday ? 'text-fin-accent' : 'text-slate-500 dark:text-slate-400'
       }`}>
         {MONTH_NAMES[monNum - 1]}
-        {isToday && <span className="text-blue-500 ml-0.5">•</span>}
+        {isToday && <span className="text-fin-accent ml-0.5">•</span>}
       </span>
 
       {/* Score circle */}
       <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-black text-white ${
         hasPlan ? col.bg : 'bg-slate-100 dark:bg-slate-800'
       }`}>
-        {hasPlan ? report.healthScore : <span className="text-slate-400 text-xs">—</span>}
+        {hasPlan ? report.healthScore : <span className="text-slate-500 text-xs">—</span>}
       </div>
 
       {/* Label */}
@@ -98,21 +97,21 @@ function MonthDetailPanel({ monthKey, report }: { monthKey: string; report: Mont
 
   if (!hasPlan) {
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 text-center space-y-2">
+      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-5 text-center space-y-2">
         <p className="text-sm font-bold text-slate-600 dark:text-slate-300">{monthLabel}</p>
-        <p className="text-xs text-slate-400">No budget plan exists for this month.</p>
-        <p className="text-[11px] text-slate-400">Navigate to this month in the Canvas tab to start planning.</p>
+        <p className="text-xs text-slate-500">No budget plan exists for this month.</p>
+        <p className="text-[11px] text-slate-500">Navigate to this month in the Canvas tab to start planning.</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 space-y-4">
+    <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-5 space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{monthLabel} Summary</p>
           {festivals.length > 0 && (
-            <p className="text-[11px] text-orange-600 dark:text-orange-400 mt-0.5">
+            <p className="text-[11px] text-warning mt-0.5">
               🎆 {festivals.map(f => f.name).join(', ')}
             </p>
           )}
@@ -125,14 +124,14 @@ function MonthDetailPanel({ monthKey, report }: { monthKey: string; report: Mont
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: 'Income',      value: fmt(report.totalIncome),  color: 'text-emerald-600 dark:text-emerald-400' },
-          { label: 'Spent',       value: fmt(report.totalActual),  color: 'text-red-600 dark:text-red-400' },
-          { label: 'Savings',     value: fmt(Math.max(0, report.totalIncome - report.totalActual)), color: 'text-blue-600 dark:text-blue-400' },
-          { label: 'Savings Rate', value: `${report.savingsRate.toFixed(1)}%`, color: report.savingsRate >= 20 ? 'text-emerald-600' : 'text-amber-600' },
-        ].map(({ label, value, color }) => (
-          <div key={label} className="bg-slate-50 dark:bg-slate-800 rounded-xl p-2.5 text-center">
-            <p className={`text-base font-black tabular-nums ${color}`}>{value}</p>
-            <p className="text-[10px] text-slate-400 uppercase tracking-wide mt-0.5">{label}</p>
+          { label: 'Income',      value: fmt(report.totalIncome) },
+          { label: 'Spent',       value: fmt(report.totalActual) },
+          { label: 'Savings',     value: fmt(Math.max(0, report.totalIncome - report.totalActual)) },
+          { label: 'Savings Rate', value: `${report.savingsRate.toFixed(1)}%` },
+        ].map(({ label, value }) => (
+          <div key={label} className="bg-slate-50 dark:bg-slate-800 rounded-lg p-2.5 text-center">
+            <p className="text-base font-black tabular-nums text-neutral-value">{value}</p>
+            <p className="text-[10px] text-slate-500 uppercase tracking-wide mt-0.5">{label}</p>
           </div>
         ))}
       </div>
@@ -149,11 +148,11 @@ function MonthDetailPanel({ monthKey, report }: { monthKey: string; report: Mont
 
       <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 dark:text-slate-300">
         <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+          <span className="w-1.5 h-1.5 rounded-full bg-positive" />
           {report.categoriesOnTrack} / {report.totalCategories} envelopes on track
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+          <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
           Breathing room: {fmt(report.breathingRoom)}
         </div>
       </div>
@@ -176,9 +175,9 @@ function AnnualInsights({ year, reports }: { year: number; reports: (MonthHealth
   const overSpend = getConsecutiveOverspend();
 
   return (
-    <div className="bg-gradient-to-br from-slate-800 to-slate-900 dark:from-slate-900 dark:to-slate-950 rounded-2xl p-5 space-y-4 text-white">
+    <div className="bg-gradient-to-br from-slate-800 to-slate-900 dark:from-slate-900 dark:to-slate-950 rounded-lg p-5 space-y-4 text-white">
       <div className="flex items-center gap-2">
-        <Award className="w-5 h-5 text-amber-400" />
+        <Award className="w-5 h-5 text-slate-300" />
         <p className="text-sm font-bold">{year} Annual Insights</p>
       </div>
 
@@ -189,7 +188,7 @@ function AnnualInsights({ year, reports }: { year: number; reports: (MonthHealth
           { label: 'On-Budget Months',value: `${onBudgetMonths}/${valid.length}`, sub: 'Score ≥ 60' },
           { label: 'Data Months',     value: String(valid.length),               sub: `of 12 planned` },
         ].map(({ label, value, sub }) => (
-          <div key={label} className="bg-white/10 rounded-xl p-3 text-center">
+          <div key={label} className="bg-white/10 rounded-lg p-3 text-center">
             <p className="text-lg font-black tabular-nums text-white">{value}</p>
             <p className="text-[10px] text-white/60 uppercase tracking-wide">{label}</p>
             <p className="text-[9px] text-white/40 mt-0.5">{sub}</p>
@@ -199,15 +198,15 @@ function AnnualInsights({ year, reports }: { year: number; reports: (MonthHealth
 
       {bestMonth && worstMonth && bestMonth.month !== worstMonth.month && (
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-emerald-500/20 rounded-xl p-3">
-            <p className="text-[10px] text-emerald-300 font-bold uppercase tracking-wide">Best Month</p>
+          <div className="bg-positive/20 rounded-lg p-3">
+            <p className="text-[10px] text-positive font-bold uppercase tracking-wide">Best Month</p>
             <p className="text-sm font-bold text-white mt-1">
               {MONTH_NAMES[parseInt(bestMonth.month.split('-')[1]) - 1]} — Score {bestMonth.healthScore}
             </p>
             <p className="text-[10px] text-white/50">{bestMonth.savingsRate.toFixed(1)}% savings rate</p>
           </div>
-          <div className="bg-red-500/20 rounded-xl p-3">
-            <p className="text-[10px] text-red-300 font-bold uppercase tracking-wide">Needs Work</p>
+          <div className="bg-negative/20 rounded-lg p-3">
+            <p className="text-[10px] text-negative font-bold uppercase tracking-wide">Needs Work</p>
             <p className="text-sm font-bold text-white mt-1">
               {MONTH_NAMES[parseInt(worstMonth.month.split('-')[1]) - 1]} — Score {worstMonth.healthScore}
             </p>
@@ -217,15 +216,15 @@ function AnnualInsights({ year, reports }: { year: number; reports: (MonthHealth
       )}
 
       {overSpend.length > 0 && (
-        <div className="bg-amber-500/15 rounded-xl p-3 space-y-1.5">
+        <div className="bg-warning/15 rounded-lg p-3 space-y-1.5">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-amber-400" />
-            <p className="text-xs font-bold text-amber-300">Recurring Overspend Categories</p>
+            <AlertTriangle className="w-4 h-4 text-warning" />
+            <p className="text-xs font-bold text-warning">Recurring Overspend Categories</p>
           </div>
           {overSpend.map(o => (
             <div key={o.category} className="flex items-center justify-between text-xs">
               <span className="text-white/70">{o.category}</span>
-              <span className="text-amber-300 font-semibold">{o.consecutiveMonths} consecutive months · suggest {fmt(o.suggestion)}</span>
+              <span className="text-warning font-semibold">{o.consecutiveMonths} consecutive months · suggest {fmt(o.suggestion)}</span>
             </div>
           ))}
         </div>
@@ -241,7 +240,7 @@ function GoalsProgress() {
   if (goals.length === 0) return null;
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+    <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-5">
       <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">Savings Goals Progress</p>
       <div className="space-y-3">
         {goals.slice(0, 5).map(g => {
@@ -330,12 +329,11 @@ export function YearView({ onMonthSelect }: { onMonthSelect: (month: string) => 
             className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-center font-bold transition-colors"
           >›</button>
         </div>
-        <div className="flex items-center gap-3 text-[10px] text-slate-400">
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" /> Excellent (80+)</span>
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500 inline-block" /> Good (60+)</span>
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500 inline-block" /> Fair (40+)</span>
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500 inline-block" /> Poor</span>
-          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-orange-400 inline-block" /> Festival</span>
+        <div className="flex items-center gap-3 text-[10px] text-slate-500">
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-positive inline-block" /> Excellent (70+)</span>
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-warning inline-block" /> Fair (40+)</span>
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-negative inline-block" /> Poor</span>
+          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-warning inline-block" /> Festival</span>
         </div>
       </div>
 
@@ -365,7 +363,7 @@ export function YearView({ onMonthSelect }: { onMonthSelect: (month: string) => 
           <div className="flex justify-center">
             <button
               onClick={() => onMonthSelect(selectedMonth)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors"
+              className="flex items-center gap-2 px-5 py-2.5 bg-fin-accent text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-colors"
             >
               <Calendar className="w-4 h-4" />
               Open {MONTH_NAMES[parseInt(selectedMonth.split('-')[1]) - 1]} Budget

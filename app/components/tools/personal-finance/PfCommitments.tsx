@@ -140,7 +140,7 @@ export function CommitmentsRegister() {
           actions={
             <button
               onClick={() => setShowAddManual(v => !v)}
-              className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold"
+              className="flex items-center gap-1 text-xs text-fin-accent hover:underline font-semibold"
             >
               <Plus size={11} /> Add Manual
             </button>
@@ -154,7 +154,7 @@ export function CommitmentsRegister() {
               {(['all', 'confirmed', 'dismissed'] as FilterTab[]).map(t => (
                 <button key={t} onClick={() => setFilter(t)}
                   className={`text-xs font-semibold px-3 py-1.5 rounded-md transition-colors capitalize ${
-                    filter === t ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-200'
+                    filter === t ? 'bg-fin-accent text-white' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-200'
                   }`}>
                   {t === 'all'       ? `All (${activeCommitments.length})`
                    : t === 'confirmed' ? `Confirmed (${confirmedCount})`
@@ -199,7 +199,7 @@ export function CommitmentsRegister() {
               </div>
             </div>
             <div className="flex gap-2">
-              <button onClick={handleAddManual} className="text-sm bg-blue-600 text-white px-4 py-1.5 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+              <button onClick={handleAddManual} className="text-sm bg-fin-accent text-white px-4 py-1.5 rounded-lg font-semibold hover:opacity-90 transition-colors">
                 Add Commitment
               </button>
               <button onClick={() => setShowAddManual(false)} className="text-sm text-slate-500 px-4 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
@@ -275,25 +275,25 @@ export function CommitmentsRegister() {
                         {c.transactionIds.length} occurrence{c.transactionIds.length !== 1 ? 's' : ''}
                         {c.intervalDays > 0 && ` · ~${c.intervalDays}d`}
                       </p>
-                      {c.manuallyAdded && <span className="text-[10px] text-blue-500 font-semibold">manual</span>}
+                      {c.manuallyAdded && <span className="text-[10px] text-fin-accent font-semibold">manual</span>}
                     </td>
                     <td className="px-4 py-3">
                       {editFreqId === c.id ? (
                         <div className="flex items-center gap-1.5">
                           <select value={editFreqVal} onChange={e => setEditFreqVal(e.target.value as PFCommitment['frequency'])}
-                            className="text-xs border border-blue-400 rounded px-2 py-1 bg-white dark:bg-slate-900" autoFocus>
+                            className="text-xs border border-fin-accent rounded px-2 py-1 bg-white dark:bg-slate-900" autoFocus>
                             {FREQ_OPTIONS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
                           </select>
-                          <button onClick={() => commitFreqEdit(c.id)} className="text-emerald-600"><Check size={13} /></button>
+                          <button onClick={() => commitFreqEdit(c.id)} className="text-positive"><Check size={13} /></button>
                           <button onClick={() => setEditFreqId(null)} className="text-slate-400"><X size={12} /></button>
                         </div>
                       ) : (
                         <button onClick={() => { setEditFreqId(c.id); setEditFreqVal(c.frequency); }}
                           className="flex items-center gap-1 group" title="Click to change frequency">
-                          <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs px-2 py-0.5 rounded font-medium group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 group-hover:text-blue-600 transition-colors">
+                          <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs px-2 py-0.5 rounded font-medium group-hover:bg-fin-accent/10 group-hover:text-fin-accent transition-colors">
                             {FREQ_LABELS[c.frequency]}
                           </span>
-                          <ChevronDown size={11} className="text-slate-300 group-hover:text-blue-400 transition-colors" />
+                          <ChevronDown size={11} className="text-slate-300 group-hover:text-fin-accent transition-colors" />
                         </button>
                       )}
                     </td>
@@ -301,19 +301,19 @@ export function CommitmentsRegister() {
                       {editCatId === c.id ? (
                         <div className="flex items-center gap-1.5">
                           <select value={editCatVal || c.category} onChange={e => setEditCatVal(e.target.value)}
-                            className="text-xs border border-blue-400 rounded px-2 py-1 bg-white dark:bg-slate-900" autoFocus>
+                            className="text-xs border border-fin-accent rounded px-2 py-1 bg-white dark:bg-slate-900" autoFocus>
                             {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                           </select>
-                          <button onClick={() => commitCatEdit(c.id)} className="text-emerald-600"><Check size={13} /></button>
+                          <button onClick={() => commitCatEdit(c.id)} className="text-positive"><Check size={13} /></button>
                           <button onClick={() => setEditCatId(null)} className="text-slate-400"><X size={12} /></button>
                         </div>
                       ) : (
                         <button onClick={() => { setEditCatId(c.id); setEditCatVal(c.category); }}
                           className="flex items-center gap-1 group" title="Click to change category">
-                          <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs px-2 py-0.5 rounded font-medium group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 group-hover:text-blue-600 transition-colors">
+                          <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs px-2 py-0.5 rounded font-medium group-hover:bg-fin-accent/10 group-hover:text-fin-accent transition-colors">
                             {c.category || 'Miscellaneous'}
                           </span>
-                          <ChevronDown size={11} className="text-slate-300 group-hover:text-blue-400 transition-colors" />
+                          <ChevronDown size={11} className="text-slate-300 group-hover:text-fin-accent transition-colors" />
                         </button>
                       )}
                     </td>
@@ -333,28 +333,28 @@ export function CommitmentsRegister() {
                       ) : c.userDismissed ? (
                         <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-semibold">Dismissed</span>
                       ) : c.userConfirmed ? (
-                        <span className="text-[10px] bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded font-semibold">Confirmed</span>
+                        <span className="text-[10px] bg-positive-tint text-positive px-2 py-0.5 rounded font-semibold">Confirmed</span>
                       ) : (
-                        <span className="text-[10px] bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded font-semibold">Auto-detected</span>
+                        <span className="text-[10px] bg-warning-tint text-warning px-2 py-0.5 rounded font-semibold">Auto-detected</span>
                       )}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-center gap-1">
                         {!c.userConfirmed && !c.userDismissed && !c.convertedToOneTime && (
                           <button onClick={() => handleConfirm(c.id)} title="Confirm this commitment"
-                            className="p-1.5 text-slate-400 hover:text-emerald-600 transition-colors rounded">
+                            className="p-1.5 text-slate-400 hover:text-positive transition-colors rounded">
                             <Check size={14} />
                           </button>
                         )}
                         {!c.userDismissed && !c.convertedToOneTime && (
                           <button onClick={() => handleConvertToOneTime(c.id)} title="Convert to one-time"
-                            className="p-1.5 text-slate-400 hover:text-blue-500 transition-colors rounded">
+                            className="p-1.5 text-slate-400 hover:text-fin-accent transition-colors rounded">
                             <RotateCcw size={13} />
                           </button>
                         )}
                         {!c.userDismissed && !c.convertedToOneTime && (
                           <button onClick={() => handleDismiss(c.id)} title="Dismiss — not a real commitment"
-                            className="p-1.5 text-slate-400 hover:text-red-500 transition-colors rounded">
+                            className="p-1.5 text-slate-400 hover:text-negative transition-colors rounded">
                             <X size={14} />
                           </button>
                         )}

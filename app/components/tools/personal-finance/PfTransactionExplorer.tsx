@@ -57,32 +57,32 @@ type BulkAction = 'category' | 'transfer' | 'loan' | 'label' | 'delete' | '';
 
 const GUIDE_FEATURES = [
   {
-    icon: <Filter size={18} className="text-blue-600 dark:text-blue-400" />,
-    bg: 'bg-blue-50 dark:bg-blue-900/20',
+    icon: <Filter size={18} className="text-slate-500" />,
+    bg: 'bg-slate-100 dark:bg-slate-800',
     title: 'Filter anything',
     desc: 'Search by merchant name, filter by period, account, type (credit/debit), category, amount range — all at once. Combine as many filters as you need.',
   },
   {
-    icon: <MousePointerClick size={18} className="text-violet-600 dark:text-violet-400" />,
-    bg: 'bg-violet-50 dark:bg-violet-900/20',
+    icon: <MousePointerClick size={18} className="text-slate-500" />,
+    bg: 'bg-slate-100 dark:bg-slate-800',
     title: 'Fix categories in bulk',
     desc: 'Select multiple rows → pick "Assign Category" → apply to all at once. Or click the pencil icon on any single row to change it inline.',
   },
   {
-    icon: <Layers size={18} className="text-amber-600 dark:text-amber-400" />,
-    bg: 'bg-amber-50 dark:bg-amber-900/20',
+    icon: <Layers size={18} className="text-slate-500" />,
+    bg: 'bg-slate-100 dark:bg-slate-800',
     title: 'Mark transfers & loans',
     desc: 'Internal transfers (wallet top-ups, self-transfers) and loan EMIs skew your expense totals. Select them and mark correctly — they are excluded from analysis.',
   },
   {
-    icon: <Tag size={18} className="text-emerald-600 dark:text-emerald-400" />,
-    bg: 'bg-emerald-50 dark:bg-emerald-900/20',
+    icon: <Tag size={18} className="text-slate-500" />,
+    bg: 'bg-slate-100 dark:bg-slate-800',
     title: 'Labels for custom grouping',
     desc: 'Create labels like "Trip to Goa" or "Home Renovation" and tag multiple transactions across categories. Labels are separate from categories.',
   },
   {
-    icon: <Download size={18} className="text-slate-600 dark:text-slate-400" />,
-    bg: 'bg-slate-50 dark:bg-slate-800',
+    icon: <Download size={18} className="text-slate-500" />,
+    bg: 'bg-slate-100 dark:bg-slate-800',
     title: 'Export filtered results',
     desc: 'Apply any filter combination, then click Export — only the filtered rows are exported to CSV. Useful for sharing or further analysis in Excel.',
   },
@@ -100,7 +100,7 @@ function GuideView({ onEnter }: { onEnter: () => void }) {
       <div className="px-4 pb-6 space-y-5">
 
         {/* What is this */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-5 py-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-5 py-4">
           <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">What is Transaction Explorer?</p>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
             This is your full raw ledger — every transaction from every statement you've uploaded, in one place.
@@ -112,7 +112,7 @@ function GuideView({ onEnter }: { onEnter: () => void }) {
         {/* Feature cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {GUIDE_FEATURES.map((f, i) => (
-            <div key={i} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 flex gap-3">
+            <div key={i} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4 flex gap-3">
               <div className={`w-9 h-9 rounded-lg ${f.bg} flex items-center justify-center shrink-0`}>
                 {f.icon}
               </div>
@@ -125,9 +125,9 @@ function GuideView({ onEnter }: { onEnter: () => void }) {
         </div>
 
         {/* Quick tip */}
-        <div className="flex items-start gap-2.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl px-4 py-3">
-          <AlertTriangle size={14} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-          <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
+        <div className="flex items-start gap-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3">
+          <AlertTriangle size={14} className="text-warning shrink-0 mt-0.5" />
+          <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
             <span className="font-bold">Clean before you analyse.</span> Wrong categories here mean wrong numbers everywhere. Spend 5 minutes fixing bulk mismatches before you trust any chart.
           </p>
         </div>
@@ -135,7 +135,7 @@ function GuideView({ onEnter }: { onEnter: () => void }) {
         {/* CTA */}
         <button
           onClick={onEnter}
-          className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition-colors flex items-center justify-center gap-2 shadow-sm"
+          className="w-full h-12 rounded-lg bg-fin-accent hover:opacity-90 text-white text-sm font-bold transition-colors flex items-center justify-center gap-2"
         >
           Open Transaction Explorer →
         </button>
@@ -462,7 +462,7 @@ export function TransactionExplorer() {
       className="flex items-center gap-1 hover:text-slate-800 dark:hover:text-slate-100 transition-colors"
     >
       {children}
-      <ArrowUpDown size={11} className={sortKey === col ? 'text-blue-500' : 'text-slate-300'} />
+      <ArrowUpDown size={11} className={sortKey === col ? 'text-fin-accent' : 'text-slate-300'} />
     </button>
   );
 
@@ -561,14 +561,14 @@ export function TransactionExplorer() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setShowAdaptDialog(true)}
-                className="text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 font-semibold transition-colors"
+                className="text-xs text-slate-500 dark:text-slate-400 hover:text-fin-accent font-semibold transition-colors"
               >
                 Adapt Filters
               </button>
               <button
                 onClick={() => setShowGuide(true)}
                 title="How to use"
-                className="flex items-center gap-1 text-xs text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                className="flex items-center gap-1 text-xs text-slate-400 hover:text-fin-accent transition-colors"
               >
                 <BookOpen size={13} />
                 Guide
@@ -744,16 +744,16 @@ export function TransactionExplorer() {
           count={filtered.length}
           badges={hasData && (
             <>
-              <PFBadge color={totalAmount >= 0 ? 'green' : 'red'}>
+              <PFBadge color="slate">
                 Net {totalAmount >= 0 ? '+' : ''}{fmtINR(Math.abs(totalAmount))}
               </PFBadge>
               {allTxns.filter(t => t.userOverrideFlag).length > 0 && (
-                <PFBadge color="blue">
+                <PFBadge color="slate">
                   {allTxns.filter(t => t.userOverrideFlag).length} overridden
                 </PFBadge>
               )}
               {selected.size > 0 && (
-                <PFBadge color="blue">{selected.size} of {filtered.length} selected</PFBadge>
+                <PFBadge color="slate">{selected.size} of {filtered.length} selected</PFBadge>
               )}
             </>
           )}
@@ -764,10 +764,10 @@ export function TransactionExplorer() {
               </PFButton>
               <button title="Toggle filters"
                 onClick={() => setShowFilterBar(v => !v)}
-                className={`relative p-1.5 border rounded-lg transition-colors ${showFilterBar ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400' : 'text-slate-400 hover:text-slate-600 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                className={`relative p-1.5 border rounded-lg transition-colors ${showFilterBar ? 'bg-fin-accent/10 border-fin-accent/30 text-fin-accent' : 'text-slate-400 hover:text-slate-600 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
                 <SlidersHorizontal size={14} />
                 {activeFilterCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-[9px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-fin-accent text-white text-[9px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center">
                     {activeFilterCount}
                   </span>
                 )}
@@ -778,15 +778,15 @@ export function TransactionExplorer() {
 
         {/* Bulk action bar */}
         {selected.size > 0 && (
-          <div className="border-b border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 px-4 py-2.5">
+          <div className="border-b border-fin-accent/20 bg-fin-accent/10 px-4 py-2.5">
             <div className="flex items-center gap-3 flex-wrap">
-              <span className="text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/40 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-bold text-fin-accent bg-fin-accent/10 px-2 py-0.5 rounded-full">
                 {selected.size} selected
               </span>
 
               <select value={bulkAction}
                 onChange={e => { setBulkAction(e.target.value as BulkAction); setBulkCategory(''); setBulkNewCat(''); setBulkLabelId(''); }}
-                className="text-xs border border-blue-200 dark:border-blue-700 rounded-lg px-2.5 py-1.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200">
+                className="text-xs border border-fin-accent/30 rounded-lg px-2.5 py-1.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200">
                 <option value="">— Action —</option>
                 <option value="category">Assign Category</option>
                 <option value="transfer">Mark as Transfer</option>
@@ -798,7 +798,7 @@ export function TransactionExplorer() {
               {bulkAction === 'category' && (
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <select value={bulkCategory} onChange={e => setBulkCategory(e.target.value)}
-                    className="text-xs border border-blue-200 dark:border-blue-700 rounded-lg px-2.5 py-1.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200">
+                    className="text-xs border border-fin-accent/30 rounded-lg px-2.5 py-1.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200">
                     <option value="">— Pick existing —</option>
                     {categories.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
@@ -807,7 +807,7 @@ export function TransactionExplorer() {
                     value={bulkNewCat}
                     onChange={e => setBulkNewCat(e.target.value)}
                     placeholder="Type new category…"
-                    className="text-xs border border-blue-200 dark:border-blue-700 rounded-lg px-2.5 py-1.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 w-36"
+                    className="text-xs border border-fin-accent/30 rounded-lg px-2.5 py-1.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 w-36"
                     onKeyDown={e => { if (e.key === 'Enter') applyBulk(); }}
                   />
                 </div>
@@ -816,12 +816,12 @@ export function TransactionExplorer() {
               {bulkAction === 'label' && (
                 <div className="flex items-center gap-1.5">
                   <select value={bulkLabelId} onChange={e => setBulkLabelId(e.target.value)}
-                    className="text-xs border border-blue-200 dark:border-blue-700 rounded-lg px-2.5 py-1.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200">
+                    className="text-xs border border-fin-accent/30 rounded-lg px-2.5 py-1.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200">
                     <option value="">— Label —</option>
                     {labels.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
                   </select>
                   <button onClick={() => setShowAddLabel(v => !v)}
-                    className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 font-semibold flex items-center gap-0.5">
+                    className="text-xs text-fin-accent hover:opacity-80 font-semibold flex items-center gap-0.5">
                     <Tag size={11} /> New
                   </button>
                 </div>
@@ -843,7 +843,7 @@ export function TransactionExplorer() {
 
               <button onClick={applyBulk} disabled={!bulkAction || bulkActionNeedsExtra}
                 className={`text-xs px-3 py-1.5 rounded-lg font-semibold disabled:opacity-40 transition-colors flex items-center gap-1 ${
-                  bulkAction === 'delete' ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-blue-600 text-white hover:bg-blue-700'
+                  bulkAction === 'delete' ? 'bg-negative text-white hover:opacity-90' : 'bg-fin-accent text-white hover:opacity-90'
                 }`}>
                 {bulkAction === 'transfer' && <ArrowRightLeft size={11} />}
                 {bulkAction === 'loan'     && <Landmark size={11} />}
@@ -867,7 +867,7 @@ export function TransactionExplorer() {
                   autoFocus
                 />
                 <button onClick={handleAddLabel}
-                  className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                  className="text-xs bg-fin-accent text-white px-3 py-1.5 rounded-lg font-semibold hover:opacity-90 transition-colors">
                   Create
                 </button>
                 <button onClick={() => setShowAddLabel(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
@@ -932,13 +932,13 @@ export function TransactionExplorer() {
                     return (
                       <tr
                         key={t.id}
-                        className={`hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors ${selected.has(t.id) ? 'bg-blue-50 dark:bg-blue-900/10' : ''}`}
+                        className={`hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors ${selected.has(t.id) ? 'bg-fin-accent/10' : ''}`}
                       >
                         <td className="px-4 py-2">
                           <input type="checkbox" checked={selected.has(t.id)}
                             onChange={() => toggleSelect(t.id)} className="rounded" />
                         </td>
-                        <td className={`px-4 py-2 whitespace-nowrap ${!t.date ? 'text-amber-600 font-semibold' : 'text-slate-500'}`}>
+                        <td className={`px-4 py-2 whitespace-nowrap ${!t.date ? 'text-warning font-semibold' : 'text-slate-500'}`}>
                           {t.date || '⚠ missing'}
                         </td>
                         <td className="px-4 py-2 text-slate-700 dark:text-slate-200 max-w-[220px] truncate" title={t.description}>
@@ -948,7 +948,7 @@ export function TransactionExplorer() {
                           {editingId === t.id ? (
                             <div className="flex items-center gap-1 flex-wrap">
                               <select value={editCategory} onChange={e => setEditCategory(e.target.value)}
-                                className="text-xs border border-blue-400 rounded px-2 py-1 bg-white dark:bg-slate-900" autoFocus>
+                                className="text-xs border border-fin-accent rounded px-2 py-1 bg-white dark:bg-slate-900" autoFocus>
                                 {categories.map(c => <option key={c} value={c}>{c}</option>)}
                               </select>
                               <span className="text-slate-300 text-[10px]">or</span>
@@ -957,17 +957,17 @@ export function TransactionExplorer() {
                                 className="text-xs border border-slate-300 dark:border-slate-600 rounded px-2 py-1 bg-white dark:bg-slate-900 w-20"
                                 onKeyDown={e => { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') setEditingId(null); }}
                               />
-                              <button onClick={commitEdit} className="text-emerald-600 hover:text-emerald-700"><Check size={13} /></button>
+                              <button onClick={commitEdit} className="text-positive hover:opacity-80"><Check size={13} /></button>
                               <button onClick={() => setEditingId(null)} className="text-slate-400 hover:text-slate-600"><X size={12} /></button>
                             </div>
                           ) : (
                             <span className={`inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded font-medium ${
-                              t.isTransfer ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
-                              t.isLoan     ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' :
+                              t.isTransfer ? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300' :
+                              t.isLoan     ? 'bg-warning-tint text-warning' :
                               'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
                             }`}>
                               {t.category}
-                              {t.userOverrideFlag && <RefreshCw size={8} className="text-blue-400" />}
+                              {t.userOverrideFlag && <RefreshCw size={8} className="text-fin-accent" />}
                             </span>
                           )}
                         </td>
@@ -984,7 +984,7 @@ export function TransactionExplorer() {
                             </div>
                           </td>
                         )}
-                        <td className={`px-4 py-2 text-right font-mono font-bold ${t.type === 'credit' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-200'}`}>
+                        <td className={`px-4 py-2 text-right font-mono font-bold ${t.type === 'credit' ? 'text-positive' : 'text-slate-700 dark:text-slate-200'}`}>
                           {t.type === 'credit' ? '+' : ''}{fmtINR(t.amount)}
                         </td>
                         <td className="px-4 py-2">
@@ -993,13 +993,13 @@ export function TransactionExplorer() {
                           </span>
                         </td>
                         <td className="px-4 py-2 text-[10px] space-x-1">
-                          {t.recurringFlag && <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded font-semibold">recur</span>}
-                          {t.isTransfer    && <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded font-semibold">transfer</span>}
-                          {t.isLoan        && <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-1.5 py-0.5 rounded font-semibold">loan</span>}
+                          {t.recurringFlag && <span className="bg-warning-tint text-warning px-1.5 py-0.5 rounded font-semibold">recur</span>}
+                          {t.isTransfer    && <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded font-semibold">transfer</span>}
+                          {t.isLoan        && <span className="bg-warning-tint text-warning px-1.5 py-0.5 rounded font-semibold">loan</span>}
                         </td>
                         <td className="px-3 py-2">
                           <button onClick={() => editingId === t.id ? setEditingId(null) : startEdit(t)}
-                            className="p-1 text-slate-300 hover:text-blue-500 transition-colors rounded" title="Edit category">
+                            className="p-1 text-slate-300 hover:text-fin-accent transition-colors rounded" title="Edit category">
                             <Pencil size={12} />
                           </button>
                         </td>
@@ -1012,7 +1012,7 @@ export function TransactionExplorer() {
 
             {/* Select-all-filtered banner */}
             {filtered.length > PAGE_SIZE && selected.size > 0 && selected.size < filtered.length && (
-              <div className="px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border-t border-blue-100 dark:border-blue-800 text-xs text-blue-700 dark:text-blue-300 flex items-center gap-2">
+              <div className="px-4 py-2 bg-fin-accent/10 border-t border-fin-accent/20 text-xs text-fin-accent flex items-center gap-2">
                 <span>{selected.size} selected on this page.</span>
                 <button onClick={() => setSelected(new Set(filtered.map(t => t.id)))}
                   className="font-bold underline hover:no-underline">
@@ -1021,7 +1021,7 @@ export function TransactionExplorer() {
               </div>
             )}
             {filtered.length > PAGE_SIZE && selected.size === filtered.length && (
-              <div className="px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border-t border-blue-100 dark:border-blue-800 text-xs text-blue-700 dark:text-blue-300 flex items-center gap-2">
+              <div className="px-4 py-2 bg-fin-accent/10 border-t border-fin-accent/20 text-xs text-fin-accent flex items-center gap-2">
                 <span>All {filtered.length} filtered transactions selected.</span>
                 <button onClick={clearSelection} className="font-bold underline hover:no-underline">Clear selection</button>
               </div>

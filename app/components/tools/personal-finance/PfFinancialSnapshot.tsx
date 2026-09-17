@@ -36,6 +36,7 @@ interface SnapshotData {
   // Budget
   budgetAdherence: number; // %
   overspentCategories: number;
+  hasBudgetData: boolean;
   // Business
   hasBusinessData: boolean;
   businessRevenue: number;
@@ -54,7 +55,7 @@ export const PFFinancialSnapshot = () => {
   const [data, setData] = useState<SnapshotData>({
     monthlyIncome: 0, monthlyExpenses: 0, savingsRate: 0,
     totalInvested: 0, currentPortfolioValue: 0, portfolioGain: 0,
-    budgetAdherence: 0, overspentCategories: 0,
+    budgetAdherence: 0, overspentCategories: 0, hasBudgetData: false,
     hasBusinessData: false, businessRevenue: 0, businessExpenses: 0, businessProfit: 0,
     netWorthEstimate: 0, hasData: false,
   });
@@ -100,11 +101,12 @@ export const PFFinancialSnapshot = () => {
     // Budget
     let budgetAdherence = 0;
     let overspentCategories = 0;
-    if (budget?.categories?.length) {
-      const cats = budget.categories as { budget: number; actual: number }[];
+    const hasBudgetData = !!budget?.categories?.length;
+    if (hasBudgetData) {
+      const cats = budget!.categories as { budget: number; actual: number }[];
       const totalBudget = cats.reduce((s, c) => s + c.budget, 0);
       const totalActual = cats.reduce((s, c) => s + c.actual, 0);
-      budgetAdherence = totalBudget > 0 ? Math.min(100, (1 - Math.max(0, totalActual - totalBudget) / totalBudget) * 100) : 0;
+      budgetAdherence = totalBudget > 0 ? Math.max(0, Math.min(100, (1 - Math.max(0, totalActual - totalBudget) / totalBudget) * 100)) : 0;
       overspentCategories = cats.filter(c => c.actual > c.budget).length;
     }
 
@@ -123,47 +125,61 @@ export const PFFinancialSnapshot = () => {
       monthlyIncome, monthlyExpenses, savingsRate,
       totalInvested, currentPortfolioValue,
       portfolioGain: currentPortfolioValue - totalInvested,
-      budgetAdherence, overspentCategories,
+      budgetAdherence, overspentCategories, hasBudgetData,
       hasBusinessData: !!biz.transactions.length,
       businessRevenue, businessExpenses, businessProfit: businessRevenue - businessExpenses,
       netWorthEstimate,
       hasData: !!(monthlyIncome > 0 || investments.length || budget?.categories?.length),
     });
-    setLastUpdated(new Date().toLocaleTimeString('en-IN'));
+    setLastUpdated(new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }));
   };
 
   useEffect(() => { refresh(); }, []);
 
-  const pillars = useMemo(() => [
-    {
-      id: 'spending', label: 'Spending', icon: TrendingDown,
-      score: data.savingsRate >= 30 ? 100 : data.savingsRate >= 20 ? 75 : data.savingsRate >= 10 ? 50 : 25,
-      color: '#10b981', bgColor: 'bg-emerald-50 dark:bg-emerald-900/20', borderColor: 'border-emerald-200 dark:border-emerald-800',
-      metric: `${data.savingsRate.toFixed(0)}%`, label2: 'Savings Rate',
-      href: '/my-finance/pf-financial-position', linkLabel: 'View Position',
-    },
-    {
-      id: 'investments', label: 'Investments', icon: TrendingUp,
-      score: data.totalInvested > 0 ? (data.portfolioGain >= 0 ? 80 : 40) : 20,
-      color: '#3b82f6', bgColor: 'bg-blue-50 dark:bg-blue-900/20', borderColor: 'border-blue-200 dark:border-blue-800',
-      metric: fmtL(data.currentPortfolioValue), label2: 'Portfolio Value',
-      href: '/my-finance/pf-investment-tracker', linkLabel: 'View Portfolio',
-    },
-    {
-      id: 'budget', label: 'Budget', icon: Wallet,
-      score: data.budgetAdherence,
-      color: '#f59e0b', bgColor: 'bg-amber-50 dark:bg-amber-900/20', borderColor: 'border-amber-200 dark:border-amber-800',
-      metric: `${data.budgetAdherence.toFixed(0)}%`, label2: 'Budget Adherence',
-      href: '/my-finance/pf-budget-vs-actual', linkLabel: 'View Budget',
-    },
-    {
-      id: 'health', label: 'Health Score', icon: ShieldCheck,
-      score: 0, // from health score tool
-      color: '#8b5cf6', bgColor: 'bg-violet-50 dark:bg-violet-900/20', borderColor: 'border-violet-200 dark:border-violet-800',
-      metric: '—', label2: 'Run Assessment',
-      href: '/my-finance/pf-health-score', linkLabel: 'Check Score',
-    },
-  ], [data]);
+  const savingsRateDisplay = data.savingsRate.toFixed(1);
+  const hasInvestments = data.totalInvested > 0 || data.currentPortfolioValue > 0;
+  const isOverBudget = data.hasBudgetData && data.overspentCategories > 0;
+
+  // Tier a 0-100 score into the three semantic tones (used for icon + ring color).
+  // Only applied when hasValue — an unscored metric stays muted, never colored.
+  const tierColor = (score: number) => (score >= 70 ? 'var(--ot-positive)' : score >= 40 ? 'var(--ot-warning)' : 'var(--ot-negative)');
+  const MUTED = '#64748B';
+
+  const pillars = useMemo(() => {
+    const spendingHasValue = data.monthlyIncome > 0;
+    const spendingScore = data.savingsRate >= 30 ? 100 : data.savingsRate >= 20 ? 75 : data.savingsRate >= 10 ? 50 : 25;
+    const investScore = hasInvestments ? (data.portfolioGain >= 0 ? 80 : 40) : 0;
+    const budgetScore = data.hasBudgetData ? data.budgetAdherence : 0;
+
+    return [
+      {
+        id: 'spending', label: 'Spending', icon: TrendingDown,
+        hasValue: spendingHasValue, score: spendingScore,
+        metric: `${savingsRateDisplay}%`, label2: 'Savings Rate',
+        href: '/my-finance/pf-financial-position', linkLabel: 'View Position',
+      },
+      {
+        id: 'investments', label: 'Investments', icon: TrendingUp,
+        hasValue: hasInvestments, score: investScore,
+        metric: hasInvestments ? fmtL(data.currentPortfolioValue) : 'No investments added',
+        label2: hasInvestments ? 'Portfolio Value' : 'Add one to track it',
+        href: '/my-finance/pf-investment-tracker', linkLabel: 'View Portfolio',
+      },
+      {
+        id: 'budget', label: 'Budget', icon: Wallet,
+        hasValue: data.hasBudgetData, score: budgetScore,
+        metric: !data.hasBudgetData ? 'No budget set' : isOverBudget ? 'Over budget' : `${data.budgetAdherence.toFixed(0)}%`,
+        label2: !data.hasBudgetData ? 'Set one to track it' : isOverBudget ? `${data.overspentCategories} categor${data.overspentCategories === 1 ? 'y' : 'ies'} over` : 'Budget Adherence',
+        href: '/my-finance/pf-budget-vs-actual', linkLabel: 'View Budget',
+      },
+      {
+        id: 'health', label: 'Health Score', icon: ShieldCheck,
+        hasValue: false, score: 0,
+        metric: 'Not run yet', label2: 'Run a quick assessment',
+        href: '/my-finance/pf-health-score', linkLabel: 'Check Score',
+      },
+    ];
+  }, [data, savingsRateDisplay, hasInvestments, isOverBudget]);
 
   const portfolioBreakdown = useMemo(() => {
     const investments: { type: string; currentValue: number }[] = readInvestmentStore();
@@ -178,21 +194,22 @@ export const PFFinancialSnapshot = () => {
     <div>
       <SAPHeader
         fullWidth
+        kpiVariant="strip"
         title="Financial Snapshot"
         subtitle="Your complete money picture — all tools in one view"
         kpis={[
-          { label: 'Monthly Income', value: fmtL(data.monthlyIncome), color: 'success', subtitle: '3-month avg (from statements)' },
-          { label: 'Monthly Expenses', value: fmtL(data.monthlyExpenses), color: data.monthlyExpenses > data.monthlyIncome ? 'error' : 'neutral', subtitle: '3-month avg' },
-          { label: 'Net Portfolio Value', value: fmtL(data.currentPortfolioValue), color: 'primary', subtitle: `${data.portfolioGain >= 0 ? '+' : ''}${fmtL(data.portfolioGain)} gain` },
-          { label: 'Savings Rate', value: `${data.savingsRate.toFixed(1)}%`, color: data.savingsRate >= 20 ? 'success' : data.savingsRate >= 10 ? 'warning' : 'error', subtitle: 'Income - Expenses' },
+          { label: 'Income', value: fmtL(data.monthlyIncome), subtitle: '3-month avg' },
+          { label: 'Expenses', value: fmtL(data.monthlyExpenses), subtitle: '3-month avg' },
+          ...(hasInvestments ? [{ label: 'Portfolio Value', value: fmtL(data.currentPortfolioValue), subtitle: `${data.portfolioGain >= 0 ? '+' : ''}${fmtL(data.portfolioGain)} gain` }] : []),
+          { label: 'Savings Rate', value: `${savingsRateDisplay}%`, subtitle: 'Income − Expenses' },
         ]}
       />
 
       <div className="p-4 space-y-4">
         {!data.hasData && (
-          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800 flex gap-3">
-            <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
-            <p className="text-sm text-blue-700 dark:text-blue-300">
+          <div className="bg-white dark:bg-slate-900 rounded-lg p-4 border border-slate-200 dark:border-slate-700 flex gap-3">
+            <Info className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
+            <p className="text-sm text-slate-600 dark:text-slate-300">
               No data found yet. This snapshot pulls data from your other tools — upload bank statements, add investments, and set up your budget to see your complete picture here.
             </p>
           </div>
@@ -200,57 +217,61 @@ export const PFFinancialSnapshot = () => {
 
         {/* Refresh */}
         <div className="flex items-center justify-between">
-          <p className="text-xs text-slate-400">{lastUpdated ? `Last updated: ${lastUpdated}` : ''}</p>
-          <div className="flex gap-2">
+          <p className="text-xs text-slate-500">{lastUpdated ? `Updated ${lastUpdated}` : ''}</p>
+          <div className="flex items-center gap-2">
             <button onClick={refresh}
-              className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+              className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
               <RefreshCw className="w-3.5 h-3.5" /> Refresh
             </button>
             <button onClick={captureScreenshot} disabled={capturingPng || !data.hasData}
-              className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-violet-600 dark:text-violet-400 bg-white dark:bg-slate-900 border border-violet-200 dark:border-violet-800 rounded-xl hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors disabled:opacity-40">
+              className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-40">
               <Camera className="w-3.5 h-3.5" /> {capturingPng ? 'Saving…' : 'Screenshot'}
             </button>
           </div>
         </div>
 
         {/* Pillars */}
-        <div ref={snapshotRef} className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {pillars.map(p => (
-            <div key={p.id} className={`rounded-xl p-4 border ${p.bgColor} ${p.borderColor}`}>
-              <div className="flex items-center gap-2 mb-2">
-                <p.icon className="w-4 h-4" style={{ color: p.color }} />
-                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">{p.label}</span>
-              </div>
-              {/* Mini progress ring */}
-              <div className="flex items-center gap-3 mb-2">
-                <svg className="w-10 h-10 -rotate-90" viewBox="0 0 36 36">
-                  <circle cx="18" cy="18" r="14" fill="none" stroke="#e2e8f0" strokeWidth="4" className="dark:stroke-slate-700" />
-                  <circle cx="18" cy="18" r="14" fill="none" stroke={p.color} strokeWidth="4"
-                    strokeDasharray="87.96"
-                    strokeDashoffset={`${87.96 * (1 - p.score / 100)}`}
-                    strokeLinecap="round" />
-                </svg>
-                <div>
-                  <div className="text-lg font-bold text-slate-800 dark:text-slate-200">{p.metric}</div>
-                  <div className="text-[10px] text-slate-400">{p.label2}</div>
+        <div ref={snapshotRef} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {pillars.map(p => {
+            const iconColor = p.hasValue ? tierColor(p.score) : MUTED;
+            return (
+              <div key={p.id} className="rounded-lg p-5 border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700">
+                <div className="flex items-center gap-2 mb-2">
+                  <p.icon className="w-4 h-4" style={{ color: iconColor }} />
+                  <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">{p.label}</span>
                 </div>
+                <div className="flex items-center gap-3 mb-2">
+                  {p.hasValue && (
+                    <svg className="w-10 h-10 -rotate-90 shrink-0" viewBox="0 0 36 36">
+                      <circle cx="18" cy="18" r="14" fill="none" stroke="#e2e8f0" strokeWidth="4" className="dark:stroke-slate-700" />
+                      <circle cx="18" cy="18" r="14" fill="none" stroke={iconColor} strokeWidth="4"
+                        strokeDasharray="87.96"
+                        strokeDashoffset={`${87.96 * (1 - p.score / 100)}`}
+                        strokeLinecap="round" />
+                    </svg>
+                  )}
+                  <div>
+                    <div className={`font-semibold text-neutral-value ${/[a-zA-Z]{4,}/.test(p.metric) ? 'text-sm' : 'text-lg'}`}>{p.metric}</div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400">{p.label2}</div>
+                  </div>
+                </div>
+                <a href={p.href} className="text-xs font-semibold flex items-center gap-1 hover:underline text-fin-accent">
+                  {p.linkLabel} <ExternalLink className="w-3 h-3" />
+                </a>
               </div>
-              <a href={p.href} className="text-xs font-semibold flex items-center gap-1 hover:underline" style={{ color: p.color }}>
-                {p.linkLabel} <ExternalLink className="w-3 h-3" />
-              </a>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Income vs Expenses */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-700">
+          <div className="bg-white dark:bg-slate-900 rounded-lg p-5 border border-slate-200 dark:border-slate-700">
             <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Monthly Cash Flow</h3>
             <div className="space-y-3">
               {[
-                { label: 'Income', value: data.monthlyIncome, color: '#10b981', max: Math.max(data.monthlyIncome, data.monthlyExpenses) },
-                { label: 'Expenses', value: data.monthlyExpenses, color: '#f97316', max: Math.max(data.monthlyIncome, data.monthlyExpenses) },
-                { label: 'Savings', value: Math.max(0, data.monthlyIncome - data.monthlyExpenses), color: '#3b82f6', max: Math.max(data.monthlyIncome, data.monthlyExpenses) },
+                { label: 'Income', value: data.monthlyIncome, color: 'var(--ot-positive)', max: Math.max(data.monthlyIncome, data.monthlyExpenses) },
+                { label: 'Expenses', value: data.monthlyExpenses, color: '#64748B', max: Math.max(data.monthlyIncome, data.monthlyExpenses) },
+                { label: 'Savings', value: Math.max(0, data.monthlyIncome - data.monthlyExpenses), color: 'var(--ot-fin-accent)', max: Math.max(data.monthlyIncome, data.monthlyExpenses) },
               ].map(item => (
                 <div key={item.label}>
                   <div className="flex justify-between text-xs mb-1">
@@ -266,16 +287,8 @@ export const PFFinancialSnapshot = () => {
           </div>
 
           {/* Portfolio Allocation */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-700">
-            <div className="flex items-start justify-between mb-4 gap-2">
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Portfolio Allocation</h3>
-              <span className="text-[10px] text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap shrink-0">
-                Partial estimate
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-400 dark:text-slate-500 mb-3 leading-relaxed">
-              Only includes investments you added to the Investment Tracker. Real estate, gold, EPF, and PPF are not counted unless manually added there.
-            </p>
+          <div className="bg-white dark:bg-slate-900 rounded-lg p-5 border border-slate-200 dark:border-slate-700">
+            <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Portfolio Allocation</h3>
             {portfolioBreakdown.length > 0 ? (
               <div className="flex items-center gap-4">
                 <ResponsiveContainer width={120} height={120}>
@@ -305,24 +318,27 @@ export const PFFinancialSnapshot = () => {
                 Add investments in Investment Tracker to see allocation
               </div>
             )}
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              Only investments added in Investment Tracker. Real estate, gold, EPF and PPF aren&apos;t counted unless added there. <span className="text-warning font-medium">Partial estimate.</span>
+            </p>
           </div>
         </div>
 
         {/* Business Section */}
         {data.hasBusinessData && (
-          <div className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-700">
+          <div className="bg-white dark:bg-slate-900 rounded-lg p-5 border border-slate-200 dark:border-slate-700">
             <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-violet-500" /> Business OS Summary
+              <BarChart3 className="w-4 h-4 text-slate-500" /> Business OS Summary
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {[
-                { label: 'Revenue', value: data.businessRevenue, color: 'text-emerald-600 dark:text-emerald-400' },
-                { label: 'Expenses', value: data.businessExpenses, color: 'text-red-500' },
-                { label: 'Profit', value: data.businessProfit, color: data.businessProfit >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-red-500' },
+                { label: 'Revenue', value: data.businessRevenue },
+                { label: 'Expenses', value: data.businessExpenses },
+                { label: 'Profit', value: data.businessProfit },
               ].map(item => (
                 <div key={item.label} className="text-center">
                   <div className="text-xs text-slate-500 mb-1">{item.label}</div>
-                  <div className={`text-lg font-bold ${item.color}`}>{fmtL(item.value)}</div>
+                  <div className="text-lg font-semibold text-neutral-value">{fmtL(item.value)}</div>
                 </div>
               ))}
             </div>
@@ -330,8 +346,8 @@ export const PFFinancialSnapshot = () => {
         )}
 
         {/* Quick Links */}
-        <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
-          <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">Quick Access</h3>
+        <div className="bg-white dark:bg-slate-900 rounded-lg p-5 border border-slate-200 dark:border-slate-700">
+          <h3 className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-[0.5px] mb-3">Quick Access</h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {[
               { label: 'Statements', href: '/my-finance/pf-statement-manager' },
@@ -344,7 +360,7 @@ export const PFFinancialSnapshot = () => {
               { label: 'Net Worth', href: '/my-finance/smart-net-worth' },
             ].map(link => (
               <a key={link.href} href={link.href}
-                className="text-xs text-center py-2 px-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-400 hover:text-blue-500 hover:border-blue-300 transition-all font-medium">
+                className="text-xs text-center py-2 px-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-400 hover:text-fin-accent hover:border-fin-accent transition-all font-medium">
                 {link.label}
               </a>
             ))}

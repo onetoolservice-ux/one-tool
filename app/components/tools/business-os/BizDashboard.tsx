@@ -50,7 +50,7 @@ function AlertWidget({ icon, label, value, sublabel, href, tone }: {
   return (
     <a
       href={href}
-      className={`rounded-2xl border p-4 flex flex-col gap-1.5 hover:opacity-90 transition-opacity ${ALERT_TONE_CLASSES[tone]}`}
+      className={`rounded-lg border p-4 flex flex-col gap-1.5 hover:opacity-90 transition-opacity ${ALERT_TONE_CLASSES[tone]}`}
     >
       <div className="flex items-center justify-between">
         <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide">
@@ -192,7 +192,7 @@ export function BizDashboard() {
       {/* Floating quick-add button */}
       <button
         onClick={() => setShowQuickAdd(true)}
-        className="fixed bottom-5 right-5 z-40 flex items-center gap-2 px-5 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg shadow-blue-600/30 text-sm font-bold transition-colors"
+        className="fixed bottom-5 right-5 z-40 flex items-center gap-2 px-5 py-3.5 bg-fin-accent hover:opacity-90 text-white rounded-full shadow-lg text-sm font-bold transition-colors"
         title="Add a sale or expense"
       >
         <Plus size={18} /> Add Entry
@@ -203,8 +203,8 @@ export function BizDashboard() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md border border-slate-200 dark:border-slate-700 p-6">
             <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
-                <LayoutDashboard size={20} className="text-blue-600 dark:text-blue-400" />
+              <div className="w-10 h-10 rounded-xl bg-fin-accent/10 flex items-center justify-center">
+                <LayoutDashboard size={20} className="text-fin-accent" />
               </div>
               <div>
                 <h2 className="text-lg font-black text-slate-900 dark:text-white">Set Up Your Business</h2>
@@ -239,7 +239,7 @@ export function BizDashboard() {
             <button
               onClick={saveSetup}
               disabled={!bizName.trim()}
-              className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-bold text-sm transition-colors"
+              className="w-full py-2.5 rounded-lg bg-fin-accent hover:opacity-90 disabled:opacity-40 text-white font-bold text-sm transition-colors"
             >
               Start Using Business OS →
             </button>
@@ -250,6 +250,7 @@ export function BizDashboard() {
       <SAPHeader
         fullWidth
         sticky
+        kpiVariant="strip"
         title={store.settings.businessName || 'Business Dashboard'}
         subtitle={store.settings.gstin ? `GSTIN: ${store.settings.gstin}` : 'Your Business Command Center'}
         kpis={[
@@ -308,16 +309,16 @@ export function BizDashboard() {
 
         {/* Empty State */}
         {isEmpty && (
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-8 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center mx-auto mb-4">
-              <LayoutDashboard size={32} className="text-blue-600 dark:text-blue-400" />
+          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-8 text-center">
+            <div className="w-16 h-16 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-4">
+              <LayoutDashboard size={32} className="text-slate-500" />
             </div>
             <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2">Your Business Dashboard is Ready</h3>
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-md mx-auto">
               Start by adding your first transaction in the Daybook, or add your customers in the Party Register.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <a href="/my-business/biz-daybook" className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors">
+              <a href="/my-business/biz-daybook" className="inline-flex items-center gap-2 px-4 py-2 bg-fin-accent hover:opacity-90 text-white rounded-lg text-sm font-bold transition-colors">
                 <Plus size={16} /> Add Transaction
               </a>
               <a href="/my-business/biz-parties" className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl text-sm font-bold transition-colors hover:bg-slate-200 dark:hover:bg-slate-700">
@@ -329,7 +330,7 @@ export function BizDashboard() {
 
         {/* Low Stock Alert Banner */}
         {lowStockItems.length > 0 && (
-          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4">
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4">
             <div className="flex items-center gap-3 mb-3">
               <AlertTriangle size={18} className="text-amber-600 dark:text-amber-400 shrink-0" />
               <span className="font-bold text-amber-800 dark:text-amber-300 text-sm">
@@ -356,7 +357,7 @@ export function BizDashboard() {
 
         {/* 7-Day Chart */}
         {store.transactions.length > 0 && (
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-5">
+          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-5">
             <h2 className="text-sm font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-4">
               Last 7 Days — Income vs Expenses
             </h2>
@@ -380,12 +381,12 @@ export function BizDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Top Customers */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-5">
+          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
                 <Users size={14} /> Top Customers
               </h2>
-              <a href="/my-business/biz-parties" className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+              <a href="/my-business/biz-parties" className="text-xs font-semibold text-fin-accent hover:underline flex items-center gap-1">
                 View All <ArrowRight size={12} />
               </a>
             </div>
@@ -400,7 +401,7 @@ export function BizDashboard() {
                       <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{party.name}</p>
                       <p className="text-xs text-slate-500 dark:text-slate-400 capitalize">{party.type}</p>
                     </div>
-                    <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">{fmtCurrency(total)}</span>
+                    <span className="text-sm font-semibold text-neutral-value">{fmtCurrency(total)}</span>
                   </div>
                 ))}
               </div>
@@ -408,7 +409,7 @@ export function BizDashboard() {
           </div>
 
           {/* Pending Invoices */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-5">
+          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
                 <Clock size={14} /> Pending Invoices
@@ -438,7 +439,7 @@ export function BizDashboard() {
                       }`}>
                         {isOverdue ? 'Overdue' : inv.status}
                       </span>
-                      <span className="text-sm font-black text-amber-600 dark:text-amber-400">{fmtCurrency(inv.total)}</span>
+                      <span className="text-sm font-semibold text-neutral-value">{fmtCurrency(inv.total)}</span>
                     </div>
                   );
                 })}
@@ -449,12 +450,12 @@ export function BizDashboard() {
 
         {/* Recent Transactions */}
         {recentTxs.length > 0 && (
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-5">
+          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider">
                 Recent Transactions
               </h2>
-              <a href="/my-business/biz-daybook" className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+              <a href="/my-business/biz-daybook" className="text-xs font-semibold text-fin-accent hover:underline flex items-center gap-1">
                 Open Daybook <ArrowRight size={12} />
               </a>
             </div>

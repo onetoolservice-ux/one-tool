@@ -359,6 +359,7 @@ export function BizOutstanding() {
         subtitle="Receivables · Aging · Collections"
         fullWidth
         sticky
+        kpiVariant="strip"
         kpis={[
           {
             label: 'Total Outstanding',
@@ -397,7 +398,7 @@ export function BizOutstanding() {
                 onClick={() => setMode(m.key)}
                 className={`px-4 py-2 rounded-xl text-sm font-bold transition-colors ${
                   mode === m.key
-                    ? 'bg-blue-600 text-white shadow-sm'
+                    ? 'bg-fin-accent text-white'
                     : 'text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
               >
@@ -493,7 +494,7 @@ function ReceivablesMode({
               onClick={() => setFilter(f.key)}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
                 filter === f.key
-                  ? 'bg-blue-600 text-white shadow-sm'
+                  ? 'bg-fin-accent text-white'
                   : 'text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700'
               }`}
             >
@@ -521,7 +522,7 @@ function ReceivablesMode({
       </div>
 
       {/* Table */}
-      <div className="flex-1 overflow-hidden bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col">
+      <div className="flex-1 overflow-hidden bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 flex flex-col">
         {/* Table header */}
         <div className="grid grid-cols-[2fr_1.2fr_1.2fr_1fr_1fr_1fr_1fr_auto] gap-3 px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 text-xs font-black text-slate-500 uppercase tracking-wider shrink-0">
           <div>Party</div>
@@ -697,7 +698,7 @@ function AgingMode({ buckets, partyWise }: AgingModeProps) {
         {buckets.map(bucket => (
           <div
             key={bucket.label}
-            className={`rounded-2xl border p-4 ${bucket.bg} ${bucket.border}`}
+            className={`rounded-lg border p-4 ${bucket.bg} ${bucket.border}`}
           >
             <p className={`text-xs font-black uppercase tracking-wider mb-2 ${bucket.textColor}`}>
               {bucket.label}
@@ -716,7 +717,7 @@ function AgingMode({ buckets, partyWise }: AgingModeProps) {
       </div>
 
       {/* Party-wise table */}
-      <div className="flex-1 overflow-hidden bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col">
+      <div className="flex-1 overflow-hidden bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 flex flex-col">
         <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 shrink-0">
           <h3 className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
             <Users size={15} />

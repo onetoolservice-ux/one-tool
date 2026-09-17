@@ -121,6 +121,7 @@ export function BizInventory() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <SAPHeader
         fullWidth sticky
+        kpiVariant="strip"
         title="Inventory Manager"
         subtitle="Product catalog · Stock levels · Supplier tracking"
         kpis={[
@@ -131,7 +132,7 @@ export function BizInventory() {
         ]}
         actions={
           <button onClick={openAdd}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors">
+            className="flex items-center gap-2 px-4 py-2 bg-fin-accent hover:opacity-90 text-white rounded-lg text-sm font-bold transition-colors">
             <Plus size={16} /> Add Product
           </button>
         }
@@ -241,7 +242,7 @@ export function BizInventory() {
                 <button type="button" onClick={() => setShowForm(false)}
                   className="flex-1 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-sm font-bold">Cancel</button>
                 <button type="submit"
-                  className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition-colors">
+                  className="flex-1 py-2.5 rounded-lg bg-fin-accent hover:opacity-90 text-white text-sm font-bold transition-colors">
                   {editProduct ? 'Save Changes' : 'Add Product'}
                 </button>
               </div>
@@ -253,7 +254,7 @@ export function BizInventory() {
       <div className="p-4 lg:p-6 max-w-7xl mx-auto space-y-4">
         {/* Low Stock Banner */}
         {lowStockItems.length > 0 && (
-          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4">
+          <div className="bg-warning-tint border border-amber-200 dark:border-amber-700 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
               <AlertTriangle size={16} className="text-amber-600 dark:text-amber-400" />
               <span className="text-sm font-bold text-amber-800 dark:text-amber-300">
@@ -285,7 +286,7 @@ export function BizInventory() {
             {allCategories.map(c => (
               <button key={c}
                 onClick={() => setFilterCat(c)}
-                className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors ${filterCat === c ? 'bg-blue-600 text-white' : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-blue-300'}`}>
+                className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors ${filterCat === c ? 'bg-fin-accent text-white' : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-fin-accent'}`}>
                 {c}
               </button>
             ))}
@@ -295,15 +296,15 @@ export function BizInventory() {
 
         {/* Products Table */}
         {filtered.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-12 text-center">
+          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-12 text-center">
             <Package size={40} className="text-slate-300 dark:text-slate-600 mx-auto mb-3" />
             <p className="text-slate-500 dark:text-slate-400 text-sm mb-3">No products yet</p>
-            <button onClick={openAdd} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold">
+            <button onClick={openAdd} className="inline-flex items-center gap-2 px-4 py-2 bg-fin-accent hover:opacity-90 text-white rounded-lg text-sm font-bold">
               <Plus size={15} /> Add First Product
             </button>
           </div>
         ) : (
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>

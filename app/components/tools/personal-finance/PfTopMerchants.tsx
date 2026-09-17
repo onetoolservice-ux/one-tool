@@ -124,7 +124,7 @@ export function TopMerchants() {
 
   const SI = ({ col }: { col: SortCol }) =>
     sortCol === col
-      ? (sortDir === 'asc' ? <ChevronUp size={11} className="text-blue-500" /> : <ChevronDown size={11} className="text-blue-500" />)
+      ? (sortDir === 'asc' ? <ChevronUp size={11} className="text-fin-accent" /> : <ChevronDown size={11} className="text-fin-accent" />)
       : <ChevronDown size={11} className="text-slate-300 dark:text-slate-600" />;
 
   if (!mounted) return null;
@@ -133,6 +133,7 @@ export function TopMerchants() {
     <div className="space-y-4">
       <SAPHeader
         fullWidth
+        kpiVariant="strip"
         title="Top Merchants"
         subtitle="All debit transactions grouped and ranked by total spend"
         kpis={rows.length > 0 ? [
@@ -144,7 +145,7 @@ export function TopMerchants() {
       />
       <div className="space-y-4 px-4 pb-4">
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
           <PFFilterBarHeader
             activeCount={activeFilters}
             onClearAll={() => { setSearch(''); setCatFilter('all'); setAccountFilter('all'); setPeriod('all'); }}
@@ -191,11 +192,11 @@ export function TopMerchants() {
         </div>
 
         {sorted.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-12 text-center">
+          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg p-12 text-center">
             <p className="text-sm text-slate-400">No transactions found for the selected filters.</p>
           </div>
         ) : (
-          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
             <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-between items-center">
               <span className="text-xs text-slate-500">{sorted.length} merchants · {sorted.reduce((s, r) => s + r.count, 0)} transactions</span>
               <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{fmtINR(sorted.reduce((s, r) => s + r.total, 0))} total</span>
@@ -237,7 +238,7 @@ export function TopMerchants() {
                                 className="text-xs border border-slate-300 dark:border-slate-600 rounded px-2 py-1 bg-white dark:bg-slate-900" />
                               <div className="flex gap-1">
                                 <button onClick={() => saveCategory(row, newCat || editCat)} disabled={!editCat && !newCat.trim()}
-                                  className="flex-1 text-[10px] font-semibold bg-blue-600 text-white rounded px-2 py-1 disabled:opacity-40">
+                                  className="flex-1 text-[10px] font-semibold bg-fin-accent text-white rounded px-2 py-1 disabled:opacity-40">
                                   Apply ({row.count})
                                 </button>
                                 <button onClick={() => { setEditMerchant(null); setNewCat(''); }}
@@ -250,7 +251,7 @@ export function TopMerchants() {
                         </td>
                         <td className="px-4 py-3 text-right font-mono font-semibold text-slate-600 dark:text-slate-300">{row.count}</td>
                         <td className="px-4 py-3 text-right font-mono text-slate-600 dark:text-slate-300">{fmtINR(row.avg)}</td>
-                        <td className="px-4 py-3 text-right font-mono font-bold text-amber-600 dark:text-amber-400">{fmtINR(row.total)}</td>
+                        <td className="px-4 py-3 text-right font-mono font-bold text-neutral-value">{fmtINR(row.total)}</td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
                             <div className="flex-1 bg-slate-100 dark:bg-slate-700 rounded-full h-1.5">

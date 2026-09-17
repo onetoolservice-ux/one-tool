@@ -254,6 +254,7 @@ export function BizProducts() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <SAPHeader
         fullWidth sticky
+        kpiVariant="strip"
         title="Product Catalog"
         subtitle="Add · Edit · Bulk Import · Export"
         kpis={showStats ? [
@@ -275,7 +276,7 @@ export function BizProducts() {
                   onClick={() => { setMode(opt.key); if (opt.key !== 'add') setEditProduct(null); }}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                     mode === opt.key
-                      ? 'bg-blue-600 text-white shadow-sm'
+                      ? 'bg-fin-accent text-white'
                       : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700'
                   }`}>
                   {opt.label}
@@ -286,7 +287,7 @@ export function BizProducts() {
               onClick={() => setShowStats(s => !s)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors border ${
                 showStats
-                  ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700'
+                  ? 'bg-fin-accent/10 text-fin-accent border-fin-accent/40'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
@@ -307,7 +308,7 @@ export function BizProducts() {
               disabled={mode !== 'catalog'}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors ${
                 mode === 'catalog'
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                  ? 'bg-fin-accent hover:opacity-90 text-white'
                   : 'bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'
               }`}>
               <Plus size={16} /> Add Product
@@ -335,13 +336,13 @@ export function BizProducts() {
             <div className="flex gap-1.5 overflow-x-auto flex-1">
               <button
                 onClick={() => setCategoryFilter('')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition-colors ${!categoryFilter ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition-colors ${!categoryFilter ? 'bg-fin-accent text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
                 All
               </button>
               {usedCategories.map(cat => (
                 <button key={cat}
                   onClick={() => setCategoryFilter(cat === categoryFilter ? '' : cat)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition-colors ${categoryFilter === cat ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition-colors ${categoryFilter === cat ? 'bg-fin-accent text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
                   {cat}
                 </button>
               ))}
@@ -360,7 +361,7 @@ export function BizProducts() {
               </p>
               {products.length === 0 && (
                 <div className="flex gap-3 justify-center">
-                  <button onClick={openAdd} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold">
+                  <button onClick={openAdd} className="inline-flex items-center gap-2 px-4 py-2 bg-fin-accent hover:opacity-90 text-white rounded-lg text-sm font-bold">
                     <Plus size={15} /> Add Manually
                   </button>
                   <button onClick={() => setMode('import')} className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700">
@@ -484,9 +485,9 @@ export function BizProducts() {
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start w-full">
 
             {/* ── Form (left 3 cols) ─────────────────────────────────────────── */}
-            <div className="lg:col-span-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6">
+            <div className="lg:col-span-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
               {editProduct && (
-                <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-4 flex items-center gap-1.5">
+                <p className="text-xs font-semibold text-fin-accent mb-4 flex items-center gap-1.5">
                   <Edit2 size={12} /> Editing: <span className="font-black">{editProduct.name}</span>
                 </p>
               )}
@@ -604,7 +605,7 @@ export function BizProducts() {
                     Cancel
                   </button>
                   <button type="submit"
-                    className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition-colors">
+                    className="flex-1 py-2.5 rounded-lg bg-fin-accent hover:opacity-90 text-white text-sm font-bold transition-colors">
                     {editProduct ? 'Save Changes' : 'Add Product'}
                   </button>
                 </div>
@@ -613,7 +614,7 @@ export function BizProducts() {
 
             {/* ── Live Preview (right 2 cols) ────────────────────────────────── */}
             <div className="lg:col-span-2 space-y-4 sticky top-24">
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-5">
+              <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-5">
                 <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">Live Preview</p>
                 {form.name ? (
                   <>
@@ -644,9 +645,9 @@ export function BizProducts() {
                         <span className="text-sm text-slate-500 dark:text-slate-400">GST ({form.gstRate}%)</span>
                         <span className="text-sm font-medium text-slate-600 dark:text-slate-300">+{fmtCurrency(previewGstAmt)}</span>
                       </div>
-                      <div className="flex justify-between items-center bg-blue-50 dark:bg-blue-900/20 rounded-xl px-4 py-3 mt-1">
-                        <span className="text-sm font-bold text-blue-700 dark:text-blue-300">Price incl. GST</span>
-                        <span className="text-base font-black text-blue-700 dark:text-blue-300">{fmtCurrency(previewPriceInclGst)}</span>
+                      <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-800 rounded-lg px-4 py-3 mt-1">
+                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Price incl. GST</span>
+                        <span className="text-base font-semibold text-neutral-value">{fmtCurrency(previewPriceInclGst)}</span>
                       </div>
                     </div>
                     {(form.stock > 0 || form.lowStockAlert > 0) && (
@@ -665,9 +666,9 @@ export function BizProducts() {
                   </div>
                 )}
               </div>
-              <div className="bg-amber-50 dark:bg-amber-900/20 rounded-2xl border border-amber-200 dark:border-amber-800/50 p-4">
-                <p className="text-xs font-bold text-amber-800 dark:text-amber-400 mb-2">Quick Tips</p>
-                <ul className="text-xs text-amber-700 dark:text-amber-300/80 space-y-1.5">
+              <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+                <p className="text-xs font-bold text-slate-700 dark:text-slate-200 mb-2">Quick Tips</p>
+                <ul className="text-xs text-slate-500 dark:text-slate-400 space-y-1.5">
                   <li>• SKU helps with barcode scanning & CSV import</li>
                   <li>• GST rate auto-fills when adding to invoices</li>
                   <li>• Set Low Stock Alert to track reorder point</li>
@@ -684,10 +685,10 @@ export function BizProducts() {
             <div className="flex items-center gap-2 mb-2">
               {([1, 2, 3] as const).map((s, i) => (
                 <div key={s} className="flex items-center gap-2">
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black ${csvStep >= s ? 'bg-blue-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'}`}>
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black ${csvStep >= s ? 'bg-fin-accent text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'}`}>
                     {csvStep > s ? <CheckCircle size={14} /> : s}
                   </div>
-                  <span className={`text-xs font-semibold ${csvStep === s ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`}>
+                  <span className={`text-xs font-semibold ${csvStep === s ? 'text-fin-accent' : 'text-slate-400 dark:text-slate-500'}`}>
                     {['Upload CSV', 'Map Columns', 'Import'][i]}
                   </span>
                   {i < 2 && <div className="w-8 h-px bg-slate-200 dark:bg-slate-700" />}
@@ -697,7 +698,7 @@ export function BizProducts() {
 
             {/* Step 1: Upload */}
             {csvStep === 1 && (
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 space-y-4">
+              <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6 space-y-4">
                 <div>
                   <h3 className="text-sm font-black text-slate-900 dark:text-white mb-1">Upload a CSV file</h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400">First row should be headers. Columns can be in any order.</p>
@@ -724,7 +725,7 @@ export function BizProducts() {
                   <button onClick={() => setMode('catalog')}
                     className="flex-1 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-sm font-bold">Cancel</button>
                   <button onClick={parseAndProceed} disabled={!csvRaw.trim()}
-                    className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white text-sm font-bold transition-colors">
+                    className="flex-1 py-2.5 rounded-lg bg-fin-accent hover:opacity-90 disabled:opacity-40 text-white text-sm font-bold transition-colors">
                     Next: Map Columns →
                   </button>
                 </div>
@@ -733,7 +734,7 @@ export function BizProducts() {
 
             {/* Step 2: Column Mapping */}
             {csvStep === 2 && (
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 space-y-5">
+              <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6 space-y-5">
                 <div>
                   <h3 className="text-sm font-black text-slate-900 dark:text-white mb-1">Map columns to product fields</h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400">{csvRows.length} rows detected. At minimum, map the "Product Name" column.</p>
@@ -791,7 +792,7 @@ export function BizProducts() {
                   <button onClick={() => setCsvStep(1)}
                     className="flex-1 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-sm font-bold">← Back</button>
                   <button onClick={handleImport} disabled={importableCount === 0}
-                    className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white text-sm font-bold transition-colors">
+                    className="flex-1 py-2.5 rounded-lg bg-fin-accent hover:opacity-90 disabled:opacity-40 text-white text-sm font-bold transition-colors">
                     Import {importableCount} Products
                   </button>
                 </div>
@@ -800,7 +801,7 @@ export function BizProducts() {
 
             {/* Step 3: Success */}
             {csvStep === 3 && importResult && (
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-emerald-200 dark:border-emerald-800 p-8 text-center">
+              <div className="bg-white dark:bg-slate-900 rounded-lg border border-emerald-200 dark:border-emerald-800 p-8 text-center">
                 <div className="w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center mx-auto mb-4">
                   <CheckCircle size={28} className="text-emerald-600 dark:text-emerald-400" />
                 </div>
@@ -815,7 +816,7 @@ export function BizProducts() {
                   <button onClick={resetImport}
                     className="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-sm font-bold">Import More</button>
                   <button onClick={() => { resetImport(); setMode('catalog'); }}
-                    className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition-colors">
+                    className="px-4 py-2 rounded-lg bg-fin-accent hover:opacity-90 text-white text-sm font-bold transition-colors">
                     View Catalog →
                   </button>
                 </div>

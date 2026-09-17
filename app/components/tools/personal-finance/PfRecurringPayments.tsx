@@ -157,7 +157,7 @@ export function RecurringPayments() {
 
   const SortIcon = ({ col }: { col: SortCol }) => (
     sortCol === col
-      ? (sortDir === 'asc' ? <ChevronUp size={11} className="text-blue-500" /> : <ChevronDown size={11} className="text-blue-500" />)
+      ? (sortDir === 'asc' ? <ChevronUp size={11} className="text-fin-accent" /> : <ChevronDown size={11} className="text-fin-accent" />)
       : <ChevronDown size={11} className="text-slate-300 dark:text-slate-600" />
   );
 
@@ -169,6 +169,7 @@ export function RecurringPayments() {
     <div className="space-y-4">
       <SAPHeader
         fullWidth
+        kpiVariant="strip"
         title="Recurring Payments"
         subtitle="Auto-detected repetitive debits grouped by merchant"
         kpis={hasData ? [
@@ -182,7 +183,7 @@ export function RecurringPayments() {
       <div className="space-y-4 px-4 pb-4">
 
         {/* Filter Bar */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
           <PFFilterBarHeader
             activeCount={activeFilters}
             onClearAll={() => { setSearch(''); setCatFilter('all'); setAccountFilter('all'); }}
@@ -243,28 +244,28 @@ export function RecurringPayments() {
         </div>
 
         {/* Cross-link banner */}
-        <div className="flex items-center gap-2 px-3 py-2 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-700 rounded-lg text-xs text-violet-700 dark:text-violet-300">
+        <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-600 dark:text-slate-300">
           <span className="flex-1">Shows <strong>all</strong> repeat transactions regardless of amount consistency. For fixed-amount subscriptions (Netflix, SIPs, insurance) only →</span>
-          <Link href="/my-finance/pf-subscriptions" className="flex items-center gap-1 font-semibold whitespace-nowrap hover:underline">
+          <Link href="/my-finance/pf-subscriptions" className="flex items-center gap-1 font-semibold whitespace-nowrap hover:underline text-fin-accent">
             Subscription Finder <ArrowRight size={11} />
           </Link>
         </div>
 
         {/* Empty state */}
         {!hasData ? (
-          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-12 text-center">
+          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg p-12 text-center">
             <RefreshCw size={36} className="mx-auto mb-3 text-slate-300 dark:text-slate-600" />
             <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">No recurring payments detected.</p>
             <p className="text-xs text-slate-400 mt-1">Upload statements with at least 3 months of data for auto-detection.</p>
           </div>
         ) : sorted.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-8 text-center">
+          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg p-8 text-center">
             <p className="text-sm text-slate-400">No results match your filters.</p>
           </div>
         ) : (
 
           /* Table */
-          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
             {/* Result count */}
             <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between">
               <span className="text-xs text-slate-500 font-medium">
@@ -355,7 +356,7 @@ export function RecurringPayments() {
                                 <button
                                   onClick={() => saveCategory(group, newCatInput || editCatVal)}
                                   disabled={!editCatVal && !newCatInput.trim()}
-                                  className="flex-1 text-[10px] font-semibold bg-blue-600 text-white rounded px-2 py-1 disabled:opacity-40"
+                                  className="flex-1 text-[10px] font-semibold bg-fin-accent text-white rounded px-2 py-1 disabled:opacity-40"
                                 >
                                   Apply to all {group.count} txns
                                 </button>
@@ -383,7 +384,7 @@ export function RecurringPayments() {
                         </td>
 
                         {/* Total Spend */}
-                        <td className="px-4 py-3 text-right font-mono font-bold text-amber-600 dark:text-amber-400">
+                        <td className="px-4 py-3 text-right font-mono font-bold text-neutral-value">
                           {fmtINR(group.totalAmount)}
                         </td>
 
@@ -401,10 +402,10 @@ export function RecurringPayments() {
                             const daysAway = Math.round((new Date(group.nextDate).getTime() - new Date(today).getTime()) / (1000 * 60 * 60 * 24));
                             return (
                               <div className="flex flex-col gap-0.5">
-                                <span className={`text-xs font-semibold ${isOverdue ? 'text-red-600 dark:text-red-400' : daysAway <= 7 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-600 dark:text-slate-300'}`}>
+                                <span className={`text-xs font-semibold ${isOverdue ? 'text-negative' : daysAway <= 7 ? 'text-warning' : 'text-slate-600 dark:text-slate-300'}`}>
                                   {group.nextDate}
                                 </span>
-                                <span className={`text-[10px] flex items-center gap-0.5 ${isOverdue ? 'text-red-500' : daysAway <= 7 ? 'text-amber-500' : 'text-slate-400'}`}>
+                                <span className={`text-[10px] flex items-center gap-0.5 ${isOverdue ? 'text-negative' : daysAway <= 7 ? 'text-warning' : 'text-slate-400'}`}>
                                   {isOverdue
                                     ? <><AlertTriangle size={9} /> {Math.abs(daysAway)}d overdue</>
                                     : daysAway === 0 ? 'Today'

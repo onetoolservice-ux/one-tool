@@ -11,6 +11,7 @@ import { trackSearch } from '@/app/lib/telemetry';
 import { ALL_TOOLS, type ToolHelpConfig } from '@/app/lib/tools-data';
 import { categoryToSpaceHref } from '@/app/lib/space-config';
 import { ToolHelpPanel } from '@/app/components/tools/shared/ToolHelpPanel';
+import { FeedbackFormModal } from '@/app/components/ui/FeedbackFormModal';
 import { useAuth } from '@/app/contexts/auth-context';
 import {
   loadThemeSettings, applyAllTheme,
@@ -18,7 +19,7 @@ import {
 } from '@/app/components/ui/AccentColorPicker';
 
 // ── Brand color ───────────────────────────────────────────────────────────────
-const NAV_BG   = '#1e1b4b';  // deep indigo — app theme
+const NAV_BG   = '#1F2E5C';  // brand indigo — see one-tool-brand style guide
 const NAV_TEXT = '#ffffff';
 
 // ── Tool search index ─────────────────────────────────────────────────────────
@@ -181,6 +182,7 @@ function HeaderContent() {
   const [suggestions, setSuggestions] = useState<typeof SEARCH_TOOLS>([]);
   const [isFocused, setIsFocused]     = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const [showFeedbackForm, setShowFeedbackForm] = useState(false);
   const searchRef      = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -263,6 +265,7 @@ function HeaderContent() {
   return (
     <>
       {showMobileSearch && <MobileSearchOverlay onClose={() => setShowMobileSearch(false)} />}
+      {showFeedbackForm && <FeedbackFormModal onClose={() => setShowFeedbackForm(false)} />}
 
       <header
         className="h-14 relative flex items-center px-4 md:px-6 border-b border-white/10 shrink-0 w-full"
@@ -396,6 +399,20 @@ function HeaderContent() {
               <ToolHelpPanel config={toolHelpConfig} />
             </div>
           )}
+
+          {/* About / Feedback */}
+          <Link
+            href="/about"
+            className="hidden sm:inline-block px-2.5 py-1.5 rounded-md text-[12px] font-semibold transition-colors duration-150 text-white/70 hover:text-white hover:bg-white/10"
+          >
+            About
+          </Link>
+          <button
+            onClick={() => setShowFeedbackForm(true)}
+            className="hidden sm:inline-block px-2.5 py-1.5 rounded-md text-[12px] font-semibold transition-colors duration-150 text-white/70 hover:text-white hover:bg-white/10"
+          >
+            Feedback
+          </button>
 
           {/* Account */}
           <AccountMenu />

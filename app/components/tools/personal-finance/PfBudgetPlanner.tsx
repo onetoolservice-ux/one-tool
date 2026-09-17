@@ -92,7 +92,7 @@ function MonthNavigator({
       <div className="px-3 py-1.5 min-w-36 text-center">
         <p className="text-sm font-bold text-slate-800 dark:text-slate-100">{monthLabel(month)}</p>
         {!isToday && (
-          <button onClick={onToday} className="text-[10px] text-blue-500 hover:underline">
+          <button onClick={onToday} className="text-[10px] text-fin-accent hover:underline">
             Back to {monthLabel(todayMonth())}
           </button>
         )}
@@ -126,13 +126,13 @@ function BreathingRoom({ month }: { month: string }) {
   return (
     <div className="flex items-center gap-4">
       <div className="text-right">
-        <p className={`text-sm font-black tabular-nums ${value >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
+        <p className={`text-sm font-black tabular-nums ${value >= 0 ? 'text-neutral-value' : 'text-negative'}`}>
           {value >= 0 ? fmt(value) : `−${fmt(Math.abs(value))}`}
         </p>
         <p className="text-[9px] text-slate-400 uppercase tracking-wide">Breathing Room</p>
       </div>
       <div className="text-right">
-        <p className={`text-sm font-black tabular-nums ${savingsRate >= 20 ? 'text-emerald-600 dark:text-emerald-400' : savingsRate >= 10 ? 'text-amber-500' : 'text-red-500'}`}>
+        <p className="text-sm font-black tabular-nums text-neutral-value">
           {savingsRate.toFixed(1)}%
         </p>
         <p className="text-[9px] text-slate-400 uppercase tracking-wide">Savings Rate</p>
@@ -159,14 +159,14 @@ function TabBar({
             onClick={() => onChange(tab.key)}
             className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-all whitespace-nowrap text-sm font-semibold ${
               isActive
-                ? 'border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 bg-blue-50/50 dark:bg-blue-900/10'
+                ? 'border-fin-accent text-fin-accent bg-fin-accent/10'
                 : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50'
             }`}
           >
             <Icon className="w-4 h-4 shrink-0" />
             <span className="flex flex-col items-start gap-0.5">
               <span>{tab.label}</span>
-              <span className={`text-[10px] font-normal leading-tight ${isActive ? 'text-blue-400 dark:text-blue-500' : 'text-slate-400 dark:text-slate-500'}`}>{tab.desc}</span>
+              <span className={`text-[10px] font-normal leading-tight ${isActive ? 'text-fin-accent/70' : 'text-slate-400 dark:text-slate-500'}`}>{tab.desc}</span>
             </span>
           </button>
         );
@@ -200,7 +200,7 @@ function FlagSelector({ month }: { month: string }) {
         onClick={() => setOpen(x => !x)}
         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
           current
-            ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800'
+            ? 'bg-warning-tint text-warning border border-warning/30'
             : 'border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'
         }`}
       >
@@ -219,7 +219,7 @@ function FlagSelector({ month }: { month: string }) {
             <button
               key={f.key}
               onClick={() => select(f.key)}
-              className={`w-full text-left px-4 py-2 text-xs transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${current === f.key ? 'text-orange-600 font-bold' : 'text-slate-700 dark:text-slate-300'}`}
+              className={`w-full text-left px-4 py-2 text-xs transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${current === f.key ? 'text-warning font-bold' : 'text-slate-700 dark:text-slate-300'}`}
             >
               {f.label}
             </button>
@@ -314,22 +314,22 @@ export function MonthlyBudgetPlanner() {
         <div className="px-4 py-3 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-[10px] text-slate-400">
             <span className="flex items-center gap-1.5">
-              <span className="w-4 h-4 rounded-full bg-blue-600 text-white text-[8px] font-bold flex items-center justify-center">1</span>
+              <span className="w-4 h-4 rounded-full bg-fin-accent text-white text-[8px] font-bold flex items-center justify-center">1</span>
               Set your income above
             </span>
             <span className="text-slate-300 dark:text-slate-600">→</span>
             <span className="flex items-center gap-1.5">
-              <span className="w-4 h-4 rounded-full bg-blue-600 text-white text-[8px] font-bold flex items-center justify-center">2</span>
+              <span className="w-4 h-4 rounded-full bg-fin-accent text-white text-[8px] font-bold flex items-center justify-center">2</span>
               Choose a template or add envelopes
             </span>
             <span className="text-slate-300 dark:text-slate-600">→</span>
             <span className="flex items-center gap-1.5">
-              <span className="w-4 h-4 rounded-full bg-blue-600 text-white text-[8px] font-bold flex items-center justify-center">3</span>
+              <span className="w-4 h-4 rounded-full bg-fin-accent text-white text-[8px] font-bold flex items-center justify-center">3</span>
               Allocate until Unallocated = ₹0
             </span>
             <span className="text-slate-300 dark:text-slate-600">→</span>
             <span className="flex items-center gap-1.5">
-              <span className="w-4 h-4 rounded-full bg-emerald-600 text-white text-[8px] font-bold flex items-center justify-center">✓</span>
+              <span className="w-4 h-4 rounded-full bg-positive text-white text-[8px] font-bold flex items-center justify-center">✓</span>
               Track in Envelopes tab all month
             </span>
           </div>

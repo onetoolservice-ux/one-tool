@@ -93,6 +93,7 @@ export function MonthComparison() {
     <div className="space-y-4">
       <SAPHeader
         fullWidth
+        kpiVariant="strip"
         title="Month Comparison"
         subtitle={`${labelA} vs ${labelB}`}
         kpis={rows.length > 0 ? [
@@ -105,7 +106,7 @@ export function MonthComparison() {
       <div className="space-y-4 px-4 pb-4">
 
         {/* Controls */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg p-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="flex flex-col gap-1">
               <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Period A (Base)</label>
@@ -127,7 +128,7 @@ export function MonthComparison() {
                 {(['debit', 'credit'] as const).map(t => (
                   <button key={t} onClick={() => setMode(t)}
                     className={`flex-1 text-xs py-1.5 rounded-lg border font-semibold transition-colors capitalize
-                      ${mode === t ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white' : 'border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                      ${mode === t ? 'bg-fin-accent text-white border-fin-accent' : 'border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
                     {t}
                   </button>
                 ))}
@@ -138,11 +139,11 @@ export function MonthComparison() {
 
         {/* Overall summary banner */}
         {rows.length > 0 && totalA > 0 && (
-          <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-semibold ${
+          <div className={`flex items-center gap-3 px-4 py-3 rounded-lg border text-sm font-semibold ${
             totalDiff > 0
-              ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300'
+              ? 'bg-negative-tint border-negative/20 text-negative'
               : totalDiff < 0
-              ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300'
+              ? 'bg-positive-tint border-positive/20 text-positive'
               : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'
           }`}>
             {totalDiff > 0
@@ -169,11 +170,11 @@ export function MonthComparison() {
         )}
 
         {rows.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-12 text-center">
+          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg p-12 text-center">
             <p className="text-sm text-slate-400">No data for selected periods.</p>
           </div>
         ) : (
-          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
             <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-between">
               <span className="text-xs text-slate-500">{rows.length} categories</span>
               <span className={`text-xs font-bold ${totalDiff > 0 ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>

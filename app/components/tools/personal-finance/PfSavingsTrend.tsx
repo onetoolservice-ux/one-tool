@@ -67,6 +67,7 @@ export function SavingsTrend() {
     <div className="space-y-4">
       <SAPHeader
         fullWidth
+        kpiVariant="strip"
         title="Savings Trend"
         subtitle="Month-by-month savings rate and surplus/deficit"
         kpis={rows.length > 0 ? [
@@ -78,11 +79,11 @@ export function SavingsTrend() {
       />
       <div className="space-y-4 px-4 pb-4">
         {showLowIncomeWarning && (
-          <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700">
-            <AlertTriangle size={15} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+          <div className="flex items-start gap-3 px-4 py-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+            <AlertTriangle size={15} className="text-warning shrink-0 mt-0.5" />
             <div>
-              <p className="text-xs font-semibold text-amber-700 dark:text-amber-300">Income appears very low — did you upload your salary account?</p>
-              <p className="text-xs text-amber-600/80 dark:text-amber-400/80 mt-0.5">
+              <p className="text-xs font-semibold text-warning">Income appears very low — did you upload your salary account?</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                 Every month is showing as a deficit. This usually means only an expense account was uploaded, not the account where your salary lands.
                 Upload your primary bank statement to see accurate savings rates.
               </p>
@@ -90,12 +91,12 @@ export function SavingsTrend() {
           </div>
         )}
         {rows.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-12 text-center">
+          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg p-12 text-center">
             <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">No monthly data available.</p>
             <p className="text-xs text-slate-400 mt-1">Upload statements spanning multiple months to see the trend.</p>
           </div>
         ) : (
-          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
             <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <span className="text-xs text-slate-500">{rows.length} months · avg savings rate {fmtPct(avgSavings)}</span>
             </div>
@@ -119,20 +120,20 @@ export function SavingsTrend() {
                     return (
                       <tr key={row.key} className="border-t border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/30">
                         <td className="px-4 py-3 font-semibold text-slate-800 dark:text-slate-100">{row.label}</td>
-                        <td className="px-4 py-3 text-right font-mono text-emerald-600 dark:text-emerald-400">{fmtINR(row.income)}</td>
+                        <td className="px-4 py-3 text-right font-mono text-neutral-value">{fmtINR(row.income)}</td>
                         <td className="px-4 py-3 text-right font-mono text-slate-600 dark:text-slate-300">{fmtINR(row.outflow)}</td>
-                        <td className={`px-4 py-3 text-right font-mono font-bold ${row.surplus >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                        <td className={`px-4 py-3 text-right font-mono font-bold ${row.surplus >= 0 ? 'text-positive' : 'text-negative'}`}>
                           {row.surplus >= 0 ? '+' : ''}{fmtINR(row.surplus)}
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
                             <div className="w-20 bg-slate-100 dark:bg-slate-700 rounded-full h-1.5">
                               <div
-                                className={`h-1.5 rounded-full ${row.savingsRate >= 20 ? 'bg-emerald-400' : row.savingsRate >= 10 ? 'bg-amber-400' : row.savingsRate >= 0 ? 'bg-orange-400' : 'bg-red-400'}`}
+                                className={`h-1.5 rounded-full ${row.savingsRate >= 20 ? 'bg-positive' : row.savingsRate >= 0 ? 'bg-warning' : 'bg-negative'}`}
                                 style={{ width: `${ratePct}%` }}
                               />
                             </div>
-                            <span className={`text-xs font-bold ${row.savingsRate >= 20 ? 'text-emerald-600 dark:text-emerald-400' : row.savingsRate >= 10 ? 'text-amber-600 dark:text-amber-400' : row.savingsRate >= 0 ? 'text-orange-600' : 'text-red-600 dark:text-red-400'}`}>
+                            <span className="text-xs font-bold text-neutral-value">
                               {fmtPct(row.savingsRate)}
                             </span>
                           </div>
@@ -141,12 +142,12 @@ export function SavingsTrend() {
                           {delta === null ? (
                             <Minus size={14} className="text-slate-300" />
                           ) : delta > 0 ? (
-                            <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                            <div className="flex items-center gap-1 text-positive">
                               <TrendingUp size={14} />
                               <span className="text-[10px] font-semibold">+{delta.toFixed(1)}%</span>
                             </div>
                           ) : (
-                            <div className="flex items-center gap-1 text-red-500 dark:text-red-400">
+                            <div className="flex items-center gap-1 text-negative">
                               <TrendingDown size={14} />
                               <span className="text-[10px] font-semibold">{delta.toFixed(1)}%</span>
                             </div>

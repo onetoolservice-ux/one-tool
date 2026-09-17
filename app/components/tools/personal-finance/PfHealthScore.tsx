@@ -141,7 +141,7 @@ export const FinancialHealthScore = () => {
 
   const totalScore = metrics.reduce((s, m) => s + m.score, 0);
   const grade = totalScore >= 85 ? 'A+' : totalScore >= 70 ? 'A' : totalScore >= 55 ? 'B' : totalScore >= 40 ? 'C' : 'D';
-  const gradeColor = totalScore >= 85 ? 'text-emerald-600 dark:text-emerald-400' : totalScore >= 70 ? 'text-blue-600 dark:text-blue-400' : totalScore >= 55 ? 'text-amber-600 dark:text-amber-400' : 'text-red-500';
+  const gradeColor = totalScore >= 70 ? 'text-positive' : totalScore >= 40 ? 'text-warning' : 'text-negative';
   const gradeLabel = totalScore >= 85 ? 'Excellent' : totalScore >= 70 ? 'Good' : totalScore >= 55 ? 'Fair' : totalScore >= 40 ? 'Needs Work' : 'Critical';
 
   const weakestMetric = metrics.reduce((a, b) => (a.score / a.max < b.score / b.max ? a : b));
@@ -180,13 +180,13 @@ export const FinancialHealthScore = () => {
 
       <div className="p-4 space-y-4">
         {pfLoaded && (
-          <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl px-4 py-2 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-700 dark:text-emerald-300 flex items-center justify-between gap-2">
+          <div className="bg-white dark:bg-slate-900 rounded-lg px-4 py-2 border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+              <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-positive" />
               Income, expenses, EMI &amp; SIP auto-filled from your last 3 months of statement data
             </div>
             <button onClick={resyncFromStatements}
-              className="shrink-0 text-[10px] font-semibold px-2 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-800 hover:bg-emerald-200 dark:hover:bg-emerald-700 transition-colors">
+              className="shrink-0 text-[10px] font-semibold px-2 py-1 rounded-lg bg-fin-accent/10 text-fin-accent hover:bg-fin-accent/20 transition-colors">
               Re-sync
             </button>
           </div>
@@ -194,7 +194,7 @@ export const FinancialHealthScore = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {/* Inputs */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-700 space-y-4">
+          <div className="bg-white dark:bg-slate-900 rounded-lg p-5 border border-slate-200 dark:border-slate-700 space-y-4">
             <h2 className="font-semibold text-slate-800 dark:text-slate-200">Your Finances</h2>
 
             <div className="space-y-1">
@@ -229,7 +229,7 @@ export const FinancialHealthScore = () => {
                 { label: 'Will / Nomination done', state: hasWill, setter: setHasWill },
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-2">
-                  <input type="checkbox" checked={item.state} onChange={e => item.setter(e.target.checked)} className="accent-emerald-500" />
+                  <input type="checkbox" checked={item.state} onChange={e => item.setter(e.target.checked)} className="accent-fin-accent" />
                   <label className="text-sm text-slate-700 dark:text-slate-300">{item.label}</label>
                 </div>
               ))}
@@ -239,24 +239,24 @@ export const FinancialHealthScore = () => {
           {/* Score */}
           <div className="lg:col-span-2 space-y-4">
             {/* Big score */}
-            <div className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-700 text-center">
+            <div className="bg-white dark:bg-slate-900 rounded-lg p-6 border border-slate-200 dark:border-slate-700 text-center">
               {/* Shareable card */}
               <div ref={cardRef} className="bg-white rounded-2xl p-6 text-center">
                 <div className="text-xs text-slate-500 mb-2 uppercase tracking-wide font-semibold">Financial Health Score · OneTool</div>
-                <div className={`text-7xl font-black ${gradeColor}`}>{totalScore}</div>
+                <div className="text-7xl font-black text-neutral-value">{totalScore}</div>
                 <div className="text-slate-400 text-sm mt-1">out of 100</div>
                 <div className={`text-2xl font-bold mt-2 ${gradeColor}`}>{grade} — {gradeLabel}</div>
                 <div className="mt-4 w-full h-3 bg-slate-100 rounded-full overflow-hidden">
                   <div className="h-full rounded-full transition-all duration-500"
                     style={{
                       width: `${totalScore}%`,
-                      background: totalScore >= 70 ? '#10b981' : totalScore >= 50 ? '#f59e0b' : '#ef4444',
+                      background: totalScore >= 70 ? 'var(--ot-positive)' : totalScore >= 40 ? 'var(--ot-warning)' : 'var(--ot-negative)',
                     }} />
                 </div>
                 <div className="mt-4 flex justify-center gap-4 flex-wrap">
                   {metrics.map(m => (
                     <div key={m.id} className="text-center">
-                      <div className={`text-lg font-black ${m.status === 'great' ? 'text-emerald-600' : m.status === 'ok' ? 'text-amber-600' : 'text-red-500'}`}>{m.score}/{m.max}</div>
+                      <div className={`text-lg font-black ${m.status === 'great' ? 'text-positive' : m.status === 'ok' ? 'text-warning' : 'text-negative'}`}>{m.score}/{m.max}</div>
                       <div className="text-[10px] text-slate-400 font-semibold">{m.label}</div>
                     </div>
                   ))}
@@ -266,7 +266,7 @@ export const FinancialHealthScore = () => {
               <button
                 onClick={shareAsImage}
                 disabled={sharing}
-                className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-sm font-semibold transition-colors disabled:opacity-50"
+                className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-sm font-semibold transition-colors disabled:opacity-50"
               >
                 <Download size={15} /> {sharing ? 'Generating…' : 'Download Score Card'}
               </button>
@@ -275,17 +275,17 @@ export const FinancialHealthScore = () => {
             {/* Metrics */}
             <div className="space-y-3">
               {metrics.map(m => (
-                <div key={m.id} className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+                <div key={m.id} className="bg-white dark:bg-slate-900 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      {m.status === 'great' ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> :
-                       m.status === 'ok' ? <TrendingUp className="w-4 h-4 text-amber-500" /> :
-                       <AlertTriangle className="w-4 h-4 text-red-500" />}
+                      {m.status === 'great' ? <CheckCircle2 className="w-4 h-4 text-positive" /> :
+                       m.status === 'ok' ? <TrendingUp className="w-4 h-4 text-warning" /> :
+                       <AlertTriangle className="w-4 h-4 text-negative" />}
                       <span className="font-semibold text-sm text-slate-700 dark:text-slate-300">{m.label}</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-sm text-slate-500">{m.value}</span>
-                      <span className={`font-bold text-sm ${m.status === 'great' ? 'text-emerald-600 dark:text-emerald-400' : m.status === 'ok' ? 'text-amber-600 dark:text-amber-400' : 'text-red-500'}`}>
+                      <span className={`font-bold text-sm ${m.status === 'great' ? 'text-positive' : m.status === 'ok' ? 'text-warning' : 'text-negative'}`}>
                         {m.score}/{m.max}
                       </span>
                     </div>
@@ -294,7 +294,7 @@ export const FinancialHealthScore = () => {
                     <div className="h-full rounded-full transition-all"
                       style={{
                         width: `${(m.score / m.max) * 100}%`,
-                        background: m.status === 'great' ? '#10b981' : m.status === 'ok' ? '#f59e0b' : '#ef4444',
+                        background: m.status === 'great' ? 'var(--ot-positive)' : m.status === 'ok' ? 'var(--ot-warning)' : 'var(--ot-negative)',
                       }} />
                   </div>
                   <p className="text-xs text-slate-400 mb-2">{m.advice}</p>
@@ -302,7 +302,7 @@ export const FinancialHealthScore = () => {
                     <div className="flex flex-wrap gap-1.5 mt-1 pt-2 border-t border-slate-100 dark:border-slate-700">
                       {METRIC_ACTIONS[m.id].map(action => (
                         <a key={action.href} href={action.href}
-                          className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors">
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-fin-accent/10 text-fin-accent border border-fin-accent/30 hover:bg-fin-accent/20 transition-colors">
                           {action.label} <ArrowRight className="w-2.5 h-2.5" />
                         </a>
                       ))}
@@ -313,9 +313,9 @@ export const FinancialHealthScore = () => {
             </div>
 
             {hasWill && (
-              <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-3 border border-emerald-200 dark:border-emerald-800 flex gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                <p className="text-xs text-emerald-700 dark:text-emerald-300 font-semibold">+Bonus: Will/nominations done — estate planning is complete!</p>
+              <div className="bg-white dark:bg-slate-900 rounded-lg p-3 border border-slate-200 dark:border-slate-700 flex gap-2">
+                <CheckCircle2 className="w-4 h-4 text-positive shrink-0" />
+                <p className="text-xs text-positive font-semibold">+Bonus: Will/nominations done — estate planning is complete!</p>
               </div>
             )}
           </div>
