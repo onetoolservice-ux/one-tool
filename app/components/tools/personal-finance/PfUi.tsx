@@ -487,7 +487,7 @@ export function ValueHelpDialog({
                 <button
                   onClick={addCond}
                   disabled={!condVal1.trim()}
-                  className="text-xs font-semibold bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap h-8 flex items-center gap-1 shrink-0"
+                  className="text-xs font-semibold bg-fin-accent text-white px-3 py-1.5 rounded-lg hover:bg-fin-accent/90 disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap h-8 flex items-center gap-1 shrink-0"
                 >
                   + Add
                 </button>
@@ -551,7 +551,7 @@ export function ValueHelpDialog({
           <button onClick={onClose} className="text-xs font-semibold text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-600 px-5 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
             Cancel
           </button>
-          <button onClick={() => { onConfirm(draft); onClose(); }} className="text-xs font-semibold bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+          <button onClick={() => { onConfirm(draft); onClose(); }} className="text-xs font-semibold bg-fin-accent text-white px-5 py-2 rounded-lg hover:bg-fin-accent/90 transition-colors">
             OK
           </button>
         </div>
@@ -653,7 +653,7 @@ export function AdaptFiltersDialog({
           <button onClick={onClose} className="text-xs font-semibold text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-600 px-5 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
             Cancel
           </button>
-          <button onClick={() => { onConfirm(draft); onClose(); }} className="text-xs font-semibold bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+          <button onClick={() => { onConfirm(draft); onClose(); }} className="text-xs font-semibold bg-fin-accent text-white px-5 py-2 rounded-lg hover:bg-fin-accent/90 transition-colors">
             OK
           </button>
         </div>

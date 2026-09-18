@@ -31,7 +31,10 @@ export function WorkspaceShell({ slug, children }: { slug: string; children: Rea
       style={{ minHeight: 'calc(100vh - 56px)' }}
     >
       {/* ── Sidebar ─────────────────────────────────────────────────────── */}
-      <aside className="hidden md:flex flex-col w-[240px] flex-shrink-0 bg-white dark:bg-[#0d0f1a] border-r border-slate-200 dark:border-white/[0.05] overflow-y-auto">
+      {/* Fixed to the viewport so it never scrolls with the page; its own tool
+          list scrolls internally if it's taller than the screen. Content gets
+          a matching left margin below since this is out of normal flow. */}
+      <aside className="hidden md:flex flex-col w-[240px] flex-shrink-0 fixed left-0 top-14 bottom-0 bg-white dark:bg-[#0d0f1a] border-r border-slate-200 dark:border-white/[0.05] overflow-y-auto custom-scrollbar">
         <div className="px-4 py-4 border-b border-slate-100 dark:border-white/[0.04]">
           <div className="flex items-center gap-2">
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${meta.sectionIconBg}`}>
@@ -94,7 +97,7 @@ export function WorkspaceShell({ slug, children }: { slug: string; children: Rea
       </div>
 
       {/* ── Content ─────────────────────────────────────────────────────── */}
-      <main className="flex-1 min-w-0 pt-10 md:pt-0">
+      <main className="flex-1 min-w-0 pt-10 md:pt-0 md:ml-[240px]">
         {children}
       </main>
     </div>

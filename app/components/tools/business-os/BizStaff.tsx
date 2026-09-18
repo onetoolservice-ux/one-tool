@@ -182,7 +182,7 @@ function StaffForm({ initial, onSave, onCancel }: StaffFormProps) {
           <label key={key} className="flex items-center gap-3 cursor-pointer">
             <div
               onClick={() => set(key, !form[key])}
-              className={`relative w-10 h-5 rounded-full transition-colors ${form[key] ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'}`}
+              className={`relative w-10 h-5 rounded-full transition-colors ${form[key] ? 'bg-fin-accent' : 'bg-slate-300 dark:bg-slate-600'}`}
             >
               <div
                 className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${form[key] ? 'translate-x-5' : 'translate-x-0.5'}`}
@@ -287,7 +287,7 @@ function AdvancePanel({ staff, store }: AdvancePanelProps) {
           <button
             onClick={handleAdd}
             disabled={!advAmount}
-            className="w-full py-1.5 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-300 text-white text-xs font-bold rounded transition-colors"
+            className="w-full py-1.5 bg-fin-accent hover:bg-fin-accent/90 disabled:bg-slate-300 text-white text-xs font-bold rounded transition-colors"
           >
             Record Advance
           </button>

@@ -268,7 +268,7 @@ function HeaderContent() {
       {showFeedbackForm && <FeedbackFormModal onClose={() => setShowFeedbackForm(false)} />}
 
       <header
-        className="h-14 relative flex items-center px-4 md:px-6 border-b border-white/10 shrink-0 w-full"
+        className="h-14 sticky top-0 z-40 flex items-center px-4 md:px-6 border-b border-white/10 shrink-0 w-full"
         style={{ backgroundColor: NAV_BG }}
       >
 
@@ -427,7 +427,7 @@ function HeaderContent() {
 export default function GlobalHeader() {
   return (
     <Suspense fallback={
-      <div className="h-14 border-b border-white/10 shrink-0 flex items-center gap-2.5 px-4 md:px-6" style={{ backgroundColor: NAV_BG }}>
+      <div className="h-14 sticky top-0 z-40 border-b border-white/10 shrink-0 flex items-center gap-2.5 px-4 md:px-6" style={{ backgroundColor: NAV_BG }}>
         <div className="w-8 h-8 rounded-lg bg-white/15 border border-white/20 flex items-center justify-center">
           <span className="text-[13px] font-black text-white tracking-tight leading-none">OT</span>
         </div>

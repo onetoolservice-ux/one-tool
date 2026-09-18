@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { ToolGuide } from '@/app/components/shared/ToolGuide';
-import { FeedbackWidget } from '@/app/components/ui/FeedbackWidget';
 import { WhatsNext } from '@/app/components/tools/WhatsNext';
 import { useToolEngagement } from '@/app/hooks/useToolEngagement';
 
@@ -32,8 +31,6 @@ export default function ToolShell({ tool, children, fullWidth = false }: { tool:
 
       {/* Contextual guide — only renders if a guide exists for this tool */}
       <ToolGuide toolId={tool.id} />
-      {/* Feedback — floating bottom-left */}
-      <FeedbackWidget toolId={tool.id} />
     </div>
   );
 }

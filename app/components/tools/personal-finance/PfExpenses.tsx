@@ -483,7 +483,7 @@ export function Expenses() {
                   updatePFTransaction(pendingCatChange.txnId, { category: pendingCatChange.to });
                   setPendingCatChange(null);
                 }}
-                className="text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white px-4 py-1.5 rounded-lg"
+                className="text-xs font-semibold bg-warning hover:opacity-90 text-white px-4 py-1.5 rounded-lg transition-opacity"
               >
                 Yes, Change
               </button>
