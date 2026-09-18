@@ -77,7 +77,7 @@ function MobileSearchOverlay({ onClose }: { onClose: () => void }) {
           <input
             ref={inputRef}
             type="search"
-            placeholder="Search 150+ tools..."
+            placeholder="Search 70+ tools..."
             value={query}
             onChange={e => setQuery(e.target.value)}
             onKeyDown={handleKey}
@@ -327,7 +327,7 @@ function HeaderContent() {
             <input
               ref={searchInputRef}
               type="search"
-              placeholder="Search 150+ tools..."
+              placeholder="Search 70+ tools..."
               value={query}
               onChange={e => setQuery(e.target.value)}
               onFocus={() => setIsFocused(true)}

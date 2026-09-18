@@ -22,11 +22,11 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://onetool.co.in";
 
 export const metadata: Metadata = {
   title: {
-    default: "OneTool — 150+ Free Online Tools for Finance, Business, Developer, Health & More",
+    default: "OneTool — Free Personal Finance & Small Business Tools for India",
     template: "%s | OneTool",
   },
-  description: "OneTool gives you 150+ free online tools — GST calculator, EMI calculator, expense tracker, invoice generator, PDF tools, developer utilities, health calculators, AI tools, and more. No signup. Works in your browser.",
-  keywords: "free online tools India, GST calculator, EMI calculator, expense tracker, invoice generator, PDF merge, developer tools, unit converter, budget planner, QR code generator, JSON formatter, SIP calculator, salary slip generator, BMI calculator, business tools India, onetool",
+  description: "OneTool gives you 70+ free finance and business tools — bank statement analyzer, expense tracker, budget planner, GST calculator, invoice generator, EMI & SIP calculators, income tax tools, and small business accounting. No signup. Works in your browser.",
+  keywords: "free finance tools India, personal finance tracker, bank statement analyzer, GST calculator, EMI calculator, expense tracker, invoice generator, budget planner, SIP calculator, income tax calculator India, small business accounting India, Khata app, onetool",
   manifest: "/manifest.json",
   metadataBase: new URL(baseUrl),
   alternates: {
@@ -51,14 +51,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "OneTool",
-    title: "OneTool — Free Online Tools for Finance, Developer & Productivity",
-    description: "150+ free browser-based tools: expense tracker, invoice generator, PDF tools, developer utilities & more. No signup required.",
+    title: "OneTool — Free Personal Finance & Small Business Tools for India",
+    description: "70+ free finance & business tools: bank statement analyzer, budget planner, GST calculator, invoicing, EMI & SIP calculators, and more. No signup required.",
     url: baseUrl,
   },
   twitter: {
     card: "summary_large_image",
-    title: "OneTool — Free Online Tools",
-    description: "150+ free browser-based tools — expense tracker, invoice, PDF, developer tools & more. No signup.",
+    title: "OneTool — Free Finance & Business Tools",
+    description: "70+ free finance & business tools — bank statements, budgets, GST, invoicing, EMI & SIP calculators. No signup.",
   },
   appleWebApp: {
     capable: true,
@@ -109,7 +109,7 @@ export default function RootLayout({
               name: 'OneTool',
               url: baseUrl,
               logo: `${baseUrl}/logo/ots.svg`,
-              description: 'Free online tools for finance, developer utilities, PDF tools, and productivity. No signup required.',
+              description: 'Free online tools for personal finance and small business — bank statements, budgets, GST, invoicing, and tax. No signup required.',
               sameAs: [],
             }),
           }}

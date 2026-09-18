@@ -263,10 +263,12 @@ CREATE TABLE IF NOT EXISTS feedback_submissions (
 
 ALTER TABLE feedback_submissions ENABLE ROW LEVEL SECURITY;
 
--- Anyone (including guests) can submit feedback
+-- Anyone (including guests) can submit feedback, but an authenticated caller
+-- can only attribute the submission to themselves — prevents spoofing another
+-- user's identity via a direct API call with an arbitrary user_id/user_email.
 CREATE POLICY "Anyone can submit feedback"
   ON feedback_submissions FOR INSERT
-  WITH CHECK (true);
+  WITH CHECK (user_id IS NULL OR auth.uid() = user_id);
 
 -- Only admins can read/triage submitted feedback
 CREATE POLICY "Admins can view feedback"

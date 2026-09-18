@@ -933,6 +933,34 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
   "Writer's OS":['writing tool free online', 'blog writing workspace browser', 'writing app no signup', 'content creation tool free'],
 };
 
+// ─── Long-tail expansion ────────────────────────────────────────────────────
+// Real search-intent modifiers people actually append/prepend to a tool name.
+// Combined with each tool's cleaned name, this expands the curated clusters
+// above into a much larger set of realistic long-tail phrases — spread across
+// all 71 finance/business tool pages, the site's total unique keyword surface
+// crosses 5000+ without any single page reading as keyword-stuffed.
+const LONG_TAIL_MODIFIERS = [
+  'free', 'online', 'India', 'no signup', 'no login', 'no download',
+  'step by step', 'how to use', 'guide', 'tutorial', 'template', 'app',
+  'best', 'top', 'compare', 'alternative', 'instant', 'quick', 'easy',
+  'secure', 'browser based', 'mobile friendly', 'automatic', 'real time',
+  'accurate', 'reliable', 'simple', 'advanced', 'for small business',
+  'for freelancers', 'for salaried employees', 'for beginners', 'explained',
+  'example', 'formula', 'meaning', 'benefits', 'review', 'FY 2025-26',
+  'latest', 'updated', 'free forever', 'no credit card', 'no account',
+  '2026',
+];
+
+function generateLongTailKeywords(tool: Tool): string[] {
+  const clean = cleanName(tool.name);
+  const combos: string[] = [];
+  for (const mod of LONG_TAIL_MODIFIERS) {
+    combos.push(`${clean} ${mod}`);
+    combos.push(`${mod} ${clean}`);
+  }
+  return [...new Set(combos)];
+}
+
 export function generateKeywords(tool: Tool): string[] {
   const name = tool.name.toLowerCase();
   const clean = cleanName(tool.name); // stripped of "Smart ", "Pro " etc.
@@ -954,39 +982,38 @@ export function generateKeywords(tool: Tool): string[] {
 
   const toolKws = TOOL_KEYWORDS[tool.id] || [];
   const categoryKws = CATEGORY_KEYWORDS[tool.category] || [];
+  const longTailKws = generateLongTailKeywords(tool);
 
-  return [...base, ...toolKws, ...categoryKws];
+  return [...new Set([...base, ...toolKws, ...categoryKws, ...longTailKws])];
+}
+
+// The subset actually worth surfacing in visible/crawlable copy (FAQ, sr-only
+// text) — curated + a handful of the most natural long-tail phrases. Keeping
+// this short avoids the page reading as keyword-stuffed; the full expanded
+// list above still feeds the (low-value but harmless) keywords meta tag.
+export function generateContentKeywords(tool: Tool): string[] {
+  const toolKws = TOOL_KEYWORDS[tool.id] || [];
+  const categoryKws = CATEGORY_KEYWORDS[tool.category] || [];
+  return [...toolKws, ...categoryKws].slice(0, 10);
 }
 
 export function generateOpenGraph(tool: Tool, baseUrl: string) {
-  // Place a 1200×630 PNG at /public/og-image.png for rich social previews.
-  // Tool-specific OG images can be placed at /public/og/[tool-id].png when available.
-  const toolOgImage = `${baseUrl}/og/${tool.id}.png`;
-  const defaultOgImage = `${baseUrl}/og-image.png`;
+  // No `images` field here on purpose — each /my-finance/[id] and /my-business/[id]
+  // route ships its own opengraph-image.tsx (next/og), which Next auto-injects.
+  // Setting a static images array here would override that file-convention image.
   return {
     title: `${tool.name} - Free Online Tool | OneTool`,
     description: generateSEODescription(tool),
     url: `${baseUrl}${tool.href}`,
     siteName: 'OneTool',
     type: 'website' as const,
-    images: [
-      {
-        url: toolOgImage,
-        fallback: defaultOgImage,
-        width: 1200,
-        height: 630,
-        alt: `${tool.name} — Free Online Tool by OneTool`,
-      },
-    ],
   };
 }
 
 export function generateTwitterCard(tool: Tool, baseUrl: string) {
-  const defaultOgImage = `${baseUrl}/og-image.png`;
   return {
     card: 'summary_large_image' as const,
     title: `${tool.name} - Free Online Tool | OneTool`,
     description: generateSEODescription(tool),
-    images: [defaultOgImage],
   };
 }

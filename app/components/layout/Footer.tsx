@@ -14,7 +14,7 @@ export const Footer = () => {
               <Logo className="w-6 h-6" color="#0d9488" />
               <span className="text-teal-600">OneTool.</span>
             </div>
-            <p className="text-slate-500 leading-relaxed max-w-xs">150+ free tools for finance, business, developer, health &amp; more.</p>
+            <p className="text-slate-500 leading-relaxed max-w-xs">70+ free tools for personal finance and small business.</p>
             <div className="flex gap-3 text-slate-400"><Github size={16}/><Twitter size={16}/><Linkedin size={16}/></div>
           </div>
           <div><h3 className="font-bold mb-3 text-[10px] uppercase">Product</h3><ul className="space-y-2 text-slate-500"><li><Link href="/?cat=Business">Business</Link></li><li><Link href="/?cat=Finance">Finance</Link></li><li><Link href="/?cat=Developer">Dev</Link></li></ul></div>

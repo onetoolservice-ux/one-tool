@@ -1,8 +1,12 @@
 "use client";
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import { TrendingUp, TrendingDown, Wallet, ShieldCheck, BarChart3, ExternalLink, RefreshCw, Info, Camera } from 'lucide-react';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { SAPHeader } from '@/app/components/tools/analytics/shared/SAPHeader';
+
+// recharts is a heavy dependency — kept out of the main chunk so the header
+// and pillar cards (the LCP candidates) don't wait on it to parse/execute.
+const PfPortfolioPie = dynamic(() => import('./PfPortfolioPie'), { ssr: false });
 import { getPFFinanceSummary } from '../finance/pf-data-bridge';
 import { safeLocalStorage } from '@/app/lib/utils/storage';
 import { loadBizStore } from '../business-os/biz-os-store';
@@ -60,6 +64,7 @@ export const PFFinancialSnapshot = () => {
     netWorthEstimate: 0, hasData: false,
   });
   const [lastUpdated, setLastUpdated] = useState('');
+  const [portfolioBreakdown, setPortfolioBreakdown] = useState<{ name: string; value: number; color: string }[]>([]);
 
   const captureScreenshot = async () => {
     if (!snapshotRef.current) return;
@@ -79,7 +84,7 @@ export const PFFinancialSnapshot = () => {
   };
 
   const refresh = () => {
-    const investments: { investedAmount: number; currentValue: number }[] = readInvestmentStore();
+    const investments: { investedAmount: number; currentValue: number; type: string }[] = readInvestmentStore();
     const budget = readBudgetStore();
     const biz = loadBizStore();
 
@@ -132,6 +137,14 @@ export const PFFinancialSnapshot = () => {
       hasData: !!(monthlyIncome > 0 || investments.length || budget?.categories?.length),
     });
     setLastUpdated(new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }));
+
+    const byType: Record<string, number> = {};
+    for (const inv of investments) {
+      byType[inv.type] = (byType[inv.type] || 0) + inv.currentValue;
+    }
+    setPortfolioBreakdown(
+      Object.entries(byType).map(([name, value], i) => ({ name, value, color: CATEGORY_COLORS[i % CATEGORY_COLORS.length] }))
+    );
   };
 
   useEffect(() => { refresh(); }, []);
@@ -181,15 +194,6 @@ export const PFFinancialSnapshot = () => {
     ];
   }, [data, savingsRateDisplay, hasInvestments, isOverBudget]);
 
-  const portfolioBreakdown = useMemo(() => {
-    const investments: { type: string; currentValue: number }[] = readInvestmentStore();
-    const byType: Record<string, number> = {};
-    for (const inv of investments) {
-      byType[inv.type] = (byType[inv.type] || 0) + inv.currentValue;
-    }
-    return Object.entries(byType).map(([name, value], i) => ({ name, value, color: CATEGORY_COLORS[i % CATEGORY_COLORS.length] }));
-  }, []);
-
   return (
     <div>
       <SAPHeader
@@ -201,7 +205,7 @@ export const PFFinancialSnapshot = () => {
           { label: 'Income', value: fmtL(data.monthlyIncome), subtitle: '3-month avg' },
           { label: 'Expenses', value: fmtL(data.monthlyExpenses), subtitle: '3-month avg' },
           ...(hasInvestments ? [{ label: 'Portfolio Value', value: fmtL(data.currentPortfolioValue), subtitle: `${data.portfolioGain >= 0 ? '+' : ''}${fmtL(data.portfolioGain)} gain` }] : []),
-          { label: 'Savings Rate', value: `${savingsRateDisplay}%`, subtitle: 'Income − Expenses' },
+          { label: 'Savings Rate', value: `${savingsRateDisplay}%`, subtitle: 'Net of expenses' },
         ]}
       />
 
@@ -291,14 +295,7 @@ export const PFFinancialSnapshot = () => {
             <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Portfolio Allocation</h3>
             {portfolioBreakdown.length > 0 ? (
               <div className="flex items-center gap-4">
-                <ResponsiveContainer width={120} height={120}>
-                  <PieChart>
-                    <Pie data={portfolioBreakdown} dataKey="value" cx="50%" cy="50%" innerRadius={30} outerRadius={55}>
-                      {portfolioBreakdown.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-                    </Pie>
-                    <Tooltip formatter={(v: number) => [fmtL(v)]} />
-                  </PieChart>
-                </ResponsiveContainer>
+                <PfPortfolioPie data={portfolioBreakdown} fmtL={fmtL} />
                 <div className="flex-1 space-y-1.5">
                   {portfolioBreakdown.map(entry => (
                     <div key={entry.name} className="flex items-center justify-between text-xs">

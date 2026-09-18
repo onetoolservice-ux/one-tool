@@ -7,16 +7,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // Always reflects the latest deploy so Google re-crawls on every release
   const SITE_LAST_UPDATED = new Date();
 
-  // Unique category slugs derived from tool hrefs (e.g. "personal-finance", "developer")
-  const categorySlugs = [...new Set(ALL_TOOLS.map((t) => t.href.split('/')[2]))];
-  const categoryUrls = categorySlugs.map((slug) => ({
-    url: `${baseUrl}/tools/${slug}`,
+  // Workspace landing pages — the two entry points of the finance-only pivot
+  const workspaceUrls = [
+    { url: `${baseUrl}/my-finance`, priority: 0.9 },
+    { url: `${baseUrl}/my-business`, priority: 0.9 },
+  ].map((w) => ({
+    ...w,
     lastModified: SITE_LAST_UPDATED,
-    changeFrequency: 'monthly' as const,
-    priority: 0.9,
+    changeFrequency: 'weekly' as const,
   }));
 
-  // Use tool.href directly — category names contain spaces that break URLs if used raw
+  // Use tool.href directly — every tool now lives under /my-finance/{id} or /my-business/{id}
   const toolUrls = ALL_TOOLS.map((tool) => ({
     url: `${baseUrl}${tool.href}`,
     lastModified: SITE_LAST_UPDATED,
@@ -31,7 +32,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly' as const,
       priority: 1,
     },
-    ...categoryUrls,
+    ...workspaceUrls,
     ...toolUrls,
   ];
 }

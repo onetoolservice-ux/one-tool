@@ -192,7 +192,9 @@ export interface BizOSStore {
   settings: {
     businessName: string;
     businessPhone?: string;
+    businessAddress?: string;
     gstin?: string;
+    upiId?: string;
     financialYearStart: string;  // YYYY-MM-DD
   };
   lastUpdated: string;

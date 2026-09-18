@@ -74,6 +74,8 @@ export function BizDashboard() {
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [bizName, setBizName] = useState('');
   const [gstin, setGstin] = useState('');
+  const [businessAddress, setBusinessAddress] = useState('');
+  const [upiId, setUpiId] = useState('');
 
   useEffect(() => {
     const load = () => {
@@ -81,6 +83,8 @@ export function BizDashboard() {
       setStore(s);
       setBizName(s.settings.businessName);
       setGstin(s.settings.gstin ?? '');
+      setBusinessAddress(s.settings.businessAddress ?? '');
+      setUpiId(s.settings.upiId ?? '');
       if (!s.settings.businessName) setShowSetup(true);
     };
     load();
@@ -147,7 +151,12 @@ export function BizDashboard() {
   const isEmpty = store.transactions.length === 0 && Object.keys(store.parties).length === 0;
 
   function saveSetup() {
-    updateSettings({ businessName: bizName.trim(), gstin: gstin.trim() || undefined });
+    updateSettings({
+      businessName: bizName.trim(),
+      gstin: gstin.trim() || undefined,
+      businessAddress: businessAddress.trim() || undefined,
+      upiId: upiId.trim() || undefined,
+    });
     setShowSetup(false);
   }
 
@@ -234,6 +243,29 @@ export function BizDashboard() {
                   value={gstin}
                   onChange={e => setGstin(e.target.value)}
                 />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider block mb-1">
+                  Business Address (Optional)
+                </label>
+                <input
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g. 12 MG Road, Bengaluru, KA 560001"
+                  value={businessAddress}
+                  onChange={e => setBusinessAddress(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider block mb-1">
+                  UPI ID (Optional)
+                </label>
+                <input
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g. sharma-hardware@okhdfcbank"
+                  value={upiId}
+                  onChange={e => setUpiId(e.target.value)}
+                />
+                <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">Shown as a payment link/QR on your invoices.</p>
               </div>
             </div>
             <button

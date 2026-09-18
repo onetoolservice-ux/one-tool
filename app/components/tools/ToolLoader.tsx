@@ -88,6 +88,12 @@ const toolComponents: Record<string, ToolComponentLoader> = {
   'biz-reconcile': () => import('@/app/components/tools/business-os/BizReconcile').then(mod => ({ default: mod.BizReconcile })),
 };
 
+// Tools whose shell (title, labels, layout) is worth server-rendering so it
+// paints before the client JS chunk loads — cuts the FCP-to-LCP gap on
+// high-traffic dashboards where the data itself is still hydrated from
+// localStorage client-side.
+const SSR_ENABLED_TOOLS = new Set<string>(['pf-financial-snapshot']);
+
 interface ToolLoaderProps {
   toolId: string;
   [key: string]: unknown;
@@ -116,9 +122,9 @@ export function ToolLoader({ toolId, ...props }: ToolLoaderProps) {
           <LoadingSpinner size="lg" text="Loading tool..." />
         </div>
       ),
-      ssr: false,
+      ssr: SSR_ENABLED_TOOLS.has(toolId),
     });
-  }, [loader]);
+  }, [loader, toolId]);
 
   if (!DynamicComponent) {
     return <div className="p-8 text-center">Tool component not found for {toolId}</div>;

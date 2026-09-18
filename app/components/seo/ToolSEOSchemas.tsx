@@ -47,7 +47,8 @@ export function ToolSEOSchemas({ tool, baseUrl, includeFAQ = false }: ToolSEOSch
         '@type': 'ListItem',
         position: 2,
         name: categoryLabel,
-        item: `${baseUrl}/tools/${tool.href.split('/')[2]}`,
+        // tool.href is "/my-finance/{id}" or "/my-business/{id}" — segment [1] is the workspace slug
+        item: `${baseUrl}/${tool.href.split('/')[1]}`,
       },
       {
         '@type': 'ListItem',
@@ -68,7 +69,7 @@ export function ToolSEOSchemas({ tool, baseUrl, includeFAQ = false }: ToolSEOSch
             name: `What is ${tool.name}?`,
             acceptedAnswer: {
               '@type': 'Answer',
-              text: `${tool.name} is a free online tool that ${description.toLowerCase().replace(/^free online tool[^.]*\.\s*/, '')} It is part of OneTool — a collection of 60+ browser-based utilities that require no signup.`,
+              text: `${tool.name} is a free online tool that ${description.toLowerCase().replace(/^free online tool[^.]*\.\s*/, '')} It is part of OneTool — a collection of 70+ browser-based finance and business tools that require no signup.`,
             },
           },
           {

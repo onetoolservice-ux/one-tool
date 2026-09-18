@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Tool } from '@/app/lib/utils/tools-fallback';
-import { generateKeywords } from '@/app/lib/seo/metadata-generator';
+import { generateKeywords, generateContentKeywords } from '@/app/lib/seo/metadata-generator';
 
 interface ToolSEOUIProps {
   tool: Tool;
@@ -8,13 +8,14 @@ interface ToolSEOUIProps {
 
 export function ToolSEOUI({ tool }: ToolSEOUIProps) {
   const keywords = generateKeywords(tool);
+  const contentKeywords = generateContentKeywords(tool);
   const categoryLabel = tool.category.replace(/-/g, ' ');
   const description =
     tool.description ||
     `Use ${tool.name} free online. No signup required. Works entirely in your browser.`;
 
-  // Pick the first 5 tool-specific keywords (after the generic base ones) for content
-  const featureKws = keywords.slice(12, 17);
+  // Curated tool/category phrases (not the full long-tail set) for visible/crawlable copy
+  const featureKws = contentKeywords.slice(0, 5);
 
   return (
     // Visually hidden — accessible to screen readers and search engines, no UI impact
@@ -42,9 +43,10 @@ export function ToolSEOUI({ tool }: ToolSEOUIProps) {
       <section>
         <h2>About {tool.name}</h2>
         <p>
-          {tool.name} is part of OneTool — a collection of 60+ free browser-based tools for
-          finance, productivity, developer utilities, PDF tools, and more. All tools are
-          completely free, require no signup, and store data locally in your browser.
+          {tool.name} is part of OneTool — a collection of 70+ free browser-based tools for
+          personal finance and small business, covering bank statements, budgeting, GST,
+          invoicing, and tax. All tools are completely free, require no signup, and store data
+          locally in your browser.
         </p>
         <p>
           Popular searches that lead to this tool:{' '}
